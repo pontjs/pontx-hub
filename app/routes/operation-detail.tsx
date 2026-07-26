@@ -3,7 +3,11 @@ import { MethodBadge } from "~/components/method-badge";
 import { PlaygroundPanel } from "~/components/playground-panel";
 import { SiteShell } from "~/components/site-shell";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
-import { credentialEnvVar, localize } from "~/lib/catalog/types";
+import {
+  credentialEnvVar,
+  localize,
+  type CatalogParameter
+} from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -61,6 +65,36 @@ export function headers() {
   return cacheHeaders();
 }
 
+function ParameterSchema({
+  parameter,
+  locale
+}: {
+  parameter: CatalogParameter;
+  locale: "zh" | "en";
+}) {
+  const zh = locale === "zh";
+  return (
+    <article className="schema-field">
+      <div className="schema-field-heading">
+        <code>{parameter.name}</code>
+        <span className="schema-type">{parameter.type}</span>
+        <span className="schema-location">{parameter.in}</span>
+        {parameter.required ? (
+          <span className="schema-required">{zh ? "必填" : "required"}</span>
+        ) : null}
+      </div>
+      {parameter.description ? (
+        <p>{localize(parameter.description, locale)}</p>
+      ) : null}
+      {parameter.example !== undefined ? (
+        <pre className="schema-example">
+          <code>{JSON.stringify(parameter.example, null, 2)}</code>
+        </pre>
+      ) : null}
+    </article>
+  );
+}
+
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
@@ -108,33 +142,21 @@ const result = await client.${usageMethod}({
             <section>
               <h2>{zh ? "参数" : "Parameters"}</h2>
               {operation.parameters.length ? (
-                <table className="parameter-table">
-                  <thead>
-                    <tr>
-                      <th>{zh ? "名称" : "Name"}</th>
-                      <th>{zh ? "位置" : "In"}</th>
-                      <th>{zh ? "类型" : "Type"}</th>
-                      <th>{zh ? "说明" : "Description"}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <div className="schema-card" aria-label={zh ? "参数 Schema" : "Parameter schema"}>
+                  <div className="schema-card-bar">
+                    <span>{zh ? "请求 Schema" : "Request schema"}</span>
+                    <code>application/json</code>
+                  </div>
+                  <div className="schema-fields">
                     {operation.parameters.map((parameter) => (
-                      <tr key={`${parameter.in}-${parameter.name}`}>
-                        <td>
-                          <code>{parameter.name}</code>
-                          {parameter.required ? " *" : ""}
-                        </td>
-                        <td>{parameter.in}</td>
-                        <td>{parameter.type}</td>
-                        <td>
-                          {parameter.description
-                            ? localize(parameter.description, locale)
-                            : "—"}
-                        </td>
-                      </tr>
+                      <ParameterSchema
+                        key={`${parameter.in}-${parameter.name}`}
+                        parameter={parameter}
+                        locale={locale}
+                      />
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
               ) : (
                 <p>{zh ? "该 Operation 没有请求参数。" : "This operation has no request parameters."}</p>
               )}

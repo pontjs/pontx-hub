@@ -28,7 +28,13 @@ export function ApiCard({
       <div className="api-card-meta">
         <span>{api.operationCount} operations</span>
         <span>{api.authTypes.join(" · ") || "public"}</span>
-        <span>SDK {api.sdkVersion}</span>
+        <span>
+          {api.sdkStatus === "published"
+            ? `SDK ${api.sdkVersion}`
+            : locale === "zh"
+              ? "SDK 即将发布"
+              : "SDK coming soon"}
+        </span>
       </div>
       <Link className="card-link" to={`/${locale}/apis/${api.slug}`}>
         {locale === "zh" ? "打开参考文档" : "Open reference"}
