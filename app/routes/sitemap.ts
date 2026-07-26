@@ -11,7 +11,7 @@ function escapeXml(value: string): string {
 }
 
 export function loader() {
-  const urls = ["", "/apis", "/agent-skill"];
+  const urls = ["", "/agent-skill"];
   for (const api of listCatalog()) {
     urls.push(`/apis/${api.slug}`, `/sdks/${api.slug}`);
     for (const operation of api.operations) {

@@ -2,8 +2,10 @@
 
 Curated, agent-ready OpenAPI documentation and TypeScript/Node.js SDK portal.
 
-The site uses the established Pontx extension mark across its navigation,
-footer, and browser icon.
+- Production: [pontx-hub.vercel.app](https://pontx-hub.vercel.app)
+- Source: [pontjs/pontx-hub](https://github.com/pontjs/pontx-hub)
+- API metadata: [pontjs/pontx-api-metadata](https://github.com/pontjs/pontx-api-metadata)
+- Contributions: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Development
 
@@ -25,13 +27,11 @@ pnpm test
 pnpm build
 ```
 
-## CLI and Agent Skill
+## Hub CLI and Agent Skill
 
-Point a local Pontx checkout at the development Hub:
+The Hub CLI is being separated from the `pontx` project into a standalone
+`pontx-hub-cli` repository and npm package. It communicates with the public Hub
+HTTP API and installs the Agent Skill without coupling Hub releases to Pontx.
 
-```bash
-pontx hub --url http://127.0.0.1:5173 search repository
-pontx hub --url http://127.0.0.1:5173 preview github get-repository \
-  -p owner=octocat -p repo=Hello-World
-pontx hub --url http://127.0.0.1:5173 skill install
-```
+Until that migration is complete, the website and HTTP API are the supported
+interfaces.

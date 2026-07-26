@@ -12,7 +12,7 @@ try {
 } catch {
   const rawBase = (
     process.env.METADATA_REPO_RAW_URL ??
-    "https://raw.githubusercontent.com/pontjs/pontx-api-metadata/main"
+    "https://raw.githubusercontent.com/pontjs/pontx-api-metadata/master"
   ).replace(/\/$/, "");
   const response = await fetch(`${rawBase}/catalog/catalog.json`, {
     headers: { Accept: "application/json" },

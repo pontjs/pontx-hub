@@ -6,8 +6,8 @@ export default [
   route("sitemap.xml", "routes/sitemap.ts"),
   route("api/v1/*", "routes/api.ts"),
   route("api/internal/*", "routes/internal-api.ts"),
-  route(":locale", "routes/home.tsx"),
-  route(":locale/apis", "routes/catalog.tsx"),
+  route(":locale", "routes/catalog.tsx"),
+  route(":locale/apis", "routes/catalog-redirect.tsx"),
   route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),
   route(
     ":locale/apis/:apiSlug/:operationSlug",

@@ -6,12 +6,14 @@ const copy = {
   zh: {
     catalog: "API 目录",
     skill: "Agent Skill",
+    github: "GitHub",
     language: "EN",
     tagline: "API Reference for humans & agents"
   },
   en: {
     catalog: "API Catalog",
     skill: "Agent Skill",
+    github: "GitHub",
     language: "中文",
     tagline: "API Reference for humans & agents"
   }
@@ -40,8 +42,11 @@ export function SiteShell({
           </span>
         </Link>
         <nav aria-label="Primary navigation">
-          <NavLink to={`/${locale}/apis`}>{text.catalog}</NavLink>
+          <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
           <NavLink to={`/${locale}/agent-skill`}>{text.skill}</NavLink>
+          <a href="https://github.com/pontjs/pontx-hub" rel="noreferrer" target="_blank">
+            {text.github} ↗
+          </a>
           <Link to={`/${nextLocale}`} className="language-link">
             {text.language}
           </Link>
@@ -55,8 +60,20 @@ export function SiteShell({
           </span>
           <strong>Pontx Hub</strong>
         </div>
-        <p>Curated OpenAPI references, typed SDKs, and agent-safe workflows.</p>
-        <span>OpenAPI → PontxSpec → SDK → Agent</span>
+        <p>
+          <a href="https://github.com/pontjs/pontx-hub" rel="noreferrer" target="_blank">
+            Source
+          </a>
+          <span aria-hidden="true"> · </span>
+          <a href="https://github.com/pontjs/pontx-api-metadata" rel="noreferrer" target="_blank">
+            Metadata
+          </a>
+          <span aria-hidden="true"> · </span>
+          <a href="https://github.com/pontjs/pontx-hub/blob/main/CONTRIBUTING.md" rel="noreferrer" target="_blank">
+            Contribute
+          </a>
+        </p>
+        <span>Open source · OpenAPI → SDK → Agent</span>
       </footer>
     </div>
   );

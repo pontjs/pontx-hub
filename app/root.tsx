@@ -11,7 +11,7 @@ import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import "./styles/app.css";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "icon", type: "image/png", href: PONTX_LOGO_DATA_URL },
+  { rel: "icon", type: "image/svg+xml", href: PONTX_LOGO_DATA_URL },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -65,7 +65,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <div className="error-code">{status}</div>
       <h1>{title}</h1>
       <p>{details}</p>
-      <a className="button button-dark" href="/zh/apis">
+      <a className="button button-dark" href="/zh">
         Return to API catalog
       </a>
     </main>

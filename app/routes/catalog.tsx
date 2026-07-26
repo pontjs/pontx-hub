@@ -1,4 +1,4 @@
-import { Form } from "react-router";
+import { Form, Link } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
 import { SiteShell } from "~/components/site-shell";
@@ -9,28 +9,40 @@ import { requireLocale, siteUrl } from "~/lib/http";
 export function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
-  const apis = listCatalogSummaries().filter((api) => {
+  const catalog = listCatalogSummaries();
+  const apis = catalog.filter((api) => {
     if (!query) return true;
     return [
       api.name,
       api.provider,
       api.category,
-      localize(api.title, locale),
-      localize(api.summary, locale)
+      api.title.zh,
+      api.title.en,
+      api.summary.zh,
+      api.summary.en
     ]
       .join(" ")
       .toLowerCase()
       .includes(query.toLowerCase());
   });
-  return { locale, query, apis };
+  return {
+    locale,
+    query,
+    apis,
+    totals: {
+      apis: catalog.length,
+      operations: catalog.reduce((count, api) => count + api.operationCount, 0),
+      categories: new Set(catalog.map((api) => api.category)).size
+    }
+  };
 }
 
 export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
   const title =
     locale === "zh"
-      ? "API 目录 — Pontx Hub"
-      : "API Catalog — Pontx Hub";
+      ? "Pontx Hub — OpenAPI 目录"
+      : "Pontx Hub — OpenAPI Catalog";
   return [
     { title },
     {
@@ -41,42 +53,79 @@ export function meta({ data }: Route.MetaArgs) {
           : "Browse curated OpenAPI references, TypeScript SDKs, and agent-ready workflows."
     },
     ...(data?.query ? [{ name: "robots", content: "noindex,follow" }] : []),
-    { tagName: "link", rel: "canonical", href: siteUrl(`/${locale}/apis`) }
+    { tagName: "link", rel: "canonical", href: siteUrl(`/${locale}`) }
   ];
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
-  const { locale, query, apis } = loaderData;
+  const { locale, query, apis, totals } = loaderData;
   const zh = locale === "zh";
 
   return (
     <SiteShell locale={locale}>
-      <main>
-        <header className="catalog-hero">
-          <p className="eyebrow">API Atlas / {String(apis.length).padStart(2, "0")}</p>
-          <h1>{zh ? "常用 API，一处读懂。" : "The APIs you reach for, in one place."}</h1>
-          <p>
-            {zh
-              ? "每个 API 都经过来源、鉴权、调试边界和 SDK 发布检查。"
-              : "Every API is reviewed for provenance, auth, debugging boundaries, and SDK delivery."}
-          </p>
+      <main className="catalog-page">
+        <header className="registry-header">
+          <div className="registry-intro">
+            <p className="registry-label">PONTX / OPENAPI REGISTRY</p>
+            <h1>{zh ? "API 目录" : "API Catalog"}</h1>
+            <p>
+              {zh
+                ? "面向开发者与 Agent 的高频 API 参考、请求预演和类型安全集成入口。"
+                : "High-frequency API references, request previews, and typed integration paths for developers and agents."}
+            </p>
+          </div>
+          <dl className="registry-stats">
+            <div>
+              <dt>{zh ? "接口集" : "APIs"}</dt>
+              <dd>{String(totals.apis).padStart(2, "0")}</dd>
+            </div>
+            <div>
+              <dt>{zh ? "操作" : "Operations"}</dt>
+              <dd>{String(totals.operations).padStart(2, "0")}</dd>
+            </div>
+            <div>
+              <dt>{zh ? "分类" : "Categories"}</dt>
+              <dd>{String(totals.categories).padStart(2, "0")}</dd>
+            </div>
+          </dl>
         </header>
-        <section className="section">
-          <Form className="catalog-toolbar" method="get">
+
+        <section className="registry-section">
+          <div className="registry-toolbar">
+            <Form className="catalog-search" method="get">
+              <span aria-hidden="true">⌕</span>
             <input
               name="q"
               defaultValue={query}
               placeholder={zh ? "搜索 Provider、分类或能力…" : "Search provider, category, or capability…"}
               aria-label={zh ? "搜索 API" : "Search APIs"}
             />
+            </Form>
             <span>
-              {apis.length} {zh ? "个结果" : "results"}
+              {String(apis.length).padStart(2, "0")} / {String(totals.apis).padStart(2, "0")}
             </span>
-          </Form>
+          </div>
+
+          <div className="registry-columns" aria-hidden="true">
+            <span>{zh ? "API / 能力" : "API / Capability"}</span>
+            <span>{zh ? "分类" : "Category"}</span>
+            <span>{zh ? "操作" : "Operations"}</span>
+            <span>{zh ? "鉴权" : "Auth"}</span>
+            <span>SDK</span>
+            <span />
+          </div>
+
           <div className="api-grid">
             {apis.map((api, index) => (
               <ApiCard key={api.slug} api={api} locale={locale} index={index} />
             ))}
+            {!apis.length ? (
+              <div className="catalog-empty">
+                <strong>{zh ? "没有匹配的 API" : "No matching APIs"}</strong>
+                <p>{zh ? "尝试搜索 Provider、用途或分类。" : "Try a provider, capability, or category."}</p>
+                <Link to={`/${locale}`}>{zh ? "清除搜索" : "Clear search"}</Link>
+              </div>
+            ) : null}
           </div>
         </section>
       </main>
