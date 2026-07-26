@@ -100,7 +100,10 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
   if (!server) throw new Error("Server is not approved for this API");
 
   const resolvedPath = resolvePath(operation.path, operation, input.path);
-  const url = new URL(resolvedPath, `${server.url.replace(/\/$/, "")}/`);
+  const url = new URL(
+    resolvedPath.replace(/^\/+/, ""),
+    `${server.url.replace(/\/$/, "")}/`
+  );
 
   for (const [name, value] of Object.entries(input.query)) {
     const parameter = operation.parameters.find(

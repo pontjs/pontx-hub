@@ -1,6 +1,44 @@
 @import "tailwindcss";
+@source "../../node_modules/@pontx/shadcn-ui/dist";
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
 
 :root {
+  --background: 0 0% 100%;
+  --foreground: 215 20% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 20% 13%;
+  --primary: 228 64% 51%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 25% 95%;
+  --secondary-foreground: 215 20% 20%;
+  --muted: 210 25% 96%;
+  --muted-foreground: 214 10% 44%;
+  --accent: 214 32% 93%;
+  --accent-foreground: 222 30% 20%;
+  --destructive: 3 70% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 18% 88%;
+  --input: 214 18% 82%;
+  --ring: 228 64% 51%;
   --paper: #f7f8fa;
   --paper-deep: #f0f3f6;
   --ink: #18202a;
@@ -897,6 +935,169 @@ pre {
   grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.75fr);
 }
 
+.pontx-workspace {
+  display: grid;
+  height: calc(100vh - 60px);
+  min-height: 680px;
+  grid-template-columns: 248px minmax(0, 1fr);
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.pontx-workspace-directory {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: 39px minmax(0, 1fr);
+  border-right: 1px solid var(--line);
+  background: #fbfcfd;
+}
+
+.pontx-pane-label,
+.pontx-workspace-bar {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 0 12px;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pontx-pane-label strong {
+  display: inline-grid;
+  min-width: 22px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 9px;
+}
+
+.pontx-directory {
+  min-height: 0;
+}
+
+.pontx-directory input {
+  border-radius: 3px;
+  background: #fff;
+  font-family: var(--sans);
+  font-size: 12px;
+}
+
+.pontx-directory [role="menuitem"] > div {
+  min-width: 0;
+}
+
+.pontx-workspace-content {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: 39px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.pontx-workspace-bar {
+  gap: 16px;
+  background: #fff;
+}
+
+.pontx-workspace-bar > div {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.pontx-workspace-bar code {
+  overflow: hidden;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.pontx-workspace-bar b {
+  color: var(--line);
+  font-weight: 400;
+}
+
+.pontx-workspace-bar p {
+  margin: 0;
+  color: #64707d;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  text-align: right;
+  text-transform: none;
+}
+
+.pontx-documentation {
+  min-width: 0;
+  min-height: 0;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.pontx-documentation-fallback {
+  padding: clamp(28px, 4vw, 54px);
+  background: #f8fafc;
+}
+
+.pontx-documentation-fallback > p:first-child {
+  margin: 0 0 14px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.pontx-documentation-fallback h1 {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: clamp(34px, 4vw, 52px);
+  letter-spacing: -0.045em;
+}
+
+.pontx-documentation-fallback > p:last-child {
+  max-width: 720px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.pontx-documentation > div:first-child {
+  min-width: 0;
+  padding-right: 18px;
+}
+
+.pontx-documentation [data-testid="playground-panel"] {
+  min-width: 0;
+  padding-left: 18px;
+}
+
+.pontx-documentation [data-testid="playground-panel"] > div {
+  background: transparent;
+}
+
+.pontx-documentation [data-testid="api-documentation-layout"],
+.pontx-documentation [data-testid="playground-panel"] {
+  scrollbar-color: #c4cbd4 transparent;
+  scrollbar-width: thin;
+}
+
+.pontx-documentation .rounded-lg,
+.pontx-documentation .rounded-md {
+  border-radius: 4px;
+}
+
+.pontx-documentation .shadow-sm,
+.pontx-documentation .shadow {
+  box-shadow: 0 1px 2px rgba(24, 32, 42, 0.04);
+}
+
 .operation-docs {
   border-right: 1px solid var(--line);
   padding: clamp(28px, 3vw, 40px);
@@ -1196,6 +1397,14 @@ pre {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
+
+  .pontx-workspace {
+    grid-template-columns: 216px minmax(0, 1fr);
+  }
+
+  .pontx-workspace-bar p {
+    display: none;
+  }
 }
 
 @media (max-width: 740px) {
@@ -1291,6 +1500,37 @@ pre {
 
   .site-footer > span {
     text-align: left;
+  }
+
+  .pontx-workspace {
+    height: auto;
+    min-height: calc(100vh - 60px);
+    grid-template-columns: 1fr;
+  }
+
+  .pontx-workspace-directory {
+    display: none;
+  }
+
+  .pontx-workspace-content {
+    min-height: calc(100vh - 60px);
+  }
+
+  .pontx-documentation[data-testid="api-documentation-layout"] {
+    display: block;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  .pontx-documentation > div:first-child {
+    padding-right: 0;
+  }
+
+  .pontx-documentation [data-testid="playground-panel"] {
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    padding-left: 0;
   }
 }
 

@@ -45,6 +45,21 @@ describe("Playground request preparation", () => {
     ).toThrow("Undeclared query parameter");
   });
 
+  it("preserves a path prefix from the approved server URL", () => {
+    const prepared = prepareRequest({
+      apiSlug: "frankfurter",
+      operationSlug: "get-latest-rates",
+      serverId: "default",
+      path: {},
+      query: { amount: 100, base: "USD", symbols: "GBP,JPY" },
+      headers: {}
+    });
+
+    expect(prepared.url).toBe(
+      "https://api.frankfurter.dev/v1/latest?amount=100&base=USD&symbols=GBP%2CJPY"
+    );
+  });
+
   it("binds confirmation to the exact write request", () => {
     const original = prepareRequest({
       apiSlug: "dida365",
