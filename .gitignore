@@ -2,6 +2,7 @@ node_modules
 .react-router
 build
 coverage
+.catalog-cache
 .vercel
 .env
 .env.*

@@ -269,7 +269,10 @@ hubApi.get("/api/v1/specs/:slug/sdk", (context) => {
       apiSlug: api.slug,
       packageName: api.packageName,
       version: api.sdkVersion,
-      install: `pnpm add ${api.packageName}`,
+      status: api.sdkStatus,
+      ...(api.sdkStatus === "published"
+        ? { install: `pnpm add ${api.packageName}` }
+        : {}),
       runtime: "node>=18",
       moduleFormats: ["esm", "commonjs"],
       specSha256: api.approvedSha256

@@ -31,6 +31,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const { locale, api } = loaderData;
   const zh = locale === "zh";
+  const published = api.sdkStatus === "published";
   const install = `pnpm add ${api.packageName}`;
   const usage = `import { createClient } from "${api.packageName}";
 
@@ -54,11 +55,15 @@ const result = await client.${api.operations[0]?.operationId
           <h1>{api.packageName}</h1>
           <p>
             {zh
-              ? `${localize(api.title, locale)} 的运营方预发布 SDK。文档与包版本共同绑定到批准的 OAS。`
-              : `The operator-published SDK for ${localize(api.title, locale)}. Documentation and package releases share the same approved OAS.`}
+              ? published
+                ? `${localize(api.title, locale)} 的运营方发布 SDK。文档与包版本共同绑定到批准的 OAS。`
+                : `${localize(api.title, locale)} 的 SDK 正在由 Pontx 生成器构建，文档已绑定到批准的 OAS。`
+              : published
+                ? `The operator-published SDK for ${localize(api.title, locale)}. Documentation and package releases share the same approved OAS.`
+                : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the approved OAS.`}
           </p>
           <div className="detail-meta">
-            <span>v{api.sdkVersion}</span>
+            <span>{published ? `v${api.sdkVersion}` : zh ? "即将发布" : "Coming soon"}</span>
             <span>Node.js ≥ 18</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
@@ -69,16 +74,24 @@ const result = await client.${api.operations[0]?.operationId
             <h2>{zh ? "安装并调用" : "Install and call"}</h2>
             <p>
               {zh
-                ? "SDK 由 Pontx 生成器产生，并在发布前完成类型检查与构建验证。"
-                : "The SDK is produced by Pontx and typechecked and built before publication."}
+                ? published
+                  ? "SDK 由 Pontx 生成器产生，并在发布前完成类型检查与构建验证。"
+                  : "该 API 的 SDK 尚未发布到 npm；你仍可使用文档和在线调试。"
+                : published
+                  ? "The SDK is produced by Pontx and typechecked and built before publication."
+                  : "This SDK is not yet published to npm; the documentation and playground are available now."}
             </p>
           </div>
-          <pre className="code-block">
-            <code>{install}</code>
-          </pre>
-          <pre className="code-block" style={{ marginTop: 18 }}>
-            <code>{usage}</code>
-          </pre>
+          {published ? (
+            <>
+              <pre className="code-block">
+                <code>{install}</code>
+              </pre>
+              <pre className="code-block" style={{ marginTop: 18 }}>
+                <code>{usage}</code>
+              </pre>
+            </>
+          ) : null}
         </section>
       </main>
     </SiteShell>

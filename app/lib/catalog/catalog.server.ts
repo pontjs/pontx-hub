@@ -1,9 +1,8 @@
-import { parse } from "yaml";
 import type { CatalogApi, CatalogSummary, Locale } from "./types";
 import { catalogApiSchema } from "./schema";
 
 const rawCatalogFiles = import.meta.glob(
-  "../../../catalog/apis/*.yaml",
+  "../../../.catalog-cache/catalog.json",
   {
     eager: true,
     import: "default",
@@ -16,13 +15,24 @@ let catalogCache: CatalogApi[] | undefined;
 function loadCatalog(): CatalogApi[] {
   if (catalogCache) return catalogCache;
 
-  catalogCache = Object.entries(rawCatalogFiles)
-    .map(([file, contents]) => {
-      const result = catalogApiSchema.safeParse(parse(contents));
+  const entry = Object.entries(rawCatalogFiles)[0];
+  if (!entry) {
+    throw new Error("Catalog cache is missing; run pnpm metadata:sync");
+  }
+  let payload: unknown;
+  try {
+    payload = JSON.parse(entry[1]);
+  } catch {
+    throw new Error("Catalog cache is not valid JSON");
+  }
+  const apis = (payload as { apis?: unknown }).apis;
+  if (!Array.isArray(apis)) throw new Error("Catalog cache has no API list");
+
+  catalogCache = apis
+    .map((api, index) => {
+      const result = catalogApiSchema.safeParse(api);
       if (!result.success) {
-        throw new Error(
-          `Invalid catalog manifest ${file}: ${result.error.message}`
-        );
+        throw new Error(`Invalid metadata API at index ${index}: ${result.error.message}`);
       }
       return result.data as CatalogApi;
     })

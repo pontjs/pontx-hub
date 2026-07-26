@@ -78,6 +78,7 @@ export const catalogApiSchema = z
     accent: z.string().regex(/^#[a-fA-F0-9]{6}$/),
     packageName: z.string().regex(/^@pontx\/api-[a-z0-9-]+$/),
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+    sdkStatus: z.enum(["planned", "published"]).default("published"),
     proxyEnabled: z.boolean().default(false),
     servers: z.array(serverSchema).min(1),
     auth: z.array(authSchema),

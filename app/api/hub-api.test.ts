@@ -8,7 +8,10 @@ describe("Hub API", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
-    expect(payload.data.length).toBeGreaterThanOrEqual(3);
+    expect(payload.data.map((api: { slug: string }) => api.slug).sort()).toEqual([
+      "dida365",
+      "frankfurter"
+    ]);
   });
 
   it("returns a machine-readable 404", async () => {
@@ -33,13 +36,13 @@ describe("Hub API", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiSlug: "github",
-        operationSlug: "get-repository",
-        serverId: "production",
-        path: { owner: "octocat", repo: "Hello-World" },
+        apiSlug: "dida365",
+        operationSlug: "get-task-by-project-id-and-task-id",
+        serverId: "default",
+        path: { projectId: "project-1", taskId: "task-1" },
         auth: {
           type: "bearer",
-          schemeId: "bearer",
+          schemeId: "BearerAuth",
           token: "secret-token"
         }
       })

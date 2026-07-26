@@ -8,17 +8,15 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "build": "react-router build",
-    "dev": "react-router dev",
+    "build": "pnpm metadata:sync && react-router build",
+    "dev": "pnpm metadata:sync && react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc",
-    "test": "vitest run",
+    "typecheck": "pnpm metadata:sync && react-router typegen && tsc",
+    "test": "pnpm metadata:sync && vitest run",
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "catalog:check": "tsx scripts/catalog-check.ts",
-    "catalog:accept": "tsx scripts/accept-candidate.ts",
-    "sdk:verify": "tsx scripts/verify-sdk-releases.ts"
+    "metadata:sync": "tsx scripts/sync-metadata.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

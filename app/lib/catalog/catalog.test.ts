@@ -7,9 +7,9 @@ import {
 } from "./catalog.server";
 
 describe("curated catalog", () => {
-  it("loads and validates every YAML manifest", () => {
+  it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect(catalog.length).toBeGreaterThanOrEqual(3);
+    expect(catalog.map((api) => api.slug).sort()).toEqual(["dida365", "frankfurter"]);
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
@@ -21,13 +21,13 @@ describe("curated catalog", () => {
   });
 
   it("finds operations by stable slug", () => {
-    const result = getCatalogOperation("github", "get-repository");
-    expect(result?.operation.operationId).toBe("repos/get");
+    const result = getCatalogOperation("frankfurter", "get-latest-rates");
+    expect(result?.operation.operationId).toBe("getLatestRates");
     expect(result?.operation.method).toBe("GET");
   });
 
   it("searches localized operation content", () => {
-    expect(searchCatalog("仓库", "zh").length).toBeGreaterThan(0);
-    expect(searchCatalog("payment", "en").length).toBeGreaterThan(0);
+    expect(searchCatalog("汇率", "zh").length).toBeGreaterThan(0);
+    expect(searchCatalog("project", "en").length).toBeGreaterThan(0);
   });
 });

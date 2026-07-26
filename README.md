@@ -12,8 +12,10 @@ pnpm install
 pnpm dev
 ```
 
-The curated source of truth lives in `catalog/apis`. Public pages and API
-responses are server-rendered from the same validated catalog model.
+The curated source of truth lives in the separate
+[`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)
+repository. The Hub synchronizes its compiled catalog before development,
+tests, and production builds.
 
 ## Verification
 
@@ -21,21 +23,7 @@ responses are server-rendered from the same validated catalog model.
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm sdk:verify
 ```
-
-`sdk:verify` checks the exact operator-prepublished npm package/version for
-approved manifests. Draft manifests with `approvedSha256: pending` are skipped.
-
-## Catalog maintenance
-
-```bash
-pnpm catalog:check
-pnpm catalog:accept <slug> <candidate-sha256>
-```
-
-Candidate checks never activate a source automatically. Accepting a candidate
-updates only its reviewed SHA-256 in the Git manifest.
 
 ## CLI and Agent Skill
 

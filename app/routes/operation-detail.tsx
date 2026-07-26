@@ -147,12 +147,14 @@ const result = await client.${usageMethod}({
               </pre>
             </section>
 
-            <section>
-              <h2>{zh ? "TypeScript SDK" : "TypeScript SDK"}</h2>
-              <pre className="code-block">
-                <code>{usage}</code>
-              </pre>
-            </section>
+            {api.sdkStatus === "published" ? (
+              <section>
+                <h2>{zh ? "TypeScript SDK" : "TypeScript SDK"}</h2>
+                <pre className="code-block">
+                  <code>{usage}</code>
+                </pre>
+              </section>
+            ) : null}
           </article>
 
           <PlaygroundPanel locale={locale} api={api} operation={operation} />

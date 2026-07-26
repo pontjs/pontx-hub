@@ -8,37 +8,37 @@ import {
 describe("Playground request preparation", () => {
   it("resolves declared path parameters and redacts credentials", () => {
     const input = {
-      apiSlug: "github",
-      operationSlug: "get-repository",
-      serverId: "production",
-      path: { owner: "octocat", repo: "Hello-World" },
+      apiSlug: "dida365",
+      operationSlug: "get-task-by-project-id-and-task-id",
+      serverId: "default",
+      path: { projectId: "project-1", taskId: "task-1" },
       query: {},
       headers: {},
       auth: {
         type: "bearer" as const,
-        schemeId: "bearer",
-        token: "github_pat_secret"
+        schemeId: "BearerAuth",
+        token: "dida_secret"
       }
     };
     const prepared = prepareRequest(input);
     const preview = createPreview(input);
 
     expect(prepared.url).toBe(
-      "https://api.github.com/repos/octocat/Hello-World"
+      "https://api.dida365.com/open/v1/project/project-1/task/task-1"
     );
-    expect(prepared.headers.Authorization).toBe("Bearer github_pat_secret");
+    expect(prepared.headers.Authorization).toBe("Bearer dida_secret");
     expect(preview.headers.Authorization).toBe("Bearer ••••••••");
-    expect(preview.curl).not.toContain("github_pat_secret");
+    expect(preview.curl).not.toContain("dida_secret");
     expect(preview.requiresConfirmation).toBe(false);
   });
 
   it("rejects undeclared parameters", () => {
     expect(() =>
       prepareRequest({
-        apiSlug: "github",
-        operationSlug: "get-repository",
-        serverId: "production",
-        path: { owner: "octocat", repo: "Hello-World" },
+        apiSlug: "dida365",
+        operationSlug: "get-task-by-project-id-and-task-id",
+        serverId: "default",
+        path: { projectId: "project-1", taskId: "task-1" },
         query: { admin: true },
         headers: {}
       })
@@ -47,22 +47,22 @@ describe("Playground request preparation", () => {
 
   it("binds confirmation to the exact write request", () => {
     const original = prepareRequest({
-      apiSlug: "github",
-      operationSlug: "create-issue",
-      serverId: "production",
-      path: { owner: "octocat", repo: "Hello-World" },
+      apiSlug: "dida365",
+      operationSlug: "update-task",
+      serverId: "default",
+      path: { taskId: "task-1" },
       query: {},
       headers: {},
-      body: { title: "A bug" }
+      body: { dueDate: "2026-07-26T00:00:00+0000" }
     });
     const changed = prepareRequest({
-      apiSlug: "github",
-      operationSlug: "create-issue",
-      serverId: "production",
-      path: { owner: "octocat", repo: "Hello-World" },
+      apiSlug: "dida365",
+      operationSlug: "update-task",
+      serverId: "default",
+      path: { taskId: "task-1" },
       query: {},
       headers: {},
-      body: { title: "A different bug" }
+      body: { dueDate: "2026-07-27T00:00:00+0000" }
     });
     const token = createConfirmationToken(original);
 

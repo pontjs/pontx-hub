@@ -81,6 +81,7 @@ export type CatalogApi = {
   accent: string;
   packageName: string;
   sdkVersion: string;
+  sdkStatus: "planned" | "published";
   proxyEnabled: boolean;
   servers: CatalogServer[];
   auth: CatalogAuthScheme[];
