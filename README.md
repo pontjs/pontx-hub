@@ -2,6 +2,9 @@
 
 Curated, agent-ready OpenAPI documentation and TypeScript/Node.js SDK portal.
 
+The site uses the established Pontx extension mark across its navigation,
+footer, and browser icon.
+
 ## Development
 
 ```bash
