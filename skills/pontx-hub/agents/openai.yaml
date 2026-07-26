@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pontx Hub"
+  short_description: "Search, preview, and call curated APIs safely"
+  default_prompt: "Use Pontx Hub to find the right API, inspect its contract, preview the request, and generate type-safe integration code."

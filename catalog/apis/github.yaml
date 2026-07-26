@@ -1,0 +1,96 @@
+slug: github
+name: GitHub REST API
+provider: GitHub
+category: Developer Tools
+featured: true
+sourceUrl: https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json
+license: MIT
+attributionUrl: https://github.com/github/rest-api-description
+approvedSha256: pending
+title:
+  zh: GitHub REST API
+  en: GitHub REST API
+summary:
+  zh: 查询仓库、管理 Issue，并把代码协作能力安全地接入应用与 Agent。
+  en: Query repositories, manage issues, and bring code collaboration into applications and agents.
+accent: "#24292f"
+packageName: "@pontx/api-github"
+sdkVersion: 0.1.0
+proxyEnabled: true
+servers:
+  - id: production
+    url: https://api.github.com
+    description:
+      zh: GitHub 公共 API
+      en: GitHub public API
+auth:
+  - id: bearer
+    type: bearer
+    envVar: GITHUB_TOKEN
+    description:
+      zh: GitHub fine-grained token 或 OAuth access token
+      en: GitHub fine-grained token or OAuth access token
+operations:
+  - slug: get-repository
+    operationId: repos/get
+    tag: Repositories
+    method: GET
+    path: /repos/{owner}/{repo}
+    title:
+      zh: 获取仓库
+      en: Get a repository
+    description:
+      zh: 根据 owner 和 repo 获取公开或已授权仓库的详细信息。
+      en: Get detailed information about a public or authorized repository.
+    parameters:
+      - name: owner
+        in: path
+        required: true
+        type: string
+        description:
+          zh: 仓库所有者
+          en: Repository owner
+        example: octocat
+      - name: repo
+        in: path
+        required: true
+        type: string
+        description:
+          zh: 仓库名称
+          en: Repository name
+        example: Hello-World
+    responseExample:
+      id: 1296269
+      full_name: octocat/Hello-World
+      private: false
+  - slug: create-issue
+    operationId: issues/create
+    tag: Issues
+    method: POST
+    path: /repos/{owner}/{repo}/issues
+    title:
+      zh: 创建 Issue
+      en: Create an issue
+    description:
+      zh: 在指定仓库中创建 Issue；执行前必须确认写操作。
+      en: Create an issue in a repository; execution requires write confirmation.
+    parameters:
+      - name: owner
+        in: path
+        required: true
+        type: string
+      - name: repo
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        type: object
+        example:
+          title: Found a bug
+          body: Reproduction steps
+    responseExample:
+      id: 1
+      title: Found a bug
+      state: open

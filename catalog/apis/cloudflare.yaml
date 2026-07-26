@@ -1,0 +1,82 @@
+slug: cloudflare
+name: Cloudflare API
+provider: Cloudflare
+category: Infrastructure
+featured: true
+sourceUrl: https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json
+license: BSD-3-Clause
+attributionUrl: https://github.com/cloudflare/api-schemas
+approvedSha256: pending
+title:
+  zh: Cloudflare API
+  en: Cloudflare API
+summary:
+  zh: 管理 Zone、DNS 与缓存，让基础设施操作可以被可靠地预演和自动化。
+  en: Manage zones, DNS, and cache with infrastructure operations that can be previewed and automated.
+accent: "#f48120"
+packageName: "@pontx/api-cloudflare"
+sdkVersion: 0.1.0
+proxyEnabled: true
+servers:
+  - id: production
+    url: https://api.cloudflare.com
+    description:
+      zh: Cloudflare API
+      en: Cloudflare API
+auth:
+  - id: bearer
+    type: bearer
+    envVar: CLOUDFLARE_API_TOKEN
+    description:
+      zh: 建议使用最小权限 API Token
+      en: A least-privilege API Token is recommended
+operations:
+  - slug: list-zones
+    operationId: zones-list
+    tag: Zones
+    method: GET
+    path: /client/v4/zones
+    title:
+      zh: 查询 Zone
+      en: List zones
+    description:
+      zh: 查询 Token 有权访问的 Cloudflare Zone。
+      en: List Cloudflare zones accessible to the configured token.
+    parameters:
+      - name: name
+        in: query
+        required: false
+        type: string
+        description:
+          zh: 按域名筛选
+          en: Filter by domain name
+        example: example.com
+    responseExample:
+      success: true
+      result: []
+  - slug: purge-cache
+    operationId: zone-purge-cache
+    tag: Cache
+    method: POST
+    path: /client/v4/zones/{zone_id}/purge_cache
+    title:
+      zh: 清除缓存
+      en: Purge cache
+    description:
+      zh: 清除指定 Zone 的缓存；必须先预演并确认。
+      en: Purge cache for a zone after preview and explicit confirmation.
+    parameters:
+      - name: zone_id
+        in: path
+        required: true
+        type: string
+      - name: body
+        in: body
+        required: true
+        type: object
+        example:
+          purge_everything: true
+    responseExample:
+      success: true
+      result:
+        id: zone-id

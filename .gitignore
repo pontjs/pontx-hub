@@ -1,0 +1,11 @@
+node_modules
+.react-router
+build
+coverage
+.vercel
+.env
+.env.*
+!.env.example
+drizzle/meta
+.DS_Store
+*.log
