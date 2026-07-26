@@ -7,9 +7,11 @@ import {
   ScrollRestoration
 } from "react-router";
 import type { Route } from "./+types/root";
+import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import "./styles/app.css";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", type: "image/png", href: PONTX_LOGO_DATA_URL },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

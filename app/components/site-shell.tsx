@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router";
+import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 
 const copy = {
@@ -31,7 +32,7 @@ export function SiteShell({
       <header className="site-header">
         <Link to={`/${locale}`} className="brand" aria-label="Pontx Hub home">
           <span className="brand-mark" aria-hidden="true">
-            PX
+            <img src={PONTX_LOGO_DATA_URL} alt="" />
           </span>
           <span>
             <strong>Pontx Hub</strong>
@@ -49,7 +50,9 @@ export function SiteShell({
       {children}
       <footer className="site-footer">
         <div>
-          <span className="brand-mark brand-mark-small">PX</span>
+          <span className="brand-mark brand-mark-small">
+            <img src={PONTX_LOGO_DATA_URL} alt="" />
+          </span>
           <strong>Pontx Hub</strong>
         </div>
         <p>Curated OpenAPI references, typed SDKs, and agent-safe workflows.</p>
