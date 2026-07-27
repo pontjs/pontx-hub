@@ -97,7 +97,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             <input
               name="q"
               defaultValue={query}
-              placeholder={zh ? "搜索 Provider、分类或能力…" : "Search provider, category, or capability…"}
+              placeholder={zh ? "搜索 API…" : "Search APIs…"}
               aria-label={zh ? "搜索 API" : "Search APIs"}
             />
             </Form>
