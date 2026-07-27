@@ -8,7 +8,8 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "build": "pnpm metadata:sync && react-router build",
+    "build": "pnpm metadata:sync && react-router build && pnpm bundle:verify",
+    "bundle:verify": "tsx scripts/verify-browser-bundle.ts",
     "dev": "pnpm metadata:sync && react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "pnpm metadata:sync && react-router typegen && tsc",
@@ -28,6 +29,7 @@
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.32",
     "isbot": "^5.1.36",
+    "lodash-es": "^4.18.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "7.18.1",
@@ -46,6 +48,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
+    "vite-plugin-commonjs": "^0.10.4",
     "vitest": "^4.1.10"
   }
 }
