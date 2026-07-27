@@ -15,6 +15,7 @@ export function ApiCard({
     <Link
       className="api-card"
       to={`/${locale}/apis/${api.slug}/${api.defaultOperationSlug}`}
+      reloadDocument
       style={{ "--api-accent": api.accent } as React.CSSProperties}
       aria-label={`${localize(api.title, locale)} — ${api.operationCount} ${
         locale === "zh" ? "个接口" : "endpoints"
