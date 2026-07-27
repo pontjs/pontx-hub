@@ -52,6 +52,7 @@ export function listCatalogSummaries(): CatalogSummary[] {
   return loadCatalog().map(({ operations, servers: _servers, auth, ...api }) => ({
     ...api,
     operationCount: operations.length,
+    defaultOperationSlug: operations[0].slug,
     authTypes: [...new Set(auth.map((scheme) => scheme.type))]
   }));
 }

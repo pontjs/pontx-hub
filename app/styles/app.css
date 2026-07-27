@@ -176,6 +176,18 @@ pre {
   padding-block: 8px;
 }
 
+.github-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.github-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
 .site-header nav a.active::after {
   position: absolute;
   right: 0;

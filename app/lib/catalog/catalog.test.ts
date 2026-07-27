@@ -16,6 +16,7 @@ describe("curated catalog", () => {
   it("returns summaries without operation payloads", () => {
     const summary = listCatalogSummaries()[0];
     expect(summary.operationCount).toBeGreaterThan(0);
+    expect(summary.defaultOperationSlug).toBeTruthy();
     expect(summary).not.toHaveProperty("operations");
     expect(summary).not.toHaveProperty("servers");
   });

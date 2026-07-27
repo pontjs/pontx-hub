@@ -14,7 +14,7 @@ export function ApiCard({
   return (
     <Link
       className="api-card"
-      to={`/${locale}/apis/${api.slug}`}
+      to={`/${locale}/apis/${api.slug}/${api.defaultOperationSlug}`}
       style={{ "--api-accent": api.accent } as React.CSSProperties}
       aria-label={`${localize(api.title, locale)} — ${api.operationCount} operations`}
     >

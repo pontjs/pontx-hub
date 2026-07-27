@@ -93,6 +93,7 @@ export type CatalogSummary = Omit<
   "operations" | "servers" | "auth"
 > & {
   operationCount: number;
+  defaultOperationSlug: string;
   authTypes: Array<CatalogAuthScheme["type"]>;
 };
 

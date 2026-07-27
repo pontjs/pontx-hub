@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router";
+import { GitHubIcon } from "~/components/github-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 
@@ -44,8 +45,14 @@ export function SiteShell({
         <nav aria-label="Primary navigation">
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
           <NavLink to={`/${locale}/agent-skill`}>{text.skill}</NavLink>
-          <a href="https://github.com/pontjs/pontx-hub" rel="noreferrer" target="_blank">
-            {text.github} ↗
+          <a
+            className="github-link"
+            href="https://github.com/pontjs/pontx-hub"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <GitHubIcon className="github-icon" />
+            <span>{text.github}</span>
           </a>
           <Link to={`/${nextLocale}`} className="language-link">
             {text.language}
