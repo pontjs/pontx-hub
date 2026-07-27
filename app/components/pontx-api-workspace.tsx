@@ -238,7 +238,7 @@ export function PontxApiWorkspace({
     <main className="pontx-workspace">
       <aside className="pontx-workspace-directory">
         <div className="pontx-pane-label">
-          <span>{locale === "zh" ? "接口目录" : "API directory"}</span>
+          <span>{locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
           <strong>{api.operations.length}</strong>
         </div>
         <ApiDirectory
@@ -246,7 +246,7 @@ export function PontxApiWorkspace({
           selectedApiName={selectedApiName}
           onApiSelect={handleApiSelect}
           defaultExpandedTags={[operation.tag]}
-          searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search APIs…"}
+          searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
           className="pontx-directory"
         />
       </aside>

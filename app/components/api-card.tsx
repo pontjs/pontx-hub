@@ -16,7 +16,9 @@ export function ApiCard({
       className="api-card"
       to={`/${locale}/apis/${api.slug}/${api.defaultOperationSlug}`}
       style={{ "--api-accent": api.accent } as React.CSSProperties}
-      aria-label={`${localize(api.title, locale)} — ${api.operationCount} operations`}
+      aria-label={`${localize(api.title, locale)} — ${api.operationCount} ${
+        locale === "zh" ? "个接口" : "endpoints"
+      }`}
     >
       <div className="api-card-number">{String(index + 1).padStart(2, "0")}</div>
       <div className="api-card-heading">
@@ -27,7 +29,12 @@ export function ApiCard({
         </div>
       </div>
       <span className="api-card-category">{api.category}</span>
-      <strong className="api-card-operation-count">{api.operationCount}</strong>
+      <strong
+        className="api-card-operation-count"
+        data-label={locale === "zh" ? "接口" : "endpoints"}
+      >
+        {api.operationCount}
+      </strong>
       <span className="api-card-auth">{api.authTypes.join(" / ") || "public"}</span>
       <span className={`api-card-sdk sdk-${api.sdkStatus}`}>
         {api.sdkStatus === "published"

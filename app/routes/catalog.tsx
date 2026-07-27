@@ -49,8 +49,8 @@ export function meta({ data }: Route.MetaArgs) {
       name: "description",
       content:
         locale === "zh"
-          ? "浏览经过筛选的 OpenAPI 文档、TypeScript SDK 和 Agent 调用能力。"
-          : "Browse curated OpenAPI references, TypeScript SDKs, and agent-ready workflows."
+          ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
+          : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs."
     },
     ...(data?.query ? [{ name: "robots", content: "noindex,follow" }] : []),
     { tagName: "link", rel: "canonical", href: siteUrl(`/${locale}`) }
@@ -70,17 +70,17 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             <h1>{zh ? "API 目录" : "API Catalog"}</h1>
             <p>
               {zh
-                ? "面向开发者与 Agent 的高频 API 参考、请求预演和类型安全集成入口。"
-                : "High-frequency API references, request previews, and typed integration paths for developers and agents."}
+                ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
+                : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs."}
             </p>
           </div>
           <dl className="registry-stats">
             <div>
-              <dt>{zh ? "接口集" : "APIs"}</dt>
+              <dt>API</dt>
               <dd>{String(totals.apis).padStart(2, "0")}</dd>
             </div>
             <div>
-              <dt>{zh ? "操作" : "Operations"}</dt>
+              <dt>{zh ? "接口" : "Endpoints"}</dt>
               <dd>{String(totals.operations).padStart(2, "0")}</dd>
             </div>
             <div>
@@ -109,7 +109,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           <div className="registry-columns" aria-hidden="true">
             <span>{zh ? "API / 能力" : "API / Capability"}</span>
             <span>{zh ? "分类" : "Category"}</span>
-            <span>{zh ? "操作" : "Operations"}</span>
+            <span>{zh ? "接口" : "Endpoints"}</span>
             <span>{zh ? "鉴权" : "Auth"}</span>
             <span>SDK</span>
             <span />

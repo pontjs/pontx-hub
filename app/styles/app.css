@@ -1488,7 +1488,7 @@ pre {
   .api-card-operation-count::after {
     display: block;
     color: var(--ink-soft);
-    content: "ops";
+    content: attr(data-label);
     font-size: 8px;
   }
 
