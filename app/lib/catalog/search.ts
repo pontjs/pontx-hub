@@ -1,6 +1,9 @@
 import type {
   CatalogApi,
+  CatalogPayloadMetadata,
   GlobalSearchKind,
+  GlobalSearchMatch,
+  GlobalSearchMatchField,
   GlobalSearchResponse,
   GlobalSearchResult,
   Locale
@@ -10,6 +13,12 @@ import { localize } from "./types";
 type WeightedField = {
   value: string | undefined;
   weight: number;
+  field: GlobalSearchMatchField;
+};
+
+type ScoredMatch = {
+  score: number;
+  match: GlobalSearchMatch;
 };
 
 const kindOrder: Record<GlobalSearchKind, number> = {
@@ -18,46 +27,345 @@ const kindOrder: Record<GlobalSearchKind, number> = {
   schema: 2
 };
 
+const matchFieldOrder: GlobalSearchMatchField[] = [
+  "title",
+  "request",
+  "response",
+  "parameter",
+  "property",
+  "schema",
+  "description",
+  "product",
+  "path"
+];
+
+// Small, deterministic bilingual ontology for API intent/entity retrieval. It
+// complements exact metadata matching without introducing a runtime AI key.
+const semanticConcepts: string[][] = [
+  ["create", "add", "new", "insert", "post", "创建", "新建", "新增", "添加"],
+  ["read", "get", "fetch", "retrieve", "find", "query", "detail", "查询", "获取", "查看", "读取", "详情"],
+  ["list", "all", "collection", "browse", "列表", "全部", "集合", "浏览"],
+  ["update", "edit", "modify", "change", "patch", "put", "更新", "编辑", "修改", "变更"],
+  ["delete", "remove", "destroy", "删除", "移除"],
+  ["complete", "finish", "done", "完成", "办结"],
+  ["task", "todo", "item", "任务", "待办", "事项"],
+  ["project", "workspace", "folder", "项目", "清单", "工作区"],
+  ["currency", "exchange", "rate", "forex", "convert", "conversion", "price", "汇率", "换汇", "换算", "转换", "兑换", "外汇", "币种", "货币", "价格"],
+  ["date", "time", "deadline", "due", "schedule", "日期", "时间", "截止", "到期", "日程"],
+  ["priority", "importance", "urgent", "优先级", "重要", "紧急"],
+  ["request", "input", "payload", "body", "parameter", "argument", "请求", "入参", "输入", "请求体", "参数"],
+  ["response", "output", "result", "return", "returns", "响应", "出参", "输出", "返回", "结果"],
+  ["schema", "model", "structure", "type", "field", "property", "数据结构", "模型", "结构", "类型", "字段", "属性"],
+  ["auth", "authentication", "token", "credential", "鉴权", "认证", "令牌", "凭证"]
+];
+
+const stopWords = new Set([
+  "a",
+  "an",
+  "and",
+  "api",
+  "for",
+  "in",
+  "of",
+  "please",
+  "the",
+  "to",
+  "with",
+  "一个",
+  "一下",
+  "中的",
+  "以及",
+  "可以",
+  "帮我",
+  "接口",
+  "相关",
+  "这个"
+]);
+
+const endpointIntentTerms = [
+  ...semanticConcepts.slice(0, 6).flat(),
+  "convert",
+  "conversion",
+  "换算",
+  "转换",
+  "request",
+  "input",
+  "payload",
+  "response",
+  "output",
+  "return",
+  "请求",
+  "入参",
+  "响应",
+  "出参",
+  "返回"
+];
+
+const schemaIntentTerms = [
+  "schema",
+  "model",
+  "structure",
+  "type",
+  "field",
+  "property",
+  "数据结构",
+  "模型",
+  "结构",
+  "类型",
+  "字段",
+  "属性"
+];
+
+const productIntentTerms = [
+  "product",
+  "provider",
+  "service",
+  "platform",
+  "产品",
+  "服务商",
+  "服务",
+  "平台"
+];
+
 function normalize(value: string): string {
   return value
     .normalize("NFKC")
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .toLocaleLowerCase()
-    .replace(/[_-]+/g, " ")
+    .replace(/[_\-/]+/g, " ")
+    .replace(/[^\p{L}\p{N}.]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function relevance(query: string, fields: WeightedField[]): number {
+function termMatches(value: string, term: string): boolean {
+  const normalizedTerm = normalize(term);
+  if (!normalizedTerm) return false;
+  if (/\p{Script=Han}/u.test(normalizedTerm)) {
+    return value.includes(normalizedTerm);
+  }
+  return ` ${value} `.includes(` ${normalizedTerm} `);
+}
+
+function queryMatchesAny(query: string, terms: string[]): boolean {
   const normalizedQuery = normalize(query);
-  if (!normalizedQuery) return 0;
-  const tokens = normalizedQuery.split(" ").filter(Boolean);
-  const normalizedFields = fields
-    .map(({ value, weight }) => ({ value: normalize(value ?? ""), weight }))
-    .filter((field) => field.value);
-  const combined = normalizedFields.map((field) => field.value).join(" ");
+  return terms.some((term) => termMatches(normalizedQuery, term));
+}
 
-  if (!tokens.every((token) => combined.includes(token))) return 0;
+function resourceIntentBoost(query: string, kind: GlobalSearchKind): number {
+  if (kind === "endpoint" && queryMatchesAny(query, endpointIntentTerms)) return 100;
+  if (kind === "schema" && queryMatchesAny(query, schemaIntentTerms)) return 120;
+  if (kind === "api" && queryMatchesAny(query, productIntentTerms)) return 120;
+  return 0;
+}
 
-  let score = 10;
-  for (const field of normalizedFields) {
-    if (field.value === normalizedQuery) score += field.weight * 12;
-    else if (field.value.startsWith(normalizedQuery)) score += field.weight * 8;
-    else if (field.value.includes(normalizedQuery)) score += field.weight * 5;
-    else {
-      score += tokens.filter((token) => field.value.includes(token)).length * field.weight;
+function queryTokens(query: string): string[] {
+  return [...new Set(normalize(query).split(" "))].filter(
+    (token) => token.length > 1 && !stopWords.has(token)
+  );
+}
+
+function normalizedSearchFields(fields: WeightedField[]) {
+  const unique = new Map<string, WeightedField & { value: string }>();
+  for (const field of fields) {
+    const value = normalize(field.value ?? "");
+    if (!value) continue;
+    const key = `${field.field}:${value}`;
+    const current = unique.get(key);
+    if (!current || current.weight < field.weight) {
+      unique.set(key, { ...field, value });
     }
   }
-  return score;
+  return [...unique.values()];
+}
+
+function exactIdentityBoost(query: string, values: Array<string | undefined>) {
+  const normalizedQuery = normalize(query);
+  return values.some((value) => normalize(value ?? "") === normalizedQuery)
+    ? 500
+    : 0;
+}
+
+function lexicalRelevance(query: string, fields: WeightedField[]) {
+  const normalizedQuery = normalize(query);
+  const tokens = queryTokens(query);
+  const normalizedFields = normalizedSearchFields(fields);
+  const matchedFields = new Set<GlobalSearchMatchField>();
+  const matchedTokens = new Set<string>();
+  const tokenScores = new Map<string, number>();
+  let phraseScore = 0;
+  let phraseMatched = false;
+
+  for (const field of normalizedFields) {
+    if (field.value === normalizedQuery) {
+      phraseScore = Math.max(phraseScore, field.weight * 12);
+      phraseMatched = true;
+      matchedFields.add(field.field);
+    } else if (field.value.startsWith(normalizedQuery)) {
+      phraseScore = Math.max(phraseScore, field.weight * 8);
+      phraseMatched = true;
+      matchedFields.add(field.field);
+    } else if (normalizedQuery && field.value.includes(normalizedQuery)) {
+      phraseScore = Math.max(phraseScore, field.weight * 5);
+      phraseMatched = true;
+      matchedFields.add(field.field);
+    }
+
+    for (const token of tokens) {
+      if (!termMatches(field.value, token)) continue;
+      matchedTokens.add(token);
+      matchedFields.add(field.field);
+      tokenScores.set(token, Math.max(tokenScores.get(token) ?? 0, field.weight));
+    }
+  }
+
+  const minimumTokens = Math.max(1, Math.ceil(tokens.length * 0.6));
+  if (!phraseMatched && (!tokens.length || matchedTokens.size < minimumTokens)) {
+    return { score: 0, fields: new Set<GlobalSearchMatchField>() };
+  }
+
+  const score =
+    phraseScore +
+    [...tokenScores.values()].reduce((total, value) => total + value, 0) +
+    (matchedTokens.size
+      ? (matchedTokens.size / Math.max(tokens.length, 1)) * 12
+      : 0);
+  return { score, fields: matchedFields };
+}
+
+function semanticRelevance(query: string, fields: WeightedField[]) {
+  const normalizedQuery = normalize(query);
+  const concepts = semanticConcepts.filter((terms) =>
+    terms.some((term) => termMatches(normalizedQuery, term))
+  );
+  if (!concepts.length) {
+    return { score: 0, fields: new Set<GlobalSearchMatchField>() };
+  }
+
+  const normalizedFields = normalizedSearchFields(fields);
+  const matchedFields = new Set<GlobalSearchMatchField>();
+  let score = 0;
+  let matchedConcepts = 0;
+
+  for (const concept of concepts) {
+    let best: (WeightedField & { value: string }) | undefined;
+    for (const field of normalizedFields) {
+      if (!concept.some((term) => termMatches(field.value, term))) continue;
+      matchedFields.add(field.field);
+      if (!best || field.weight > best.weight) best = field;
+    }
+    if (!best) continue;
+    matchedConcepts++;
+    score += best.weight * 5;
+  }
+
+  const minimumConcepts = Math.max(1, Math.ceil(concepts.length * 0.6));
+  if (matchedConcepts < minimumConcepts) {
+    return { score: 0, fields: new Set<GlobalSearchMatchField>() };
+  }
+  score += (matchedConcepts / concepts.length) * 20;
+  return { score, fields: matchedFields };
+}
+
+function relevance(query: string, fields: WeightedField[]): ScoredMatch {
+  const lexical = lexicalRelevance(query, fields);
+  const semantic = semanticRelevance(query, fields);
+  const score =
+    lexical.score +
+    semantic.score +
+    (lexical.score > 0 && semantic.score > 0 ? 50 : 0);
+  const matchedFields = new Set([...lexical.fields, ...semantic.fields]);
+  return {
+    score,
+    match: {
+      mode:
+        lexical.score > 0 && semantic.score > 0
+          ? "hybrid"
+          : semantic.score > 0
+            ? "semantic"
+            : "lexical",
+      fields: matchFieldOrder.filter((field) => matchedFields.has(field))
+    }
+  };
 }
 
 function localizedFields(
   zh: string | undefined,
   en: string | undefined,
-  weight: number
+  weight: number,
+  field: GlobalSearchMatchField
 ): WeightedField[] {
   return [
-    { value: zh, weight },
-    { value: en, weight }
+    { value: zh, weight, field },
+    { value: en, weight, field }
+  ];
+}
+
+function productFields(api: CatalogApi, weight = 4): WeightedField[] {
+  return [
+    { value: api.slug, weight: weight + 2, field: "product" },
+    { value: api.name, weight: weight + 2, field: "product" },
+    { value: api.provider, weight: weight + 1, field: "product" },
+    { value: api.category, weight, field: "product" },
+    ...localizedFields(api.title.zh, api.title.en, weight + 2, "product"),
+    ...localizedFields(api.summary.zh, api.summary.en, weight, "product")
+  ];
+}
+
+function schemaGraphFields(
+  api: CatalogApi,
+  schemaName: string | undefined,
+  field: "parameter" | "request" | "response",
+  weight: number,
+  visited = new Set<string>()
+): WeightedField[] {
+  if (!schemaName || visited.has(schemaName) || visited.size >= 8) return [];
+  visited.add(schemaName);
+  const schema = api.schemas.find((candidate) => candidate.name === schemaName);
+  if (!schema) return [];
+
+  return [
+    { value: schema.name, weight: weight + 2, field },
+    ...localizedFields(schema.title.zh, schema.title.en, weight + 1, field),
+    ...localizedFields(schema.description.zh, schema.description.en, weight, field),
+    ...schema.properties.flatMap((property) => [
+      { value: property.name, weight: weight + 1, field },
+      { value: property.ref, weight, field },
+      ...localizedFields(
+        property.description?.zh,
+        property.description?.en,
+        weight,
+        field
+      ),
+      ...schemaGraphFields(api, property.ref, field, Math.max(weight - 1, 1), visited)
+    ])
+  ];
+}
+
+function payloadFields(
+  api: CatalogApi,
+  payload: CatalogPayloadMetadata | undefined,
+  field: "request" | "response",
+  weight: number
+): WeightedField[] {
+  if (!payload) return [];
+  const role =
+    field === "request"
+      ? "request input payload body parameter 请求 入参 输入 请求体 参数"
+      : "response output result return 响应 出参 输出 返回 结果";
+  return [
+    { value: role, weight, field },
+    { value: payload.schemaName, weight: weight + 3, field },
+    { value: payload.schemaType, weight, field },
+    { value: payload.contentTypes?.join(" "), weight: 2, field },
+    { value: payload.properties?.join(" "), weight: weight + 1, field },
+    ...localizedFields(
+      payload.description?.zh,
+      payload.description?.en,
+      weight,
+      field
+    ),
+    ...schemaGraphFields(api, payload.schemaName, field, weight)
   ];
 }
 
@@ -82,19 +390,29 @@ export function buildSearchResponse(
   if (normalizedQuery) {
     for (const api of catalog) {
       const apiTitle = localize(api.title, locale);
-      const apiScore = relevance(normalizedQuery, [
-        { value: api.slug, weight: 12 },
-        { value: api.name, weight: 12 },
-        { value: api.provider, weight: 10 },
-        { value: api.category, weight: 5 },
-        ...localizedFields(api.title.zh, api.title.en, 12),
-        ...localizedFields(api.summary.zh, api.summary.en, 4)
+      const apiMatch = relevance(normalizedQuery, [
+        { value: api.slug, weight: 12, field: "product" },
+        { value: api.name, weight: 12, field: "product" },
+        { value: api.provider, weight: 10, field: "product" },
+        { value: api.category, weight: 5, field: "product" },
+        ...localizedFields(api.title.zh, api.title.en, 12, "title"),
+        ...localizedFields(api.summary.zh, api.summary.en, 6, "description")
       ]);
-      if (kinds.has("api") && apiScore > 0) {
+      apiMatch.score += exactIdentityBoost(normalizedQuery, [
+        api.slug,
+        api.name,
+        api.title.zh,
+        api.title.en
+      ]);
+      if (apiMatch.score > 0) {
+        apiMatch.score += resourceIntentBoost(normalizedQuery, "api");
+      }
+      if (kinds.has("api") && apiMatch.score > 0) {
         results.push({
           id: `api:${api.slug}`,
           kind: "api",
-          score: apiScore,
+          score: apiMatch.score,
+          match: apiMatch.match,
           apiSlug: api.slug,
           apiTitle,
           provider: api.provider,
@@ -109,32 +427,54 @@ export function buildSearchResponse(
 
       if (kinds.has("endpoint")) {
         for (const operation of api.operations) {
-          const score = relevance(normalizedQuery, [
-            { value: operation.operationId, weight: 14 },
-            { value: operation.slug, weight: 12 },
-            { value: operation.path, weight: 12 },
-            { value: operation.method, weight: 8 },
-            { value: operation.tag, weight: 6 },
-            ...localizedFields(operation.title.zh, operation.title.en, 14),
+          const endpointMatch = relevance(normalizedQuery, [
+            ...productFields(api),
+            { value: operation.operationId, weight: 14, field: "title" },
+            { value: operation.slug, weight: 12, field: "title" },
+            { value: operation.path, weight: 12, field: "path" },
+            { value: operation.method, weight: 8, field: "path" },
+            { value: operation.tag, weight: 6, field: "title" },
+            ...localizedFields(operation.title.zh, operation.title.en, 14, "title"),
             ...localizedFields(
               operation.description.zh,
               operation.description.en,
-              4
+              6,
+              "description"
             ),
             ...operation.parameters.flatMap((parameter) => [
-              { value: parameter.name, weight: 7 },
+              { value: parameter.name, weight: 9, field: "parameter" as const },
+              { value: parameter.in, weight: 3, field: "parameter" as const },
+              { value: parameter.type, weight: 3, field: "parameter" as const },
+              { value: parameter.format, weight: 3, field: "parameter" as const },
+              { value: parameter.schemaName, weight: 8, field: "parameter" as const },
+              { value: parameter.enum?.join(" "), weight: 4, field: "parameter" as const },
               ...localizedFields(
                 parameter.description?.zh,
                 parameter.description?.en,
-                2
-              )
+                5,
+                "parameter"
+              ),
+              ...schemaGraphFields(api, parameter.schemaName, "parameter", 5)
+            ]),
+            ...payloadFields(api, operation.requestBody, "request", 7),
+            ...operation.responses.flatMap((response) => [
+              { value: response.status, weight: 2, field: "response" as const },
+              ...payloadFields(api, response, "response", 6)
             ])
           ]);
-          if (score === 0) continue;
+          endpointMatch.score += exactIdentityBoost(normalizedQuery, [
+            operation.operationId,
+            operation.slug
+          ]);
+          if (endpointMatch.score > 0) {
+            endpointMatch.score += resourceIntentBoost(normalizedQuery, "endpoint");
+          }
+          if (endpointMatch.score === 0) continue;
           results.push({
             id: `endpoint:${api.slug}/${operation.slug}`,
             kind: "endpoint",
-            score,
+            score: endpointMatch.score,
+            match: endpointMatch.match,
             apiSlug: api.slug,
             apiTitle,
             provider: api.provider,
@@ -152,25 +492,38 @@ export function buildSearchResponse(
 
       if (kinds.has("schema")) {
         for (const schema of api.schemas) {
-          const score = relevance(normalizedQuery, [
-            { value: schema.name, weight: 15 },
-            ...localizedFields(schema.title.zh, schema.title.en, 14),
-            ...localizedFields(schema.description.zh, schema.description.en, 4),
+          const schemaMatch = relevance(normalizedQuery, [
+            ...productFields(api, 3),
+            { value: schema.name, weight: 15, field: "schema" },
+            ...localizedFields(schema.title.zh, schema.title.en, 14, "title"),
+            ...localizedFields(schema.description.zh, schema.description.en, 6, "description"),
             ...schema.properties.flatMap((property) => [
-              { value: property.name, weight: 8 },
-              { value: property.ref, weight: 5 },
+              { value: property.name, weight: 9, field: "property" as const },
+              { value: property.ref, weight: 6, field: "property" as const },
+              { value: property.type, weight: 3, field: "property" as const },
+              { value: property.format, weight: 3, field: "property" as const },
               ...localizedFields(
                 property.description?.zh,
                 property.description?.en,
-                2
+                5,
+                "property"
               )
             ])
           ]);
-          if (score === 0) continue;
+          schemaMatch.score += exactIdentityBoost(normalizedQuery, [
+            schema.name,
+            schema.title.zh,
+            schema.title.en
+          ]);
+          if (schemaMatch.score > 0) {
+            schemaMatch.score += resourceIntentBoost(normalizedQuery, "schema");
+          }
+          if (schemaMatch.score === 0) continue;
           results.push({
             id: `schema:${api.slug}/${schema.name}`,
             kind: "schema",
-            score,
+            score: schemaMatch.score,
+            match: schemaMatch.match,
             apiSlug: api.slug,
             apiTitle,
             provider: api.provider,
@@ -200,6 +553,8 @@ export function buildSearchResponse(
   };
 
   return {
+    strategy: "hybrid-semantic",
+    semanticVersion: "pontx-multilingual-v1",
     query: normalizedQuery,
     locale,
     total: results.length,

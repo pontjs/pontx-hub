@@ -88,8 +88,8 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
                 defaultValue={query}
                 placeholder={
                   zh
-                    ? "搜索 API、接口或数据结构…"
-                    : "Search APIs, endpoints, or schemas…"
+                    ? "语义搜索 API、接口、入参或数据结构…"
+                    : "Semantically search APIs, inputs, outputs, or schemas…"
                 }
                 aria-label={zh ? "全局搜索" : "Global search"}
               />

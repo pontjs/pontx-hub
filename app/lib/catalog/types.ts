@@ -19,8 +19,23 @@ export type CatalogParameter = {
   in: "path" | "query" | "header" | "body";
   required?: boolean;
   type: "string" | "number" | "integer" | "boolean" | "object" | "array";
+  format?: string;
+  schemaName?: string;
+  enum?: unknown[];
   description?: LocalizedText;
   example?: unknown;
+};
+
+export type CatalogPayloadMetadata = {
+  description?: LocalizedText;
+  contentTypes?: string[];
+  schemaType?: "string" | "number" | "integer" | "boolean" | "object" | "array";
+  schemaName?: string;
+  properties?: string[];
+};
+
+export type CatalogResponseMetadata = CatalogPayloadMetadata & {
+  status: string;
 };
 
 export type CatalogOperation = {
@@ -33,6 +48,8 @@ export type CatalogOperation = {
   description: LocalizedText;
   contentType?: "application/json" | "application/x-www-form-urlencoded";
   parameters: CatalogParameter[];
+  requestBody?: CatalogPayloadMetadata;
+  responses: CatalogResponseMetadata[];
   responseExample?: unknown;
   deprecated?: boolean;
 };
@@ -120,6 +137,22 @@ export type CatalogSummary = Omit<
 
 export type GlobalSearchKind = "api" | "endpoint" | "schema";
 
+export type GlobalSearchMatchField =
+  | "product"
+  | "title"
+  | "description"
+  | "path"
+  | "parameter"
+  | "request"
+  | "response"
+  | "schema"
+  | "property";
+
+export type GlobalSearchMatch = {
+  mode: "lexical" | "semantic" | "hybrid";
+  fields: GlobalSearchMatchField[];
+};
+
 type GlobalSearchResultBase = {
   id: string;
   kind: GlobalSearchKind;
@@ -130,6 +163,7 @@ type GlobalSearchResultBase = {
   title: string;
   description: string;
   href: string;
+  match: GlobalSearchMatch;
 };
 
 export type ApiSearchResult = GlobalSearchResultBase & {
@@ -162,6 +196,8 @@ export type GlobalSearchResult =
   | SchemaSearchResult;
 
 export type GlobalSearchResponse = {
+  strategy: "hybrid-semantic";
+  semanticVersion: "pontx-multilingual-v1";
   query: string;
   locale: Locale;
   total: number;

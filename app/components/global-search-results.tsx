@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import type {
   GlobalSearchKind,
+  GlobalSearchMatchField,
   GlobalSearchResponse,
   GlobalSearchResult,
   Locale
@@ -42,6 +43,21 @@ function ResultBadge({ result }: { result: GlobalSearchResult }) {
   );
 }
 
+function matchFieldLabel(field: GlobalSearchMatchField, locale: Locale): string {
+  const labels: Record<GlobalSearchMatchField, { zh: string; en: string }> = {
+    product: { zh: "产品", en: "product" },
+    title: { zh: "标题", en: "title" },
+    description: { zh: "描述", en: "description" },
+    path: { zh: "路径", en: "path" },
+    parameter: { zh: "参数", en: "parameter" },
+    request: { zh: "入参", en: "request" },
+    response: { zh: "出参", en: "response" },
+    schema: { zh: "结构", en: "schema" },
+    property: { zh: "字段", en: "property" }
+  };
+  return labels[field][locale];
+}
+
 export function GlobalSearchResults({
   search,
   locale
@@ -70,6 +86,9 @@ export function GlobalSearchResults({
       <div className="search-summary">
         <span>{zh ? "全局结果" : "Global results"}</span>
         <strong>{search.total}</strong>
+        <span className="search-mode">
+          {zh ? "混合语义检索" : "Hybrid semantic"}
+        </span>
         <code>{search.query}</code>
       </div>
       {kinds.map((kind) => {
@@ -106,6 +125,12 @@ export function GlobalSearchResults({
                   <div className="search-result-context">
                     <span>{result.apiTitle}</span>
                     <code>{resultMeta(result, locale)}</code>
+                    <small>
+                      {result.match.mode} · {result.match.fields
+                        .slice(0, 3)
+                        .map((field) => matchFieldLabel(field, locale))
+                        .join(" / ")}
+                    </small>
                   </div>
                   <span className="search-result-arrow" aria-hidden="true">→</span>
                 </Link>

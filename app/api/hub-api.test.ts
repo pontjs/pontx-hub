@@ -35,6 +35,18 @@ describe("Hub API", () => {
     expect(payload.data.items.some((item: { id: string }) => item.id === "schema:dida365/Task")).toBe(true);
   });
 
+  it("exposes hybrid semantic matches from request and response metadata", async () => {
+    const response = await hubApi.request(
+      "/api/v2/search?q=%E6%96%B0%E5%A2%9E%E5%BE%85%E5%8A%9E&locale=zh&types=endpoint"
+    );
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.data.strategy).toBe("hybrid-semantic");
+    expect(payload.data.semanticVersion).toBe("pontx-multilingual-v1");
+    expect(payload.data.items[0].id).toBe("endpoint:dida365/create-task");
+    expect(payload.data.items[0].match.mode).toBe("semantic");
+  });
+
   it("filters global search resource types and validates query options", async () => {
     const filtered = await hubApi.request(
       "/api/v2/search?q=projectId&types=schema&locale=en"

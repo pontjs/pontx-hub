@@ -19,8 +19,8 @@ export function meta({ data }: Route.MetaArgs) {
       name: "description",
       content:
         locale === "zh"
-          ? "让 Agent 使用独立的 pontx-hub CLI 搜索产品、接口和数据结构，并安全预演与调用 API。"
-          : "Teach agents to search products, endpoints, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI."
+          ? "让 Agent 使用独立的 pontx-hub CLI 语义搜索产品、接口、入参与出参，并安全预演与调用 API。"
+          : "Teach agents to semantically search products, endpoints, inputs, outputs, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI."
     },
     {
       tagName: "link",
@@ -33,7 +33,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function AgentSkill({ loaderData }: Route.ComponentProps) {
   const { locale } = loaderData;
   const zh = locale === "zh";
-  const workflow = `pontx-hub search "汇率" --locale zh --json
+  const workflow = `pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
 pontx-hub show schema:frankfurter/ExchangeRateResponse
 pontx-hub preview frankfurter get-latest-rates -p base=USD
@@ -48,8 +48,8 @@ pontx-hub call frankfurter get-latest-rates -p base=USD`;
           <h1>{zh ? "给 Agent 一张可靠的 API 地图。" : "Give your agent a reliable API map."}</h1>
           <p>
             {zh
-              ? "Skill 不把所有文档塞进上下文，而是教 Agent 通过 CLI 按需搜索、阅读、预演与调用。"
-              : "The Skill does not stuff every API into context. It teaches the agent to discover, inspect, preview, and call on demand."}
+              ? "Skill 不把所有文档塞进上下文，而是教 Agent 通过 CLI 语义检索产品、入参、出参与数据结构，再按需阅读、预演与调用。"
+              : "The Skill does not stuff every API into context. It teaches the agent to semantically retrieve product, input, output, and schema metadata before inspecting, previewing, and calling on demand."}
           </p>
         </header>
         <section className="section">

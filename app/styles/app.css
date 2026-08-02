@@ -716,6 +716,15 @@ pre {
   font-size: 14px;
 }
 
+.search-summary .search-mode {
+  border: 1px solid #c8d4f3;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: #f0f4ff;
+  color: #3157d5;
+  letter-spacing: 0.03em;
+}
+
 .search-summary code {
   overflow: hidden;
   margin-left: auto;
@@ -848,6 +857,13 @@ pre {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.search-result-context small {
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 8px;
+  text-transform: lowercase;
 }
 
 .search-result-arrow {

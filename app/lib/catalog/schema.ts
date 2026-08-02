@@ -10,8 +10,25 @@ const parameterSchema = z.object({
   in: z.enum(["path", "query", "header", "body"]),
   required: z.boolean().optional(),
   type: z.enum(["string", "number", "integer", "boolean", "object", "array"]),
+  format: z.string().min(1).optional(),
+  schemaName: z.string().min(1).optional(),
+  enum: z.array(z.unknown()).optional(),
   description: localizedTextSchema.optional(),
   example: z.unknown().optional()
+});
+
+const payloadMetadataSchema = z.object({
+  description: localizedTextSchema.optional(),
+  contentTypes: z.array(z.string().min(1)).optional(),
+  schemaType: z
+    .enum(["string", "number", "integer", "boolean", "object", "array"])
+    .optional(),
+  schemaName: z.string().min(1).optional(),
+  properties: z.array(z.string().min(1)).optional()
+});
+
+const responseMetadataSchema = payloadMetadataSchema.extend({
+  status: z.string().min(1)
 });
 
 const operationSchema = z.object({
@@ -26,6 +43,8 @@ const operationSchema = z.object({
     .enum(["application/json", "application/x-www-form-urlencoded"])
     .optional(),
   parameters: z.array(parameterSchema).default([]),
+  requestBody: payloadMetadataSchema.optional(),
+  responses: z.array(responseMetadataSchema).default([]),
   responseExample: z.unknown().optional(),
   deprecated: z.boolean().optional()
 });

@@ -4,7 +4,7 @@ import safety from "../../skills/pontx-hub/references/auth-and-safety.md?raw";
 
 export const skillBundle = {
   name: "pontx-hub",
-  version: "0.2.0",
+  version: "0.3.0",
   files: {
     "SKILL.md": skill,
     "agents/openai.yaml": agent,

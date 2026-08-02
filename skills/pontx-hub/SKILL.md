@@ -11,10 +11,13 @@ product, endpoint, or schema needed for the current task.
 
 ## Workflow
 
-1. Search before choosing an API:
+1. Search before choosing an API. Natural-language capability, request, and
+   response questions are supported:
 
    ```bash
    pontx-hub search "<capability>" --json
+   pontx-hub search "创建任务的入参" --locale zh --json
+   pontx-hub search "返回 dueDate 的接口" --locale zh --json
    ```
 
    Narrow the result type when useful:
@@ -72,4 +75,6 @@ product, endpoint, or schema needed for the current task.
 
 Prefer `--json` when consuming CLI output programmatically. Preserve the CLI
 exit code and machine-readable error code when reporting failures. Use the
+result's `match.mode` and `match.fields` to explain whether product, parameter,
+request, response, schema, or property metadata produced the match. Use the
 operation's published `@pontx/api-*` package when generating application code.

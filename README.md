@@ -32,16 +32,22 @@ pnpm build
 
 The standalone [`pontx-hub-cli`](https://github.com/pontjs/pontx-hub-cli)
 repository communicates only with the public Hub HTTP API. It provides one
-ranked search across API products, HTTP endpoints, and OpenAPI schemas, and
+hybrid semantic search across API products, HTTP endpoints, request parameters,
+request/response schemas, and OpenAPI data structures, and
 installs the universal Agent Skill without coupling Hub releases to Pontx.
 
 ```bash
 pontx-hub search "exchange rate" --json
+pontx-hub search "创建任务的入参" --locale zh --json
+pontx-hub search "返回 dueDate 的接口" --locale zh --json
 pontx-hub search projectId --type schema --json
 pontx-hub show schema:dida365/TaskCreate
 ```
 
 The reusable search contract is `GET /api/v2/search`. The endpoint accepts
 `q`, `locale`, `types`, `limit`, and `offset`; every result includes a stable
-resource ID and a direct Hub URL. The legacy endpoint-only
+resource ID, direct Hub URL, lexical/semantic/hybrid match mode, and the
+matched metadata fields. Product metadata and the complete endpoint input /
+output schema graph participate in ranking. The search is deterministic and
+requires no runtime AI credential. The legacy endpoint-only
 `GET /api/v1/search` remains available for older clients.
