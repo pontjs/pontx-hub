@@ -23,7 +23,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@pontx/nodejs-sdk": "^0.1.0",
-    "@pontx/shadcn-ui": "^1.2.5",
+    "@pontx/shadcn-ui": "^1.2.6",
     "@pontx/spec": "^0.1.16-alpha.2",
     "@react-router/node": "7.18.1",
     "@react-router/serve": "7.18.1",
