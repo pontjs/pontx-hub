@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import { GitHubIcon } from "~/components/github-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
@@ -9,6 +10,7 @@ const copy = {
     skill: "Agent Skill",
     github: "GitHub",
     language: "EN",
+    menu: "菜单",
     tagline: "API Reference for humans & agents"
   },
   en: {
@@ -16,6 +18,7 @@ const copy = {
     skill: "Agent Skill",
     github: "GitHub",
     language: "中文",
+    menu: "Menu",
     tagline: "API Reference for humans & agents"
   }
 } satisfies Record<Locale, Record<string, string>>;
@@ -29,6 +32,7 @@ export function SiteShell({
 }) {
   const nextLocale = locale === "zh" ? "en" : "zh";
   const text = copy[locale];
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="site-frame">
@@ -58,6 +62,40 @@ export function SiteShell({
             {text.language}
           </Link>
         </nav>
+        <div className="mobile-nav">
+          <button
+            type="button"
+            className="mobile-nav-trigger"
+            aria-expanded={mobileNavOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            <span>{text.menu}</span>
+            <span aria-hidden="true">＋</span>
+          </button>
+          <nav
+            id="mobile-navigation"
+            aria-label={`${text.menu} navigation`}
+            data-open={mobileNavOpen || undefined}
+          >
+            <NavLink to={`/${locale}`} end onClick={() => setMobileNavOpen(false)}>
+              {text.catalog}
+            </NavLink>
+            <NavLink to={`/${locale}/agent-skill`} onClick={() => setMobileNavOpen(false)}>
+              {text.skill}
+            </NavLink>
+            <a
+              href="https://github.com/pontjs/pontx-hub"
+              rel="noreferrer"
+              target="_blank"
+            >
+              {text.github}
+            </a>
+            <Link to={`/${nextLocale}`} onClick={() => setMobileNavOpen(false)}>
+              {text.language}
+            </Link>
+          </nav>
+        </div>
       </header>
       {children}
       <footer className="site-footer">

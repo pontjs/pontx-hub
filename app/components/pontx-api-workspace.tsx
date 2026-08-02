@@ -269,7 +269,6 @@ export function PontxApiWorkspace({
             key={`${locale}:${api.slug}:${operation.slug}`}
             api={pontxApi}
             enablePlayground
-            defaultPlaygroundVisible
             specName={api.slug}
             servers={api.servers.map((server) => ({
               url: server.url,

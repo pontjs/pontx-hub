@@ -11,7 +11,7 @@
     "build": "pnpm metadata:sync && react-router build && pnpm bundle:verify",
     "bundle:verify": "tsx scripts/verify-browser-bundle.ts",
     "dev": "pnpm metadata:sync && react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "react-router-serve ./build/server/nodejs_*/index.js",
     "typecheck": "pnpm metadata:sync && react-router typegen && tsc",
     "test": "pnpm metadata:sync && vitest run",
     "test:watch": "vitest",

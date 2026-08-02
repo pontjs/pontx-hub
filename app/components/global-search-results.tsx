@@ -106,7 +106,6 @@ export function GlobalSearchResults({
                   className="search-result-row"
                   key={result.id}
                   to={result.href}
-                  reloadDocument
                 >
                   <ResultBadge result={result} />
                   <div className="search-result-main">

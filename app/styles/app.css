@@ -83,6 +83,19 @@ select {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
 code,
 pre {
   font-family: var(--mono);
@@ -201,6 +214,10 @@ pre {
 .language-link {
   border: 1px solid var(--line);
   padding: 7px 10px !important;
+}
+
+.mobile-nav {
+  display: none;
 }
 
 .hero {
@@ -1167,7 +1184,18 @@ pre {
 }
 
 .pontx-directory {
+  width: 100%;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.pontx-directory > div {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .pontx-directory input {
@@ -1177,8 +1205,44 @@ pre {
   font-size: 12px;
 }
 
-.pontx-directory [role="menuitem"] > div {
+.pontx-directory [role="menu"] {
+  width: 100%;
   min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0 0 8px;
+  list-style: none;
+}
+
+.pontx-directory [role="menu"] > li {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.pontx-directory [role="menuitem"] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 8px 12px;
+}
+
+.pontx-directory [role="menuitem"] > div {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.pontx-directory [role="menuitem"] > div > span:last-child,
+.pontx-directory [role="menuitem"] > p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pontx-workspace-content {
@@ -1819,8 +1883,69 @@ pre {
   }
 
   .brand small,
-  .site-header nav a:not(.language-link) {
+  .site-header > nav {
     display: none;
+  }
+
+  .mobile-nav {
+    position: relative;
+    display: block;
+    font-family: var(--mono);
+  }
+
+  .mobile-nav-trigger {
+    display: flex;
+    min-height: 36px;
+    align-items: center;
+    border: 1px solid var(--line);
+    padding: 0 10px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 10px;
+    gap: 8px;
+    text-transform: uppercase;
+  }
+
+  .mobile-nav-trigger[aria-expanded="true"] span:last-child {
+    transform: rotate(45deg);
+  }
+
+  .mobile-nav-trigger span:last-child {
+    color: var(--blue);
+    font-size: 16px;
+    transition: transform 140ms ease;
+  }
+
+  .mobile-nav nav {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: grid;
+    width: min(240px, calc(100vw - 32px));
+    border: 1px solid var(--ink);
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(24, 32, 42, 0.12);
+  }
+
+  .mobile-nav nav:not([data-open]) {
+    display: none;
+  }
+
+  .mobile-nav nav a {
+    border-bottom: 1px solid var(--line);
+    padding: 13px 15px;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .mobile-nav nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .mobile-nav nav a:hover,
+  .mobile-nav nav a.active {
+    background: #f2f5fb;
+    color: var(--blue);
   }
 
   .registry-header {
@@ -1976,10 +2101,15 @@ pre {
   }
 
   .pontx-documentation [data-testid="playground-panel"] {
-    margin-top: 18px;
-    border-top: 1px solid var(--line);
-    padding-top: 18px;
-    padding-left: 0;
+    position: fixed;
+    z-index: 50;
+    inset: 60px 0 0;
+    margin: 0;
+    overflow-y: auto;
+    border-top: 1px solid var(--ink);
+    padding: 16px;
+    background: #f8fafc;
+    box-shadow: 0 -12px 30px rgba(24, 32, 42, 0.12);
   }
 }
 
