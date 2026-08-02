@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@pontx/shadcn-ui/styles";
 @source "../../node_modules/@pontx/shadcn-ui/dist";
 
 @theme inline {
