@@ -1184,18 +1184,7 @@ pre {
 }
 
 .pontx-directory {
-  width: 100%;
   min-height: 0;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.pontx-directory > div {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: hidden;
 }
 
 .pontx-directory input {
@@ -1203,46 +1192,6 @@ pre {
   background: #fff;
   font-family: var(--sans);
   font-size: 12px;
-}
-
-.pontx-directory [role="menu"] {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  margin: 0;
-  overflow: hidden;
-  padding: 0 0 8px;
-  list-style: none;
-}
-
-.pontx-directory [role="menu"] > li {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.pontx-directory [role="menuitem"] {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  padding: 8px 12px;
-}
-
-.pontx-directory [role="menuitem"] > div {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.pontx-directory [role="menuitem"] > div > span:last-child,
-.pontx-directory [role="menuitem"] > p {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .pontx-workspace-content {

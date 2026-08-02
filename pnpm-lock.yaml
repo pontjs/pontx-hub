@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(zod@3.25.76)
       '@pontx/shadcn-ui':
-        specifier: ^1.2.3
-        version: 1.2.3(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^1.2.4
+        version: 1.2.4(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec':
         specifier: ^0.1.16-alpha.2
         version: 0.1.16-alpha.2
@@ -798,8 +798,8 @@ packages:
       zod:
         optional: true
 
-  '@pontx/shadcn-ui@1.2.3':
-    resolution: {integrity: sha512-vqt8bKJ0zNvriyvVHLlx2DJ0s7vuwix2wQY5JMhfMyjg8tDif+w0cnx9hUCJ0Rg7q5rHcZetBii7Jtf8NHxqCw==}
+  '@pontx/shadcn-ui@1.2.4':
+    resolution: {integrity: sha512-dWDSernawzLGwZc126n+5R71PQ2WNdSA3krAgzd+oajj4paUQkkbBauW1ESuoCOM92V18qXNQeqCAcwldGhGzw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -3997,7 +3997,7 @@ snapshots:
     optionalDependencies:
       zod: 3.25.76
 
-  '@pontx/shadcn-ui@1.2.3(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@pontx/shadcn-ui@1.2.4(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@monaco-editor/react': 4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec': 0.1.15
@@ -4515,7 +4515,7 @@ snapshots:
 
   '@react-types/button@3.4.1(react@19.2.8)':
     dependencies:
-      '@react-types/shared': 3.9.0(react@19.2.8)
+      '@react-types/shared': 3.36.0(react@19.2.8)
       react: 19.2.8
 
   '@react-types/checkbox@3.11.0(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
@@ -4531,7 +4531,7 @@ snapshots:
 
   '@react-types/radio@3.1.2(react@19.2.8)':
     dependencies:
-      '@react-types/shared': 3.9.0(react@19.2.8)
+      '@react-types/shared': 3.36.0(react@19.2.8)
       react: 19.2.8
 
   '@react-types/shared@3.36.0(react@19.2.8)':
@@ -4545,7 +4545,7 @@ snapshots:
   '@react-types/switch@3.1.2(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@react-types/checkbox': 3.11.0(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@react-types/shared': 3.9.0(react@19.2.8)
+      '@react-types/shared': 3.36.0(react@19.2.8)
       react: 19.2.8
     transitivePeerDependencies:
       - '@react-spectrum/provider'
@@ -4553,7 +4553,7 @@ snapshots:
 
   '@react-types/textfield@3.3.0(react@19.2.8)':
     dependencies:
-      '@react-types/shared': 3.9.0(react@19.2.8)
+      '@react-types/shared': 3.36.0(react@19.2.8)
       react: 19.2.8
 
   '@rehooks/component-size@1.0.3(react@19.2.8)':
