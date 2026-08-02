@@ -12,5 +12,11 @@ describe("API directory integration styles", () => {
     expect(css).toMatch(
       /\.pontx-directory \[role="menuitem"\] > p\s*{\s*margin-top:\s*2px;/,
     );
+    expect(css).toMatch(
+      /\.pontx-directory input\[type="search"\]\s*{\s*padding-inline:\s*36px;/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory input\[type="search"\] \+ button\s*{\s*padding:\s*4px;/,
+    );
   });
 });

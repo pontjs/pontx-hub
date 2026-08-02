@@ -1194,6 +1194,14 @@ pre {
   font-size: 12px;
 }
 
+.pontx-directory input[type="search"] {
+  padding-inline: 36px;
+}
+
+.pontx-directory input[type="search"] + button {
+  padding: 4px;
+}
+
 .pontx-directory button[aria-expanded],
 .pontx-directory [role="menuitem"] {
   padding: 8px 12px;
