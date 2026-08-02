@@ -1194,6 +1194,20 @@ pre {
   font-size: 12px;
 }
 
+.pontx-directory button[aria-expanded],
+.pontx-directory [role="menuitem"] {
+  padding: 8px 12px;
+}
+
+.pontx-directory [role="menuitem"] > p {
+  margin-top: 2px;
+}
+
+.pontx-directory [role="menuitem"][aria-selected="true"] {
+  border-left: 2px solid hsl(var(--primary));
+  background: hsl(var(--accent));
+}
+
 .pontx-workspace-content {
   display: grid;
   min-width: 0;
