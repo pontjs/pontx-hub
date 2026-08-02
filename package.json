@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "metadata:sync": "tsx scripts/sync-metadata.ts"
+    "metadata:sync": "tsx scripts/sync-metadata.ts",
+    "sdk:verify": "pnpm metadata:sync && tsx scripts/verify-sdk-releases.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
