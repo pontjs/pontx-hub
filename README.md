@@ -5,6 +5,7 @@ Curated, agent-ready OpenAPI documentation and TypeScript/Node.js SDK portal.
 - Production: [pontx-hub.vercel.app](https://pontx-hub.vercel.app)
 - Source: [pontjs/pontx-hub](https://github.com/pontjs/pontx-hub)
 - API metadata: [pontjs/pontx-api-metadata](https://github.com/pontjs/pontx-api-metadata)
+- Hub CLI: [pontjs/pontx-hub-cli](https://github.com/pontjs/pontx-hub-cli)
 - Contributions: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Development
@@ -29,9 +30,18 @@ pnpm build
 
 ## Hub CLI and Agent Skill
 
-The Hub CLI is being separated from the `pontx` project into a standalone
-`pontx-hub-cli` repository and npm package. It communicates with the public Hub
-HTTP API and installs the Agent Skill without coupling Hub releases to Pontx.
+The standalone [`pontx-hub-cli`](https://github.com/pontjs/pontx-hub-cli)
+repository communicates only with the public Hub HTTP API. It provides one
+ranked search across API products, HTTP endpoints, and OpenAPI schemas, and
+installs the universal Agent Skill without coupling Hub releases to Pontx.
 
-Until that migration is complete, the website and HTTP API are the supported
-interfaces.
+```bash
+pontx-hub search "exchange rate" --json
+pontx-hub search projectId --type schema --json
+pontx-hub show schema:dida365/TaskCreate
+```
+
+The reusable search contract is `GET /api/v2/search`. The endpoint accepts
+`q`, `locale`, `types`, `limit`, and `offset`; every result includes a stable
+resource ID and a direct Hub URL. The legacy endpoint-only
+`GET /api/v1/search` remains available for older clients.

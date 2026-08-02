@@ -1,5 +1,12 @@
-import type { CatalogApi, CatalogSummary, Locale } from "./types";
+import type {
+  CatalogApi,
+  CatalogSummary,
+  GlobalSearchKind,
+  GlobalSearchResponse,
+  Locale
+} from "./types";
 import { catalogApiSchema } from "./schema";
+import { buildSearchResponse } from "./search";
 
 const rawCatalogFiles = import.meta.glob(
   "../../../.catalog-cache/catalog.json",
@@ -49,9 +56,10 @@ export function listCatalog(): CatalogApi[] {
 }
 
 export function listCatalogSummaries(): CatalogSummary[] {
-  return loadCatalog().map(({ operations, servers: _servers, auth, ...api }) => ({
+  return loadCatalog().map(({ operations, schemas, servers: _servers, auth, ...api }) => ({
     ...api,
     operationCount: operations.length,
+    schemaCount: schemas.length,
     defaultOperationSlug: operations[0].slug,
     authTypes: [...new Set(auth.map((scheme) => scheme.type))]
   }));
@@ -67,7 +75,13 @@ export function getCatalogOperation(apiSlug: string, operationSlug: string) {
   return api && operation ? { api, operation } : undefined;
 }
 
-export function searchCatalog(query: string, locale: Locale) {
+export function getCatalogSchema(apiSlug: string, schemaName: string) {
+  const api = getCatalogApi(apiSlug);
+  const schema = api?.schemas.find((item) => item.name === schemaName);
+  return api && schema ? { api, schema } : undefined;
+}
+
+export function searchCatalogOperations(query: string, locale: Locale) {
   const needle = query.trim().toLocaleLowerCase();
   if (!needle) return [];
 
@@ -101,4 +115,16 @@ export function searchCatalog(query: string, locale: Locale) {
         description: operation.description[locale]
       }))
   );
+}
+
+export function searchCatalog(
+  query: string,
+  locale: Locale,
+  options: {
+    kinds?: GlobalSearchKind[];
+    limit?: number;
+    offset?: number;
+  } = {}
+): GlobalSearchResponse {
+  return buildSearchResponse(loadCatalog(), query, locale, options);
 }

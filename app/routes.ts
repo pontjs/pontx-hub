@@ -5,10 +5,15 @@ export default [
   route("robots.txt", "routes/robots.ts"),
   route("sitemap.xml", "routes/sitemap.ts"),
   route("api/v1/*", "routes/api.ts"),
+  route("api/v2/*", "routes/api-v2.ts"),
   route("api/internal/*", "routes/internal-api.ts"),
   route(":locale", "routes/catalog.tsx"),
   route(":locale/apis", "routes/catalog-redirect.tsx"),
   route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),
+  route(
+    ":locale/apis/:apiSlug/schemas/:schemaName",
+    "routes/schema-detail.tsx"
+  ),
   route(
     ":locale/apis/:apiSlug/:operationSlug",
     "routes/operation-detail.tsx"

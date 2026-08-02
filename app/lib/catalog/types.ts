@@ -37,6 +37,25 @@ export type CatalogOperation = {
   deprecated?: boolean;
 };
 
+export type CatalogSchemaProperty = {
+  name: string;
+  type: "string" | "number" | "integer" | "boolean" | "object" | "array";
+  format?: string;
+  description?: LocalizedText;
+  required?: boolean;
+  ref?: string;
+};
+
+export type CatalogSchema = {
+  name: string;
+  title: LocalizedText;
+  description: LocalizedText;
+  type: "string" | "number" | "integer" | "boolean" | "object" | "array";
+  required: string[];
+  properties: CatalogSchemaProperty[];
+  schema: Record<string, unknown>;
+};
+
 export type CatalogServer = {
   id: string;
   url: string;
@@ -86,15 +105,70 @@ export type CatalogApi = {
   servers: CatalogServer[];
   auth: CatalogAuthScheme[];
   operations: CatalogOperation[];
+  schemas: CatalogSchema[];
 };
 
 export type CatalogSummary = Omit<
   CatalogApi,
-  "operations" | "servers" | "auth"
+  "operations" | "schemas" | "servers" | "auth"
 > & {
   operationCount: number;
+  schemaCount: number;
   defaultOperationSlug: string;
   authTypes: Array<CatalogAuthScheme["type"]>;
+};
+
+export type GlobalSearchKind = "api" | "endpoint" | "schema";
+
+type GlobalSearchResultBase = {
+  id: string;
+  kind: GlobalSearchKind;
+  score: number;
+  apiSlug: string;
+  apiTitle: string;
+  provider: string;
+  title: string;
+  description: string;
+  href: string;
+};
+
+export type ApiSearchResult = GlobalSearchResultBase & {
+  kind: "api";
+  category: string;
+  endpointCount: number;
+  schemaCount: number;
+};
+
+export type EndpointSearchResult = GlobalSearchResultBase & {
+  kind: "endpoint";
+  operationSlug: string;
+  operationId: string;
+  method: HttpMethod;
+  path: string;
+  tag: string;
+};
+
+export type SchemaSearchResult = GlobalSearchResultBase & {
+  kind: "schema";
+  schemaName: string;
+  schemaType: CatalogSchema["type"];
+  propertyCount: number;
+  properties: string[];
+};
+
+export type GlobalSearchResult =
+  | ApiSearchResult
+  | EndpointSearchResult
+  | SchemaSearchResult;
+
+export type GlobalSearchResponse = {
+  query: string;
+  locale: Locale;
+  total: number;
+  offset: number;
+  limit: number;
+  counts: Record<GlobalSearchKind, number>;
+  items: GlobalSearchResult[];
 };
 
 export function isLocale(value: string | undefined): value is Locale {

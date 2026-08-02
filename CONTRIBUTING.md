@@ -25,6 +25,6 @@ Keep changes focused, preserve server-rendered documentation and canonical URLs,
 
 - Website routes, rendering, SEO, and the secure Playground belong in this repository.
 - OpenAPI documents, translations, attribution, approved hashes, and catalog entries belong in `pontx-api-metadata`.
-- The standalone Hub CLI belongs in its own `pontx-hub-cli` repository.
+- The standalone Hub CLI belongs in [`pontjs/pontx-hub-cli`](https://github.com/pontjs/pontx-hub-cli).
 
 For security issues, do not open a public issue containing credentials or exploit details. Contact the maintainers privately through the Pontx organization.

@@ -17,6 +17,9 @@ export function loader() {
     for (const operation of api.operations) {
       urls.push(`/apis/${api.slug}/${operation.slug}`);
     }
+    for (const schema of api.schemas) {
+      urls.push(`/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`);
+    }
   }
 
   const entries = (["zh", "en"] as const).flatMap((locale) =>

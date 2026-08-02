@@ -1,51 +1,58 @@
 ---
 name: pontx-hub
-description: Search, inspect, preview, call, and integrate curated OpenAPI operations through the Pontx Hub CLI. Use when an agent needs to discover a public API, understand request or response metadata, generate TypeScript/Node.js SDK code, or safely perform an API call with dry-run and explicit mutation confirmation.
+description: Search, inspect, preview, call, and integrate curated OpenAPI resources through the standalone Pontx Hub CLI. Use when an agent needs to discover an API product, endpoint, or data schema; understand request or response metadata; generate TypeScript/Node.js SDK code; or safely perform an API call with preview and explicit mutation confirmation.
 ---
 
 # Pontx Hub
 
-Use `pontx hub` as the authoritative interface to the curated API catalog. Keep
+Use `pontx-hub` as the authoritative interface to the curated API catalog. Keep
 API metadata out of long-lived context by searching and loading only the
-operation needed for the current task.
+product, endpoint, or schema needed for the current task.
 
 ## Workflow
 
 1. Search before choosing an API:
 
    ```bash
-   pontx hub search "<capability>" --json
+   pontx-hub search "<capability>" --json
    ```
 
-2. Inspect the selected operation:
+   Narrow the result type when useful:
 
    ```bash
-   pontx hub show <api> <operation>
+   pontx-hub search "<field-or-model>" --type schema --json
    ```
 
-3. Build and review the exact request without sending it:
+2. Inspect the selected stable resource ID:
 
    ```bash
-   pontx hub preview <api> <operation> -p key=value --body '<json>'
+   pontx-hub show endpoint:<api>/<endpoint>
+   pontx-hub show schema:<api>/<schema>
+   ```
+
+3. For an endpoint, build and review the exact request without sending it:
+
+   ```bash
+   pontx-hub preview <api> <endpoint> -p key=value --body '<json>'
    ```
 
 4. For GET or HEAD, call only when the user requested execution:
 
    ```bash
-   pontx hub call <api> <operation> -p key=value
+   pontx-hub call <api> <endpoint> -p key=value
    ```
 
 5. For POST, PUT, PATCH, or DELETE, show the dry-run result and obtain explicit
    user confirmation. Then pass `--yes` without changing parameters:
 
    ```bash
-   pontx hub call <api> <operation> -p key=value --body '<json>' --yes
+   pontx-hub call <api> <endpoint> -p key=value --body '<json>' --yes
    ```
 
 6. Generate integration code after the request shape is verified:
 
    ```bash
-   pontx hub sdk <api>
+   pontx-hub sdk <api>
    ```
 
 ## Safety

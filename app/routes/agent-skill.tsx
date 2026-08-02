@@ -19,8 +19,8 @@ export function meta({ data }: Route.MetaArgs) {
       name: "description",
       content:
         locale === "zh"
-          ? "让 Agent 使用 pontx hub CLI 搜索、预演和调用精选 API。"
-          : "Teach agents to search, preview, and call curated APIs with the pontx hub CLI."
+          ? "让 Agent 使用独立的 pontx-hub CLI 搜索产品、接口和数据结构，并安全预演与调用 API。"
+          : "Teach agents to search products, endpoints, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI."
     },
     {
       tagName: "link",
@@ -33,11 +33,12 @@ export function meta({ data }: Route.MetaArgs) {
 export default function AgentSkill({ loaderData }: Route.ComponentProps) {
   const { locale } = loaderData;
   const zh = locale === "zh";
-  const workflow = `pontx hub search "repository"
-pontx hub show-api github.repos.get
-pontx hub call github.repos.get --owner octocat --repo Hello-World --dry-run
-# Only call after the user reviews the preview.
-pontx hub call github.repos.get --owner octocat --repo Hello-World`;
+  const workflow = `pontx-hub search "汇率" --locale zh --json
+pontx-hub show endpoint:frankfurter/get-latest-rates
+pontx-hub show schema:frankfurter/ExchangeRateResponse
+pontx-hub preview frankfurter get-latest-rates -p base=USD
+# GET can run after the user asks for execution.
+pontx-hub call frankfurter get-latest-rates -p base=USD`;
 
   return (
     <SiteShell locale={locale}>
@@ -61,7 +62,8 @@ pontx hub call github.repos.get --owner octocat --repo Hello-World`;
             </p>
           </div>
           <pre className="code-block">
-            <code>pontx hub skill install</code>
+            <code>{`pnpm add -g @pontx/hub-cli
+pontx-hub skill install`}</code>
           </pre>
           <pre className="code-block" style={{ marginTop: 18 }}>
             <code>{workflow}</code>

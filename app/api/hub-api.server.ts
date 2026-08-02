@@ -4,10 +4,16 @@ import { HTTPException } from "hono/http-exception";
 import {
   getCatalogApi,
   getCatalogOperation,
+  getCatalogSchema,
   listCatalogSummaries,
-  searchCatalog
+  searchCatalog,
+  searchCatalogOperations
 } from "~/lib/catalog/catalog.server";
-import { credentialEnvVar, isLocale } from "~/lib/catalog/types";
+import {
+  credentialEnvVar,
+  isLocale,
+  type GlobalSearchKind
+} from "~/lib/catalog/types";
 import { assertPublicHost } from "~/lib/playground/network.server";
 import { createPreview, prepareRequest } from "~/lib/playground/request.server";
 import {
@@ -235,7 +241,72 @@ hubApi.get("/api/v1/search", (context) => {
   }
   return cacheableJson(context.req.raw, {
     version: "v1",
-    data: searchCatalog(query, localeValue)
+    data: searchCatalogOperations(query, localeValue)
+  });
+});
+
+hubApi.get("/api/v2/search", (context) => {
+  const query = context.req.query("q")?.trim() ?? "";
+  const localeValue = context.req.query("locale") ?? "en";
+  if (!isLocale(localeValue)) {
+    return jsonError("invalid_locale", "locale must be zh or en", 422);
+  }
+  if (!query) {
+    return jsonError("invalid_query", "q must not be empty", 422);
+  }
+
+  const validKinds = new Set<GlobalSearchKind>(["api", "endpoint", "schema"]);
+  const kindsValue = context.req.query("types")?.trim();
+  const kinds = kindsValue
+    ? kindsValue.split(",").map((kind) => kind.trim())
+    : undefined;
+  if (kinds?.some((kind) => !validKinds.has(kind as GlobalSearchKind))) {
+    return jsonError(
+      "invalid_types",
+      "types must contain only api, endpoint, or schema",
+      422
+    );
+  }
+
+  const limitValue = context.req.query("limit");
+  const offsetValue = context.req.query("offset");
+  const limit = limitValue === undefined ? 30 : Number(limitValue);
+  const offset = offsetValue === undefined ? 0 : Number(offsetValue);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return jsonError("invalid_limit", "limit must be an integer from 1 to 100", 422);
+  }
+  if (!Number.isInteger(offset) || offset < 0) {
+    return jsonError("invalid_offset", "offset must be a non-negative integer", 422);
+  }
+
+  return cacheableJson(context.req.raw, {
+    version: "v2",
+    data: searchCatalog(query, localeValue, {
+      kinds: kinds as GlobalSearchKind[] | undefined,
+      limit,
+      offset
+    })
+  });
+});
+
+hubApi.get("/api/v2/specs/:slug/schemas/:schemaName", (context) => {
+  const match = getCatalogSchema(
+    context.req.param("slug"),
+    context.req.param("schemaName")
+  );
+  if (!match) return jsonError("not_found", "Schema not found", 404);
+  return cacheableJson(context.req.raw, {
+    version: "v2",
+    data: {
+      api: {
+        slug: match.api.slug,
+        name: match.api.name,
+        provider: match.api.provider,
+        title: match.api.title,
+        summary: match.api.summary
+      },
+      schema: match.schema
+    }
   });
 });
 

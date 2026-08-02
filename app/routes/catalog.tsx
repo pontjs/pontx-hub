@@ -1,34 +1,23 @@
-import { Form, Link } from "react-router";
+import { Form } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
+import { GlobalSearchResults } from "~/components/global-search-results";
 import { SiteShell } from "~/components/site-shell";
-import { listCatalogSummaries } from "~/lib/catalog/catalog.server";
-import { localize } from "~/lib/catalog/types";
+import {
+  listCatalogSummaries,
+  searchCatalog
+} from "~/lib/catalog/catalog.server";
 import { requireLocale, siteUrl } from "~/lib/http";
 
 export function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
   const catalog = listCatalogSummaries();
-  const apis = catalog.filter((api) => {
-    if (!query) return true;
-    return [
-      api.name,
-      api.provider,
-      api.category,
-      api.title.zh,
-      api.title.en,
-      api.summary.zh,
-      api.summary.en
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(query.toLowerCase());
-  });
   return {
     locale,
     query,
-    apis,
+    apis: catalog,
+    search: query ? searchCatalog(query, locale, { limit: 60 }) : null,
     totals: {
       apis: catalog.length,
       operations: catalog.reduce((count, api) => count + api.operationCount, 0),
@@ -58,7 +47,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
-  const { locale, query, apis, totals } = loaderData;
+  const { locale, query, apis, search, totals } = loaderData;
   const zh = locale === "zh";
 
   return (
@@ -94,39 +83,46 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           <div className="registry-toolbar">
             <Form className="catalog-search" method="get">
               <span aria-hidden="true">⌕</span>
-            <input
-              name="q"
-              defaultValue={query}
-              placeholder={zh ? "搜索 API…" : "Search APIs…"}
-              aria-label={zh ? "搜索 API" : "Search APIs"}
-            />
+              <input
+                name="q"
+                defaultValue={query}
+                placeholder={
+                  zh
+                    ? "搜索 API、接口或数据结构…"
+                    : "Search APIs, endpoints, or schemas…"
+                }
+                aria-label={zh ? "全局搜索" : "Global search"}
+              />
             </Form>
             <span>
-              {String(apis.length).padStart(2, "0")} / {String(totals.apis).padStart(2, "0")}
+              {search
+                ? zh
+                  ? `${search.counts.api} API · ${search.counts.endpoint} 接口 · ${search.counts.schema} 数据结构`
+                  : `${search.counts.api} APIs · ${search.counts.endpoint} endpoints · ${search.counts.schema} schemas`
+                : `${String(apis.length).padStart(2, "0")} API`}
             </span>
           </div>
 
-          <div className="registry-columns" aria-hidden="true">
-            <span>{zh ? "API / 能力" : "API / Capability"}</span>
-            <span>{zh ? "分类" : "Category"}</span>
-            <span>{zh ? "接口" : "Endpoints"}</span>
-            <span>{zh ? "鉴权" : "Auth"}</span>
-            <span>SDK</span>
-            <span />
-          </div>
-
-          <div className="api-grid">
-            {apis.map((api, index) => (
-              <ApiCard key={api.slug} api={api} locale={locale} index={index} />
-            ))}
-            {!apis.length ? (
-              <div className="catalog-empty">
-                <strong>{zh ? "没有匹配的 API" : "No matching APIs"}</strong>
-                <p>{zh ? "尝试搜索 Provider、用途或分类。" : "Try a provider, capability, or category."}</p>
-                <Link to={`/${locale}`}>{zh ? "清除搜索" : "Clear search"}</Link>
+          {search ? (
+            <GlobalSearchResults search={search} locale={locale} />
+          ) : (
+            <>
+              <div className="registry-columns" aria-hidden="true">
+                <span>{zh ? "API / 能力" : "API / Capability"}</span>
+                <span>{zh ? "分类" : "Category"}</span>
+                <span>{zh ? "接口" : "Endpoints"}</span>
+                <span>{zh ? "鉴权" : "Auth"}</span>
+                <span>SDK</span>
+                <span />
               </div>
-            ) : null}
-          </div>
+
+              <div className="api-grid">
+                {apis.map((api, index) => (
+                  <ApiCard key={api.slug} api={api} locale={locale} index={index} />
+                ))}
+              </div>
+            </>
+          )}
         </section>
       </main>
     </SiteShell>

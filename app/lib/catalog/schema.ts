@@ -30,6 +30,25 @@ const operationSchema = z.object({
   deprecated: z.boolean().optional()
 });
 
+const schemaPropertySchema = z.object({
+  name: z.string().min(1),
+  type: z.enum(["string", "number", "integer", "boolean", "object", "array"]),
+  format: z.string().min(1).optional(),
+  description: localizedTextSchema.optional(),
+  required: z.boolean().optional(),
+  ref: z.string().min(1).optional()
+});
+
+const catalogSchemaSchema = z.object({
+  name: z.string().min(1),
+  title: localizedTextSchema,
+  description: localizedTextSchema,
+  type: z.enum(["string", "number", "integer", "boolean", "object", "array"]),
+  required: z.array(z.string()).default([]),
+  properties: z.array(schemaPropertySchema).default([]),
+  schema: z.record(z.string(), z.unknown())
+});
+
 const serverSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   url: z.string().url().refine((value) => value.startsWith("https://"), {
@@ -82,7 +101,8 @@ export const catalogApiSchema = z
     proxyEnabled: z.boolean().default(false),
     servers: z.array(serverSchema).min(1),
     auth: z.array(authSchema),
-    operations: z.array(operationSchema).min(1)
+    operations: z.array(operationSchema).min(1),
+    schemas: z.array(catalogSchemaSchema).default([])
   })
   .superRefine((api, context) => {
     const operationSlugs = new Set<string>();
