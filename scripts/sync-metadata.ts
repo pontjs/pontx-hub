@@ -14,8 +14,13 @@ try {
     process.env.METADATA_REPO_RAW_URL ??
     "https://raw.githubusercontent.com/pontjs/pontx-api-metadata/master"
   ).replace(/\/$/, "");
-  const response = await fetch(`${rawBase}/catalog/catalog.json`, {
-    headers: { Accept: "application/json" },
+  const catalogUrl = new URL(`${rawBase}/catalog/catalog.json`);
+  catalogUrl.searchParams.set("cache-bust", Date.now().toString());
+  const response = await fetch(catalogUrl, {
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache"
+    },
     cache: "no-store"
   });
   if (!response.ok) {
