@@ -1266,29 +1266,174 @@ pre {
   background: #f8fafc;
 }
 
+.pontx-hydrated-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  margin: -1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .pontx-documentation-fallback {
+  display: grid;
+  align-content: start;
+  gap: 16px;
   padding: clamp(28px, 4vw, 54px);
   background: #f8fafc;
 }
 
-.pontx-documentation-fallback > p:first-child {
-  margin: 0 0 14px;
+.operation-seo-header,
+.pontx-documentation-fallback > section {
+  border: 1px solid var(--line);
+  padding: 20px;
+  background: #fff;
+}
+
+.operation-seo-api,
+.operation-seo-method {
+  display: flex;
+  align-items: center;
+  margin: 0 0 12px;
+  gap: 10px;
+}
+
+.operation-seo-api {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.operation-seo-api strong {
+  color: var(--ink);
+}
+
+.operation-seo-method {
   color: var(--blue);
   font-family: var(--mono);
   font-size: 11px;
 }
 
+.operation-seo-method strong,
+.operation-seo-method code,
+.operation-seo-schema-line a {
+  border: 1px solid #cbd6ef;
+  padding: 4px 7px;
+  background: #f3f6fc;
+  color: inherit;
+  text-decoration: none;
+}
+
 .pontx-documentation-fallback h1 {
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   font-family: var(--serif);
-  font-size: clamp(34px, 4vw, 52px);
+  font-size: clamp(30px, 4vw, 46px);
   letter-spacing: -0.045em;
 }
 
-.pontx-documentation-fallback > p:last-child {
+.operation-seo-header > p:not(.operation-seo-api, .operation-seo-method) {
   max-width: 720px;
+  margin-block: 8px 0;
   color: var(--ink-soft);
   line-height: 1.7;
+}
+
+.operation-seo-summary {
+  font-size: 12px;
+}
+
+.pontx-documentation-fallback h2 {
+  margin: 0 0 14px;
+  font-size: 17px;
+}
+
+.operation-seo-facts {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.operation-seo-facts div {
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  padding: 0 12px;
+}
+
+.operation-seo-facts div:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.operation-seo-facts dt {
+  color: var(--ink-soft);
+  font-size: 10px;
+}
+
+.operation-seo-facts dd {
+  overflow-wrap: anywhere;
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+
+.operation-seo-list {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+}
+
+.operation-seo-list > section {
+  padding: 12px;
+  background: #fff;
+}
+
+.operation-seo-list h3,
+.operation-seo-list p,
+.operation-seo-schema-line {
+  margin: 0;
+}
+
+.operation-seo-list h3 {
+  font-size: 13px;
+}
+
+.operation-seo-list p,
+.operation-seo-schema-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin-top: 7px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  gap: 8px;
+}
+
+.operation-seo-list a {
+  color: var(--blue);
+}
+
+.operation-seo-schema-line strong,
+.operation-seo-list strong {
+  color: #c92b26;
+}
+
+.operation-seo-schema-line code,
+.operation-seo-list p code {
+  border: 1px solid var(--line);
+  padding: 2px 5px;
+  background: #f6f8fa;
+}
+
+.operation-seo-example {
+  overflow-x: auto;
+  margin: 10px 0 0;
+  border-left: 2px solid var(--blue);
+  padding: 9px 11px;
+  background: #f6f8fa;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: pre-wrap;
 }
 
 .pontx-documentation > div:first-child {

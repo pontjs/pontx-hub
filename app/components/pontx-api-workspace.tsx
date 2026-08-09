@@ -22,6 +22,7 @@ import type {
 } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
+import { OperationSeoContent } from "~/components/operation-seo-content";
 
 type ApiEnvelope<T> =
   | { version: "v1"; data: T }
@@ -265,6 +266,11 @@ export function PontxApiWorkspace({
           </p>
         </div>
         {isHydrated ? (
+          <h1 className="pontx-hydrated-title">
+            {localize(operation.title, locale)} — {api.name}
+          </h1>
+        ) : null}
+        {isHydrated ? (
           <ApiDocumentation
             key={`${locale}:${api.slug}:${operation.slug}`}
             api={pontxApi}
@@ -282,11 +288,7 @@ export function PontxApiWorkspace({
             className="pontx-documentation"
           />
         ) : (
-          <article className="pontx-documentation-fallback">
-            <p>{operation.method} · {operation.path}</p>
-            <h1>{localize(operation.title, locale)}</h1>
-            <p>{localize(operation.description, locale)}</p>
-          </article>
+          <OperationSeoContent locale={locale} api={api} operation={operation} />
         )}
       </section>
     </main>

@@ -21,9 +21,22 @@ export function meta({ data }: Route.MetaArgs) {
   const title = `${localize(operation.title, locale)} — ${api.name}`;
   const description = localize(operation.description, locale);
   const path = `/${locale}/apis/${api.slug}/${operation.slug}`;
+  const schemaNames = [
+    operation.requestBody?.schemaName,
+    ...operation.responses.map((response) => response.schemaName)
+  ].filter((name): name is string => Boolean(name));
+  const keywords = [
+    api.name,
+    api.provider,
+    operation.operationId,
+    operation.method,
+    operation.path,
+    ...schemaNames
+  ];
   return [
     { title },
     { name: "description", content: description },
+    { name: "keywords", content: keywords.join(", ") },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
     { property: "og:type", content: "article" },
@@ -46,6 +59,13 @@ export function meta({ data }: Route.MetaArgs) {
         "@type": "TechArticle",
         headline: title,
         description,
+        identifier: operation.operationId,
+        articleSection: `${operation.method} ${operation.path}`,
+        keywords,
+        about: [
+          { "@type": "Thing", name: api.name },
+          ...schemaNames.map((name) => ({ "@type": "Thing", name }))
+        ],
         isPartOf: {
           "@type": "WebSite",
           name: "Pontx Hub",
