@@ -1,6 +1,8 @@
 import type { Locale } from "./catalog/types";
 import { isLocale } from "./catalog/types";
 
+export const CANONICAL_SITE_ORIGIN = "https://pontx-hub.vercel.app";
+
 export function requireLocale(value: string | undefined): Locale {
   if (!isLocale(value)) {
     throw new Response("Locale not found", { status: 404 });
@@ -9,11 +11,7 @@ export function requireLocale(value: string | undefined): Locale {
 }
 
 export function siteUrl(path = ""): string {
-  const base =
-    typeof window === "undefined"
-      ? process.env.PUBLIC_SITE_URL ?? "http://localhost:5173"
-      : window.location.origin;
-  return new URL(path, base).toString();
+  return new URL(path, CANONICAL_SITE_ORIGIN).toString();
 }
 
 export function cacheHeaders(seconds = 300): HeadersInit {

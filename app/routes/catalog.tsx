@@ -32,17 +32,46 @@ export function meta({ data }: Route.MetaArgs) {
     locale === "zh"
       ? "Pontx Hub — OpenAPI 目录"
       : "Pontx Hub — OpenAPI Catalog";
+  const description =
+    locale === "zh"
+      ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
+      : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs.";
+  const canonical = siteUrl(`/${locale}`);
   return [
     { title },
-    {
-      name: "description",
-      content:
-        locale === "zh"
-          ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
-          : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs."
-    },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: canonical },
+    { property: "og:site_name", content: "Pontx Hub" },
+    { name: "twitter:card", content: "summary" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
     ...(data?.query ? [{ name: "robots", content: "noindex,follow" }] : []),
-    { tagName: "link", rel: "canonical", href: siteUrl(`/${locale}`) }
+    { tagName: "link", rel: "canonical", href: canonical },
+    { tagName: "link", rel: "alternate", hrefLang: "zh-CN", href: siteUrl("/zh") },
+    { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl("/en") },
+    { tagName: "link", rel: "alternate", hrefLang: "x-default", href: siteUrl("/en") },
+    ...(!data?.query && data ? [{
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: title,
+        description,
+        url: canonical,
+        mainEntity: {
+          "@type": "ItemList",
+          numberOfItems: data.apis.length,
+          itemListElement: data.apis.map((api, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: api.title[locale],
+            url: siteUrl(`/${locale}/apis/${api.slug}/${api.defaultOperationSlug}`)
+          }))
+        }
+      }
+    }] : [])
   ];
 }
 

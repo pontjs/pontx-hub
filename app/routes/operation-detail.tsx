@@ -33,6 +33,7 @@ export function meta({ data }: Route.MetaArgs) {
     operation.path,
     ...schemaNames
   ];
+  const canonical = siteUrl(path);
   return [
     { title },
     { name: "description", content: description },
@@ -40,7 +41,12 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:title", content: title },
     { property: "og:description", content: description },
     { property: "og:type", content: "article" },
-    { tagName: "link", rel: "canonical", href: siteUrl(path) },
+    { property: "og:url", content: canonical },
+    { property: "og:site_name", content: "Pontx Hub" },
+    { name: "twitter:card", content: "summary" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { tagName: "link", rel: "canonical", href: canonical },
     {
       tagName: "link",
       rel: "alternate",
@@ -54,11 +60,18 @@ export function meta({ data }: Route.MetaArgs) {
       href: siteUrl(`/en/apis/${api.slug}/${operation.slug}`)
     },
     {
+      tagName: "link",
+      rel: "alternate",
+      hrefLang: "x-default",
+      href: siteUrl(`/en/apis/${api.slug}/${operation.slug}`)
+    },
+    {
       "script:ld+json": {
         "@context": "https://schema.org",
         "@type": "TechArticle",
         headline: title,
         description,
+        url: canonical,
         identifier: operation.operationId,
         articleSection: `${operation.method} ${operation.path}`,
         keywords,

@@ -17,7 +17,3 @@ export function loader() {
     }
   );
 }
-
-export default function RobotsResourceRoute() {
-  return null;
-}

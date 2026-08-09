@@ -4,7 +4,8 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLocation
 } from "react-router";
 import type { Route } from "./+types/root";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
@@ -25,8 +26,11 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  const language = pathname === "/en" || pathname.startsWith("/en/") ? "en" : "zh-CN";
+
   return (
-    <html lang="zh-CN">
+    <html lang={language}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />

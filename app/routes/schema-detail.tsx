@@ -15,15 +15,27 @@ export function loader({ params }: Route.LoaderArgs) {
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "Schema not found — Pontx Hub" }];
   const { locale, api, schema } = data;
-  const title = `${localize(schema.title, locale)} (${schema.name}) — ${api.name}`;
+  const localizedTitle = localize(schema.title, locale);
+  const title = localizedTitle === schema.name
+    ? `${schema.name} Schema — ${api.name}`
+    : `${localizedTitle} (${schema.name}) — ${api.name}`;
   const description = localize(schema.description, locale);
   const path = `/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`;
+  const canonical = siteUrl(path);
+  const keywords = [api.name, api.provider, schema.name, schema.type, ...schema.properties.map((property) => property.name)];
   return [
     { title },
     { name: "description", content: description },
+    { name: "keywords", content: keywords.join(", ") },
     { property: "og:title", content: title },
     { property: "og:description", content: description },
-    { tagName: "link", rel: "canonical", href: siteUrl(path) },
+    { property: "og:type", content: "article" },
+    { property: "og:url", content: canonical },
+    { property: "og:site_name", content: "Pontx Hub" },
+    { name: "twitter:card", content: "summary" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+    { tagName: "link", rel: "canonical", href: canonical },
     {
       tagName: "link",
       rel: "alternate",
@@ -37,11 +49,21 @@ export function meta({ data }: Route.MetaArgs) {
       href: siteUrl(`/en/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`)
     },
     {
+      tagName: "link",
+      rel: "alternate",
+      hrefLang: "x-default",
+      href: siteUrl(`/en/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`)
+    },
+    {
       "script:ld+json": {
         "@context": "https://schema.org",
         "@type": "TechArticle",
         headline: title,
         description,
+        url: canonical,
+        identifier: schema.name,
+        keywords,
+        about: { "@type": "Thing", name: api.name },
         isPartOf: {
           "@type": "WebSite",
           name: "Pontx Hub",

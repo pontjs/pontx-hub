@@ -8,25 +8,27 @@ export function loader({ params }: Route.LoaderArgs) {
 
 export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
+  const title = locale === "zh"
+    ? "Pontx Hub Agent Skill — API 智能体技能"
+    : "Pontx Hub Agent Skill — API Discovery and Execution";
+  const description =
+    locale === "zh"
+      ? "让 Agent 使用独立的 pontx-hub CLI 语义搜索产品、接口、入参与出参，并安全预演与调用 API。"
+      : "Teach agents to semantically search products, endpoints, inputs, outputs, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI.";
+  const canonical = siteUrl(`/${locale}/agent-skill`);
   return [
-    {
-      title:
-        locale === "zh"
-          ? "Pontx Hub Agent Skill"
-          : "Pontx Hub Agent Skill"
-    },
-    {
-      name: "description",
-      content:
-        locale === "zh"
-          ? "让 Agent 使用独立的 pontx-hub CLI 语义搜索产品、接口、入参与出参，并安全预演与调用 API。"
-          : "Teach agents to semantically search products, endpoints, inputs, outputs, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI."
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: siteUrl(`/${locale}/agent-skill`)
-    }
+    { title },
+    { name: "description", content: description },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: canonical },
+    { property: "og:site_name", content: "Pontx Hub" },
+    { name: "twitter:card", content: "summary" },
+    { tagName: "link", rel: "canonical", href: canonical },
+    { tagName: "link", rel: "alternate", hrefLang: "zh-CN", href: siteUrl("/zh/agent-skill") },
+    { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl("/en/agent-skill") },
+    { tagName: "link", rel: "alternate", hrefLang: "x-default", href: siteUrl("/en/agent-skill") }
   ];
 }
 

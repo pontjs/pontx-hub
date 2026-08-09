@@ -14,17 +14,23 @@ export function loader({ params }: Route.LoaderArgs) {
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "SDK not found — Pontx Hub" }];
   const title = `${data.api.packageName} — TypeScript SDK`;
+  const description = data.locale === "zh"
+    ? `${localize(data.api.title, data.locale)} 的 TypeScript 与 Node.js SDK 集成说明。`
+    : `Install and use the operator-maintained TypeScript and Node.js SDK for ${data.api.name}.`;
+  const canonical = siteUrl(`/${data.locale}/sdks/${data.api.slug}`);
   return [
     { title },
-    {
-      name: "description",
-      content: `Install and use the operator-maintained SDK for ${data.api.name}.`
-    },
-    {
-      tagName: "link",
-      rel: "canonical",
-      href: siteUrl(`/${data.locale}/sdks/${data.api.slug}`)
-    }
+    { name: "description", content: description },
+    ...(data.api.sdkStatus === "planned" ? [{ name: "robots", content: "noindex,follow" }] : []),
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: "website" },
+    { property: "og:url", content: canonical },
+    { name: "twitter:card", content: "summary" },
+    { tagName: "link", rel: "canonical", href: canonical },
+    { tagName: "link", rel: "alternate", hrefLang: "zh-CN", href: siteUrl(`/zh/sdks/${data.api.slug}`) },
+    { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl(`/en/sdks/${data.api.slug}`) },
+    { tagName: "link", rel: "alternate", hrefLang: "x-default", href: siteUrl(`/en/sdks/${data.api.slug}`) }
   ];
 }
 
