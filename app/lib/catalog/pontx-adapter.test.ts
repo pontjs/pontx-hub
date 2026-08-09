@@ -55,7 +55,7 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       }
     });
     expect(pontxApi.securitySchemes).toMatchObject({
-      BearerAuth: { type: "http", scheme: "bearer" }
+      OAuth2: { type: "oauth2", flows: {} }
     });
   });
 });

@@ -92,8 +92,8 @@ describe("Hub API", () => {
         serverId: "default",
         path: { projectId: "project-1", taskId: "task-1" },
         auth: {
-          type: "bearer",
-          schemeId: "BearerAuth",
+          type: "oauth2",
+          schemeId: "OAuth2",
           token: "secret-token"
         }
       })

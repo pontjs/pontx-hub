@@ -15,8 +15,8 @@ describe("Playground request preparation", () => {
       query: {},
       headers: {},
       auth: {
-        type: "bearer" as const,
-        schemeId: "BearerAuth",
+        type: "oauth2" as const,
+        schemeId: "OAuth2",
         token: "dida_secret"
       }
     };
