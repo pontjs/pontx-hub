@@ -3366,8 +3366,8 @@ index 1ebedd099a42549460ba55a0390af8b1bbca0c33..14e7626a46548c9068ba88914c7be663
  import { default as React } from 'react';
 -import { AuthData } from '../types/playground';
 +import { AuthData, OAuthAuthorizeInput, OAuthAuthorizationState, OAuthFlowName } from '../types/playground';
-
-/**
+ 
+ /**
   * Security scheme type definitions based on OpenAPI Specification
 @@ -18,7 +18,11 @@ export interface HttpSecurityScheme {
  }
@@ -3430,8 +3430,8 @@ index d8da361c0fa1fef032f35f504e2595a5f5e5a4b6..b15fc31d73a00fbdd1a603f1ad0f2476
  import { Server } from './UrlConfiguration';
 -import { PlaygroundRequest, PlaygroundExecutionResult, PlaygroundState, ValidationError, CodeGenScenario, CodeGenRequest } from '../types/playground';
 +import { PlaygroundRequest, PlaygroundExecutionResult, PlaygroundState, ValidationError, CodeGenScenario, CodeGenRequest, OAuthAuthorizeInput, OAuthAuthorizationState } from '../types/playground';
-
-/**
+ 
+ /**
   * Props for PlaygroundPanel component
 @@ -19,6 +19,11 @@ export interface PlaygroundPanelProps {
      servers?: Server[];
