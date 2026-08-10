@@ -2392,6 +2392,133 @@ samp,
   line-height: 1.65;
 }
 
+.code-frame {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #263545;
+  border-radius: 8px;
+  background: #101720;
+  box-shadow: 0 10px 28px rgba(18, 28, 39, 0.12);
+}
+
+.code-frame-spaced {
+  margin-top: 18px;
+}
+
+.code-frame-bar {
+  display: grid;
+  min-height: 42px;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  border-bottom: 1px solid #263545;
+  padding: 0 10px 0 14px;
+  background: #182330;
+}
+
+.code-frame-lights {
+  display: flex;
+  gap: 6px;
+}
+
+.code-frame-lights i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ff765e;
+}
+
+.code-frame-lights i:nth-child(2) {
+  background: #ffc45c;
+}
+
+.code-frame-lights i:nth-child(3) {
+  background: var(--acid);
+}
+
+.code-frame-label {
+  overflow: hidden;
+  color: #aab9c8;
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.code-copy-button {
+  min-width: 62px;
+  border: 1px solid #3b4b5d;
+  border-radius: 4px;
+  padding: 5px 9px;
+  background: #202d3b;
+  color: #dce7f0;
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.code-copy-button:hover {
+  border-color: var(--acid);
+  background: #293847;
+  color: var(--acid);
+}
+
+.code-copy-button:focus-visible {
+  outline-color: var(--acid);
+}
+
+.code-frame-content {
+  overflow-x: auto;
+  margin: 0;
+  padding: 19px 20px 21px;
+  color: #d7e0e9;
+  font-size: 13px;
+  line-height: 1.75;
+  scrollbar-color: #42556a #101720;
+}
+
+.code-frame-content:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: -4px;
+}
+
+.code-line {
+  min-width: max-content;
+}
+
+.code-token-command {
+  color: var(--acid);
+  font-weight: 600;
+}
+
+.code-token-keyword {
+  color: #78cfff;
+  font-weight: 500;
+}
+
+.code-token-option {
+  color: #ffad7d;
+}
+
+.code-token-string {
+  color: #f5cf71;
+}
+
+.code-token-comment {
+  color: #7e92a5;
+  font-style: italic;
+}
+
+.code-token-literal {
+  color: #d8a5ff;
+}
+
 .playground {
   padding: clamp(26px, 3vw, 36px);
   background: #f7f9fb;

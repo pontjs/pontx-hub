@@ -36,20 +36,22 @@ product, endpoint, or schema needed for the current task.
 3. For an endpoint, build and review the exact request without sending it:
 
    ```bash
-   pontx-hub preview <api> <endpoint> -p key=value --body '<json>'
+   pontx-hub <api-collection> preview <api-name> -p key=value --body '<json>'
+   pontx-hub <api-collection> preview <controller> <api-name> -p key=value --body '<json>'
    ```
 
 4. For GET or HEAD, call only when the user requested execution:
 
    ```bash
-   pontx-hub call <api> <endpoint> -p key=value
+   pontx-hub <api-collection> call <api-name> -p key=value
+   pontx-hub <api-collection> call <controller> <api-name> -p key=value
    ```
 
 5. For POST, PUT, PATCH, or DELETE, show the dry-run result and obtain explicit
    user confirmation. Then pass `--yes` without changing parameters:
 
    ```bash
-   pontx-hub call <api> <endpoint> -p key=value --body '<json>' --yes
+   pontx-hub <api-collection> call <controller> <api-name> -p key=value --body '<json>' --yes
    ```
 
 6. Generate integration code after the request shape is verified:
@@ -65,7 +67,7 @@ product, endpoint, or schema needed for the current task.
 - Never print, echo, log, or place credentials directly in command arguments.
 - Read credentials from the environment variables named by `show`.
 - Never call an arbitrary URL or an operation outside the Hub catalog.
-- Never bypass `--dry-run` for a mutation.
+- Never bypass the separate `preview` step for a mutation.
 - Treat a changed parameter, body, server, or operation as a new request that
   requires another dry-run and confirmation.
 - Read [references/auth-and-safety.md](references/auth-and-safety.md) when
