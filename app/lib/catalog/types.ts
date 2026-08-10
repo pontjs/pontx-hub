@@ -54,6 +54,8 @@ export type CatalogOperation = {
   responses: CatalogResponseMetadata[];
   serverIds: string[];
   proxyHeaders: Record<string, string>;
+  proxyEnabled?: boolean;
+  proxyDisabledReason?: LocalizedText;
   documentationStatus: DocumentationStatus;
   evidenceUrls: string[];
   verifiedAt?: string;

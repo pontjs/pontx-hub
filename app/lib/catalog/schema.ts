@@ -60,6 +60,8 @@ const operationSchema = z.object({
       z.string().max(8192).refine((value) => !/[\r\n]/.test(value))
     )
     .default({}),
+  proxyEnabled: z.boolean().default(true),
+  proxyDisabledReason: localizedTextSchema.optional(),
   documentationStatus: documentationStatusSchema,
   evidenceUrls: z.array(z.string().url()).default([]),
   verifiedAt: z.string().date().optional(),

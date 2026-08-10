@@ -19,6 +19,9 @@ export function DocumentationEvidence({
   return (
     <aside className={`documentation-evidence status-${operation.documentationStatus}`}>
       <strong>{statusLabel(operation.documentationStatus, zh)}</strong>
+      {operation.proxyEnabled === false && operation.proxyDisabledReason ? (
+        <p>{zh ? "仅预览：" : "Preview only: "}{localize(operation.proxyDisabledReason, locale)}</p>
+      ) : null}
       {operation.stabilityNote ? <p>{localize(operation.stabilityNote, locale)}</p> : null}
       {operation.verifiedAt ? (
         <p>

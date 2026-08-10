@@ -112,7 +112,7 @@ describe("Hub API", () => {
     expect(text).toContain("Bearer ••••••••");
   });
 
-  it("uses endpoint-specific servers and curated upstream headers", async () => {
+  it("uses endpoint-specific servers and disables unavailable upstream endpoints", async () => {
     const response = await hubApi.request("/api/v1/playground/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -127,6 +127,28 @@ describe("Hub API", () => {
     expect(response.status).toBe(200);
     expect(payload.data.url).toBe("https://fundgz.1234567.com.cn/js/001072.js");
     expect(payload.data.headers.Referer).toBe("https://fund.eastmoney.com/");
+    expect(payload.data.proxyEnabled).toBe(false);
+  });
+
+  it("adds all curated headers for an executable endpoint", async () => {
+    const response = await hubApi.request("/api/v1/playground/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSlug: "cnbc-market-data",
+        operationSlug: "get-quote-chart-data",
+        serverId: "webql-redesign-cnbcfm-com",
+        query: {
+          operationName: "getQuoteChartData",
+          variables: '{"symbol":"AAPL","timeRange":"1D"}',
+          extensions: '{"persistedQuery":{"version":1,"sha256Hash":"9e1670c29a10707c417a1efd327d4b2b1d456b77f1426e7e84fb7d399416bb6b"}}'
+        }
+      })
+    });
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.data.headers.Referer).toBe("https://www.cnbc.com/");
+    expect(payload.data.headers.partner).toBe("cnbc01");
     expect(payload.data.proxyEnabled).toBe(true);
   });
 });
