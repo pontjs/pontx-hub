@@ -9,8 +9,16 @@ describe("Hub API", () => {
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
     expect(payload.data.map((api: { slug: string }) => api.slug).sort()).toEqual([
+      "cnbc-market-data",
       "dida365",
-      "frankfurter"
+      "eastmoney-funds",
+      "frankfurter",
+      "i3investor-sgx",
+      "massive",
+      "sina-finance",
+      "stooq",
+      "tencent-finance",
+      "yahoo-finance"
     ]);
   });
 

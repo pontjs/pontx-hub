@@ -10,7 +10,18 @@ import {
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect(catalog.map((api) => api.slug).sort()).toEqual(["dida365", "frankfurter"]);
+    expect(catalog.map((api) => api.slug).sort()).toEqual([
+      "cnbc-market-data",
+      "dida365",
+      "eastmoney-funds",
+      "frankfurter",
+      "i3investor-sgx",
+      "massive",
+      "sina-finance",
+      "stooq",
+      "tencent-finance",
+      "yahoo-finance"
+    ]);
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
@@ -87,6 +98,18 @@ describe("curated catalog", () => {
     const currency = searchCatalog("把欧元换算成美元", "zh", {
       kinds: ["endpoint"]
     });
-    expect(currency.items.every((item) => item.apiSlug === "frankfurter")).toBe(true);
+    expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
+  });
+
+  it("preserves documentation provenance and proxy restrictions", () => {
+    const catalog = listCatalog();
+    const marketApis = catalog.filter((api) =>
+      ["massive", "yahoo-finance", "stooq", "sina-finance", "tencent-finance", "eastmoney-funds", "cnbc-market-data", "i3investor-sgx"].includes(api.slug)
+    );
+    expect(marketApis).toHaveLength(8);
+    expect(marketApis.every((api) => api.proxyEnabled === false)).toBe(true);
+    expect(marketApis.find((api) => api.slug === "massive")?.documentationStatus).toBe("official");
+    expect(marketApis.find((api) => api.slug === "i3investor-sgx")?.documentationStatus).toBe("inferred");
+    expect(marketApis.every((api) => api.evidenceUrls.length > 0)).toBe(true);
   });
 });

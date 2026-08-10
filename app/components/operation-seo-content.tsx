@@ -2,6 +2,44 @@ import { Link } from "react-router";
 import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 
+function statusLabel(status: CatalogOperation["documentationStatus"], zh: boolean) {
+  if (status === "official") return zh ? "官方文档" : "Official documentation";
+  if (status === "observed") return zh ? "官网实测" : "Observed on provider site";
+  return zh ? "推测并验证" : "Inferred and verified";
+}
+
+export function DocumentationEvidence({
+  locale,
+  operation
+}: {
+  locale: Locale;
+  operation: CatalogOperation;
+}) {
+  const zh = locale === "zh";
+  return (
+    <aside className={`documentation-evidence status-${operation.documentationStatus}`}>
+      <strong>{statusLabel(operation.documentationStatus, zh)}</strong>
+      {operation.stabilityNote ? <p>{localize(operation.stabilityNote, locale)}</p> : null}
+      {operation.verifiedAt ? (
+        <p>
+          {zh ? "验证日期" : "Verified"}: <time dateTime={operation.verifiedAt}>{operation.verifiedAt}</time>
+        </p>
+      ) : null}
+      {operation.evidenceUrls.length ? (
+        <p>
+          {zh ? "证据" : "Evidence"}:{" "}
+          {operation.evidenceUrls.map((url, index) => (
+            <span key={url}>
+              {index ? ", " : ""}
+              <a href={url} rel="noreferrer">{new URL(url).hostname}</a>
+            </span>
+          ))}
+        </p>
+      ) : null}
+    </aside>
+  );
+}
+
 function typeLabel(item: {
   schemaName?: string;
   schemaType?: string;
@@ -45,6 +83,7 @@ export function OperationSeoContent({
         <h1 id="endpoint-title">{localize(operation.title, locale)}</h1>
         <p>{localize(operation.description, locale)}</p>
         <p className="operation-seo-summary">{localize(api.summary, locale)}</p>
+        <DocumentationEvidence locale={locale} operation={operation} />
       </header>
 
       <section aria-labelledby="request-heading">
