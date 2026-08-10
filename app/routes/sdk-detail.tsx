@@ -67,12 +67,24 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
                 ? `The operator-published SDK for ${localize(api.title, locale)}. Documentation and package releases share the same approved OAS.`
                 : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the approved OAS.`}
           </p>
+          {published ? (
+            <a
+              className="npm-registry-link"
+              href={npmUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${zh ? "在 npm 打开" : "Open on npm"} ${api.packageName}`}
+            >
+              <span>npm registry</span>
+              <code>{npmUrl}</code>
+              <strong>{zh ? "打开 npm 主页" : "Open npm page"} ↗</strong>
+            </a>
+          ) : null}
           <div className="detail-meta">
             <span>{published ? `v${api.sdkVersion}` : zh ? "即将发布" : "Coming soon"}</span>
             <span>Node.js ≥ 18</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
-            {published ? <a href={npmUrl} target="_blank" rel="noreferrer">npm ↗</a> : null}
             <a href={`/${locale}/apis/${api.slug}/${api.operations[0]?.slug}`}>{zh ? "API 文档" : "API docs"}</a>
           </div>
         </header>
