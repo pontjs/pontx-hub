@@ -129,6 +129,13 @@ const authSchema = z.discriminatedUnion("type", [
       .enum(["client_secret_basic", "client_secret_post", "none"])
       .default("client_secret_basic"),
     pkce: z.enum(["required", "preferred", "unsupported"]).default("preferred"),
+    credentialGuide: z
+      .object({
+        url: httpsUrlSchema,
+        title: localizedTextSchema,
+        steps: z.array(localizedTextSchema).min(1).max(8)
+      })
+      .optional(),
     flows: z
       .object({
         authorizationCode: z

@@ -115,6 +115,11 @@ export type CatalogAuthScheme =
         | "client_secret_post"
         | "none";
       pkce?: "required" | "preferred" | "unsupported";
+      credentialGuide?: {
+        url: string;
+        title: LocalizedText;
+        steps: LocalizedText[];
+      };
       flows?: {
         authorizationCode?: OAuthFlow;
         clientCredentials?: OAuthFlow;

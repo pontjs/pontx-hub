@@ -1277,6 +1277,25 @@ pre {
   overflow: hidden;
 }
 
+.pontx-workspace-body {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pontx-workspace-body > .pontx-hydrated-title,
+.pontx-workspace-body > .oauth-toolbar,
+.pontx-workspace-body > .documentation-evidence {
+  flex: 0 0 auto;
+}
+
+.pontx-workspace-body > .pontx-documentation {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .pontx-workspace-bar {
   gap: 16px;
   background: #fff;
@@ -2310,6 +2329,12 @@ pre {
 .oauth-toolbar-heading > div { display: flex; align-items: center; gap: 8px; }
 .oauth-toolbar-heading span { color: #16875a; font-size: 12px; }
 .oauth-toolbar-heading p, .oauth-toolbar-actions span { margin: 0; color: #64748b; font-size: 11px; }
+.oauth-credential-guide { padding: 10px 12px; border: 1px solid #cfe8dc; border-radius: 6px; background: #fff; }
+.oauth-credential-guide > div { display: flex; align-items: center; gap: 10px; }
+.oauth-credential-guide > div > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #0f766e; color: #fff; font: 600 10px/1 "IBM Plex Mono", monospace; }
+.oauth-credential-guide > div > div { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 12px; }
+.oauth-credential-guide a { color: #0f766e; font-size: 12px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+.oauth-credential-guide ol { margin: 9px 0 0 38px; padding-left: 16px; color: #475569; font-size: 12px; line-height: 1.65; }
 .oauth-toolbar-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .oauth-toolbar label { display: grid; gap: 4px; color: #475569; font-size: 11px; }
 .oauth-toolbar input:not([type="checkbox"]), .oauth-toolbar select { min-width: 0; height: 32px; padding: 0 9px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff; color: #0f172a; }
@@ -2352,5 +2377,6 @@ pre {
 @media (max-width: 760px) {
   .oauth-toolbar-fields { grid-template-columns: 1fr; }
   .oauth-toolbar-heading, .oauth-toolbar-actions { align-items: flex-start; flex-direction: column; }
+  .oauth-credential-guide > div > div { align-items: flex-start; flex-direction: column; gap: 3px; }
   .oauth-toolbar-actions span { margin-left: 0; }
 }
