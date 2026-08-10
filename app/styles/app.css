@@ -1643,6 +1643,10 @@ samp,
   overflow: visible;
 }
 
+.resource-page-guided .oauth-toolbar {
+  margin: 0 0 20px;
+}
+
 .resource-page-guided .pontx-documentation-guided {
   display: block;
   height: auto;
@@ -3018,6 +3022,10 @@ samp,
 
   .resource-page-guided .pontx-workspace-body {
     padding: 14px;
+  }
+
+  .resource-page-guided .oauth-toolbar {
+    margin-inline: 12px;
   }
 
   .resource-page-guided .pontx-documentation [data-testid="playground-panel"] {
