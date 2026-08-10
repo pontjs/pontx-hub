@@ -5,6 +5,8 @@ import { localize } from "~/lib/catalog/types";
 import { requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { ResourceNavigation } from "~/components/resource-navigation";
+import { CodeBlock } from "~/components/code-block";
+import { hubCliCommand } from "~/lib/hub-cli-command";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -68,7 +70,13 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
 // Generated methods are typed from the approved OAS version.
 const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`;
   const npmUrl = `https://www.npmjs.com/package/${api.packageName}`;
-  const cliName = api.slug === "frankfurter" ? "currency" : api.slug === "dida365" ? "dida" : api.slug;
+  const cliOperation = api.operations[0];
+  const cliUsage = cliOperation
+    ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
+    : "pnpm add --global @pontx/hub-cli";
+  const codeBlockCopy = zh ? "复制" : "Copy";
+  const codeBlockCopied = zh ? "已复制" : "Copied";
+  const codeBlockCopyFailed = zh ? "复制失败" : "Copy failed";
 
   return (
     <SiteShell locale={locale}>
@@ -124,17 +132,13 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
           </div>
           {published ? (
             <>
-              <pre className="code-block">
-                <code>{install}</code>
-              </pre>
-              <pre className="code-block" style={{ marginTop: 18 }}>
-                <code>{usage}</code>
-              </pre>
+              <CodeBlock code={install} language="shell" label={zh ? "安装 SDK" : "Install SDK"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
+              <CodeBlock className="code-frame-spaced" code={usage} language="typescript" label={zh ? "TypeScript 调用" : "TypeScript usage"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
               <div className="section-heading" style={{ marginTop: 32 }}>
                 <h2>{zh ? "命令行调用" : "Command-line access"}</h2>
-                <p>{zh ? "同一个 npm 包包含对应 API 的专用 CLI；Pontx Hub CLI 可用于跨 API 搜索。" : "The same npm package includes a dedicated API CLI; use Pontx Hub CLI for cross-API discovery."}</p>
+                <p>{zh ? "Pontx Hub CLI 先选择 API 集合，再按 controller 与 API 名称调用接口。没有 controller 的集合可直接写 API 名称。" : "Pontx Hub CLI selects the API collection first, then calls an API by controller and name. Collections without a controller use the API name directly."}</p>
               </div>
-              <pre className="code-block"><code>{`npm install --global ${api.packageName}\n${cliName} --help\n\n# Cross-API search\nnpm install --global @pontx/hub-cli\npontx-hub search "${api.name}"`}</code></pre>
+              <CodeBlock code={cliUsage} language="shell" label="Pontx Hub CLI" copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
             </>
           ) : null}
         </section>

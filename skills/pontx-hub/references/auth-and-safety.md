@@ -27,11 +27,11 @@ POST, PUT, PATCH, and DELETE are mutations even when their names sound
 read-only. Always:
 
 1. Inspect the operation metadata.
-2. Run `pontx-hub preview <api> <endpoint>`.
+2. Run `pontx-hub <api-collection> preview [controller] <api-name>`.
 3. Present the resolved method, host, path, query, redacted headers, and body.
 4. State the expected side effect.
 5. Ask the user to confirm that exact request.
-6. Run the unchanged request with `pontx-hub call <api> <endpoint> --yes`.
+6. Run the unchanged request with `pontx-hub <api-collection> call [controller] <api-name> --yes`.
 
 If confirmation is missing, ambiguous, or applies to different parameters, stop
 without sending the request.

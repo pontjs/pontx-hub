@@ -33,6 +33,7 @@ import {
   type OAuthClientCredentials,
   type OAuthTokenSet
 } from "~/lib/oauth/client";
+import { hubCliCommand, shellArgument } from "~/lib/hub-cli-command";
 
 type OAuthAuthorizeInput = {
   schemeName: string;
@@ -130,24 +131,20 @@ const codeGenScenarios: CodeGenScenario[] = [
   { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
 ];
 
-function shellQuote(value: string): string {
-  return `'${value.replaceAll("'", `'"'"'`)}'`;
-}
-
 function hubCliSnippet(
   request: PlaygroundRequest,
   api: CatalogApi,
   operation: CatalogOperation
 ): string {
-  const parts = ["pontx-hub", "call", api.slug, operation.slug];
+  const parts = [hubCliCommand(api.slug, operation)];
   for (const [name, value] of Object.entries({ ...request.path, ...request.query })) {
-    if (value) parts.push("-p", shellQuote(`${name}=${value}`));
+    if (value) parts.push("-p", shellArgument(`${name}=${value}`));
   }
   for (const [name, value] of Object.entries(request.headers)) {
-    if (value) parts.push("-H", shellQuote(`${name}: ${value}`));
+    if (value) parts.push("-H", shellArgument(`${name}: ${value}`));
   }
   if (request.body !== undefined) {
-    parts.push("--body", shellQuote(JSON.stringify(request.body)));
+    parts.push("--body", shellArgument(JSON.stringify(request.body)));
   }
   return parts.join(" ");
 }

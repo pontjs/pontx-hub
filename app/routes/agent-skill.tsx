@@ -2,6 +2,7 @@ import type { Route } from "./+types/agent-skill";
 import { SiteShell } from "~/components/site-shell";
 import { requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
+import { CodeBlock } from "~/components/code-block";
 
 export function loader({ params }: Route.LoaderArgs) {
   return { locale: requireLocale(params.locale) };
@@ -55,9 +56,12 @@ export default function AgentSkill({ loaderData }: Route.ComponentProps) {
   const workflow = `pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
 pontx-hub show schema:frankfurter/ExchangeRateResponse
-pontx-hub preview frankfurter get-latest-rates -p base=USD
+pontx-hub frankfurter preview 'Exchange Rates' getLatestRates -p base=USD
 # GET can run after the user asks for execution.
-pontx-hub call frankfurter get-latest-rates -p base=USD`;
+pontx-hub frankfurter call 'Exchange Rates' getLatestRates -p base=USD`;
+  const copyLabel = zh ? "复制" : "Copy";
+  const copiedLabel = zh ? "已复制" : "Copied";
+  const copyFailedLabel = zh ? "复制失败" : "Copy failed";
 
   return (
     <SiteShell locale={locale}>
@@ -76,17 +80,12 @@ pontx-hub call frankfurter get-latest-rates -p base=USD`;
             <h2>{zh ? "安装一次" : "Install once"}</h2>
             <p>
               {zh
-                ? "Hub Skill 始终要求先 dry-run；写操作必须由用户明确确认。"
+                ? "Hub Skill 始终要求先预演；写操作必须由用户明确确认。"
                 : "The Hub Skill always previews first, and mutations require explicit user confirmation."}
             </p>
           </div>
-          <pre className="code-block">
-            <code>{`pnpm add -g @pontx/hub-cli
-pontx-hub skill install`}</code>
-          </pre>
-          <pre className="code-block" style={{ marginTop: 18 }}>
-            <code>{workflow}</code>
-          </pre>
+          <CodeBlock code={`pnpm add -g @pontx/hub-cli\npontx-hub skill install`} language="shell" label={zh ? "安装" : "Install"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
+          <CodeBlock className="code-frame-spaced" code={workflow} language="shell" label={zh ? "安全调用流程" : "Safe call workflow"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
         </section>
       </main>
     </SiteShell>

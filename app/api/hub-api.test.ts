@@ -94,7 +94,7 @@ describe("Hub API", () => {
     const payload = await response.json();
     expect(response.status).toBe(200);
     expect(payload.data.name).toBe("pontx-hub");
-    expect(payload.data.files["SKILL.md"]).toContain("pontx-hub preview");
+    expect(payload.data.files["SKILL.md"]).toContain("pontx-hub <api-collection> preview");
     expect(payload.data.files["SKILL.md"]).toContain("--type schema");
     expect(payload.data.files["references/auth-and-safety.md"]).toBeTruthy();
   });
