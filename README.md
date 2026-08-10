@@ -15,6 +15,10 @@ pnpm install
 pnpm dev
 ```
 
+Set `GOOGLE_ANALYTICS_ID` to a GA4 web data stream Measurement ID (for example,
+`G-XXXXXXXXXX`) to enable page-view analytics. When the variable is unset,
+Google Analytics is not loaded.
+
 The curated source of truth lives in the separate
 [`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)
 repository. The Hub synchronizes its compiled catalog before development,

@@ -5,11 +5,24 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
   useLocation
 } from "react-router";
 import type { Route } from "./+types/root";
+import { GoogleAnalytics } from "~/components/google-analytics";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import "./styles/app.css";
+
+const GA_MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/i;
+
+export function loader() {
+  const configuredId = process.env.GOOGLE_ANALYTICS_ID?.trim();
+
+  return {
+    googleAnalyticsId:
+      configuredId && GA_MEASUREMENT_ID_PATTERN.test(configuredId) ? configuredId : undefined
+  };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/svg+xml", href: PONTX_LOGO_DATA_URL },
@@ -48,7 +61,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const { googleAnalyticsId } = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <Outlet />
+      <GoogleAnalytics measurementId={googleAnalyticsId} />
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
