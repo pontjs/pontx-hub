@@ -11,14 +11,18 @@ import {
 import type { Route } from "./+types/root";
 import { GoogleAnalytics } from "~/components/google-analytics";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
+import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import "./styles/app.css";
+import "./styles/account.css";
 
 const GA_MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/i;
 
-export function loader() {
+export async function loader({ request }: Route.LoaderArgs) {
   const configuredId = process.env.GOOGLE_ANALYTICS_ID?.trim();
+  const accounts = await loadAccountsViewer(request);
 
   return {
+    accounts,
     googleAnalyticsId:
       configuredId && GA_MEASUREMENT_ID_PATTERN.test(configuredId) ? configuredId : undefined
   };

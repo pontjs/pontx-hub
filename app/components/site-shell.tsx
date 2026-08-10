@@ -4,6 +4,7 @@ import { GitHubIcon } from "~/components/github-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 import { alternateLocaleUrl } from "~/lib/i18n";
+import { AccountNavigation } from "~/components/account-navigation";
 
 const copy = {
   zh: {
@@ -90,6 +91,7 @@ export function SiteShell({
           <a href={languageTarget} className="language-link" hrefLang={nextLocale === "zh" ? "zh-CN" : "en"} onClick={handleLanguageChange}>
             {text.language}
           </a>
+          <AccountNavigation locale={locale} />
         </nav>
         <div className="mobile-nav">
           <button
@@ -126,6 +128,7 @@ export function SiteShell({
             }}>
               {text.language}
             </a>
+            <AccountNavigation locale={locale} onNavigate={() => setMobileNavOpen(false)} />
           </nav>
         </div>
       </header>

@@ -1,0 +1,178 @@
+.account-link,
+.account-sign-out {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.account-link {
+  padding: 8px 11px !important;
+}
+
+.account-sign-out {
+  min-height: 32px;
+  padding: 0 11px;
+}
+
+.account-sign-out:hover,
+.account-link:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.account-sign-out:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.account-identity {
+  display: inline-flex;
+  max-width: 150px;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.account-identity > span:first-child {
+  color: #16875a;
+  font-size: 8px;
+}
+
+.account-identity-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-page {
+  display: grid;
+  min-height: calc(100vh - 190px);
+  place-items: center;
+  padding: 72px 24px;
+  background:
+    linear-gradient(rgba(38, 50, 69, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(38, 50, 69, 0.045) 1px, transparent 1px),
+    #f7f4ed;
+  background-size: 32px 32px;
+}
+
+.sign-in-panel {
+  width: min(100%, 560px);
+  border: 1px solid var(--line-strong);
+  padding: clamp(28px, 6vw, 52px);
+  background: #fff;
+  box-shadow: 12px 12px 0 rgba(49, 87, 213, 0.1);
+}
+
+.account-eyebrow {
+  margin: 0 0 22px;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.sign-in-panel h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
+.sign-in-panel > p:not(.account-eyebrow, .account-error, .account-privacy-note) {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.github-sign-in {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+  border: 1px solid #17202d;
+  background: #17202d;
+  color: #fff;
+  font-weight: 700;
+}
+
+.github-sign-in span {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.github-sign-in:hover:not(:disabled) {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+.github-sign-in:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.account-error {
+  margin: 14px 0 0;
+  color: #b42318;
+  font-size: 13px;
+}
+
+.account-privacy-note {
+  margin: 22px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .mobile-nav nav .account-link,
+  .mobile-nav nav .account-sign-out,
+  .mobile-nav nav .account-identity {
+    width: 100%;
+    max-width: none;
+    min-height: 42px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 13px 15px !important;
+    text-align: left;
+  }
+
+  .mobile-nav nav .account-identity {
+    display: flex;
+  }
+
+  .account-page {
+    min-height: calc(100vh - 150px);
+    padding: 42px 16px;
+  }
+
+  .sign-in-panel {
+    padding: 28px 22px;
+    box-shadow: 7px 7px 0 rgba(49, 87, 213, 0.1);
+  }
+}
