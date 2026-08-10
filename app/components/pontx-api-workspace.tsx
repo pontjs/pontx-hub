@@ -244,8 +244,11 @@ export function PontxApiWorkspace({
   const activeOperation = guided ? selectedOperation : operation;
   const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
   const pontxApi = useMemo(
-    () => toPontxApi(api, activeOperation, locale),
-    [activeOperation, api, locale]
+    () =>
+      toPontxApi(api, activeOperation, locale, {
+        parameterExamples: guided ? "required" : "all"
+      }),
+    [activeOperation, api, guided, locale]
   );
   const playgroundAvailability = getPlaygroundAvailability(
     api,

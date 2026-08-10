@@ -47,6 +47,15 @@ export type HubPontxApi = PontxAPI & {
   };
 };
 
+export type PontxAdapterOptions = {
+  /**
+   * The shared Playground treats schema examples as initial input values.
+   * Guided calls keep examples only for required parameters so optional
+   * examples are not mistaken for defaults and combined into one request.
+   */
+  parameterExamples?: "all" | "required";
+};
+
 function schemaType(value: unknown): PontxJsonSchema["type"] {
   if (Array.isArray(value)) return "array";
   if (value === null) return "object";
@@ -95,8 +104,11 @@ export function inferPontxSchema(value: unknown): PontxJsonSchema {
 
 function parameterSchema(
   parameter: CatalogParameter,
-  locale: Locale
+  locale: Locale,
+  options: PontxAdapterOptions
 ): PontxJsonSchema {
+  const includeExamples =
+    options.parameterExamples !== "required" || Boolean(parameter.required);
   const constraintKeys = [
     "default", "const", "multipleOf", "minimum", "maximum",
     "exclusiveMinimum", "exclusiveMaximum", "minLength", "maxLength",
@@ -109,7 +121,7 @@ function parameterSchema(
       .map((key) => [key, parameter[key]])
   );
   const exampleSchema =
-    parameter.example === undefined
+    parameter.example === undefined || !includeExamples
       ? { type: parameter.type }
       : inferPontxSchema(parameter.example);
   return {
@@ -117,11 +129,13 @@ function parameterSchema(
     type: parameter.type,
     ...constraints,
     ...(parameter.enum ? { enum: parameter.enum } : {}),
-    ...(parameter.examples ? { examples: parameter.examples } : {}),
+    ...(includeExamples && parameter.examples
+      ? { examples: parameter.examples }
+      : {}),
     ...(parameter.description
       ? { description: localize(parameter.description, locale) }
       : {}),
-    ...(parameter.example === undefined
+    ...(parameter.example === undefined || !includeExamples
       ? {}
       : { examples: [parameter.example] })
   } as PontxJsonSchema;
@@ -156,7 +170,8 @@ export function pontxOperationName(operation: CatalogOperation): string {
 export function toPontxApi(
   api: CatalogApi,
   operation: CatalogOperation,
-  locale: Locale
+  locale: Locale,
+  options: PontxAdapterOptions = {}
 ): HubPontxApi {
   const bodyParameter = operation.parameters.find(
     (parameter) => parameter.in === "body"
@@ -168,7 +183,7 @@ export function toPontxApi(
     ...(parameter.description
       ? { description: localize(parameter.description, locale) }
       : {}),
-    schema: parameterSchema(parameter, locale)
+    schema: parameterSchema(parameter, locale, options)
   }));
   const securitySchemes = Object.fromEntries(
     api.auth.map((scheme) => [scheme.id, securityScheme(scheme, locale)])
@@ -202,7 +217,7 @@ export function toPontxApi(
             required: Boolean(bodyParameter.required),
             content: {
               [operation.contentType ?? "application/json"]: {
-                schema: parameterSchema(bodyParameter, locale)
+                schema: parameterSchema(bodyParameter, locale, options)
               }
             }
           }

@@ -1,3 +1,4 @@
+import { getSchemaInputValue } from "@pontx/shadcn-ui";
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "./catalog.server";
 import {
@@ -99,5 +100,59 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     const group = parameters.find((parameter) => parameter.name === "group");
     expect(base?.schema).toMatchObject({ default: "EUR", examples: ["USD"] });
     expect(group?.schema).toMatchObject({ enum: ["week", "month"], examples: ["month"] });
+  });
+
+  itWithFrankfurterV2("prefills defaults and required examples without optional examples", () => {
+    const api = frankfurterV2;
+    const operation = api?.operations.find((item) => item.slug === "get-rates");
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+
+    const pontxApi = toPontxApi(api!, operation!, "en", {
+      parameterExamples: "required"
+    });
+    const initialQuery = Object.fromEntries(
+      (pontxApi.parameters ?? [])
+        .filter((parameter) => parameter.in === "query")
+        .map(
+          (parameter) =>
+            [
+              parameter.name,
+              getSchemaInputValue(parameter.schema)
+            ] as const
+        )
+        .filter((entry) => entry[1] !== "")
+    );
+
+    expect(initialQuery).toEqual({ base: "EUR" });
+    expect(
+      pontxApi.parameters?.find((parameter) => parameter.name === "date")
+        ?.schema.examples
+    ).toBeUndefined();
+    expect(
+      pontxApi.parameters?.find((parameter) => parameter.name === "group")
+        ?.schema
+    ).toMatchObject({ enum: ["week", "month"] });
+
+    const requiredOperation = api?.operations.find(
+      (item) => item.slug === "get-rate"
+    );
+    expect(requiredOperation).toBeDefined();
+    const requiredApi = toPontxApi(api!, requiredOperation!, "en", {
+      parameterExamples: "required"
+    });
+    expect(
+      Object.fromEntries(
+        (requiredApi.parameters ?? [])
+          .filter((parameter) => parameter.in === "path")
+          .map(
+            (parameter) =>
+              [
+                parameter.name,
+                getSchemaInputValue(parameter.schema)
+              ] as const
+          )
+      )
+    ).toEqual({ base: "EUR", quote: "USD" });
   });
 });
