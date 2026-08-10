@@ -1196,7 +1196,7 @@ pre {
   display: grid;
   height: calc(100vh - 60px);
   min-height: 680px;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: clamp(260px, 22vw, 304px) minmax(0, 1fr);
   border-bottom: 1px solid var(--line);
   background: #fff;
 }
@@ -1262,6 +1262,21 @@ pre {
 
 .pontx-directory [role="menuitem"] > p {
   margin-top: 2px;
+}
+
+.pontx-directory [role="menuitem"] {
+  min-width: 0;
+}
+
+.pontx-directory [role="menuitem"] > div {
+  min-width: 0;
+}
+
+.pontx-directory [role="menuitem"] code,
+.pontx-directory [role="menuitem"] [class*="font-mono"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pontx-directory [role="menuitem"][aria-selected="true"] {
@@ -1510,6 +1525,13 @@ pre {
 .pontx-documentation > div:first-child {
   min-width: 0;
   padding-right: 18px;
+}
+
+/* The workspace bar already carries the endpoint identity. Keep the reusable
+   component's overview card available to other consumers, but remove the
+   duplicate title card inside Hub so the request details begin above the fold. */
+.pontx-documentation > div:first-child > div:first-child {
+  display: none;
 }
 
 .pontx-documentation [data-testid="playground-panel"] {
@@ -2317,25 +2339,33 @@ pre {
 }
 .oauth-toolbar {
   margin: 12px 14px 0;
-  padding: 12px;
   border: 1px solid #d8e0e8;
   border-left: 3px solid #1dbf73;
   border-radius: 8px;
   background: #f8fbfa;
-  display: grid;
-  gap: 10px;
 }
 .oauth-toolbar-heading, .oauth-toolbar-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.oauth-toolbar-heading { padding: 12px; cursor: pointer; list-style: none; }
+.oauth-toolbar-heading::-webkit-details-marker { display: none; }
+.oauth-toolbar-heading::after { content: "+"; color: #0f766e; font: 600 18px/1 var(--mono); }
+.oauth-toolbar[open] .oauth-toolbar-heading { border-bottom: 1px solid #d8e0e8; }
+.oauth-toolbar[open] .oauth-toolbar-heading::after { content: "−"; }
+.oauth-toolbar-heading:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+.oauth-toolbar-content { display: grid; gap: 10px; padding: 12px; }
 .oauth-toolbar-heading > div { display: flex; align-items: center; gap: 8px; }
 .oauth-toolbar-heading span { color: #16875a; font-size: 12px; }
-.oauth-toolbar-heading p, .oauth-toolbar-actions span { margin: 0; color: #64748b; font-size: 11px; }
-.oauth-credential-guide { padding: 10px 12px; border: 1px solid #cfe8dc; border-radius: 6px; background: #fff; }
-.oauth-credential-guide > div { display: flex; align-items: center; gap: 10px; }
-.oauth-credential-guide > div > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #0f766e; color: #fff; font: 600 10px/1 "IBM Plex Mono", monospace; }
-.oauth-credential-guide > div > div { display: flex; align-items: center; justify-content: space-between; flex: 1; gap: 12px; }
+.oauth-toolbar-heading p, .oauth-toolbar-actions span, .oauth-callback { margin: 0; color: #64748b; font-size: 11px; }
+.oauth-credential-guide { border: 1px solid #cfe8dc; border-radius: 6px; background: #fff; }
+.oauth-credential-guide summary { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer; list-style: none; }
+.oauth-credential-guide summary::-webkit-details-marker { display: none; }
+.oauth-credential-guide summary:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+.oauth-credential-guide summary > span:first-child { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #0f766e; color: #fff; font: 600 10px/1 "IBM Plex Mono", monospace; }
+.oauth-credential-guide summary > span:last-child { color: #0f766e; font-size: 11px; }
+.oauth-credential-guide[open] summary { border-bottom: 1px solid #cfe8dc; }
+.oauth-credential-guide > div { display: flex; align-items: end; justify-content: space-between; gap: 16px; padding: 8px 12px 10px; }
 .oauth-credential-guide a { color: #0f766e; font-size: 12px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
-.oauth-credential-guide ol { margin: 9px 0 0 38px; padding-left: 16px; color: #475569; font-size: 12px; line-height: 1.65; }
-.oauth-toolbar-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.oauth-credential-guide ol { margin: 0; padding-left: 18px; color: #475569; font-size: 12px; line-height: 1.65; }
+.oauth-toolbar-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 320px)); gap: 8px; }
 .oauth-toolbar label { display: grid; gap: 4px; color: #475569; font-size: 11px; }
 .oauth-toolbar input:not([type="checkbox"]), .oauth-toolbar select { min-width: 0; height: 32px; padding: 0 9px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff; color: #0f172a; }
 .oauth-toolbar fieldset { display: flex; flex-wrap: wrap; gap: 8px 14px; border: 0; padding: 0; margin: 0; }
@@ -2376,7 +2406,11 @@ pre {
 .documentation-evidence p { margin: 5px 0 0; font-size: 12px; }
 @media (max-width: 760px) {
   .oauth-toolbar-fields { grid-template-columns: 1fr; }
-  .oauth-toolbar-heading, .oauth-toolbar-actions { align-items: flex-start; flex-direction: column; }
-  .oauth-credential-guide > div > div { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .oauth-toolbar-actions { align-items: flex-start; flex-direction: column; }
+  .oauth-toolbar-heading p { display: none; }
+  .oauth-toolbar-heading::after { margin-left: auto; }
+  .oauth-credential-guide summary { grid-template-columns: 28px minmax(0, 1fr); }
+  .oauth-credential-guide summary > span:last-child { display: none; }
+  .oauth-credential-guide > div { align-items: flex-start; flex-direction: column; }
   .oauth-toolbar-actions span { margin-left: 0; }
 }

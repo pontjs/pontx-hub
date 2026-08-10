@@ -10,6 +10,14 @@ export function DocumentationEvidence({
   operation: CatalogOperation;
 }) {
   const zh = locale === "zh";
+  const hasEvidence =
+    (operation.proxyEnabled === false && Boolean(operation.proxyDisabledReason)) ||
+    Boolean(operation.stabilityNote) ||
+    Boolean(operation.verifiedAt) ||
+    operation.evidenceUrls.length > 0;
+
+  if (!hasEvidence) return null;
+
   return (
     <aside className="documentation-evidence">
       {operation.proxyEnabled === false && operation.proxyDisabledReason ? (

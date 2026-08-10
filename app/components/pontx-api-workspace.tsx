@@ -74,18 +74,24 @@ function OAuthToolbar({
   if (!flows.length) return null;
   const busy = state.status === "authorizing" || state.status === "refreshing";
   const authorized = state.status === "authorized" || state.status === "refreshing";
-  return <section className="oauth-toolbar" aria-label="OAuth 2.0 authorization">
-    <div className="oauth-toolbar-heading">
+  return <details className="oauth-toolbar">
+    <summary className="oauth-toolbar-heading">
       <div><strong>OAuth 2.0</strong><span>{authorized ? "已授权" : "会话级授权"}</span></div>
-      <p>回调地址：<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
-    </div>
-    {scheme.credentialGuide && <aside className="oauth-credential-guide">
-      <div>
+      <p>{locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
+    </summary>
+    <div className="oauth-toolbar-content">
+    <p className="oauth-callback">{locale === "zh" ? "回调地址" : "Callback URL"}：<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
+    {scheme.credentialGuide && <details className="oauth-credential-guide">
+      <summary>
         <span aria-hidden="true">01</span>
-        <div><strong>{localize(scheme.credentialGuide.title, locale)}</strong><a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">{locale === "zh" ? "打开官方开发者中心 ↗" : "Open Developer Center ↗"}</a></div>
+        <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
+        <span>{locale === "zh" ? "查看申请步骤" : "View setup steps"}</span>
+      </summary>
+      <div>
+        <ol>{scheme.credentialGuide.steps.map((step, index) => <li key={index}>{localize(step, locale)}</li>)}</ol>
+        <a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">{locale === "zh" ? "打开官方开发者中心 ↗" : "Open Developer Center ↗"}</a>
       </div>
-      <ol>{scheme.credentialGuide.steps.map((step, index) => <li key={index}>{localize(step, locale)}</li>)}</ol>
-    </aside>}
+    </details>}
     <div className="oauth-toolbar-fields">
       {flows.length > 1 && <label>Flow<select value={flow} onChange={(event) => { setFlow(event.target.value as OAuthAuthorizeInput["flow"]); setScopes(requiredScopes); }}><option value="authorizationCode">Authorization Code</option><option value="clientCredentials">Client Credentials</option></select></label>}
       <label>Client ID<input autoComplete="off" value={clientId} onChange={(event) => setClientId(event.target.value)} /></label>
@@ -94,7 +100,8 @@ function OAuthToolbar({
     {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>必需</small>}</label>)}</fieldset>}
     {state.error && <p className="oauth-toolbar-error" role="alert">{state.error}</p>}
     <div className="oauth-toolbar-actions"><button type="button" disabled={busy || !clientId} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? "授权中…" : authorized ? "重新授权" : "发起授权"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>清除授权</button>}<span>client_secret 不会持久化或写入日志</span></div>
-  </section>;
+    </div>
+  </details>;
 }
 
 type ApiEnvelope<T> =
