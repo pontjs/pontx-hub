@@ -52,5 +52,10 @@
     "vite": "^7.3.6",
     "vite-plugin-commonjs": "^0.10.4",
     "vitest": "^4.1.10"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@pontx/shadcn-ui@1.2.7": "patches/@pontx__shadcn-ui@1.2.7.patch"
+    }
   }
 }

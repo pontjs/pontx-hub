@@ -1,0 +1,22 @@
+diff --git a/dist/ApiDocumentation-CEyI6EqJ.js b/dist/ApiDocumentation-CEyI6EqJ.js
+index 24bca87..2d60e51 100644
+--- a/dist/ApiDocumentation-CEyI6EqJ.js
++++ b/dist/ApiDocumentation-CEyI6EqJ.js
+@@ -52,7 +52,7 @@ const V = ({
+   }, [b, i]), h(() => {
+     f && f({ isOpen: o });
+   }, [o, f]);
+-  const N = t.deprecated || !i, P = v(() => {
++  const N = !i, P = v(() => {
+     N || g((r) => !r);
+   }, [N]), q = v((r) => {
+     g(r);
+@@ -92,7 +92,7 @@ const V = ({
+                     size: "sm",
+                     disabled: N,
+                     onClick: P,
+-                    title: t.deprecated ? "此 API 已弃用，无法试用" : i ? "试用此 API" : "未提供执行回调",
++                    title: i ? "试用此 API" : "未提供执行回调",
+                     children: "试用"
+                   }
+                 )
