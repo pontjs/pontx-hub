@@ -824,7 +824,7 @@ diff --git a/dist/CodeSnippets-CobG6q7v.js b/dist/CodeSnippets-BwNtWnKX.js
 similarity index 59%
 rename from dist/CodeSnippets-CobG6q7v.js
 rename to dist/CodeSnippets-BwNtWnKX.js
-index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b5395d609d5e 100644
+index bb917d6cc48f702e795c9202b6bd1060451ebe61..53bec62ef68161f80f05752a5c66a75ce571b669 100644
 --- a/dist/CodeSnippets-CobG6q7v.js
 +++ b/dist/CodeSnippets-BwNtWnKX.js
 @@ -1,17 +1,17 @@
@@ -859,7 +859,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
    {
      variants: {
-@@ -35,44 +35,44 @@ const ae = $(
+@@ -35,45 +35,47 @@ const ae = $(
        size: "default"
      }
    }
@@ -919,9 +919,12 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
 -const D = {
 +const F = {
    language: "json",
++  fontFamily: '"IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace',
++  fontLigatures: !1,
    minimap: { enabled: !1 },
    lineNumbers: "on",
-@@ -89,96 +89,96 @@ const D = {
+   scrollBeyondLastLine: !1,
+@@ -89,96 +91,96 @@ const D = {
    suggestOnTriggerCharacters: !0,
    quickSuggestions: !0,
    wordWrap: "off"
@@ -1054,7 +1057,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
        "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-background text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
        r === "popper" && "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
        e
-@@ -186,9 +186,9 @@ const F = h.forwardRef(({ className: e, children: t, position: r = "popper", ...
+@@ -186,9 +188,9 @@ const F = h.forwardRef(({ className: e, children: t, position: r = "popper", ...
      position: r,
      ...i,
      children: /* @__PURE__ */ a(
@@ -1066,7 +1069,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
            "p-1",
            r === "popper" && "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
          ),
-@@ -197,136 +197,136 @@ const F = h.forwardRef(({ className: e, children: t, position: r = "popper", ...
+@@ -197,136 +199,136 @@ const F = h.forwardRef(({ className: e, children: t, position: r = "popper", ...
      )
    }
  ) }));
@@ -1244,7 +1247,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    const r = [];
    for (const i of t) {
      const n = e[i.name] || "", s = i.required ?? !1;
-@@ -340,19 +340,19 @@ function De(e, t) {
+@@ -340,19 +342,19 @@ function De(e, t) {
      }
      if (!s && (!n || n.trim() === ""))
        continue;
@@ -1270,7 +1273,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    if (!e || e.trim() === "")
      return "Invalid JSON: empty string";
    try {
-@@ -361,7 +361,12 @@ function M(e) {
+@@ -361,7 +363,12 @@ function M(e) {
      return t instanceof SyntaxError ? `Invalid JSON: ${t.message}` : "Invalid JSON syntax";
    }
  }
@@ -1284,7 +1287,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    const r = JSON.stringify(e);
    if (t.has(r))
      return null;
-@@ -376,18 +381,18 @@ function C(e, t = /* @__PURE__ */ new Set()) {
+@@ -376,18 +383,18 @@ function C(e, t = /* @__PURE__ */ new Set()) {
    if (e.allOf && e.allOf.length > 0) {
      const i = {};
      for (const n of e.allOf) {
@@ -1307,7 +1310,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
      case "number":
        return 42;
      case "integer":
-@@ -397,14 +402,14 @@ function C(e, t = /* @__PURE__ */ new Set()) {
+@@ -397,14 +404,14 @@ function C(e, t = /* @__PURE__ */ new Set()) {
      case "null":
        return null;
      case "array":
@@ -1326,7 +1329,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    switch (e.format) {
      case "email":
        return "user@example.com";
-@@ -423,14 +428,14 @@ function Oe(e) {
+@@ -423,14 +430,14 @@ function Oe(e) {
        return "string";
    }
  }
@@ -1344,7 +1347,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    const r = JSON.stringify(e);
    if (t.has(r))
      return null;
-@@ -450,19 +455,19 @@ function U(e, t = /* @__PURE__ */ new Set()) {
+@@ -450,19 +457,19 @@ function U(e, t = /* @__PURE__ */ new Set()) {
        return [];
      // Empty array for template
      case "object":
@@ -1369,7 +1372,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    if (!e || typeof e != "object")
      return e;
    if (e.$ref) {
-@@ -472,44 +477,44 @@ function k(e, t, r = /* @__PURE__ */ new Set()) {
+@@ -472,44 +479,44 @@ function k(e, t, r = /* @__PURE__ */ new Set()) {
      const n = e.$ref;
      let s;
      if (n.startsWith("#/components/schemas/")) {
@@ -1425,7 +1428,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
      if (t && t.trim() !== "")
        return t;
      if (!e)
-@@ -521,69 +526,69 @@ const ke = ({
+@@ -521,69 +528,69 @@ const ke = ({
      if (e.default !== void 0)
        return JSON.stringify(e.default, null, 2);
      try {
@@ -1529,7 +1532,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
    onExecute: e,
    isExecuting: t,
    disabled: r,
-@@ -591,133 +596,134 @@ const Ce = ({
+@@ -591,133 +598,134 @@ const Ce = ({
    onValidate: n,
    onError: s
  }) => {
@@ -1721,7 +1724,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
              onChange: () => {
              },
              isDark: t,
-@@ -734,117 +740,117 @@ const Re = ({
+@@ -734,117 +742,117 @@ const Re = ({
      ] })
    ] }) });
  };
@@ -1891,7 +1894,7 @@ index bb917d6cc48f702e795c9202b6bd1060451ebe61..fc7c55dbcb8799143aa5dfe32353b539
          options: {
            readOnly: !0,
            domReadOnly: !0,
-@@ -854,38 +860,39 @@ const Te = ({
+@@ -854,38 +862,39 @@ const Te = ({
      ) })
    ] });
  };
@@ -3757,7 +3760,7 @@ index 877f60cccc23f1181fb98deccdeb9e4924758569..cfae636c0a93ec13d942b140783b0aae
      executionResult?: PlaygroundExecutionResult;
      /** Whether request is currently executing */
 diff --git a/dist/types/playground.d.ts.map b/dist/types/playground.d.ts.map
-index a9b4a08aed583844e391efbfbb0a1f723616126a..b4a40d5b1ac63feff23e26bb79b251f756f2f980 100644
+index a9b4a08aed583844e391efbfbb0a1f723616126a..55b3af3182936e2e62fd4a5c1c8aa44719947dae 100644
 --- a/dist/types/playground.d.ts.map
 +++ b/dist/types/playground.d.ts.map
 @@ -1 +1 @@
