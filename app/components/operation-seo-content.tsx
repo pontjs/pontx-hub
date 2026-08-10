@@ -1,17 +1,21 @@
 import { Link } from "react-router";
 import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
+import { getPlaygroundAvailability } from "~/lib/playground/availability";
 
 export function DocumentationEvidence({
   locale,
+  api,
   operation
 }: {
   locale: Locale;
+  api: CatalogApi;
   operation: CatalogOperation;
 }) {
   const zh = locale === "zh";
+  const availability = getPlaygroundAvailability(api, operation, locale);
   const hasEvidence =
-    (operation.proxyEnabled === false && Boolean(operation.proxyDisabledReason)) ||
+    !availability.executionEnabled ||
     Boolean(operation.stabilityNote) ||
     Boolean(operation.verifiedAt) ||
     operation.evidenceUrls.length > 0;
@@ -20,8 +24,11 @@ export function DocumentationEvidence({
 
   return (
     <aside className="documentation-evidence">
-      {operation.proxyEnabled === false && operation.proxyDisabledReason ? (
-        <p>{zh ? "仅预览：" : "Preview only: "}{localize(operation.proxyDisabledReason, locale)}</p>
+      {!availability.executionEnabled ? (
+        <p>
+          <strong>{zh ? "仅预览：" : "Preview only: "}</strong>
+          {availability.disabledReason}
+        </p>
       ) : null}
       {operation.stabilityNote ? <p>{localize(operation.stabilityNote, locale)}</p> : null}
       {operation.verifiedAt ? (
@@ -87,7 +94,7 @@ export function OperationSeoContent({
         <h1 id="endpoint-title">{localize(operation.title, locale)}</h1>
         <p>{localize(operation.description, locale)}</p>
         <p className="operation-seo-summary">{localize(api.summary, locale)}</p>
-        <DocumentationEvidence locale={locale} operation={operation} />
+        <DocumentationEvidence locale={locale} api={api} operation={operation} />
       </header>
 
       <section aria-labelledby="request-heading">
