@@ -43,34 +43,50 @@ const matchFieldOrder: GlobalSearchMatchField[] = [
 // complements exact metadata matching without introducing a runtime AI key.
 const semanticConcepts: string[][] = [
   ["create", "add", "new", "insert", "post", "创建", "新建", "新增", "添加"],
-  ["read", "get", "fetch", "retrieve", "find", "query", "detail", "查询", "获取", "查看", "读取", "详情"],
+  ["read", "get", "fetch", "retrieve", "find", "query", "search", "detail", "查询", "搜索", "获取", "查看", "读取", "详情"],
   ["list", "all", "collection", "browse", "列表", "全部", "集合", "浏览"],
   ["update", "edit", "modify", "change", "patch", "put", "更新", "编辑", "修改", "变更"],
   ["delete", "remove", "destroy", "删除", "移除"],
   ["complete", "finish", "done", "完成", "办结"],
   ["task", "todo", "item", "任务", "待办", "事项"],
   ["project", "workspace", "folder", "项目", "清单", "工作区"],
-  ["currency", "exchange", "rate", "forex", "convert", "conversion", "price", "汇率", "换汇", "换算", "转换", "兑换", "外汇", "币种", "货币", "价格"],
+  ["currency", "exchange", "rate", "forex", "convert", "conversion", "price", "汇率", "换汇", "换算", "换成", "转换", "兑换", "外汇", "币种", "货币", "价格"],
   ["date", "time", "deadline", "due", "schedule", "日期", "时间", "截止", "到期", "日程"],
   ["priority", "importance", "urgent", "优先级", "重要", "紧急"],
   ["request", "input", "payload", "body", "parameter", "argument", "请求", "入参", "输入", "请求体", "参数"],
   ["response", "output", "result", "return", "returns", "响应", "出参", "输出", "返回", "结果"],
   ["schema", "model", "structure", "type", "field", "property", "数据结构", "模型", "结构", "类型", "字段", "属性"],
-  ["auth", "authentication", "token", "credential", "鉴权", "认证", "令牌", "凭证"]
+  ["auth", "authentication", "token", "credential", "鉴权", "认证", "令牌", "凭证"],
+  ["stock", "security", "ticker", "symbol", "share", "equity", "股票", "证券", "标的", "代码", "股"],
+  ["quote", "price", "snapshot", "market", "行情", "报价", "快照"],
+  ["trade", "transaction", "成交", "交易"],
+  ["chart", "kline", "candlestick", "bar", "bars", "图表", "k 线", "k线"],
+  ["adjusted", "adjustment", "forward adjusted", "前复权"],
+  ["historical", "history", "past", "previous", "历史", "过去", "前一"],
+  ["fund", "funds", "基金"],
+  ["nav", "net asset value", "净值"],
+  ["estimate", "estimated", "valuation", "估值", "预估"],
+  ["download", "export", "csv", "下载", "导出"],
+  ["singapore", "sgx", "新加坡", "新交所"],
+  ["product", "provider", "service", "platform", "产品", "服务商", "服务", "平台"]
 ];
 
 const stopWords = new Set([
   "a",
   "an",
   "and",
+  "are",
+  "as",
   "api",
   "for",
   "in",
   "of",
   "please",
+  "my",
   "the",
   "to",
   "with",
+  "which",
   "一个",
   "一下",
   "中的",
@@ -165,6 +181,28 @@ function queryTokens(query: string): string[] {
   );
 }
 
+function longestHanOverlap(left: string, right: string): number {
+  const leftSegments = left.match(/\p{Script=Han}+/gu) ?? [];
+  const rightSegments = right.match(/\p{Script=Han}+/gu) ?? [];
+  let longest = 0;
+  for (const leftSegment of leftSegments) {
+    for (const rightSegment of rightSegments) {
+      let previous = new Array<number>(rightSegment.length + 1).fill(0);
+      for (const leftCharacter of leftSegment) {
+        const current = new Array<number>(rightSegment.length + 1).fill(0);
+        for (let index = 0; index < rightSegment.length; index++) {
+          if (leftCharacter === rightSegment[index]) {
+            current[index + 1] = previous[index] + 1;
+            longest = Math.max(longest, current[index + 1]);
+          }
+        }
+        previous = current;
+      }
+    }
+  }
+  return longest;
+}
+
 function normalizedSearchFields(fields: WeightedField[]) {
   const unique = new Map<string, WeightedField & { value: string }>();
   for (const field of fields) {
@@ -209,6 +247,25 @@ function lexicalRelevance(query: string, fields: WeightedField[]) {
       phraseScore = Math.max(phraseScore, field.weight * 5);
       phraseMatched = true;
       matchedFields.add(field.field);
+    } else if (
+      field.value.length >= (field.field === "product" ? 3 : 5) &&
+      normalizedQuery.includes(field.value)
+    ) {
+      // Natural-language queries often wrap an exact provider, identifier, or
+      // title in extra words (for example “新浪财经服务”).
+      phraseScore = Math.max(phraseScore, field.weight * 4);
+      phraseMatched = true;
+      matchedFields.add(field.field);
+    } else {
+      const hanOverlap = longestHanOverlap(normalizedQuery, field.value);
+      if (hanOverlap >= 3) {
+        phraseScore = Math.max(
+          phraseScore,
+          field.weight * Math.min(hanOverlap, 4)
+        );
+        phraseMatched = true;
+        matchedFields.add(field.field);
+      }
     }
 
     for (const token of tokens) {
@@ -256,7 +313,8 @@ function semanticRelevance(query: string, fields: WeightedField[]) {
     }
     if (!best) continue;
     matchedConcepts++;
-    score += best.weight * 5;
+    const fieldTokenCount = best.value.split(" ").length;
+    score += best.weight * 5 + Math.max(0, 6 - fieldTokenCount);
   }
 
   const minimumConcepts = Math.max(1, Math.ceil(concepts.length * 0.6));
@@ -391,6 +449,7 @@ export function buildSearchResponse(
     for (const api of catalog) {
       const apiTitle = localize(api.title, locale);
       const apiMatch = relevance(normalizedQuery, [
+        { value: "product provider service platform 产品 服务商 服务 平台", weight: 2, field: "product" },
         { value: api.slug, weight: 12, field: "product" },
         { value: api.name, weight: 12, field: "product" },
         { value: api.provider, weight: 10, field: "product" },
