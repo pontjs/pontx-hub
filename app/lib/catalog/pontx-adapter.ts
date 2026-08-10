@@ -26,7 +26,7 @@ type SecurityScheme =
     }
   | {
       type: "oauth2";
-      flows: Record<string, never>;
+      flows: NonNullable<Extract<CatalogAuthScheme, { type: "oauth2" }>["flows"]>;
       description: string;
     };
 
@@ -137,7 +137,7 @@ function securityScheme(
   if (scheme.type === "bearer") {
     return { type: "http", scheme: "bearer", description };
   }
-  return { type: "oauth2", flows: {}, description };
+  return { type: "oauth2", flows: scheme.flows ?? {}, description };
 }
 
 export function pontxOperationName(operation: CatalogOperation): string {

@@ -7,6 +7,7 @@ export default [
   route("api/v1/*", "routes/api.ts"),
   route("api/v2/*", "routes/api-v2.ts"),
   route("api/internal/*", "routes/internal-api.ts"),
+  route("oauth/callback", "routes/oauth-callback.tsx"),
   route(":locale", "routes/catalog.tsx"),
   route(":locale/apis", "routes/catalog-redirect.tsx"),
   route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),

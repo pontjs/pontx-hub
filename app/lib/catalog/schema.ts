@@ -1,9 +1,17 @@
 import { z } from "zod";
 
+const httpsUrlSchema = z.string().url().refine((value) => value.startsWith("https://"), {
+  message: "OAuth endpoints must use HTTPS"
+});
+
 const localizedTextSchema = z.object({
   zh: z.string().min(1),
   en: z.string().min(1)
 });
+
+const documentationStatusSchema = z
+  .enum(["official", "observed", "inferred"])
+  .default("official");
 
 const parameterSchema = z.object({
   name: z.string().min(1),
@@ -45,6 +53,18 @@ const operationSchema = z.object({
   parameters: z.array(parameterSchema).default([]),
   requestBody: payloadMetadataSchema.optional(),
   responses: z.array(responseMetadataSchema).default([]),
+  documentationStatus: documentationStatusSchema,
+  evidenceUrls: z.array(z.string().url()).default([]),
+  verifiedAt: z.string().date().optional(),
+  stabilityNote: localizedTextSchema.optional(),
+  security: z
+    .array(
+      z.object({
+        schemeId: z.string().min(1),
+        scopes: z.array(z.string()).default([])
+      })
+    )
+    .optional(),
   responseExample: z.unknown().optional(),
   deprecated: z.boolean().optional()
 });
@@ -87,9 +107,36 @@ const authSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     id: z.string().min(1),
-    type: z.enum(["bearer", "oauth2"]),
+    type: z.literal("bearer"),
     envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
     description: localizedTextSchema
+  }),
+  z.object({
+    id: z.string().min(1),
+    type: z.literal("oauth2"),
+    envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
+    description: localizedTextSchema,
+    tokenEndpointAuthMethod: z
+      .enum(["client_secret_basic", "client_secret_post", "none"])
+      .default("client_secret_basic"),
+    pkce: z.enum(["required", "preferred", "unsupported"]).default("preferred"),
+    flows: z
+      .object({
+        authorizationCode: z
+          .object({
+            authorizationUrl: httpsUrlSchema,
+            tokenUrl: httpsUrlSchema,
+            scopes: z.record(z.string(), z.string()).default({})
+          })
+          .optional(),
+        clientCredentials: z
+          .object({
+            tokenUrl: httpsUrlSchema,
+            scopes: z.record(z.string(), z.string()).default({})
+          })
+          .optional()
+      })
+      .optional()
   }),
   z.object({
     id: z.string().min(1),
@@ -117,7 +164,12 @@ export const catalogApiSchema = z
     packageName: z.string().regex(/^@pontx\/api-[a-z0-9-]+$/),
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
     sdkStatus: z.enum(["planned", "published"]).default("published"),
+    cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),
     proxyEnabled: z.boolean().default(false),
+    documentationStatus: documentationStatusSchema,
+    evidenceUrls: z.array(z.string().url()).default([]),
+    verifiedAt: z.string().date().optional(),
+    stabilityNote: localizedTextSchema.optional(),
     servers: z.array(serverSchema).min(1),
     auth: z.array(authSchema),
     operations: z.array(operationSchema).min(1),

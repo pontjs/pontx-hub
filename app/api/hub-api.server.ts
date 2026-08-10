@@ -27,6 +27,9 @@ import {
   consumeExecutionQuota,
   executionClientId
 } from "~/lib/playground/rate-limit.server";
+import { oauthTokenRequestSchema } from "~/lib/oauth/schemas";
+import { exchangeOAuthToken } from "~/lib/oauth/token.server";
+import { consumeOAuthQuota } from "~/lib/oauth/rate-limit.server";
 
 type ErrorBody = {
   error: {
@@ -341,6 +344,7 @@ hubApi.get("/api/v1/specs/:slug/sdk", (context) => {
       packageName: api.packageName,
       version: api.sdkVersion,
       status: api.sdkStatus,
+      ...(api.cliName ? { cliName: api.cliName } : {}),
       ...(api.sdkStatus === "published"
         ? { install: `pnpm add ${api.packageName}` }
         : {}),
@@ -394,6 +398,29 @@ hubApi.post("/api/v1/playground/execute", async (context) => {
   }
   const result = await executeProviderRequest(input.data);
   return context.json({ version: "v1", data: result });
+});
+
+hubApi.post("/api/v1/oauth/token", async (context) => {
+  assertSameOrigin(context.req.raw);
+  if (!consumeOAuthQuota(executionClientId(context.req.raw))) {
+    return new Response(JSON.stringify({ error: { code: "rate_limited", message: "OAuth request limit exceeded", requestId: requestId() } }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store", "Retry-After": "60" }
+    });
+  }
+  const input = oauthTokenRequestSchema.safeParse(await context.req.json());
+  if (!input.success) return jsonError("invalid_oauth_request", input.error.message, 422);
+  if (
+    input.data.grantType === "authorization_code" &&
+    input.data.redirectUri !== `${new URL(context.req.url).origin}/oauth/callback`
+  ) {
+    return new Response(JSON.stringify({ error: { code: "invalid_redirect_uri", message: "OAuth redirect URI must use the Hub callback", requestId: requestId() } }), {
+      status: 422,
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
+    });
+  }
+  const data = await exchangeOAuthToken(input.data);
+  return context.json({ version: "v1", data }, 200, { "Cache-Control": "no-store", Pragma: "no-cache" });
 });
 
 hubApi.post("/api/v1/codegen/snippet", async (context) => {

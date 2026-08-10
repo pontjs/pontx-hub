@@ -14,7 +14,12 @@ Supported v1 schemes:
 - Existing OAuth2 access token
 - Basic Auth credentials
 
-The Hub does not run OAuth authorization callbacks or store refresh tokens.
+The Web Playground can run approved OAuth 2.0 Authorization Code/PKCE and
+Client Credentials flows declared by the catalog. Browser access and refresh
+tokens stay in session storage; client secrets are used only for the current
+exchange and are never persisted by Hub. The CLI and Agent Skill still accept
+only an existing access token from the declared environment variable and never
+collect client secrets.
 
 ## Mutations
 

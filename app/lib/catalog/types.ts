@@ -5,6 +5,8 @@ export type LocalizedText = {
   en: string;
 };
 
+export type DocumentationStatus = "official" | "observed" | "inferred";
+
 export type HttpMethod =
   | "GET"
   | "POST"
@@ -50,6 +52,11 @@ export type CatalogOperation = {
   parameters: CatalogParameter[];
   requestBody?: CatalogPayloadMetadata;
   responses: CatalogResponseMetadata[];
+  documentationStatus: DocumentationStatus;
+  evidenceUrls: string[];
+  verifiedAt?: string;
+  stabilityNote?: LocalizedText;
+  security?: Array<{ schemeId: string; scopes: string[] }>;
   responseExample?: unknown;
   deprecated?: boolean;
 };
@@ -90,9 +97,24 @@ export type CatalogAuthScheme =
     }
   | {
       id: string;
-      type: "bearer" | "oauth2";
+      type: "bearer";
       envVar: string;
       description: LocalizedText;
+    }
+  | {
+      id: string;
+      type: "oauth2";
+      envVar: string;
+      description: LocalizedText;
+      tokenEndpointAuthMethod?:
+        | "client_secret_basic"
+        | "client_secret_post"
+        | "none";
+      pkce?: "required" | "preferred" | "unsupported";
+      flows?: {
+        authorizationCode?: OAuthFlow;
+        clientCredentials?: OAuthFlow;
+      };
     }
   | {
       id: string;
@@ -101,6 +123,12 @@ export type CatalogAuthScheme =
       passwordEnvVar: string;
       description: LocalizedText;
     };
+
+export type OAuthFlow = {
+  authorizationUrl?: string;
+  tokenUrl: string;
+  scopes: Record<string, string>;
+};
 
 export type CatalogApi = {
   slug: string;
@@ -118,7 +146,12 @@ export type CatalogApi = {
   packageName: string;
   sdkVersion: string;
   sdkStatus: "planned" | "published";
+  cliName?: string;
   proxyEnabled: boolean;
+  documentationStatus: DocumentationStatus;
+  evidenceUrls: string[];
+  verifiedAt?: string;
+  stabilityNote?: LocalizedText;
   servers: CatalogServer[];
   auth: CatalogAuthScheme[];
   operations: CatalogOperation[];

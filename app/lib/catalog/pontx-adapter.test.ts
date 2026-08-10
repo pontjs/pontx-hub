@@ -55,7 +55,16 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       }
     });
     expect(pontxApi.securitySchemes).toMatchObject({
-      OAuth2: { type: "oauth2", flows: {} }
+      OAuth2: {
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "https://dida365.com/oauth/authorize",
+            tokenUrl: "https://dida365.com/oauth/token"
+          }
+        }
+      }
     });
+    expect(operation?.security).toContainEqual({ schemeId: "OAuth2", scopes: ["tasks:write"] });
   });
 });
