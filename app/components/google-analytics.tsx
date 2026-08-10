@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router";
 
 type GoogleAnalyticsWindow = Window & {
-  dataLayer?: unknown[][];
+  dataLayer?: unknown[];
   gtag?: (...args: unknown[]) => void;
 };
 
@@ -17,8 +17,8 @@ export function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
 
     const analyticsWindow = window as GoogleAnalyticsWindow;
     analyticsWindow.dataLayer ??= [];
-    analyticsWindow.gtag ??= (...args: unknown[]) => {
-      analyticsWindow.dataLayer?.push(args);
+    analyticsWindow.gtag ??= function gtag() {
+      analyticsWindow.dataLayer?.push(arguments);
     };
 
     if (!initialized.current) {
