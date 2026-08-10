@@ -29,8 +29,16 @@ tests, and production builds.
 ```bash
 pnpm typecheck
 pnpm test
+pnpm search:eval
 pnpm build
 ```
+
+`pnpm search:eval` runs the checked-in bilingual relevance suite and fails on
+quality or performance regressions. It reports Success@1, Recall@5, MRR@10,
+nDCG@10, zero-result rate, required Top-K checks, mean/p95 latency, and
+throughput. Add human-reviewed cases in
+`app/lib/catalog/search-evaluation-cases.ts` as the catalog and query traffic
+expand; do not lower thresholds to accommodate a ranking regression.
 
 ## Hub CLI and Agent Skill
 
