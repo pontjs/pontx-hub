@@ -2,12 +2,6 @@ import { Link } from "react-router";
 import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 
-function statusLabel(status: CatalogOperation["documentationStatus"], zh: boolean) {
-  if (status === "official") return zh ? "官方文档" : "Official documentation";
-  if (status === "observed") return zh ? "官网实测" : "Observed on provider site";
-  return zh ? "推测并验证" : "Inferred and verified";
-}
-
 export function DocumentationEvidence({
   locale,
   operation
@@ -17,8 +11,7 @@ export function DocumentationEvidence({
 }) {
   const zh = locale === "zh";
   return (
-    <aside className={`documentation-evidence status-${operation.documentationStatus}`}>
-      <strong>{statusLabel(operation.documentationStatus, zh)}</strong>
+    <aside className="documentation-evidence">
       {operation.proxyEnabled === false && operation.proxyDisabledReason ? (
         <p>{zh ? "仅预览：" : "Preview only: "}{localize(operation.proxyDisabledReason, locale)}</p>
       ) : null}

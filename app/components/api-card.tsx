@@ -2,12 +2,6 @@ import { Link } from "react-router";
 import type { CatalogSummary, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 
-function statusLabel(status: CatalogSummary["documentationStatus"], locale: Locale) {
-  if (status === "official") return locale === "zh" ? "官方" : "official";
-  if (status === "observed") return locale === "zh" ? "官网实测" : "observed";
-  return locale === "zh" ? "推测验证" : "inferred";
-}
-
 export function ApiCard({
   api,
   locale,
@@ -36,9 +30,6 @@ export function ApiCard({
         </div>
       </div>
       <span className="api-card-category">{api.category}</span>
-      <span className={`documentation-status status-${api.documentationStatus}`}>
-        {statusLabel(api.documentationStatus, locale)}
-      </span>
       <strong
         className="api-card-operation-count"
         data-label={locale === "zh" ? "接口" : "endpoints"}
