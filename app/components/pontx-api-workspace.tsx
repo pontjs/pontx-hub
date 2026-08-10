@@ -452,23 +452,24 @@ export function PontxApiWorkspace({
               : "Hub-proxied execution · credentials stay in this session"}
           </p>
         </div>
-        {isHydrated ? (
-          <h1 className="pontx-hydrated-title">
-            {localize(operation.title, locale)} — {api.name}
-          </h1>
-        ) : null}
-        {isHydrated ? (
-          oauthScheme?.flows ? <OAuthToolbar
-            scheme={oauthScheme}
-            locale={locale}
-            requiredScopes={operation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
-            state={oauthState}
-            onAuthorize={authorizeOAuth}
-            onClear={clearOAuth}
-          /> : null
-        ) : null}
-        {isHydrated ? (
-          <>
+        <div className="pontx-workspace-body">
+          {isHydrated ? (
+            <h1 className="pontx-hydrated-title">
+              {localize(operation.title, locale)} — {api.name}
+            </h1>
+          ) : null}
+          {isHydrated ? (
+            oauthScheme?.flows ? <OAuthToolbar
+              scheme={oauthScheme}
+              locale={locale}
+              requiredScopes={operation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
+              state={oauthState}
+              onAuthorize={authorizeOAuth}
+              onClear={clearOAuth}
+            /> : null
+          ) : null}
+          {isHydrated ? (
+            <>
             <DocumentationEvidence locale={locale} operation={operation} />
             <ApiDocumentation
               key={`${locale}:${api.slug}:${operation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
@@ -493,10 +494,11 @@ export function PontxApiWorkspace({
               onGenerateCode={generateCode}
               className="pontx-documentation"
             />
-          </>
-        ) : (
-          <OperationSeoContent locale={locale} api={api} operation={operation} />
-        )}
+            </>
+          ) : (
+            <OperationSeoContent locale={locale} api={api} operation={operation} />
+          )}
+        </div>
       </section>
     </main>
   );
