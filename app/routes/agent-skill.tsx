@@ -1,6 +1,7 @@
 import type { Route } from "./+types/agent-skill";
 import { SiteShell } from "~/components/site-shell";
 import { requireLocale, siteUrl } from "~/lib/http";
+import { localizedAlternates } from "~/lib/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
   return { locale: requireLocale(params.locale) };
@@ -25,10 +26,26 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:url", content: canonical },
     { property: "og:site_name", content: "Pontx Hub" },
     { name: "twitter:card", content: "summary" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
     { tagName: "link", rel: "canonical", href: canonical },
-    { tagName: "link", rel: "alternate", hrefLang: "zh-CN", href: siteUrl("/zh/agent-skill") },
-    { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl("/en/agent-skill") },
-    { tagName: "link", rel: "alternate", hrefLang: "x-default", href: siteUrl("/en/agent-skill") }
+    ...localizedAlternates("/agent-skill"),
+    {
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Pontx Hub Agent Skill",
+        description,
+        url: canonical,
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Cross-platform",
+        isPartOf: {
+          "@type": "WebSite",
+          name: "Pontx Hub",
+          url: siteUrl(`/${locale}`)
+        }
+      }
+    }
   ];
 }
 

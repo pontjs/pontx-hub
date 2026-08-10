@@ -4,6 +4,7 @@ import { SiteShell } from "~/components/site-shell";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -47,43 +48,32 @@ export function meta({ data }: Route.MetaArgs) {
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
     { tagName: "link", rel: "canonical", href: canonical },
-    {
-      tagName: "link",
-      rel: "alternate",
-      hrefLang: "zh-CN",
-      href: siteUrl(`/zh/apis/${api.slug}/${operation.slug}`)
-    },
-    {
-      tagName: "link",
-      rel: "alternate",
-      hrefLang: "en",
-      href: siteUrl(`/en/apis/${api.slug}/${operation.slug}`)
-    },
-    {
-      tagName: "link",
-      rel: "alternate",
-      hrefLang: "x-default",
-      href: siteUrl(`/en/apis/${api.slug}/${operation.slug}`)
-    },
+    ...localizedAlternates(`/apis/${api.slug}/${operation.slug}`),
     {
       "script:ld+json": {
         "@context": "https://schema.org",
-        "@type": "TechArticle",
-        headline: title,
-        description,
-        url: canonical,
-        identifier: operation.operationId,
-        articleSection: `${operation.method} ${operation.path}`,
-        keywords,
-        about: [
-          { "@type": "Thing", name: api.name },
-          ...schemaNames.map((name) => ({ "@type": "Thing", name }))
-        ],
-        isPartOf: {
-          "@type": "WebSite",
-          name: "Pontx Hub",
-          url: siteUrl(`/${locale}`)
-        }
+        "@graph": [{
+          "@type": "TechArticle",
+          headline: title,
+          description,
+          url: canonical,
+          identifier: operation.operationId,
+          articleSection: `${operation.method} ${operation.path}`,
+          keywords,
+          about: [
+            { "@type": "Thing", name: api.name },
+            ...schemaNames.map((name) => ({ "@type": "Thing", name }))
+          ],
+          isPartOf: {
+            "@type": "WebSite",
+            name: "Pontx Hub",
+            url: siteUrl(`/${locale}`)
+          }
+        }, breadcrumbList(locale, [
+          { name: locale === "zh" ? "API 目录" : "API Catalog", path: "" },
+          { name: api.name, path: `/apis/${api.slug}/${api.operations[0]?.slug ?? operation.slug}` },
+          { name: localize(operation.title, locale), path: `/apis/${api.slug}/${operation.slug}` }
+        ])]
       }
     }
   ];

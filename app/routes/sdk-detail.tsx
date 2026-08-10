@@ -3,6 +3,7 @@ import { SiteShell } from "~/components/site-shell";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { requireLocale, siteUrl } from "~/lib/http";
+import { localizedAlternates } from "~/lib/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -26,11 +27,30 @@ export function meta({ data }: Route.MetaArgs) {
     { property: "og:description", content: description },
     { property: "og:type", content: "website" },
     { property: "og:url", content: canonical },
+    { property: "og:site_name", content: "Pontx Hub" },
     { name: "twitter:card", content: "summary" },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
     { tagName: "link", rel: "canonical", href: canonical },
-    { tagName: "link", rel: "alternate", hrefLang: "zh-CN", href: siteUrl(`/zh/sdks/${data.api.slug}`) },
-    { tagName: "link", rel: "alternate", hrefLang: "en", href: siteUrl(`/en/sdks/${data.api.slug}`) },
-    { tagName: "link", rel: "alternate", hrefLang: "x-default", href: siteUrl(`/en/sdks/${data.api.slug}`) }
+    ...localizedAlternates(`/sdks/${data.api.slug}`),
+    ...(data.api.sdkStatus === "published" ? [{
+      "script:ld+json": {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: data.api.packageName,
+        description,
+        url: canonical,
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Node.js",
+        softwareVersion: data.api.sdkVersion,
+        downloadUrl: `https://www.npmjs.com/package/${data.api.packageName}`,
+        isPartOf: {
+          "@type": "WebSite",
+          name: "Pontx Hub",
+          url: siteUrl(`/${data.locale}`)
+        }
+      }
+    }] : [])
   ];
 }
 
