@@ -139,6 +139,26 @@ describe("Hub API", () => {
     expect(payload.data.proxyEnabled).toBe(false);
   });
 
+  it("rejects direct execution of preview-only endpoints without a generic 500", async () => {
+    const response = await hubApi.request("/api/v1/playground/execute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSlug: "stooq",
+        operationSlug: "download-latest-quotes",
+        serverId: "default",
+        query: { s: "aapl.us" }
+      })
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(payload.error.code).toBe("request_rejected");
+    expect(payload.error.message).toBe(
+      "This API is configured for preview-only mode"
+    );
+  });
+
   it("adds all curated headers for an executable endpoint", async () => {
     const response = await hubApi.request("/api/v1/playground/preview", {
       method: "POST",

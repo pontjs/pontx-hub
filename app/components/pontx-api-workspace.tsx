@@ -22,6 +22,7 @@ import type {
 } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
+import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import {
@@ -246,6 +247,11 @@ export function PontxApiWorkspace({
     () => toPontxApi(api, activeOperation, locale),
     [activeOperation, api, locale]
   );
+  const playgroundAvailability = getPlaygroundAvailability(
+    api,
+    activeOperation,
+    locale
+  );
   const operationServers = activeOperation.serverIds.length
     ? api.servers.filter((server) => activeOperation.serverIds.includes(server.id))
     : api.servers;
@@ -389,6 +395,7 @@ export function PontxApiWorkspace({
 
   const execute = useCallback(
     async (request: PlaygroundRequest) => {
+      if (!playgroundAvailability.executionEnabled) return;
       setIsExecuting(true);
       setExecutionResult(undefined);
       try {
@@ -435,13 +442,28 @@ export function PontxApiWorkspace({
         setIsExecuting(false);
       }
     },
-    [activeOperation, api, locale]
+    [activeOperation, api, locale, playgroundAvailability.executionEnabled]
   );
 
   const getCodeGenScenarios = useCallback(() => codeGenScenarios, []);
   const executableOperationCount = api.operations.filter(
-    (candidate) => candidate.proxyEnabled
+    (candidate) =>
+      getPlaygroundAvailability(api, candidate, locale).executionEnabled
   ).length;
+  const zh = locale === "zh";
+  const quickCallAction = playgroundAvailability.executionEnabled
+    ? zh ? "立即试用" : "Try it now"
+    : zh ? "查看请求" : "Preview request";
+  const quickCallTitle = playgroundAvailability.executionEnabled
+    ? zh ? "快速调用" : "Quick start"
+    : zh ? "请求预览" : "Request preview";
+  const quickCallDescription = playgroundAvailability.executionEnabled
+    ? zh
+      ? "选择目标，确认预填参数并执行"
+      : "Choose a task, review the example, then run it"
+    : zh
+      ? "此接口不支持由 Hub 代理执行"
+      : "Hub proxy execution is unavailable for this endpoint";
   const category =
     locale === "zh"
       ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
@@ -500,7 +522,7 @@ export function PontxApiWorkspace({
             <p>{localize(api.summary, locale)}</p>
             <div className="api-overview-actions">
               <a className="button button-dark" href="#quick-call">
-                {locale === "zh" ? "立即试用" : "Try it now"}
+                {quickCallAction}
               </a>
               <a
                 className="button"
@@ -543,8 +565,8 @@ export function PontxApiWorkspace({
             <div className="api-quickstart-heading">
               <span aria-hidden="true">01</span>
               <span>
-                <strong>{locale === "zh" ? "快速调用" : "Quick start"}</strong>
-                <small>{locale === "zh" ? "选择目标，确认预填参数并执行" : "Choose a task, review the example, then run it"}</small>
+                <strong>{quickCallTitle}</strong>
+                <small>{quickCallDescription}</small>
               </span>
             </div>
             <label className="api-task-select">
@@ -576,7 +598,9 @@ export function PontxApiWorkspace({
               <code>{activeOperation.operationId}</code>
             </div>
             <p>
-              {api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
+              {!playgroundAvailability.executionEnabled
+                ? locale === "zh" ? "仅预览 · 原因见下方" : "Preview only · details below"
+                : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
               ? "调试经 Hub 代理 · 凭证仅保留当前会话"
               : "Hub-proxied execution · credentials stay in this session"}
             </p>
@@ -600,19 +624,21 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated ? (
             <>
-            {!guided ? <DocumentationEvidence locale={locale} operation={activeOperation} /> : null}
+            {!guided || !playgroundAvailability.executionEnabled ? (
+              <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
+            ) : null}
             <ApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={pontxApi}
-              enablePlayground
-              defaultPlaygroundVisible={guided}
+              enablePlayground={playgroundAvailability.executionEnabled}
+              defaultPlaygroundVisible={guided && playgroundAvailability.executionEnabled}
               specName={api.slug}
               servers={operationServers.map((server) => ({
                 url: server.url,
                 description: localize(server.description, locale)
               }))}
-              onExecute={execute}
+              onExecute={playgroundAvailability.executionEnabled ? execute : undefined}
               executionResult={executionResult}
               isExecuting={isExecuting}
               {...({
@@ -624,16 +650,21 @@ export function PontxApiWorkspace({
               } as Record<string, unknown>)}
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
-              className={`pontx-documentation${guided ? " pontx-documentation-guided" : ""}`}
+              className={`pontx-documentation${guided && playgroundAvailability.executionEnabled ? " pontx-documentation-guided" : ""}`}
             />
             </>
           ) : (
             guided ? (
-              <section className="api-quick-call-fallback" aria-labelledby="quick-call-title">
-                <p className="eyebrow">{activeOperation.method} {activeOperation.path}</p>
-                <h2 id="quick-call-title">{localize(activeOperation.title, locale)}</h2>
-                <p>{localize(activeOperation.description, locale)}</p>
-              </section>
+              <>
+                <section className="api-quick-call-fallback" aria-labelledby="quick-call-title">
+                  <p className="eyebrow">{activeOperation.method} {activeOperation.path}</p>
+                  <h2 id="quick-call-title">{localize(activeOperation.title, locale)}</h2>
+                  <p>{localize(activeOperation.description, locale)}</p>
+                </section>
+                {!playgroundAvailability.executionEnabled ? (
+                  <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
+                ) : null}
+              </>
             ) : <OperationSeoContent locale={locale} api={api} operation={activeOperation} />
           )}
         </div>
