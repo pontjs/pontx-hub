@@ -5,7 +5,7 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export default function OAuthCallback() {
-  return <main style={{ fontFamily: "sans-serif", padding: 24 }}>
+  return <main style={{ padding: 24 }}>
     <h1>Completing authorization…</h1>
     <p>This window will close automatically.</p>
     <script dangerouslySetInnerHTML={{ __html: `

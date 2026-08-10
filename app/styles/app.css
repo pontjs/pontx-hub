@@ -3,6 +3,9 @@
 @source "../../node_modules/@pontx/shadcn-ui/dist";
 
 @theme inline {
+  --font-sans: var(--sans);
+  --font-serif: var(--serif);
+  --font-mono: var(--mono);
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -48,9 +51,20 @@
   --acid: #dfff62;
   --orange: #ee6a3b;
   --blue: #3157d5;
-  --sans: "Public Sans", sans-serif;
-  --serif: "Literata", serif;
-  --mono: "IBM Plex Mono", monospace;
+  --sans: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --serif: "Newsreader", "Noto Serif SC", "Songti SC", "STSong", serif;
+  --mono: "IBM Plex Mono", "Noto Sans SC", "SFMono-Regular", Consolas, monospace;
+  --type-micro: 0.625rem;
+  --type-label: 0.6875rem;
+  --type-caption: 0.75rem;
+  --type-small: 0.8125rem;
+  --type-body: 0.9375rem;
+  --leading-copy: 1.68;
+}
+
+html:root {
+  --font-mono: var(--mono);
+  --default-mono-font-family: var(--mono);
 }
 
 * {
@@ -61,7 +75,11 @@ html {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
+  font-kerning: normal;
+  font-synthesis: none;
   scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -70,6 +88,56 @@ body {
   background:
     linear-gradient(180deg, #eef2f6 0, var(--paper) 180px),
     var(--paper);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3 {
+  font-optical-sizing: auto;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+html[lang="zh-CN"] body {
+  line-height: 1.7;
+}
+
+html[lang="zh-CN"] h1,
+html[lang="zh-CN"] h2,
+html[lang="zh-CN"] h3 {
+  letter-spacing: -0.022em;
+  line-height: 1.12;
+}
+
+html[lang="zh-CN"] :is(
+  .eyebrow,
+  .api-card-topline,
+  .api-card-provider,
+  .api-card-meta dt,
+  .registry-label,
+  .registry-stats dt,
+  .registry-columns,
+  .detail-kicker,
+  .reference-nav h2,
+  .api-overview-facts dt,
+  .api-task-select > span,
+  .pontx-pane-label,
+  .pontx-workspace-bar,
+  .schema-reference-header > div,
+  .schema-facts dt,
+  .parameter-table th,
+  .schema-card-bar,
+  .field label
+) {
+  letter-spacing: 0.035em;
 }
 
 a {
@@ -98,8 +166,15 @@ select:focus-visible {
 }
 
 code,
-pre {
+pre,
+kbd,
+samp,
+.font-mono {
   font-family: var(--mono);
+  font-feature-settings: "liga" 0, "calt" 0;
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 
 .site-frame {
@@ -146,7 +221,7 @@ pre {
 .brand small {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -184,7 +259,7 @@ pre {
   align-items: center;
   gap: clamp(12px, 2.4vw, 26px);
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--type-caption);
   text-transform: uppercase;
 }
 
@@ -453,7 +528,7 @@ pre {
   align-items: center;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   gap: 10px;
@@ -496,7 +571,7 @@ pre {
   margin-bottom: 4px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -506,7 +581,7 @@ pre {
   font-family: var(--serif);
   font-size: 21px;
   letter-spacing: -0.035em;
-  line-height: 1.08;
+  line-height: 1.12;
 }
 
 .api-card-summary {
@@ -514,8 +589,8 @@ pre {
   margin: 13px 0 12px;
   overflow: hidden;
   color: var(--ink-soft);
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: var(--type-small);
+  line-height: 1.6;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -543,7 +618,7 @@ pre {
 .api-card-meta dt {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: var(--type-micro);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -551,7 +626,7 @@ pre {
 .api-card-meta dd {
   margin: 6px 0 0;
   overflow: hidden;
-  font-size: 11px;
+  font-size: var(--type-caption);
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -577,7 +652,7 @@ pre {
   padding-top: 10px;
   color: var(--ink);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.03em;
 }
 
@@ -743,12 +818,12 @@ pre {
 
 .registry-taskline strong {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 18px;
 }
 
 .registry-taskline span {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: var(--type-caption);
 }
 
 .registry-toolbar {
@@ -786,7 +861,7 @@ pre {
   padding: 9px 12px 9px 8px;
   background: transparent;
   outline: none;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .catalog-search:focus-within {
@@ -823,7 +898,7 @@ pre {
 .search-summary span,
 .search-clear {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
 }
 
 .search-clear {
@@ -936,8 +1011,8 @@ pre {
   overflow: hidden;
   margin: 5px 0 0;
   color: var(--ink-soft);
-  font-size: 11px;
-  line-height: 1.4;
+  font-size: var(--type-caption);
+  line-height: 1.5;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -947,7 +1022,7 @@ pre {
   margin-top: 5px;
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
 }
 
 .resource-navigation {
@@ -958,7 +1033,7 @@ pre {
   border-bottom: 1px solid var(--line);
   padding: 0 clamp(14px, 2.5vw, 28px);
   background: #fff;
-  font-size: 11px;
+  font-size: var(--type-caption);
   gap: 20px;
 }
 
@@ -1008,7 +1083,7 @@ pre {
   border: 1px solid var(--line);
   border-radius: 9px;
   padding: 1px 5px;
-  font-size: 8px;
+  font-size: var(--type-micro);
 }
 
 .resource-navigation-tabs a.is-active {
@@ -1042,7 +1117,7 @@ pre {
 .search-result-context small {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
   text-transform: lowercase;
 }
 
@@ -1057,7 +1132,7 @@ pre {
   padding: 0 14px 8px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   gap: 14px;
@@ -1416,7 +1491,7 @@ pre {
 .api-overview-facts dt {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1471,7 +1546,7 @@ pre {
   border-radius: 50%;
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
 }
 
 .api-quickstart-heading > span:last-child {
@@ -1489,7 +1564,7 @@ pre {
 .api-quickstart-heading small {
   color: var(--ink-soft);
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: var(--type-label);
   letter-spacing: 0;
 }
 
@@ -1502,7 +1577,7 @@ pre {
 .api-task-select > span {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: var(--type-micro);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -1516,7 +1591,7 @@ pre {
   padding: 0 34px 0 11px;
   background: #fff;
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--type-small);
   outline: none;
 }
 
@@ -1534,7 +1609,7 @@ pre {
   padding: 0 12px;
   color: var(--ink);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.01em;
   white-space: nowrap;
   gap: 10px;
@@ -1620,7 +1695,7 @@ pre {
   padding: 0 12px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1634,7 +1709,7 @@ pre {
   border-radius: 10px;
   background: #fff;
   color: var(--ink);
-  font-size: 9px;
+  font-size: var(--type-micro);
 }
 
 .pontx-directory {
@@ -1645,7 +1720,7 @@ pre {
   border-radius: 3px;
   background: #fff;
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 
 .pontx-directory input[type="search"] {
@@ -1740,7 +1815,7 @@ pre {
 .pontx-workspace-bar p {
   margin: 0;
   color: #64707d;
-  font-size: 9px;
+  font-size: var(--type-micro);
   letter-spacing: 0.02em;
   text-align: right;
   text-transform: none;
@@ -1827,7 +1902,7 @@ pre {
 }
 
 .operation-seo-summary {
-  font-size: 12px;
+  font-size: var(--type-small);
 }
 
 .pontx-documentation-fallback h2 {
@@ -1977,7 +2052,7 @@ pre {
   margin-bottom: 20px;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   gap: 8px;
   text-transform: uppercase;
 }
@@ -2009,8 +2084,8 @@ pre {
   max-width: 760px;
   margin: 12px 0 0;
   color: var(--ink-soft);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: var(--leading-copy);
 }
 
 .schema-reference-grid {
@@ -2052,7 +2127,7 @@ pre {
 
 .schema-directory nav strong {
   overflow: hidden;
-  font-size: 11px;
+  font-size: var(--type-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2061,7 +2136,7 @@ pre {
   overflow: hidden;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2115,7 +2190,7 @@ pre {
 
 .schema-property-row code {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--type-label);
   font-weight: 600;
 }
 
@@ -2123,14 +2198,14 @@ pre {
 .schema-property-row b {
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
 }
 
 .schema-property-row p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 10px;
-  line-height: 1.45;
+  font-size: var(--type-label);
+  line-height: 1.55;
 }
 
 .schema-facts {
@@ -2154,20 +2229,20 @@ pre {
 .schema-facts dt {
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: var(--type-micro);
   text-transform: uppercase;
 }
 
 .schema-facts dd {
   overflow-wrap: anywhere;
   margin: 0;
-  font-size: 11px;
+  font-size: var(--type-caption);
 }
 
 .schema-facts > a {
   color: var(--blue);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--type-label);
   text-decoration: none;
 }
 
