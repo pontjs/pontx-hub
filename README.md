@@ -19,6 +19,30 @@ Set `GOOGLE_ANALYTICS_ID` to a GA4 web data stream Measurement ID (for example,
 `G-XXXXXXXXXX`) to enable page-view analytics. When the variable is unset,
 Google Analytics is not loaded.
 
+## Optional accounts
+
+The account foundation is disabled by default. Public catalog, documentation,
+search, SDK, and Playground routes do not require an account or database.
+
+To enable GitHub sign-in in a configured environment, set:
+
+```dotenv
+PONTX_ACCOUNTS_ENABLED=true
+DATABASE_URL=postgresql://...
+BETTER_AUTH_SECRET=<at-least-32-random-characters>
+BETTER_AUTH_URL=https://your-hub-origin.example
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+PONTX_AUTH_TRUSTED_ORIGINS=https://optional-preview-origin.example
+```
+
+Register `${BETTER_AUTH_URL}/api/auth/callback/github` as the GitHub OAuth App
+callback, then run `pnpm db:migrate` before enabling the feature. Do not put API
+provider credentials in these variables or in the account database. GitHub
+OAuth access, refresh, and ID tokens are removed before the identity mapping is
+persisted. See [`docs/accounts-and-favorites.md`](./docs/accounts-and-favorites.md)
+for the product and security boundary.
+
 The curated source of truth lives in the separate
 [`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)
 repository. The Hub synchronizes its compiled catalog before development,

@@ -7,6 +7,5 @@ coverage
 .env
 .env.*
 !.env.example
-drizzle/meta
 .DS_Store
 *.log
