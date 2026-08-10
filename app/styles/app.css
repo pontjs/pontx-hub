@@ -1233,8 +1233,15 @@ pre {
   overflow: hidden;
 }
 
+.pontx-workspace-body > .pontx-hydrated-title,
+.pontx-workspace-body > .oauth-toolbar,
+.pontx-workspace-body > .documentation-evidence {
+  flex: 0 0 auto;
+}
+
 .pontx-workspace-body > .pontx-documentation {
   flex: 1 1 auto;
+  min-height: 0;
 }
 
 .pontx-workspace-bar {
