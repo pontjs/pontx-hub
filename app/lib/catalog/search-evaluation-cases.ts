@@ -186,7 +186,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     query: "新加坡股票概览页",
     locale: "zh",
     kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:i3investor-sgx/get-sgx-stock-overview", relevance: 3 }],
+    judgments: [{ id: "endpoint:i3investor-sgx/get-sgx-stock-overview-page", relevance: 3 }],
     tags: ["zh", "finance", "sgx"]
   },
   {
