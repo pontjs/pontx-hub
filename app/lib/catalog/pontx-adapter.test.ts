@@ -115,6 +115,22 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     ).toMatchObject({ description: "用于换算的金额" });
   });
 
+  it("preserves array response shapes around referenced item schemas", () => {
+    const api = getCatalogApi("frankfurter-v2");
+    const operation = api?.operations.find((item) => item.slug === "get-rates");
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+
+    const adaptedApi = toPontxApi(api!, operation!, "en");
+    expect(adaptedApi.responses["200"]?.schema).toEqual({
+      type: "array",
+      items: { $ref: "#/components/schemas/Rate" }
+    });
+    expect(adaptedApi.components.schemas.Rate.properties?.rate).toMatchObject({
+      description: "Exchange rate value"
+    });
+  });
+
   itWithFrankfurterV2("keeps parameter defaults, examples, enums, and constraints distinct", () => {
     const api = frankfurterV2;
     const operation = api?.operations.find((item) => item.slug === "get-rates");

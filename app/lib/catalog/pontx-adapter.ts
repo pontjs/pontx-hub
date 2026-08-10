@@ -8,6 +8,7 @@ import type {
   CatalogAuthScheme,
   CatalogOperation,
   CatalogParameter,
+  CatalogResponseMetadata,
   CatalogSchema,
   Locale
 } from "./types";
@@ -188,6 +189,29 @@ function responseDescription(status: string, locale: Locale): string {
   return locale === "zh" ? `HTTP ${status} 响应` : `HTTP ${status} response`;
 }
 
+function responseSchema(
+  response: CatalogResponseMetadata,
+  responseExample: unknown,
+  useExampleFallback: boolean
+): PontxJsonSchema | undefined {
+  if (response.schemaName) {
+    const referencedSchema = {
+      $ref: `#/components/schemas/${response.schemaName}`
+    } as PontxJsonSchema;
+    return response.schemaType === "array"
+      ? ({ type: "array", items: referencedSchema } as PontxJsonSchema)
+      : referencedSchema;
+  }
+
+  if (responseExample !== undefined && useExampleFallback) {
+    return inferPontxSchema(responseExample);
+  }
+
+  return response.schemaType
+    ? ({ type: response.schemaType } as PontxJsonSchema)
+    : undefined;
+}
+
 function operationResponses(
   operation: CatalogOperation,
   locale: Locale
@@ -208,11 +232,11 @@ function operationResponses(
   );
   return Object.fromEntries(
     operation.responses.map((response, index) => {
-      const schema = response.schemaName
-        ? ({ $ref: `#/components/schemas/${response.schemaName}` } as PontxJsonSchema)
-        : operation.responseExample !== undefined && index === firstSuccessfulResponse
-          ? inferPontxSchema(operation.responseExample)
-          : undefined;
+      const schema = responseSchema(
+        response,
+        operation.responseExample,
+        index === firstSuccessfulResponse
+      );
 
       return [
         response.status,
