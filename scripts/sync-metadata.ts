@@ -12,7 +12,7 @@ try {
 } catch {
   const rawBase = (
     process.env.METADATA_REPO_RAW_URL ??
-    "https://raw.githubusercontent.com/pontjs/pontx-api-metadata/master"
+    "https://raw.githubusercontent.com/pontjs/pontx-api-metadata/refs/heads/master"
   ).replace(/\/$/, "");
   const catalogUrl = new URL(`${rawBase}/catalog/catalog.json`);
   catalogUrl.searchParams.set("cache-bust", Date.now().toString());
