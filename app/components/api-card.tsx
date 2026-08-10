@@ -11,6 +11,12 @@ export function ApiCard({
   locale: Locale;
   index: number;
 }) {
+  const category = locale === "zh"
+    ? ({ Finance: "金融", Productivity: "效率工具" } as Record<string, string>)[api.category] ?? api.category
+    : api.category;
+  const auth = api.authTypes.length
+    ? api.authTypes.join(" / ")
+    : locale === "zh" ? "无需鉴权" : "public";
   return (
     <Link
       className="api-card"
@@ -29,14 +35,14 @@ export function ApiCard({
           <p>{localize(api.summary, locale)}</p>
         </div>
       </div>
-      <span className="api-card-category">{api.category}</span>
+      <span className="api-card-category">{category}</span>
       <strong
         className="api-card-operation-count"
         data-label={locale === "zh" ? "接口" : "endpoints"}
       >
         {api.operationCount}
       </strong>
-      <span className="api-card-auth">{api.authTypes.join(" / ") || "public"}</span>
+      <span className="api-card-auth">{auth}</span>
       <span className={`api-card-sdk sdk-${api.sdkStatus}`}>
         {api.sdkStatus === "published"
           ? `v${api.sdkVersion}`

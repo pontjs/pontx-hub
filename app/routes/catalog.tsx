@@ -86,7 +86,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           <div className="registry-intro">
             <p className="registry-label">PONTX / OPENAPI REGISTRY</p>
             <h1>{zh ? "API 目录" : "API Catalog"}</h1>
-            <p>
+            <p className="registry-description">
               {zh
                 ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
                 : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs."}
@@ -109,6 +109,10 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
         </header>
 
         <section className="registry-section">
+          <div className="registry-taskline">
+            <strong>{zh ? "你想接入什么能力？" : "What do you want to build?"}</strong>
+            <span>{zh ? "搜索接口、参数、返回字段，或浏览完整 API 集合" : "Search endpoints, parameters, response fields, or browse complete APIs"}</span>
+          </div>
           <div className="registry-toolbar">
             <Form className="catalog-search" method="get">
               <span aria-hidden="true">⌕</span>

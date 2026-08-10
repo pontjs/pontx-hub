@@ -84,12 +84,11 @@ export function GlobalSearchResults({
   return (
     <div className="global-search-results">
       <div className="search-summary">
-        <span>{zh ? "全局结果" : "Global results"}</span>
-        <strong>{search.total}</strong>
-        <span className="search-mode">
-          {zh ? "混合语义检索" : "Hybrid semantic"}
-        </span>
-        <code>{search.query}</code>
+        <div>
+          <strong>{zh ? `找到 ${search.total} 个结果` : `${search.total} results`}</strong>
+          <span>{zh ? "按相关性分组" : "Grouped by relevance"}</span>
+        </div>
+        <Link to={`/${locale}`} className="search-clear">{zh ? "清除搜索" : "Clear search"} ×</Link>
       </div>
       {kinds.map((kind) => {
         const results = search.items.filter((result) => result.kind === kind);
@@ -120,16 +119,16 @@ export function GlobalSearchResults({
                       }</code>
                     </div>
                     <p>{result.description}</p>
-                  </div>
-                  <div className="search-result-context">
-                    <span>{result.apiTitle}</span>
-                    <code>{resultMeta(result, locale)}</code>
-                    <small>
-                      {result.match.mode} · {result.match.fields
+                    <small className="search-match-reason">
+                      {zh ? "匹配" : "Matched"} · {result.match.fields
                         .slice(0, 3)
                         .map((field) => matchFieldLabel(field, locale))
                         .join(" / ")}
                     </small>
+                  </div>
+                  <div className="search-result-context">
+                    <span>{result.kind === "api" ? (zh ? "API 集合" : "API collection") : result.apiTitle}</span>
+                    <code>{resultMeta(result, locale)}</code>
                   </div>
                   <span className="search-result-arrow" aria-hidden="true">→</span>
                 </Link>

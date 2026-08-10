@@ -23,6 +23,7 @@ import type {
 import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
+import { ResourceNavigation } from "~/components/resource-navigation";
 import {
   pkceChallenge,
   postOAuthToken,
@@ -437,13 +438,16 @@ export function PontxApiWorkspace({
   );
 
   return (
-    <main className="pontx-workspace">
+    <main className="resource-page resource-page-workspace">
+      <ResourceNavigation locale={locale} api={api} active="docs" />
+      <div className="pontx-workspace">
       <aside className="pontx-workspace-directory">
         <div className="pontx-pane-label">
           <span>{locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
           <strong>{api.operations.length}</strong>
         </div>
         <ApiDirectory
+          locale={locale === "zh" ? "zh-CN" : "en"}
           spec={spec}
           selectedApiName={selectedApiName}
           onApiSelect={handleApiSelect}
@@ -487,6 +491,7 @@ export function PontxApiWorkspace({
             <DocumentationEvidence locale={locale} operation={operation} />
             <ApiDocumentation
               key={`${locale}:${api.slug}:${operation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
+              locale={locale === "zh" ? "zh-CN" : "en"}
               api={pontxApi}
               enablePlayground
               specName={api.slug}
@@ -514,6 +519,7 @@ export function PontxApiWorkspace({
           )}
         </div>
       </section>
+      </div>
     </main>
   );
 }

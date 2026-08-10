@@ -72,13 +72,17 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  const { pathname } = useLocation();
+  const zh = pathname === "/zh" || pathname.startsWith("/zh/");
   let status = 500;
-  let title = "The reference slipped out of view.";
-  let details = "An unexpected error occurred.";
+  let title = zh ? "这个参考页面暂时找不到。" : "The reference slipped out of view.";
+  let details = zh ? "发生了意外错误。" : "An unexpected error occurred.";
 
   if (isRouteErrorResponse(error)) {
     status = error.status;
-    title = error.status === 404 ? "This endpoint is not in the atlas." : "Request failed.";
+    title = error.status === 404
+      ? zh ? "目录中没有这个页面。" : "This endpoint is not in the atlas."
+      : zh ? "请求失败。" : "Request failed.";
     details = error.statusText || details;
   } else if (import.meta.env.DEV && error instanceof Error) {
     details = error.message;
@@ -89,8 +93,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <div className="error-code">{status}</div>
       <h1>{title}</h1>
       <p>{details}</p>
-      <a className="button button-dark" href="/zh">
-        Return to API catalog
+      <a className="button button-dark" href={zh ? "/zh" : "/en"}>
+        {zh ? "返回 API 目录" : "Return to API catalog"}
       </a>
     </main>
   );

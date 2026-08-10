@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { GitHubIcon } from "~/components/github-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
+import { alternateLocaleUrl } from "~/lib/i18n";
 
 const copy = {
   zh: {
@@ -11,7 +12,13 @@ const copy = {
     github: "GitHub",
     language: "EN",
     menu: "菜单",
-    tagline: "API Reference for humans & agents"
+    tagline: "面向开发者与 Agent 的 API 参考",
+    home: "Pontx Hub 首页",
+    primaryNavigation: "主导航",
+    source: "源码",
+    metadata: "元数据",
+    contribute: "参与贡献",
+    openSource: "开源"
   },
   en: {
     catalog: "API Catalog",
@@ -19,7 +26,13 @@ const copy = {
     github: "GitHub",
     language: "中文",
     menu: "Menu",
-    tagline: "API Reference for humans & agents"
+    tagline: "API reference for humans & agents",
+    home: "Pontx Hub home",
+    primaryNavigation: "Primary navigation",
+    source: "Source",
+    metadata: "Metadata",
+    contribute: "Contribute",
+    openSource: "Open source"
   }
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -32,12 +45,28 @@ export function SiteShell({
 }) {
   const nextLocale = locale === "zh" ? "en" : "zh";
   const text = copy[locale];
+  const location = useLocation();
+  const languageTarget = alternateLocaleUrl(
+    location.pathname,
+    location.search,
+    location.hash,
+    nextLocale
+  );
+  const handleLanguageChange = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    window.location.assign(alternateLocaleUrl(
+      window.location.pathname,
+      window.location.search,
+      window.location.hash,
+      nextLocale
+    ));
+  };
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="site-frame">
       <header className="site-header">
-        <Link to={`/${locale}`} className="brand" aria-label="Pontx Hub home">
+        <Link to={`/${locale}`} className="brand" aria-label={text.home}>
           <span className="brand-mark" aria-hidden="true">
             <img src={PONTX_LOGO_DATA_URL} alt="" />
           </span>
@@ -46,7 +75,7 @@ export function SiteShell({
             <small>{text.tagline}</small>
           </span>
         </Link>
-        <nav aria-label="Primary navigation">
+        <nav aria-label={text.primaryNavigation}>
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
           <NavLink to={`/${locale}/agent-skill`}>{text.skill}</NavLink>
           <a
@@ -58,9 +87,9 @@ export function SiteShell({
             <GitHubIcon className="github-icon" />
             <span>{text.github}</span>
           </a>
-          <Link to={`/${nextLocale}`} className="language-link">
+          <a href={languageTarget} className="language-link" hrefLang={nextLocale === "zh" ? "zh-CN" : "en"} onClick={handleLanguageChange}>
             {text.language}
-          </Link>
+          </a>
         </nav>
         <div className="mobile-nav">
           <button
@@ -91,9 +120,12 @@ export function SiteShell({
             >
               {text.github}
             </a>
-            <Link to={`/${nextLocale}`} onClick={() => setMobileNavOpen(false)}>
+            <a href={languageTarget} hrefLang={nextLocale === "zh" ? "zh-CN" : "en"} onClick={(event) => {
+              setMobileNavOpen(false);
+              handleLanguageChange(event);
+            }}>
               {text.language}
-            </Link>
+            </a>
           </nav>
         </div>
       </header>
@@ -107,18 +139,18 @@ export function SiteShell({
         </div>
         <p>
           <a href="https://github.com/pontjs/pontx-hub" rel="noreferrer" target="_blank">
-            Source
+            {text.source}
           </a>
           <span aria-hidden="true"> · </span>
           <a href="https://github.com/pontjs/pontx-api-metadata" rel="noreferrer" target="_blank">
-            Metadata
+            {text.metadata}
           </a>
           <span aria-hidden="true"> · </span>
           <a href="https://github.com/pontjs/pontx-hub/blob/main/CONTRIBUTING.md" rel="noreferrer" target="_blank">
-            Contribute
+            {text.contribute}
           </a>
         </p>
-        <span>Open source · OpenAPI → SDK → Agent</span>
+        <span>{text.openSource} · OpenAPI → SDK → Agent</span>
       </footer>
     </div>
   );

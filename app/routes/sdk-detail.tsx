@@ -4,6 +4,7 @@ import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
+import { ResourceNavigation } from "~/components/resource-navigation";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -72,6 +73,7 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
   return (
     <SiteShell locale={locale}>
       <main>
+        <ResourceNavigation locale={locale} api={api} active="sdk" />
         <header
           className="detail-hero"
           style={{ "--api-accent": api.accent } as React.CSSProperties}
@@ -105,7 +107,6 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
             <span>Node.js ≥ 18</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
-            <a href={`/${locale}/apis/${api.slug}/${api.operations[0]?.slug}`}>{zh ? "API 文档" : "API docs"}</a>
           </div>
         </header>
         <section className="section">
