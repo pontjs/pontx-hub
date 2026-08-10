@@ -51,6 +51,12 @@ describe("curated catalog", () => {
     const result = getCatalogSchema("dida365", "TaskCreate");
     expect(result?.schema.title.zh).toBe("创建任务请求");
     expect(result?.schema.properties.map((property) => property.name)).toContain("projectId");
+    expect(result?.schema.localizedSchema?.zh).toMatchObject({
+      properties: { projectId: { description: "项目 ID" } }
+    });
+    expect(result?.schema.schema).toMatchObject({
+      properties: { projectId: { description: "Project id" } }
+    });
   });
 
   it("searches APIs, endpoints, schemas, and schema properties", () => {

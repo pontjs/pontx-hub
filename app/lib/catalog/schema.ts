@@ -94,7 +94,11 @@ const catalogSchemaSchema = z.object({
   type: z.enum(["string", "number", "integer", "boolean", "object", "array"]),
   required: z.array(z.string()).default([]),
   properties: z.array(schemaPropertySchema).default([]),
-  schema: z.record(z.string(), z.unknown())
+  schema: z.record(z.string(), z.unknown()),
+  localizedSchema: z.object({
+    zh: z.record(z.string(), z.unknown()).optional(),
+    en: z.record(z.string(), z.unknown()).optional()
+  }).optional()
 });
 
 const serverSchema = z.object({

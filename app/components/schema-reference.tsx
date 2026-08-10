@@ -4,6 +4,7 @@ import { SchemaProvider } from "@pontx/shadcn-ui";
 import { SchemaViewer } from "@pontx/shadcn-ui/schema-viewer";
 import type { CatalogApi, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
+import { ResourceNavigation } from "~/components/resource-navigation";
 
 export function SchemaReference({
   locale,
@@ -19,14 +20,17 @@ export function SchemaReference({
   const components = useMemo(
     () => ({
       schemas: Object.fromEntries(
-        api.schemas.map((catalogSchema) => [catalogSchema.name, catalogSchema.schema])
+        api.schemas.map((catalogSchema) => [
+          catalogSchema.name,
+          catalogSchema.localizedSchema?.[locale] ?? catalogSchema.schema
+        ])
       )
     }),
-    [api.schemas]
+    [api.schemas, locale]
   );
   const viewerSchema = useMemo(
-    () => ({ ...schema.schema, components }),
-    [components, schema.schema]
+    () => ({ ...(schema.localizedSchema?.[locale] ?? schema.schema), components }),
+    [components, locale, schema.localizedSchema, schema.schema]
   );
 
   useEffect(() => {
@@ -35,16 +39,8 @@ export function SchemaReference({
 
   return (
     <main className="schema-reference">
+      <ResourceNavigation locale={locale} api={api} active="schemas" />
       <header className="schema-reference-header">
-        <div>
-          <Link to={`/${locale}`}>{zh ? "API 目录" : "API Catalog"}</Link>
-          <span>/</span>
-          <Link to={`/${locale}/apis/${api.slug}/${api.operations[0].slug}`} reloadDocument>
-            {localize(api.title, locale)}
-          </Link>
-          <span>/</span>
-          <b>{zh ? "数据结构" : "Schema"}</b>
-        </div>
         <p className="registry-label">OPENAPI / COMPONENTS / SCHEMAS</p>
         <h1>{localize(schema.title, locale)}</h1>
         <code>{schema.name}</code>

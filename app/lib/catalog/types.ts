@@ -82,6 +82,10 @@ export type CatalogSchema = {
   required: string[];
   properties: CatalogSchemaProperty[];
   schema: Record<string, unknown>;
+  localizedSchema?: {
+    zh?: Record<string, unknown>;
+    en?: Record<string, unknown>;
+  };
 };
 
 export type CatalogServer = {
