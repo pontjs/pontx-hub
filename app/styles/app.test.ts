@@ -38,4 +38,15 @@ describe("API directory integration styles", () => {
       /html:root\s*{\s*--font-mono:\s*var\(--mono\);\s*--default-mono-font-family:\s*var\(--mono\);/,
     );
   });
+
+  it("keeps long endpoint paths inside desktop search result columns", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.search-result-context\s*{\s*display:\s*grid;\s*min-width:\s*0;/,
+    );
+    expect(css).toMatch(
+      /\.search-result-context code\s*{[\s\S]*?max-width:\s*100%;[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?white-space:\s*normal;/,
+    );
+  });
 });
