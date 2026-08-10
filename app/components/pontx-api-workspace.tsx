@@ -150,9 +150,13 @@ function hubRequestPayload(
   api: CatalogApi,
   operation: CatalogOperation
 ) {
+  const approvedServers = operation.serverIds.length
+    ? api.servers.filter((candidate) => operation.serverIds.includes(candidate.id))
+    : api.servers;
   const server =
-    api.servers.find((candidate) => request.url.startsWith(candidate.url)) ??
-    api.servers[0];
+    approvedServers.find((candidate) => request.url.startsWith(candidate.url)) ??
+    approvedServers[0];
+  if (!server) throw new Error("No approved server is configured for this endpoint");
   return {
     apiSlug: api.slug,
     operationSlug: operation.slug,
@@ -197,6 +201,9 @@ export function PontxApiWorkspace({
     () => toPontxApi(api, operation, locale),
     [api, locale, operation]
   );
+  const operationServers = operation.serverIds.length
+    ? api.servers.filter((server) => operation.serverIds.includes(server.id))
+    : api.servers;
   const selectedApiName = pontxOperationName(operation);
   const [isHydrated, setIsHydrated] = useState(false);
   const [executionResult, setExecutionResult] =
@@ -465,7 +472,7 @@ export function PontxApiWorkspace({
               api={pontxApi}
               enablePlayground
               specName={api.slug}
-              servers={api.servers.map((server) => ({
+              servers={operationServers.map((server) => ({
                 url: server.url,
                 description: localize(server.description, locale)
               }))}

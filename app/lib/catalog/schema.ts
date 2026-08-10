@@ -53,6 +53,13 @@ const operationSchema = z.object({
   parameters: z.array(parameterSchema).default([]),
   requestBody: payloadMetadataSchema.optional(),
   responses: z.array(responseMetadataSchema).default([]),
+  serverIds: z.array(z.string().min(1)).default([]),
+  proxyHeaders: z
+    .record(
+      z.string().regex(/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/),
+      z.string().max(8192).refine((value) => !/[\r\n]/.test(value))
+    )
+    .default({}),
   documentationStatus: documentationStatusSchema,
   evidenceUrls: z.array(z.string().url()).default([]),
   verifiedAt: z.string().date().optional(),

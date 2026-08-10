@@ -98,6 +98,9 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
   const { api, operation } = match;
   const server = api.servers.find((item) => item.id === input.serverId);
   if (!server) throw new Error("Server is not approved for this API");
+  if (operation.serverIds.length && !operation.serverIds.includes(server.id)) {
+    throw new Error("Server is not approved for this endpoint");
+  }
 
   const resolvedPath = resolvePath(operation.path, operation, input.path);
   const url = new URL(
@@ -125,7 +128,8 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
 
   const headers: Record<string, string> = {
     Accept: "application/json",
-    "User-Agent": "Pontx-Hub-Playground/0.1"
+    "User-Agent": "Pontx-Hub-Playground/0.1",
+    ...operation.proxyHeaders
   };
   for (const [name, value] of Object.entries(input.headers)) {
     const normalizedName = name.toLowerCase();

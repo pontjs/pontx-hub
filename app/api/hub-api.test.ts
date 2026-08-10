@@ -111,4 +111,22 @@ describe("Hub API", () => {
     expect(text).not.toContain("secret-token");
     expect(text).toContain("Bearer ••••••••");
   });
+
+  it("uses endpoint-specific servers and curated upstream headers", async () => {
+    const response = await hubApi.request("/api/v1/playground/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSlug: "eastmoney-funds",
+        operationSlug: "get-fund-estimate",
+        serverId: "fundgz-1234567-com-cn",
+        path: { fundCode: "001072" }
+      })
+    });
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.data.url).toBe("https://fundgz.1234567.com.cn/js/001072.js");
+    expect(payload.data.headers.Referer).toBe("https://fund.eastmoney.com/");
+    expect(payload.data.proxyEnabled).toBe(true);
+  });
 });

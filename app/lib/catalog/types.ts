@@ -52,6 +52,8 @@ export type CatalogOperation = {
   parameters: CatalogParameter[];
   requestBody?: CatalogPayloadMetadata;
   responses: CatalogResponseMetadata[];
+  serverIds: string[];
+  proxyHeaders: Record<string, string>;
   documentationStatus: DocumentationStatus;
   evidenceUrls: string[];
   verifiedAt?: string;

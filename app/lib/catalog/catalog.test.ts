@@ -101,13 +101,14 @@ describe("curated catalog", () => {
     expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
   });
 
-  it("preserves documentation provenance and proxy restrictions", () => {
+  it("preserves documentation provenance and read-only proxy configuration", () => {
     const catalog = listCatalog();
     const marketApis = catalog.filter((api) =>
       ["massive", "yahoo-finance", "stooq", "sina-finance", "tencent-finance", "eastmoney-funds", "cnbc-market-data", "i3investor-sgx"].includes(api.slug)
     );
     expect(marketApis).toHaveLength(8);
-    expect(marketApis.every((api) => api.proxyEnabled === false)).toBe(true);
+    expect(marketApis.every((api) => api.proxyEnabled === true)).toBe(true);
+    expect(marketApis.flatMap((api) => api.operations).every((operation) => operation.serverIds.length > 0)).toBe(true);
     expect(marketApis.find((api) => api.slug === "massive")?.documentationStatus).toBe("official");
     expect(marketApis.find((api) => api.slug === "i3investor-sgx")?.documentationStatus).toBe("inferred");
     expect(marketApis.every((api) => api.evidenceUrls.length > 0)).toBe(true);
