@@ -49,12 +49,14 @@ type OAuthUiState = {
 
 function OAuthToolbar({
   scheme,
+  locale,
   requiredScopes,
   state,
   onAuthorize,
   onClear
 }: {
   scheme: Extract<CatalogApi["auth"][number], { type: "oauth2" }>;
+  locale: Locale;
   requiredScopes: string[];
   state: OAuthUiState;
   onAuthorize: (input: OAuthAuthorizeInput) => Promise<void>;
@@ -77,6 +79,13 @@ function OAuthToolbar({
       <div><strong>OAuth 2.0</strong><span>{authorized ? "已授权" : "会话级授权"}</span></div>
       <p>回调地址：<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
     </div>
+    {scheme.credentialGuide && <aside className="oauth-credential-guide">
+      <div>
+        <span aria-hidden="true">01</span>
+        <div><strong>{localize(scheme.credentialGuide.title, locale)}</strong><a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">{locale === "zh" ? "打开官方开发者中心 ↗" : "Open Developer Center ↗"}</a></div>
+      </div>
+      <ol>{scheme.credentialGuide.steps.map((step, index) => <li key={index}>{localize(step, locale)}</li>)}</ol>
+    </aside>}
     <div className="oauth-toolbar-fields">
       {flows.length > 1 && <label>Flow<select value={flow} onChange={(event) => { setFlow(event.target.value as OAuthAuthorizeInput["flow"]); setScopes(requiredScopes); }}><option value="authorizationCode">Authorization Code</option><option value="clientCredentials">Client Credentials</option></select></label>}
       <label>Client ID<input autoComplete="off" value={clientId} onChange={(event) => setClientId(event.target.value)} /></label>
@@ -451,6 +460,7 @@ export function PontxApiWorkspace({
         {isHydrated ? (
           oauthScheme?.flows ? <OAuthToolbar
             scheme={oauthScheme}
+            locale={locale}
             requiredScopes={operation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
             state={oauthState}
             onAuthorize={authorizeOAuth}
