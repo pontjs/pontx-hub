@@ -8,6 +8,7 @@ import type {
   CatalogAuthScheme,
   CatalogOperation,
   CatalogParameter,
+  CatalogSchema,
   Locale
 } from "./types";
 import { localize } from "./types";
@@ -163,6 +164,69 @@ function securityScheme(
   return { type: "oauth2", flows: scheme.flows ?? {}, description };
 }
 
+function localizedSchema(
+  schema: CatalogSchema,
+  locale: Locale
+): PontxJsonSchema {
+  const localizedDocument = schema.localizedSchema?.[locale];
+  return (localizedDocument ?? schema.schema) as unknown as PontxJsonSchema;
+}
+
+function componentSchemas(
+  api: CatalogApi,
+  locale: Locale
+): Record<string, PontxJsonSchema> {
+  return Object.fromEntries(
+    api.schemas.map((schema) => [schema.name, localizedSchema(schema, locale)])
+  );
+}
+
+function responseDescription(status: string, locale: Locale): string {
+  if (status.startsWith("2")) {
+    return locale === "zh" ? "成功响应" : "Successful response";
+  }
+  return locale === "zh" ? `HTTP ${status} 响应` : `HTTP ${status} response`;
+}
+
+function operationResponses(
+  operation: CatalogOperation,
+  locale: Locale
+): PontxAPI["responses"] {
+  if (operation.responses.length === 0) {
+    return {
+      "200": {
+        description: responseDescription("200", locale),
+        ...(operation.responseExample === undefined
+          ? {}
+          : { schema: inferPontxSchema(operation.responseExample) })
+      }
+    };
+  }
+
+  const firstSuccessfulResponse = operation.responses.findIndex((response) =>
+    response.status.startsWith("2")
+  );
+  return Object.fromEntries(
+    operation.responses.map((response, index) => {
+      const schema = response.schemaName
+        ? ({ $ref: `#/components/schemas/${response.schemaName}` } as PontxJsonSchema)
+        : operation.responseExample !== undefined && index === firstSuccessfulResponse
+          ? inferPontxSchema(operation.responseExample)
+          : undefined;
+
+      return [
+        response.status,
+        {
+          description: response.description
+            ? localize(response.description, locale)
+            : responseDescription(response.status, locale),
+          ...(schema ? { schema } : {})
+        }
+      ];
+    })
+  );
+}
+
 export function pontxOperationName(operation: CatalogOperation): string {
   return `${operation.tag}/${operation.operationId}`;
 }
@@ -200,16 +264,9 @@ export function toPontxApi(
     consumes: [operation.contentType ?? "application/json"],
     produces: ["application/json"],
     parameters,
-    responses: {
-      "200": {
-        description: locale === "zh" ? "成功响应" : "Successful response",
-        ...(operation.responseExample === undefined
-          ? {}
-          : { schema: inferPontxSchema(operation.responseExample) })
-      }
-    },
+    responses: operationResponses(operation, locale),
     deprecated: operation.deprecated,
-    components: { schemas: {} },
+    components: { schemas: componentSchemas(api, locale) },
     ...(Object.keys(securitySchemes).length ? { securitySchemes } : {}),
     ...(bodyParameter
       ? {

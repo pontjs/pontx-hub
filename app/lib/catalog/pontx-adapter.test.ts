@@ -89,6 +89,32 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     });
   });
 
+  it("passes localized response schemas to the Playground by status code", () => {
+    const api = getCatalogApi("frankfurter");
+    const operation = api?.operations.find(
+      (item) => item.slug === "get-latest-rates"
+    );
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+
+    const englishApi = toPontxApi(api!, operation!, "en");
+    expect(englishApi.responses["200"]).toMatchObject({
+      description: "Successful response with exchange rates",
+      schema: { $ref: "#/components/schemas/ExchangeRateResponse" }
+    });
+    expect(englishApi.responses["404"]?.schema).toEqual({
+      $ref: "#/components/schemas/Error"
+    });
+    expect(
+      englishApi.components.schemas.ExchangeRateResponse.properties?.amount
+    ).toMatchObject({ description: "The amount used for conversion" });
+
+    const chineseApi = toPontxApi(api!, operation!, "zh");
+    expect(
+      chineseApi.components.schemas.ExchangeRateResponse.properties?.amount
+    ).toMatchObject({ description: "用于换算的金额" });
+  });
+
   itWithFrankfurterV2("keeps parameter defaults, examples, enums, and constraints distinct", () => {
     const api = frankfurterV2;
     const operation = api?.operations.find((item) => item.slug === "get-rates");
