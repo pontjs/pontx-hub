@@ -438,7 +438,7 @@ export function PontxApiWorkspace({
             <code>{operation.operationId}</code>
           </div>
           <p>
-            {api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>{locale === "zh" ? "SDK / CLI" : "SDK / CLI"} →</a> : locale === "zh"
+            {api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
               ? "调试经 Hub 代理 · 凭证仅保留当前会话"
               : "Hub-proxied execution · credentials stay in this session"}
           </p>

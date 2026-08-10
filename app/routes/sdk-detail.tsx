@@ -1,7 +1,7 @@
 import type { Route } from "./+types/sdk-detail";
 import { SiteShell } from "~/components/site-shell";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
-import { credentialEnvVar, localize } from "~/lib/catalog/types";
+import { localize } from "~/lib/catalog/types";
 import { requireLocale, siteUrl } from "~/lib/http";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -39,16 +39,15 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const zh = locale === "zh";
   const published = api.sdkStatus === "published";
   const install = `pnpm add ${api.packageName}`;
-  const usage = `import { createClient } from "${api.packageName}";
-
-const client = createClient({
-  token: process.env.${credentialEnvVar(api.auth[0])}
-});
+  const moduleName = api.operations[0]?.tag
+    .toLowerCase()
+    .replace(/[^a-z0-9]+(.)/g, (_, character: string) => character.toUpperCase());
+  const usage = `import client from "${api.packageName}";
 
 // Generated methods are typed from the approved OAS version.
-const result = await client.${api.operations[0]?.operationId
-    .replaceAll("/", ".")
-    .replaceAll("-", "_")}({});`;
+const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`;
+  const npmUrl = `https://www.npmjs.com/package/${api.packageName}`;
+  const cliName = api.slug === "frankfurter" ? "currency" : api.slug === "dida365" ? "dida" : api.slug;
 
   return (
     <SiteShell locale={locale}>
@@ -73,6 +72,8 @@ const result = await client.${api.operations[0]?.operationId
             <span>Node.js ≥ 18</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
+            {published ? <a href={npmUrl} target="_blank" rel="noreferrer">npm ↗</a> : null}
+            <a href={`/${locale}/apis/${api.slug}/${api.operations[0]?.slug}`}>{zh ? "API 文档" : "API docs"}</a>
           </div>
         </header>
         <section className="section">
@@ -96,6 +97,11 @@ const result = await client.${api.operations[0]?.operationId
               <pre className="code-block" style={{ marginTop: 18 }}>
                 <code>{usage}</code>
               </pre>
+              <div className="section-heading" style={{ marginTop: 32 }}>
+                <h2>{zh ? "命令行调用" : "Command-line access"}</h2>
+                <p>{zh ? "同一个 npm 包包含对应 API 的专用 CLI；Pontx Hub CLI 可用于跨 API 搜索。" : "The same npm package includes a dedicated API CLI; use Pontx Hub CLI for cross-API discovery."}</p>
+              </div>
+              <pre className="code-block"><code>{`npm install --global ${api.packageName}\n${cliName} --help\n\n# Cross-API search\nnpm install --global @pontx/hub-cli\npontx-hub search "${api.name}"`}</code></pre>
             </>
           ) : null}
         </section>
