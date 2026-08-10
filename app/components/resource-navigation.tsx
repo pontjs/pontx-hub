@@ -9,7 +9,7 @@ export function ResourceNavigation({
 }: {
   locale: Locale;
   api: CatalogApi;
-  active: "docs" | "schemas" | "sdk";
+  active: "overview" | "docs" | "schemas" | "sdk";
 }) {
   const zh = locale === "zh";
   const defaultOperation = api.operations[0]?.slug;
@@ -25,10 +25,18 @@ export function ResourceNavigation({
         <strong>{localize(api.title, locale)}</strong>
       </div>
       <div className="resource-navigation-tabs">
+        <Link
+          to={`/${locale}/apis/${api.slug}`}
+          className={active === "overview" ? "is-active" : undefined}
+          aria-current={active === "overview" ? "page" : undefined}
+        >
+          {zh ? "概览" : "Overview"}
+        </Link>
         {defaultOperation ? (
           <Link
             to={`/${locale}/apis/${api.slug}/${defaultOperation}`}
             className={active === "docs" ? "is-active" : undefined}
+            aria-current={active === "docs" ? "page" : undefined}
             reloadDocument
           >
             {zh ? "接口文档" : "Endpoints"}
@@ -38,6 +46,7 @@ export function ResourceNavigation({
           <Link
             to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(api.schemas[0].name)}`}
             className={active === "schemas" ? "is-active" : undefined}
+            aria-current={active === "schemas" ? "page" : undefined}
             reloadDocument
           >
             {zh ? "数据结构" : "Schemas"}
@@ -47,6 +56,7 @@ export function ResourceNavigation({
         <Link
           to={`/${locale}/sdks/${api.slug}`}
           className={active === "sdk" ? "is-active" : undefined}
+          aria-current={active === "sdk" ? "page" : undefined}
         >
           SDK
         </Link>

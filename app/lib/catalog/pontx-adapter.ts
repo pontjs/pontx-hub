@@ -97,6 +97,17 @@ function parameterSchema(
   parameter: CatalogParameter,
   locale: Locale
 ): PontxJsonSchema {
+  const constraintKeys = [
+    "default", "const", "multipleOf", "minimum", "maximum",
+    "exclusiveMinimum", "exclusiveMaximum", "minLength", "maxLength",
+    "pattern", "minItems", "maxItems", "uniqueItems", "minProperties",
+    "maxProperties", "nullable", "readOnly", "writeOnly", "deprecated"
+  ] as const;
+  const constraints = Object.fromEntries(
+    constraintKeys
+      .filter((key) => parameter[key] !== undefined)
+      .map((key) => [key, parameter[key]])
+  );
   const exampleSchema =
     parameter.example === undefined
       ? { type: parameter.type }
@@ -104,17 +115,15 @@ function parameterSchema(
   return {
     ...exampleSchema,
     type: parameter.type,
+    ...constraints,
+    ...(parameter.enum ? { enum: parameter.enum } : {}),
+    ...(parameter.examples ? { examples: parameter.examples } : {}),
     ...(parameter.description
       ? { description: localize(parameter.description, locale) }
       : {}),
     ...(parameter.example === undefined
       ? {}
-      : {
-          ...(parameter.type === "object" || parameter.type === "array"
-            ? {}
-            : { default: parameter.example }),
-          examples: [parameter.example]
-        })
+      : { examples: [parameter.example] })
   } as PontxJsonSchema;
 }
 

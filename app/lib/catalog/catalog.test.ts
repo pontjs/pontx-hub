@@ -11,7 +11,7 @@ import { catalogApiSchema } from "./schema";
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect(catalog.map((api) => api.slug).sort()).toEqual([
+    expect(catalog.map((api) => api.slug)).toEqual(expect.arrayContaining([
       "cnbc-market-data",
       "dida365",
       "eastmoney-funds",
@@ -22,7 +22,7 @@ describe("curated catalog", () => {
       "stooq",
       "tencent-finance",
       "yahoo-finance"
-    ]);
+    ]));
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 

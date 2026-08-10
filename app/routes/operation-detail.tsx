@@ -71,7 +71,7 @@ export function meta({ data }: Route.MetaArgs) {
           }
         }, breadcrumbList(locale, [
           { name: locale === "zh" ? "API 目录" : "API Catalog", path: "" },
-          { name: api.name, path: `/apis/${api.slug}/${api.operations[0]?.slug ?? operation.slug}` },
+          { name: api.name, path: `/apis/${api.slug}` },
           { name: localize(operation.title, locale), path: `/apis/${api.slug}/${operation.slug}` }
         ])]
       }

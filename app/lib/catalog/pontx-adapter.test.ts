@@ -7,6 +7,9 @@ import {
   toPontxSpec
 } from "./pontx-adapter";
 
+const frankfurterV2 = getCatalogApi("frankfurter-v2");
+const itWithFrankfurterV2 = frankfurterV2 ? it : it.skip;
+
 describe("pontx-shadcn-ui catalog adapter", () => {
   it("infers nested response schemas from approved examples", () => {
     expect(
@@ -66,5 +69,18 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       }
     });
     expect(operation?.security).toContainEqual({ schemeId: "OAuth2", scopes: ["tasks:write"] });
+  });
+
+  itWithFrankfurterV2("keeps parameter defaults, examples, enums, and constraints distinct", () => {
+    const api = frankfurterV2;
+    const operation = api?.operations.find((item) => item.slug === "get-rates");
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+    const pontxApi = toPontxApi(api!, operation!, "en");
+    const parameters = pontxApi.parameters ?? [];
+    const base = parameters.find((parameter) => parameter.name === "base");
+    const group = parameters.find((parameter) => parameter.name === "group");
+    expect(base?.schema).toMatchObject({ default: "EUR", examples: ["USD"] });
+    expect(group?.schema).toMatchObject({ enum: ["week", "month"], examples: ["month"] });
   });
 });

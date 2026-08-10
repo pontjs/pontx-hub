@@ -477,7 +477,7 @@ export function buildSearchResponse(
           provider: api.provider,
           title: apiTitle,
           description: localize(api.summary, locale),
-          href: `/${locale}/apis/${api.slug}/${api.operations[0].slug}`,
+          href: `/${locale}/apis/${api.slug}`,
           category: api.category,
           endpointCount: api.operations.length,
           schemaCount: api.schemas.length

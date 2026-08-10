@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { meta as agentSkillMeta } from "./agent-skill";
+import { loader as apiLoader, meta as apiMeta } from "./api-detail";
 import { meta as operationMeta } from "./operation-detail";
 import { meta as schemaMeta } from "./schema-detail";
 import { meta as sdkMeta } from "./sdk-detail";
@@ -69,5 +70,20 @@ describe("public route SEO metadata", () => {
       `https://pontx-hub.vercel.app/en/sdks/${api.slug}`
     );
     expect(JSON.stringify(sdkDescriptors)).toContain("SoftwareApplication");
+  });
+
+  it("serves an indexable API overview with a ready quick-start Endpoint", async () => {
+    const loaded = await apiLoader({
+      params: { locale: "zh", apiSlug: "frankfurter" }
+    } as never);
+    expect(loaded.operation.slug).toBe("get-latest-rates");
+
+    const apiDescriptors = descriptors(apiMeta({ data: loaded } as never));
+    expectLocalizedPublicMeta(
+      apiDescriptors,
+      "https://pontx-hub.vercel.app/zh/apis/frankfurter"
+    );
+    expect(JSON.stringify(apiDescriptors)).toContain("WebAPI");
+    expect(JSON.stringify(apiDescriptors)).toContain("BreadcrumbList");
   });
 });

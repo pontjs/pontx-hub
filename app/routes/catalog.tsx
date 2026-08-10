@@ -67,7 +67,7 @@ export function meta({ data }: Route.MetaArgs) {
             "@type": "ListItem",
             position: index + 1,
             name: api.title[locale],
-            url: siteUrl(`/${locale}/apis/${api.slug}/${api.defaultOperationSlug}`)
+            url: siteUrl(`/${locale}/apis/${api.slug}`)
           }))
         }
       }

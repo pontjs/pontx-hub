@@ -22,6 +22,8 @@ describe("SEO resource routes", () => {
     expect(body).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(body).toContain("/zh/apis/dida365/create-project</loc>");
     expect(body).toContain("/en/apis/dida365/create-project</loc>");
+    expect(body).toContain("/zh/apis/dida365</loc>");
+    expect(body).toContain("/en/apis/dida365</loc>");
     expect(body).toContain('hreflang="zh-CN"');
     expect(body).toContain('hreflang="en"');
     expect(body).toContain('hreflang="x-default"');

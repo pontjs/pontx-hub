@@ -438,16 +438,21 @@ hubApi.post("/api/v1/codegen/snippet", async (context) => {
         : `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`
     )
     .join("");
-  const params = {
-    ...input.data.path,
-    ...input.data.query,
-    ...(input.data.body === undefined ? {} : { body: input.data.body })
-  };
+  const params: Record<string, unknown> = Object.fromEntries(
+    Object.entries({
+      ...input.data.path,
+      ...input.data.query
+    }).filter(([, value]) => value !== "")
+  );
+  if (input.data.body !== undefined) {
+    params.body = input.data.body;
+  }
+  const clientSetup = match.api.auth.length
+    ? `createClient({\n  token: process.env.${credentialEnvVar(match.api.auth[0])}\n})`
+    : "createClient()";
   const code = `import { createClient } from "${match.api.packageName}";
 
-const client = createClient({
-  token: process.env.${credentialEnvVar(match.api.auth[0])}
-});
+const client = ${clientSetup};
 
 const result = await client.${methodName}(${JSON.stringify(params, null, 2)});`;
   return context.json({

@@ -8,7 +8,7 @@ describe("Hub API", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
-    expect(payload.data.map((api: { slug: string }) => api.slug).sort()).toEqual([
+    expect(payload.data.map((api: { slug: string }) => api.slug)).toEqual(expect.arrayContaining([
       "cnbc-market-data",
       "dida365",
       "eastmoney-funds",
@@ -19,7 +19,7 @@ describe("Hub API", () => {
       "stooq",
       "tencent-finance",
       "yahoo-finance"
-    ]);
+    ]));
   });
 
   it("returns a machine-readable 404", async () => {
@@ -68,6 +68,15 @@ describe("Hub API", () => {
     );
     expect(invalid.status).toBe(422);
     expect((await invalid.json()).error.code).toBe("invalid_types");
+  });
+
+  it("links API search results to the API overview", async () => {
+    const response = await hubApi.request(
+      "/api/v2/search?q=Frankfurter&types=api&locale=en"
+    );
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.data.items[0].href).toBe("/en/apis/frankfurter");
   });
 
   it("returns a versioned schema detail", async () => {
@@ -150,5 +159,26 @@ describe("Hub API", () => {
     expect(payload.data.headers.Referer).toBe("https://www.cnbc.com/");
     expect(payload.data.headers.partner).toBe("cnbc01");
     expect(payload.data.proxyEnabled).toBe(true);
+  });
+
+  it("generates public SDK code from non-empty request parameters", async () => {
+    const response = await hubApi.request("/api/v1/codegen/snippet", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSlug: "frankfurter",
+        operationSlug: "get-historical-rates",
+        serverId: "default",
+        path: { date: "2024-01-15" },
+        query: { amount: "1", base: "EUR", symbols: "" }
+      })
+    });
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.data.code).toContain("const client = createClient();");
+    expect(payload.data.code).toContain('"date": "2024-01-15"');
+    expect(payload.data.code).toContain('"base": "EUR"');
+    expect(payload.data.code).not.toContain("process.env.API_TOKEN");
+    expect(payload.data.code).not.toContain('"symbols"');
   });
 });

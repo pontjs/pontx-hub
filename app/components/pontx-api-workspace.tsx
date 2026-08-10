@@ -125,8 +125,31 @@ type Execution = {
 
 const codeGenScenarios: CodeGenScenario[] = [
   { id: "curl", label: "cURL", language: "shell" },
-  { id: "typescript-sdk", label: "TypeScript SDK", language: "typescript" }
+  { id: "typescript-sdk", label: "TypeScript SDK", language: "typescript" },
+  { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
 ];
+
+function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", `'"'"'`)}'`;
+}
+
+function hubCliSnippet(
+  request: PlaygroundRequest,
+  api: CatalogApi,
+  operation: CatalogOperation
+): string {
+  const parts = ["pontx-hub", "call", api.slug, operation.slug];
+  for (const [name, value] of Object.entries({ ...request.path, ...request.query })) {
+    if (value) parts.push("-p", shellQuote(`${name}=${value}`));
+  }
+  for (const [name, value] of Object.entries(request.headers)) {
+    if (value) parts.push("-H", shellQuote(`${name}: ${value}`));
+  }
+  if (request.body !== undefined) {
+    parts.push("--body", shellQuote(JSON.stringify(request.body)));
+  }
+  return parts.join(" ");
+}
 
 function payloadError<T>(payload: ApiEnvelope<T>): string | undefined {
   return "error" in payload ? payload.error.message : undefined;
@@ -204,24 +227,29 @@ async function postHub<T>(path: string, body: unknown): Promise<T> {
 export function PontxApiWorkspace({
   locale,
   api,
-  operation
+  operation,
+  variant = "reference"
 }: {
   locale: Locale;
   api: CatalogApi;
   operation: CatalogOperation;
+  variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
 
   const navigate = useNavigate();
+  const guided = variant === "guided";
+  const [selectedOperation, setSelectedOperation] = useState(operation);
+  const activeOperation = guided ? selectedOperation : operation;
   const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
   const pontxApi = useMemo(
-    () => toPontxApi(api, operation, locale),
-    [api, locale, operation]
+    () => toPontxApi(api, activeOperation, locale),
+    [activeOperation, api, locale]
   );
-  const operationServers = operation.serverIds.length
-    ? api.servers.filter((server) => operation.serverIds.includes(server.id))
+  const operationServers = activeOperation.serverIds.length
+    ? api.servers.filter((server) => activeOperation.serverIds.includes(server.id))
     : api.servers;
-  const selectedApiName = pontxOperationName(operation);
+  const selectedApiName = pontxOperationName(activeOperation);
   const [isHydrated, setIsHydrated] = useState(false);
   const [executionResult, setExecutionResult] =
     useState<PlaygroundExecutionResult>();
@@ -236,11 +264,11 @@ export function PontxApiWorkspace({
     setOAuthToken(token);
     setOAuthState({ status: "authorized", scopes: token.scopes, expiresAt: token.expiresAt });
     window.sessionStorage.setItem(tokenStorageKey, JSON.stringify(token));
-    const configKey = `playground:${operation.method}:${operation.path}:params`;
+    const configKey = `playground:${activeOperation.method}:${activeOperation.path}:params`;
     let config: Record<string, unknown> = {};
     try { config = JSON.parse(window.sessionStorage.getItem(configKey) ?? "{}") as Record<string, unknown>; } catch { /* replace invalid state */ }
     window.sessionStorage.setItem(configKey, JSON.stringify({ ...config, auth: { type: "oauth2", token: token.accessToken } }));
-  }, [operation.method, operation.path, tokenStorageKey]);
+  }, [activeOperation.method, activeOperation.path, tokenStorageKey]);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -253,7 +281,7 @@ export function PontxApiWorkspace({
 
   const clearOAuth = useCallback(() => {
     window.sessionStorage.removeItem(tokenStorageKey);
-    const configKey = `playground:${operation.method}:${operation.path}:params`;
+    const configKey = `playground:${activeOperation.method}:${activeOperation.path}:params`;
     try {
       const config = JSON.parse(window.sessionStorage.getItem(configKey) ?? "{}") as Record<string, unknown>;
       delete config.auth;
@@ -262,7 +290,7 @@ export function PontxApiWorkspace({
     setOAuthToken(undefined);
     setOAuthCredentials(undefined);
     setOAuthState({ status: "idle" });
-  }, [operation.method, operation.path, tokenStorageKey]);
+  }, [activeOperation.method, activeOperation.path, tokenStorageKey]);
 
   const authorizeOAuth = useCallback(async (input: OAuthAuthorizeInput) => {
     if (!oauthScheme?.flows) return;
@@ -364,7 +392,7 @@ export function PontxApiWorkspace({
       setIsExecuting(true);
       setExecutionResult(undefined);
       try {
-        const requestBody = hubRequestPayload(request, api, operation);
+        const requestBody = hubRequestPayload(request, api, activeOperation);
         const preview = await postHub<Preview>(
           "/api/v1/playground/preview",
           requestBody
@@ -407,21 +435,27 @@ export function PontxApiWorkspace({
         setIsExecuting(false);
       }
     },
-    [api, locale, operation]
+    [activeOperation, api, locale]
   );
 
   const getCodeGenScenarios = useCallback(() => codeGenScenarios, []);
+  const executableOperationCount = api.operations.filter(
+    (candidate) => candidate.proxyEnabled
+  ).length;
 
   const generateCode = useCallback(
     async ({ scenarioId, request }: CodeGenRequest) => {
       try {
-        const requestBody = hubRequestPayload(request, api, operation);
+        const requestBody = hubRequestPayload(request, api, activeOperation);
         if (scenarioId === "curl") {
           const preview = await postHub<Preview>(
             "/api/v1/playground/preview",
             requestBody
           );
           return preview.curl;
+        }
+        if (scenarioId === "hub-cli") {
+          return hubCliSnippet(request, api, activeOperation);
         }
         const generated = await postHub<{ code: string }>(
           "/api/v1/codegen/snippet",
@@ -434,27 +468,65 @@ export function PontxApiWorkspace({
         return `// ${message}`;
       }
     },
-    [api, operation]
+    [activeOperation, api]
   );
 
   return (
-    <main className="resource-page resource-page-workspace">
-      <ResourceNavigation locale={locale} api={api} active="docs" />
-      <div className="pontx-workspace">
+    <main className={`resource-page resource-page-workspace${guided ? " resource-page-guided" : ""}`}>
+      <ResourceNavigation locale={locale} api={api} active={guided ? "overview" : "docs"} />
+      {guided ? (
+        <header className="api-overview-hero" style={{ "--api-accent": api.accent } as React.CSSProperties}>
+          <div>
+            <p className="eyebrow">{api.provider} / {api.category}</p>
+            <h1>{localize(api.title, locale)}</h1>
+            <p>{localize(api.summary, locale)}</p>
+            <a className="button button-dark" href="#quick-call">
+              {locale === "zh" ? "立即试用" : "Try it now"}
+            </a>
+          </div>
+          <dl className="api-overview-facts">
+            <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{api.auth.length ? api.auth.map((item) => item.type).join(" / ") : locale === "zh" ? "无需鉴权" : "None"}</dd></div>
+            <div><dt>{locale === "zh" ? "接口" : "Endpoints"}</dt><dd>{api.operations.length}</dd></div>
+            <div><dt>{locale === "zh" ? "在线调用" : "Live calls"}</dt><dd>{executableOperationCount ? `${executableOperationCount}/${api.operations.length}` : locale === "zh" ? "仅预览" : "Preview only"}</dd></div>
+            <div><dt>SDK</dt><dd>{api.sdkStatus === "published" ? `v${api.sdkVersion}` : locale === "zh" ? "计划中" : "Planned"}</dd></div>
+          </dl>
+        </header>
+      ) : null}
+      <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
       <aside className="pontx-workspace-directory">
         <div className="pontx-pane-label">
-          <span>{locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
+          <span>{guided ? locale === "zh" ? "选择调用任务" : "Choose a task" : locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
           <strong>{api.operations.length}</strong>
         </div>
-        <ApiDirectory
-          locale={locale === "zh" ? "zh-CN" : "en"}
-          spec={spec}
-          selectedApiName={selectedApiName}
-          onApiSelect={handleApiSelect}
-          defaultExpandedTags={[operation.tag]}
-          searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
-          className="pontx-directory"
-        />
+        {guided ? (
+          <div className="api-task-list" aria-label={locale === "zh" ? "可调用接口" : "Callable endpoints"}>
+            {api.operations.map((candidate) => (
+              <button
+                type="button"
+                key={candidate.slug}
+                className={candidate.slug === activeOperation.slug ? "is-active" : undefined}
+                aria-pressed={candidate.slug === activeOperation.slug}
+                onClick={() => {
+                  setSelectedOperation(candidate);
+                  setExecutionResult(undefined);
+                }}
+              >
+                <span className={`method-badge method-${candidate.method.toLowerCase()}`}>{candidate.method}</span>
+                <span><strong>{localize(candidate.title, locale)}</strong><small>{candidate.path}</small></span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <ApiDirectory
+            locale={locale === "zh" ? "zh-CN" : "en"}
+            spec={spec}
+            selectedApiName={selectedApiName}
+            onApiSelect={handleApiSelect}
+            defaultExpandedTags={[activeOperation.tag]}
+            searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
+            className="pontx-directory"
+          />
+        )}
       </aside>
 
       <section className="pontx-workspace-content">
@@ -462,25 +534,25 @@ export function PontxApiWorkspace({
           <div>
             <span>{api.provider}</span>
             <b>/</b>
-            <code>{operation.operationId}</code>
+            <code>{activeOperation.operationId}</code>
           </div>
           <p>
-            {api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
+            {guided ? <a href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>{locale === "zh" ? "完整接口文档 →" : "Full endpoint docs →"}</a> : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
               ? "调试经 Hub 代理 · 凭证仅保留当前会话"
               : "Hub-proxied execution · credentials stay in this session"}
           </p>
         </div>
         <div className="pontx-workspace-body">
-          {isHydrated ? (
+          {isHydrated && !guided ? (
             <h1 className="pontx-hydrated-title">
-              {localize(operation.title, locale)} — {api.name}
+              {localize(activeOperation.title, locale)} — {api.name}
             </h1>
           ) : null}
           {isHydrated ? (
             oauthScheme?.flows ? <OAuthToolbar
               scheme={oauthScheme}
               locale={locale}
-              requiredScopes={operation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
+              requiredScopes={activeOperation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
               state={oauthState}
               onAuthorize={authorizeOAuth}
               onClear={clearOAuth}
@@ -488,12 +560,13 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated ? (
             <>
-            <DocumentationEvidence locale={locale} operation={operation} />
+            {!guided ? <DocumentationEvidence locale={locale} operation={activeOperation} /> : null}
             <ApiDocumentation
-              key={`${locale}:${api.slug}:${operation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
+              key={`${locale}:${api.slug}:${activeOperation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={pontxApi}
               enablePlayground
+              defaultPlaygroundVisible={guided}
               specName={api.slug}
               servers={operationServers.map((server) => ({
                 url: server.url,
@@ -507,7 +580,7 @@ export function PontxApiWorkspace({
                 onOAuthClear: clearOAuth,
                 oauthState,
                 oauthAccessToken: oauthToken?.accessToken,
-                oauthRequiredScopes: operation.security?.find((item) => item.schemeId === oauthScheme?.id)?.scopes ?? []
+                oauthRequiredScopes: activeOperation.security?.find((item) => item.schemeId === oauthScheme?.id)?.scopes ?? []
               } as Record<string, unknown>)}
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
@@ -515,7 +588,13 @@ export function PontxApiWorkspace({
             />
             </>
           ) : (
-            <OperationSeoContent locale={locale} api={api} operation={operation} />
+            guided ? (
+              <section className="api-quick-call-fallback" aria-labelledby="quick-call-title">
+                <p className="eyebrow">{activeOperation.method} {activeOperation.path}</p>
+                <h2 id="quick-call-title">{localize(activeOperation.title, locale)}</h2>
+                <p>{localize(activeOperation.description, locale)}</p>
+              </section>
+            ) : <OperationSeoContent locale={locale} api={api} operation={activeOperation} />
           )}
         </div>
       </section>
