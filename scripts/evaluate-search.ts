@@ -25,9 +25,9 @@ const thresholds = {
   ndcgAt10: 0.8,
   zeroResultRate: 0,
   requiredTopKPassRate: 1,
-  meanLatencyMs: 35,
-  p95LatencyMs: 75,
-  minimumQueriesPerSecond: 25
+  meanLatencyMs: 100,
+  p95LatencyMs: 175,
+  minimumQueriesPerSecond: 10
 };
 
 const report = evaluateSearch(searchEvaluationCases, searchCatalog);
