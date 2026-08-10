@@ -103,9 +103,12 @@ pre {
 }
 
 .site-frame {
+  display: flex;
   width: min(1360px, 100%);
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
+  flex-direction: column;
   border-inline: 1px solid var(--line);
   background: #fff;
 }
@@ -2388,6 +2391,7 @@ pre {
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr;
   align-items: center;
+  margin-top: auto;
   border-top: 1px solid var(--line);
   padding: 20px clamp(18px, 3vw, 40px);
   background: #fff;
