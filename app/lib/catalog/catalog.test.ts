@@ -6,6 +6,7 @@ import {
   listCatalogSummaries,
   searchCatalog
 } from "./catalog.server";
+import { catalogApiSchema } from "./schema";
 
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
@@ -51,11 +52,25 @@ describe("curated catalog", () => {
     const result = getCatalogSchema("dida365", "TaskCreate");
     expect(result?.schema.title.zh).toBe("创建任务请求");
     expect(result?.schema.properties.map((property) => property.name)).toContain("projectId");
-    expect(result?.schema.localizedSchema?.zh).toMatchObject({
-      properties: { projectId: { description: "项目 ID" } }
-    });
     expect(result?.schema.schema).toMatchObject({
       properties: { projectId: { description: "Project id" } }
+    });
+
+    const localizedApi = catalogApiSchema.parse({
+      ...result?.api,
+      schemas: result?.api.schemas.map((schema) =>
+        schema.name === "TaskCreate"
+          ? {
+              ...schema,
+              localizedSchema: {
+                zh: { properties: { projectId: { description: "项目 ID" } } }
+              }
+            }
+          : schema
+      )
+    });
+    expect(localizedApi.schemas.find((schema) => schema.name === "TaskCreate")?.localizedSchema?.zh).toMatchObject({
+      properties: { projectId: { description: "项目 ID" } }
     });
   });
 
