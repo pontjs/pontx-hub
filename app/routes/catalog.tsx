@@ -139,22 +139,11 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           {search ? (
             <GlobalSearchResults search={search} locale={locale} />
           ) : (
-            <>
-              <div className="registry-columns" aria-hidden="true">
-                <span>{zh ? "API / 能力" : "API / Capability"}</span>
-                <span>{zh ? "分类" : "Category"}</span>
-                <span>{zh ? "接口" : "Endpoints"}</span>
-                <span>{zh ? "鉴权" : "Auth"}</span>
-                <span>SDK</span>
-                <span />
-              </div>
-
-              <div className="api-grid">
-                {apis.map((api, index) => (
-                  <ApiCard key={api.slug} api={api} locale={locale} index={index} />
-                ))}
-              </div>
-            </>
+            <div className="api-grid">
+              {apis.map((api, index) => (
+                <ApiCard key={api.slug} api={api} locale={locale} index={index} />
+              ))}
+            </div>
           )}
         </section>
       </main>

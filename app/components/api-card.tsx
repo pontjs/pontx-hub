@@ -16,7 +16,7 @@ export function ApiCard({
     : api.category;
   const auth = api.authTypes.length
     ? api.authTypes.join(" / ")
-    : locale === "zh" ? "无需鉴权" : "public";
+    : locale === "zh" ? "无需鉴权" : "No auth";
   return (
     <Link
       className="api-card"
@@ -27,30 +27,45 @@ export function ApiCard({
         locale === "zh" ? "个接口" : "endpoints"
       }`}
     >
-      <div className="api-card-number">{String(index + 1).padStart(2, "0")}</div>
-      <div className="api-card-heading">
-        <span className="provider-monogram">{api.provider.slice(0, 2)}</span>
-        <div>
-          <h3>{localize(api.title, locale)}</h3>
-          <p>{localize(api.summary, locale)}</p>
+      <div className="api-card-main">
+        <div className="api-card-topline">
+          <span>{locale === "zh" ? "API 产品" : "API product"}</span>
+          <span>{category}</span>
+          <span>{String(index + 1).padStart(2, "0")}</span>
+        </div>
+        <div className="api-card-heading">
+          <span className="provider-monogram" aria-hidden="true">{api.provider.slice(0, 2)}</span>
+          <div>
+            <span className="api-card-provider">{api.provider}</span>
+            <h3>{localize(api.title, locale)}</h3>
+          </div>
+        </div>
+        <p className="api-card-summary">{localize(api.summary, locale)}</p>
+        <div className="api-card-action">
+          <span>{locale === "zh" ? "查看 API 概览" : "Open API overview"}</span>
+          <span className="api-card-arrow" aria-hidden="true">↗</span>
         </div>
       </div>
-      <span className="api-card-category">{category}</span>
-      <strong
-        className="api-card-operation-count"
-        data-label={locale === "zh" ? "接口" : "endpoints"}
-      >
-        {api.operationCount}
-      </strong>
-      <span className="api-card-auth">{auth}</span>
-      <span className={`api-card-sdk sdk-${api.sdkStatus}`}>
-        {api.sdkStatus === "published"
-          ? `v${api.sdkVersion}`
-          : locale === "zh"
-            ? "计划中"
-            : "planned"}
-      </span>
-      <span className="api-card-arrow" aria-hidden="true">→</span>
+      <dl className="api-card-meta">
+        <div>
+          <dt>{locale === "zh" ? "接口" : "Endpoints"}</dt>
+          <dd>{api.operationCount}</dd>
+        </div>
+        <div>
+          <dt>{locale === "zh" ? "鉴权" : "Auth"}</dt>
+          <dd>{auth}</dd>
+        </div>
+        <div>
+          <dt>SDK</dt>
+          <dd className={`sdk-${api.sdkStatus}`}>
+            {api.sdkStatus === "published"
+              ? `v${api.sdkVersion}`
+              : locale === "zh"
+                ? "计划中"
+                : "Planned"}
+          </dd>
+        </div>
+      </dl>
     </Link>
   );
 }

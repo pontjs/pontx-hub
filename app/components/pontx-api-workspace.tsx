@@ -493,54 +493,66 @@ export function PontxApiWorkspace({
         </header>
       ) : null}
       <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
-      <aside className="pontx-workspace-directory">
+      {!guided ? <aside className="pontx-workspace-directory">
         <div className="pontx-pane-label">
-          <span>{guided ? locale === "zh" ? "选择调用任务" : "Choose a task" : locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
+          <span>{locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
           <strong>{api.operations.length}</strong>
         </div>
-        {guided ? (
-          <div className="api-task-list" aria-label={locale === "zh" ? "可调用接口" : "Callable endpoints"}>
-            {api.operations.map((candidate) => (
-              <button
-                type="button"
-                key={candidate.slug}
-                className={candidate.slug === activeOperation.slug ? "is-active" : undefined}
-                aria-pressed={candidate.slug === activeOperation.slug}
-                onClick={() => {
-                  setSelectedOperation(candidate);
-                  setExecutionResult(undefined);
-                }}
-              >
-                <span className={`method-badge method-${candidate.method.toLowerCase()}`}>{candidate.method}</span>
-                <span><strong>{localize(candidate.title, locale)}</strong><small>{candidate.path}</small></span>
-              </button>
-            ))}
-          </div>
-        ) : (
-          <ApiDirectory
-            locale={locale === "zh" ? "zh-CN" : "en"}
-            spec={spec}
-            selectedApiName={selectedApiName}
-            onApiSelect={handleApiSelect}
-            defaultExpandedTags={[activeOperation.tag]}
-            searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
-            className="pontx-directory"
-          />
-        )}
-      </aside>
+        <ApiDirectory
+          locale={locale === "zh" ? "zh-CN" : "en"}
+          spec={spec}
+          selectedApiName={selectedApiName}
+          onApiSelect={handleApiSelect}
+          defaultExpandedTags={[activeOperation.tag]}
+          searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
+          className="pontx-directory"
+        />
+      </aside> : null}
 
       <section className="pontx-workspace-content">
-        <div className="pontx-workspace-bar">
-          <div>
-            <span>{api.provider}</span>
-            <b>/</b>
-            <code>{activeOperation.operationId}</code>
-          </div>
-          <p>
-            {guided ? <a href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>{locale === "zh" ? "完整接口文档 →" : "Full endpoint docs →"}</a> : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
+        <div className={`pontx-workspace-bar${guided ? " api-quickstart-bar" : ""}`}>
+          {guided ? <>
+            <div className="api-quickstart-heading">
+              <span aria-hidden="true">01</span>
+              <span>
+                <strong>{locale === "zh" ? "快速调用" : "Quick start"}</strong>
+                <small>{locale === "zh" ? "选择目标，确认预填参数并执行" : "Choose a task, review the example, then run it"}</small>
+              </span>
+            </div>
+            <label className="api-task-select">
+              <span>{locale === "zh" ? "调用目标" : "Task"}</span>
+              <select
+                value={activeOperation.slug}
+                onChange={(event) => {
+                  const candidate = api.operations.find((item) => item.slug === event.target.value);
+                  if (candidate) {
+                    setSelectedOperation(candidate);
+                    setExecutionResult(undefined);
+                  }
+                }}
+              >
+                {api.operations.map((candidate) => (
+                  <option key={candidate.slug} value={candidate.slug}>
+                    {localize(candidate.title, locale)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <a className="api-full-docs-link" href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>
+              {locale === "zh" ? "查看完整接口文档" : "Full endpoint docs"}<span aria-hidden="true">→</span>
+            </a>
+          </> : <>
+            <div>
+              <span>{api.provider}</span>
+              <b>/</b>
+              <code>{activeOperation.operationId}</code>
+            </div>
+            <p>
+              {api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
               ? "调试经 Hub 代理 · 凭证仅保留当前会话"
               : "Hub-proxied execution · credentials stay in this session"}
-          </p>
+            </p>
+          </>}
         </div>
         <div className="pontx-workspace-body">
           {isHydrated && !guided ? (
@@ -584,7 +596,7 @@ export function PontxApiWorkspace({
               } as Record<string, unknown>)}
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
-              className="pontx-documentation"
+              className={`pontx-documentation${guided ? " pontx-documentation-guided" : ""}`}
             />
             </>
           ) : (
