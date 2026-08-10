@@ -71,6 +71,23 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     expect(operation?.security).toContainEqual({ schemeId: "OAuth2", scopes: ["tasks:write"] });
   });
 
+  it("passes localized parameter descriptions to Playground fields", () => {
+    const api = getCatalogApi("dida365");
+    const operation = api?.operations.find(
+      (item) => item.slug === "get-task-by-project-id-and-task-id"
+    );
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+
+    const pontxApi = toPontxApi(api!, operation!, "en");
+    expect(
+      pontxApi.parameters?.find((parameter) => parameter.name === "projectId")
+    ).toMatchObject({
+      description: "Project identifier",
+      schema: { description: "Project identifier" }
+    });
+  });
+
   itWithFrankfurterV2("keeps parameter defaults, examples, enums, and constraints distinct", () => {
     const api = frankfurterV2;
     const operation = api?.operations.find((item) => item.slug === "get-rates");

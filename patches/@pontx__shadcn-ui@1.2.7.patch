@@ -2208,10 +2208,10 @@ index 0000000000000000000000000000000000000000..a9ef9bec281963a3a100dcae897caf34
 \ No newline at end of file
 diff --git a/dist/PlaygroundPanel-B-8aUZVz.js b/dist/PlaygroundPanel-B-8aUZVz.js
 new file mode 100644
-index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf40eeaec06
+index 0000000000000000000000000000000000000000..2505acc85e4da2f33c3aee879f9caa7371677f29
 --- /dev/null
 +++ b/dist/PlaygroundPanel-B-8aUZVz.js
-@@ -0,0 +1,908 @@
+@@ -0,0 +1,911 @@
 +import { jsxs as o, jsx as r, Fragment as Pe } from "react/jsx-runtime";
 +import { useState as w, useMemo as D, useEffect as E, useRef as H, useCallback as j } from "react";
 +import { C as Ge, a as Ae, b as $e, c as Ue } from "./card-Dnjhc06b.js";
@@ -2658,8 +2658,8 @@ index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf4
 +      return delete y[a.name], y;
 +    });
 +  }, v = { ...P, ...i }, A = (a) => {
-+    const s = n[a.name] || "", u = v[a.name], h = a.required || !1, y = pt(a.schema, f), B = () => a.schema.enum && a.schema.enum.length > 0 ? /* @__PURE__ */ o(Ie, { value: s, onValueChange: (x) => b(a.name, x), children: [
-+      /* @__PURE__ */ r(qe, { children: /* @__PURE__ */ r(Fe, { placeholder: f("selectValue") }) }),
++    const s = n[a.name] || "", u = v[a.name], h = a.required || !1, y = pt(a.schema, f), descriptionId = `${a.name}-description`, validationHintId = `${a.name}-hint`, errorId = `${a.name}-error`, describedBy = [a.description ? descriptionId : null, y && !u ? validationHintId : null, u ? errorId : null].filter(Boolean).join(" ") || void 0, B = () => a.schema.enum && a.schema.enum.length > 0 ? /* @__PURE__ */ o(Ie, { value: s, onValueChange: (x) => b(a.name, x), children: [
++      /* @__PURE__ */ r(qe, { id: a.name, "aria-required": h, "aria-invalid": !!u, "aria-describedby": describedBy, children: /* @__PURE__ */ r(Fe, { placeholder: f("selectValue") }) }),
 +      /* @__PURE__ */ r(Oe, { children: a.schema.enum.map((x) => /* @__PURE__ */ r(de, { value: x, children: x }, x)) })
 +    ] }) : a.schema.type === "boolean" ? /* @__PURE__ */ o("div", { className: "flex items-center space-x-2", children: [
 +      /* @__PURE__ */ r(
@@ -2668,7 +2668,10 @@ index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf4
 +          id: a.name,
 +          checked: s === "true",
 +          onCheckedChange: (x) => b(a.name, x ? "true" : "false"),
-+          onBlur: () => N(a)
++          onBlur: () => N(a),
++          "aria-required": h,
++          "aria-invalid": !!u,
++          "aria-describedby": describedBy
 +        }
 +      ),
 +      /* @__PURE__ */ r(
@@ -2691,7 +2694,7 @@ index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf4
 +        "aria-label": a.name,
 +        "aria-required": h,
 +        "aria-invalid": !!u,
-+        "aria-describedby": u ? `${a.name}-error` : y ? `${a.name}-hint` : void 0
++        "aria-describedby": describedBy
 +      }
 +    ) : /* @__PURE__ */ r(
 +      q,
@@ -2705,7 +2708,7 @@ index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf4
 +        "aria-label": a.name,
 +        "aria-required": h,
 +        "aria-invalid": !!u,
-+        "aria-describedby": u ? `${a.name}-error` : y ? `${a.name}-hint` : void 0
++        "aria-describedby": describedBy
 +      }
 +    );
 +    return /* @__PURE__ */ o("div", { className: "space-y-2", children: [
@@ -2726,12 +2729,12 @@ index 0000000000000000000000000000000000000000..65a8ad56360536e7781a06dca05bebf4
 +        }
 +      ),
 +      B(),
-+      y && !u && /* @__PURE__ */ r("p", { id: `${a.name}-hint`, className: "text-xs text-muted-foreground", children: y }),
-+      a.description && !u && !y && /* @__PURE__ */ r("p", { className: "text-xs text-gray-500 dark:text-gray-400", children: a.description }),
++      a.description && /* @__PURE__ */ r("p", { id: descriptionId, className: "text-xs text-gray-500 dark:text-gray-400", children: a.description }),
++      y && !u && /* @__PURE__ */ r("p", { id: validationHintId, className: "text-xs text-muted-foreground", children: y }),
 +      u && /* @__PURE__ */ r(
 +        "p",
 +        {
-+          id: `${a.name}-error`,
++          id: errorId,
 +          className: "text-xs text-red-600 dark:text-red-400",
 +          role: "alert",
 +          "aria-live": "polite",

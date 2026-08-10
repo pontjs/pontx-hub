@@ -165,6 +165,9 @@ export function toPontxApi(
     name: parameter.name,
     in: parameter.in,
     required: Boolean(parameter.required),
+    ...(parameter.description
+      ? { description: localize(parameter.description, locale) }
+      : {}),
     schema: parameterSchema(parameter, locale)
   }));
   const securitySchemes = Object.fromEntries(

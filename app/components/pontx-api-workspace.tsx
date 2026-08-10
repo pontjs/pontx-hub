@@ -442,6 +442,24 @@ export function PontxApiWorkspace({
   const executableOperationCount = api.operations.filter(
     (candidate) => candidate.proxyEnabled
   ).length;
+  const category =
+    locale === "zh"
+      ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
+          string,
+          string
+        >)[api.category] ?? api.category
+      : api.category;
+  const authLabel = api.auth.length
+    ? api.auth
+        .map((item) => {
+          if (item.type === "oauth2") return "OAuth 2.0";
+          if (item.type === "apiKey") return "API Key";
+          return item.type;
+        })
+        .join(" / ")
+    : locale === "zh"
+      ? "无需鉴权"
+      : "None";
 
   const generateCode = useCallback(
     async ({ scenarioId, request }: CodeGenRequest) => {
@@ -476,17 +494,27 @@ export function PontxApiWorkspace({
       <ResourceNavigation locale={locale} api={api} active={guided ? "overview" : "docs"} />
       {guided ? (
         <header className="api-overview-hero" style={{ "--api-accent": api.accent } as React.CSSProperties}>
-          <div>
-            <p className="eyebrow">{api.provider} / {api.category}</p>
+          <div className="api-overview-intro">
+            <p className="eyebrow">{api.provider} / {category}</p>
             <h1>{localize(api.title, locale)}</h1>
             <p>{localize(api.summary, locale)}</p>
-            <a className="button button-dark" href="#quick-call">
-              {locale === "zh" ? "立即试用" : "Try it now"}
-            </a>
+            <div className="api-overview-actions">
+              <a className="button button-dark" href="#quick-call">
+                {locale === "zh" ? "立即试用" : "Try it now"}
+              </a>
+              <a
+                className="button"
+                href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}
+              >
+                {locale === "zh" ? "浏览接口文档" : "Browse endpoint docs"}
+              </a>
+            </div>
           </div>
           <dl className="api-overview-facts">
-            <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{api.auth.length ? api.auth.map((item) => item.type).join(" / ") : locale === "zh" ? "无需鉴权" : "None"}</dd></div>
+            <div><dt>{locale === "zh" ? "提供方" : "Provider"}</dt><dd>{api.provider}</dd></div>
+            <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{authLabel}</dd></div>
             <div><dt>{locale === "zh" ? "接口" : "Endpoints"}</dt><dd>{api.operations.length}</dd></div>
+            <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
             <div><dt>{locale === "zh" ? "在线调用" : "Live calls"}</dt><dd>{executableOperationCount ? `${executableOperationCount}/${api.operations.length}` : locale === "zh" ? "仅预览" : "Preview only"}</dd></div>
             <div><dt>SDK</dt><dd>{api.sdkStatus === "published" ? `v${api.sdkVersion}` : locale === "zh" ? "计划中" : "Planned"}</dd></div>
           </dl>
