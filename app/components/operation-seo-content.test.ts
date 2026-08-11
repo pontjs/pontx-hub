@@ -41,6 +41,43 @@ describe("OperationSeoContent", () => {
     expect(html).not.toContain(locale === "zh" ? "恢复此示例" : "Restore example");
   });
 
+  it("uses the shared Select when an Endpoint has multiple request examples", () => {
+    const match = getCatalogOperation("dida365", "create-project");
+    expect(match).toBeDefined();
+    const example = match!.operation.requestExamples[0];
+    const operation = {
+      ...match!.operation,
+      requestExamples: [
+        example,
+        {
+          ...example,
+          id: "alternative",
+          title: { zh: "备用成功示例", en: "Alternative successful example" }
+        }
+      ]
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(RequestExampleNotice, {
+          locale: "zh",
+          api: match!.api,
+          operation,
+          example,
+          onSelect: () => undefined
+        })
+      )
+    );
+
+    expect(html).toContain("request-example-select-trigger");
+    expect(html).toContain('role="combobox"');
+    expect(html).toContain(example.title.zh);
+    expect(html).toContain('<select aria-hidden="true"');
+    expect(html).not.toContain('<option');
+  });
+
   it("renders endpoint input and output metadata as semantic server HTML", () => {
     const match = getCatalogOperation("dida365", "create-project");
     expect(match).toBeDefined();

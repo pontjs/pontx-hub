@@ -147,8 +147,7 @@ a {
 
 button,
 input,
-textarea,
-select {
+textarea {
   font: inherit;
 }
 
@@ -159,8 +158,7 @@ button {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
+textarea:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: 3px;
 }
@@ -1657,7 +1655,7 @@ samp,
   text-transform: uppercase;
 }
 
-.api-task-select select {
+.api-task-select > .api-task-select-trigger {
   width: 100%;
   min-width: 0;
   height: 38px;
@@ -1670,9 +1668,35 @@ samp,
   outline: none;
 }
 
-.api-task-select select:focus-visible {
+.api-task-select > .api-task-select-trigger > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.api-task-select > .api-task-select-trigger:focus-visible {
   border-color: var(--blue);
+  outline: none;
   box-shadow: 0 0 0 3px rgba(49, 87, 213, 0.1);
+}
+
+.api-task-select-content {
+  z-index: 90;
+  max-height: min(360px, var(--radix-select-content-available-height));
+  border-color: var(--line);
+  background: #fff;
+  color: var(--ink);
+}
+
+.api-task-select-content [role="listbox"] {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.api-task-select-item {
+  max-width: min(460px, calc(100vw - 32px));
+  font-size: var(--type-small);
 }
 
 .api-full-docs-link {
@@ -3415,8 +3439,9 @@ samp,
 .oauth-credential-guide a { color: #0f766e; font-size: 12px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
 .oauth-credential-guide ol { margin: 0; padding-left: 18px; color: #475569; font-size: 12px; line-height: 1.65; }
 .oauth-toolbar-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 320px)); gap: 8px; }
-.oauth-toolbar label { display: grid; gap: 4px; color: #475569; font-size: 11px; }
-.oauth-toolbar input:not([type="checkbox"]), .oauth-toolbar select { min-width: 0; height: 32px; padding: 0 9px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff; color: #0f172a; }
+.oauth-toolbar label, .oauth-flow-select { display: grid; gap: 4px; color: #475569; font-size: 11px; }
+.oauth-toolbar input:not([type="checkbox"]), .oauth-toolbar .oauth-select-trigger { min-width: 0; height: 32px; padding: 0 9px; border: 1px solid #cbd5e1; border-radius: 5px; background: #fff; color: #0f172a; }
+.oauth-select-content { z-index: 90; border-color: #cbd5e1; background: #fff; color: #0f172a; }
 .oauth-toolbar fieldset { display: flex; flex-wrap: wrap; gap: 8px 14px; border: 0; padding: 0; margin: 0; }
 .oauth-toolbar fieldset legend { margin-bottom: 5px; color: #475569; font-size: 11px; }
 .oauth-toolbar fieldset label { display: flex; align-items: center; gap: 5px; }
@@ -3556,14 +3581,14 @@ samp,
   justify-content: flex-end;
   gap: 8px;
 }
-.request-example-actions label { display: grid; gap: 3px; }
-.request-example-actions label > span {
+.request-example-selector { display: grid; gap: 3px; }
+.request-example-selector > span {
   color: var(--ink-soft);
   font-family: var(--mono);
   font-size: 9px;
   text-transform: uppercase;
 }
-.request-example-actions select,
+.request-example-select-trigger,
 .request-example-actions button {
   min-height: 30px;
   border: 1px solid var(--line);
@@ -3573,11 +3598,12 @@ samp,
   color: var(--ink);
   font-size: 11px;
 }
-.request-example-actions select:focus-visible,
+.request-example-select-trigger:focus-visible,
 .request-example-actions button:focus-visible {
   border-color: var(--blue);
   outline: 3px solid rgba(49, 87, 213, .12);
 }
+.request-example-select-content { z-index: 90; border-color: var(--line); background: #fff; color: var(--ink); }
 .request-example-actions button { cursor: pointer; }
 .resource-page-guided .request-example-notice { margin: 0 0 16px; }
 @media (max-width: 760px) {
@@ -3607,7 +3633,7 @@ samp,
   .resource-page-guided .request-example-notice { margin-inline: 0; }
   .request-example-inputs li { grid-template-columns: 1fr; gap: 2px; }
   .request-example-actions { align-items: stretch; flex-direction: column; }
-  .request-example-actions label,
-  .request-example-actions select,
+  .request-example-selector,
+  .request-example-select-trigger,
   .request-example-actions button { width: 100%; }
 }

@@ -1,4 +1,11 @@
 import { Link } from "react-router";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@pontx/shadcn-ui";
 import type {
   CatalogApi,
   CatalogOperation,
@@ -129,16 +136,24 @@ export function RequestExampleNotice({
       {onSelect || onReset ? (
         <div className="request-example-actions">
           {onSelect && operation.requestExamples.length > 1 ? (
-            <label>
-              <span>{zh ? "示例" : "Example"}</span>
-              <select value={selectedId ?? example.id} onChange={(event) => onSelect(event.target.value)}>
-                {operation.requestExamples.map((candidate) => (
-                  <option key={candidate.id} value={candidate.id}>
-                    {localize(candidate.title, locale)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="request-example-selector">
+              <span id={`request-example-selector-${operation.slug}`}>{zh ? "示例" : "Example"}</span>
+              <Select value={selectedId ?? example.id} onValueChange={onSelect}>
+                <SelectTrigger
+                  className="request-example-select-trigger"
+                  aria-labelledby={`request-example-selector-${operation.slug}`}
+                >
+                  <SelectValue>{localize(example.title, locale)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="request-example-select-content">
+                  {operation.requestExamples.map((candidate) => (
+                    <SelectItem key={candidate.id} value={candidate.id}>
+                      {localize(candidate.title, locale)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           ) : null}
           {onReset ? (
             <button type="button" onClick={onReset}>
