@@ -840,6 +840,35 @@ samp,
   font-size: 10px;
 }
 
+.catalog-search-state {
+  display: inline-flex;
+  min-height: 18px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.catalog-search-state.is-loading {
+  color: var(--blue);
+}
+
+.catalog-search-spinner {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: catalog-search-spin 650ms linear infinite;
+}
+
+@keyframes catalog-search-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .catalog-search {
   display: flex;
   width: min(560px, 100%);
@@ -867,6 +896,14 @@ samp,
 .catalog-search:focus-within {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(49, 87, 213, 0.08);
+}
+
+.catalog-results-frame {
+  transition: opacity 140ms ease;
+}
+
+.catalog-results-frame[aria-busy="true"] {
+  opacity: 0.52;
 }
 
 .global-search-results {
@@ -3191,6 +3228,10 @@ samp,
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .catalog-search-spinner {
+    animation: none;
   }
 }
 .oauth-toolbar {
