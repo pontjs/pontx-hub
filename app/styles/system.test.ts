@@ -115,6 +115,26 @@ describe("Pontx Hub visual system", () => {
     expect(css).toMatch(/\.api-overview-actions\s*{[\s\S]*?margin-top:\s*14px;/);
   });
 
+  it("keeps the API catalog summary compact enough for search results to enter the first viewport", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.catalog-page\s*{[\s\S]*?padding:\s*28px clamp\(20px, 4vw, 72px\) 56px;/,
+    );
+    expect(css).toMatch(
+      /\.registry-header\s*{[\s\S]*?align-items:\s*center;[\s\S]*?margin:\s*0 auto 24px;[\s\S]*?padding-bottom:\s*20px;/,
+    );
+    expect(css).toMatch(
+      /\.registry-intro h1\s*{[\s\S]*?font-size:\s*clamp\(34px, 3vw, 48px\);/,
+    );
+    expect(css).toMatch(
+      /\.registry-stats > div\s*{[\s\S]*?min-height:\s*64px;[\s\S]*?padding:\s*10px 14px;/,
+    );
+    expect(css).toMatch(
+      /\.registry-taskline\s*{[\s\S]*?display:\s*flex;[\s\S]*?align-items:\s*baseline;[\s\S]*?margin-bottom:\s*10px;/,
+    );
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
