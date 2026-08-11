@@ -58,6 +58,20 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("shows search progress without motion-only feedback", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.catalog-search-state\.is-loading\s*{[\s\S]*?color:\s*var\(--blue\);/,
+    );
+    expect(css).toMatch(
+      /\.catalog-results-frame\[aria-busy="true"\]\s*{[\s\S]*?opacity:/,
+    );
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.catalog-search-spinner\s*{\s*animation:\s*none;/,
+    );
+  });
+
   it("renders highlighted terminal surfaces with visible keyboard focus", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
@@ -82,6 +96,18 @@ describe("API directory integration styles", () => {
     expect(css).toMatch(
       /\.request-example-notice\s*{[\s\S]*?"description actions"[\s\S]*?"meta actions"[\s\S]*?padding:\s*9px 11px;/,
     );
+  });
+
+  it("makes successful OAuth state prominent inside the authorization card", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.oauth-toolbar-authorized\s*{[\s\S]*?border-color:\s*#86c8ae;[\s\S]*?background:\s*linear-gradient/,
+    );
+    expect(css).toMatch(
+      /\.oauth-toolbar-heading-status-success\s*{[\s\S]*?background:\s*#dcfce7;[\s\S]*?color:\s*#166534;/,
+    );
+    expect(css).not.toContain(".oauth-result-success");
   });
 
   it("keeps Endpoint and Schema groups in the desktop directory with a mobile fallback", async () => {
