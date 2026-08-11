@@ -128,6 +128,12 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       })
     );
     expect(html).toContain('type="date"');
+    expect(html).toContain("示例值:");
+    expect(html).toContain("2024-01-15");
+    expect(html).toContain('aria-label="将示例值填入 date"');
+    expect(html).toContain(
+      'aria-describedby="date-description date-example date-hint"'
+    );
   });
 
   it("passes localized response schemas to the Playground by status code", () => {
