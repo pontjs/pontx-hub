@@ -58,6 +58,20 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("gives resource type tags explicit padding and enough grid space", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.search-kind\s*{\s*padding:\s*2px 8px;\s*white-space:\s*nowrap;/,
+    );
+    expect(css).toMatch(
+      /\.search-result-row\s*{[\s\S]*?grid-template-columns:\s*66px minmax\(0, 1fr\) minmax\(180px, 260px\) 20px;/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.search-result-row\s*{[\s\S]*?grid-template-columns:\s*66px minmax\(0, 1fr\) 18px;/,
+    );
+  });
+
   it("shows search progress without motion-only feedback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 

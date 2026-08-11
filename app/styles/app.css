@@ -990,7 +990,7 @@ samp,
   padding: 10px 12px;
   background: #fff;
   color: inherit;
-  grid-template-columns: 58px minmax(0, 1fr) minmax(180px, 260px) 20px;
+  grid-template-columns: 66px minmax(0, 1fr) minmax(180px, 260px) 20px;
   text-decoration: none;
   gap: 14px;
   transition: background 140ms ease, transform 140ms ease;
@@ -1018,6 +1018,11 @@ samp,
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 600;
+}
+
+.search-kind {
+  padding: 2px 8px;
+  white-space: nowrap;
 }
 
 .search-kind-api {
@@ -3050,7 +3055,7 @@ samp,
 
   .search-result-row {
     min-height: 88px;
-    grid-template-columns: 48px minmax(0, 1fr) 18px;
+    grid-template-columns: 66px minmax(0, 1fr) 18px;
     gap: 10px;
   }
 
