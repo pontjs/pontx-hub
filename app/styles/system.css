@@ -494,28 +494,29 @@ textarea {
 }
 
 .resource-navigation-tabs {
+  height: 54px;
   gap: 4px;
 }
 
 .resource-navigation-tabs a {
-  min-height: 34px;
-  padding: 7px 11px;
+  min-height: 0;
+  padding: 0 11px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--ink-soft);
   font-size: 12px;
   font-weight: 650;
 }
 
 .resource-navigation-tabs a:hover {
-  color: var(--ink);
-  background: var(--paper-deep);
+  color: var(--blue-deep);
+  background: transparent;
 }
 
 .resource-navigation-tabs a.is-active {
   color: var(--blue-deep);
-  background: var(--blue-soft);
-  box-shadow: inset 0 0 0 1px #d5e3ff;
+  background: transparent;
+  box-shadow: none;
 }
 
 .resource-page {
@@ -1146,7 +1147,7 @@ textarea {
   .resource-navigation {
     top: 58px;
     min-height: auto;
-    padding: 8px 12px;
+    padding: 8px 12px 0;
   }
 
   .resource-navigation-path {
@@ -1154,6 +1155,7 @@ textarea {
   }
 
   .resource-navigation-tabs {
+    height: 40px;
     width: 100%;
     overflow-x: auto;
     scrollbar-width: none;
