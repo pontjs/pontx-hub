@@ -83,6 +83,20 @@ describe("Pontx Hub visual system", () => {
     }
   });
 
+  it("keeps endpoint workspace surfaces on one content edge", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice\s*{\s*margin:\s*0;/,
+    );
+    expect(css).toMatch(
+      /\.resource-page-workspace \.pontx-documentation\s*{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?box-shadow:\s*none;/,
+    );
+    expect(css).toMatch(
+      /\.resource-page-workspace \.pontx-documentation > div:first-child\s*{\s*padding-right:\s*0;/,
+    );
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
