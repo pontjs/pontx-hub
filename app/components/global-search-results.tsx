@@ -7,16 +7,18 @@ import type {
   Locale
 } from "~/lib/catalog/types";
 import { FavoriteApiButton } from "~/components/favorite-api-button";
+import { publicResourceTerminologyCopy } from "~/lib/i18n";
 
 const kinds: GlobalSearchKind[] = ["api", "endpoint", "schema"];
 
 function kindLabel(kind: GlobalSearchKind, locale: Locale): string {
+  const terminology = publicResourceTerminologyCopy(locale);
   const labels = {
-    api: { zh: "API", en: "APIs" },
-    endpoint: { zh: "接口", en: "Endpoints" },
-    schema: { zh: "数据结构", en: "Schemas" }
+    api: terminology.apiProducts,
+    endpoint: terminology.endpoints,
+    schema: terminology.schemas
   };
-  return labels[kind][locale];
+  return labels[kind];
 }
 
 function resultMeta(result: GlobalSearchResult, locale: Locale): string {
@@ -33,13 +35,14 @@ function resultMeta(result: GlobalSearchResult, locale: Locale): string {
     : `${result.schemaType} · ${result.propertyCount} properties`;
 }
 
-function ResultBadge({ result }: { result: GlobalSearchResult }) {
+function ResultBadge({ result, locale }: { result: GlobalSearchResult; locale: Locale }) {
   if (result.kind === "endpoint") {
     return <span className={`search-method method-${result.method.toLowerCase()}`}>{result.method}</span>;
   }
+  const terminology = publicResourceTerminologyCopy(locale);
   return (
     <span className={`search-kind search-kind-${result.kind}`}>
-      {result.kind === "api" ? "API" : "{}"}
+      {result.kind === "api" ? terminology.apiBadge : "{}"}
     </span>
   );
 }
@@ -69,6 +72,7 @@ export function GlobalSearchResults({
   favoriteApiSlugs?: string[];
 }) {
   const zh = locale === "zh";
+  const terminology = publicResourceTerminologyCopy(locale);
 
   if (search.total === 0) {
     return (
@@ -106,7 +110,7 @@ export function GlobalSearchResults({
               {results.map((result) => (
                 <div className="search-result-item" key={result.id}>
                   <Link className="search-result-row" to={result.href}>
-                  <ResultBadge result={result} />
+                  <ResultBadge result={result} locale={locale} />
                   <div className="search-result-main">
                     <div>
                       <strong>{result.title}</strong>
@@ -127,7 +131,7 @@ export function GlobalSearchResults({
                     </small>
                   </div>
                   <div className="search-result-context">
-                    <span>{result.kind === "api" ? (zh ? "API 集合" : "API collection") : result.apiTitle}</span>
+                    <span>{result.kind === "api" ? terminology.apiProduct : result.apiTitle}</span>
                     <code>{resultMeta(result, locale)}</code>
                   </div>
                   <span className="search-result-arrow" aria-hidden="true">→</span>

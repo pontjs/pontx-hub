@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import type { CatalogSummary, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { FavoriteApiButton } from "~/components/favorite-api-button";
+import { publicResourceTerminologyCopy } from "~/lib/i18n";
 
 export function ApiCard({
   api,
@@ -14,6 +15,7 @@ export function ApiCard({
   index: number;
   initialFavorite?: boolean;
 }) {
+  const terminology = publicResourceTerminologyCopy(locale);
   const category = locale === "zh"
     ? ({ Finance: "金融", Productivity: "效率工具" } as Record<string, string>)[api.category] ?? api.category
     : api.category;
@@ -35,7 +37,7 @@ export function ApiCard({
       >
         <div className="api-card-main">
         <div className="api-card-topline">
-          <span>{locale === "zh" ? "API 产品" : "API product"}</span>
+          <span>{terminology.apiProduct}</span>
           <span>{category}</span>
           <span>{String(index + 1).padStart(2, "0")}</span>
         </div>
@@ -54,7 +56,7 @@ export function ApiCard({
         </div>
         <dl className="api-card-meta">
         <div>
-          <dt>{locale === "zh" ? "接口" : "Endpoints"}</dt>
+          <dt>{terminology.endpoints}</dt>
           <dd>{api.operationCount}</dd>
         </div>
         <div>
