@@ -10,10 +10,10 @@ const search: GlobalSearchResponse = {
   semanticVersion: "pontx-multilingual-v1",
   query: "stock",
   locale: "zh",
-  total: 1,
+  total: 2,
   offset: 0,
   limit: 20,
-  counts: { api: 1, endpoint: 0, schema: 0 },
+  counts: { api: 1, endpoint: 1, schema: 0 },
   items: [
     {
       id: "api:massive",
@@ -29,6 +29,23 @@ const search: GlobalSearchResponse = {
       category: "Finance",
       endpointCount: 6,
       schemaCount: 17
+    },
+    {
+      id: "endpoint:massive/get-last-trade",
+      kind: "endpoint",
+      score: 90,
+      apiSlug: "massive",
+      apiTitle: "Massive 股票市场数据 API",
+      provider: "Massive",
+      title: "获取最新成交",
+      description: "返回指定股票最近一笔可用成交。",
+      href: "/zh/apis/massive/get-last-trade",
+      match: { mode: "hybrid", fields: ["title", "response"] },
+      operationSlug: "get-last-trade",
+      operationId: "getLastTrade",
+      method: "GET",
+      path: "/v2/last/trade/{stocksTicker}",
+      tag: "stocks"
     }
   ]
 };
@@ -44,7 +61,14 @@ function renderResults(locale: Locale) {
         locale
       })
     }
-  ], { initialEntries: [`/${locale}?q=stock`] });
+  ], {
+    initialEntries: [`/${locale}?q=stock`],
+    hydrationData: {
+      loaderData: {
+        root: { accounts: { enabled: true, viewer: null } }
+      }
+    }
+  });
 
   return renderToStaticMarkup(createElement(RouterProvider, { router }));
 }
@@ -64,5 +88,12 @@ describe("global search terminology", () => {
     expect(html).toContain("API product");
     expect(html).toContain("API</span>");
     expect(html).not.toContain("API collection");
+  });
+
+  it("offers save controls for Endpoints instead of API products", () => {
+    const html = renderResults("zh");
+
+    expect(html).toContain("登录后收藏接口: 获取最新成交");
+    expect(html).not.toContain("登录后收藏接口: Massive 股票市场数据 API");
   });
 });

@@ -1,19 +1,16 @@
 import { Link } from "react-router";
 import type { CatalogSummary, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import { FavoriteApiButton } from "~/components/favorite-api-button";
 import { publicResourceTerminologyCopy } from "~/lib/i18n";
 
 export function ApiCard({
   api,
   locale,
-  index,
-  initialFavorite = false
+  index
 }: {
   api: CatalogSummary;
   locale: Locale;
   index: number;
-  initialFavorite?: boolean;
 }) {
   const terminology = publicResourceTerminologyCopy(locale);
   const category = locale === "zh"
@@ -75,12 +72,6 @@ export function ApiCard({
         </div>
         </dl>
       </Link>
-      <FavoriteApiButton
-        apiSlug={api.slug}
-        locale={locale}
-        initialFavorite={initialFavorite}
-        compact
-      />
     </article>
   );
 }

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { action, loader } from "./account-api";
 import { headers as apiDetailHeaders } from "./api-detail";
+import { headers as catalogHeaders } from "./catalog";
 
 function readyEnvironment() {
   vi.stubEnv("PONTX_ACCOUNTS_ENABLED", "true");
@@ -17,7 +18,7 @@ describe("private account API", () => {
   it("is hidden while accounts are disabled", async () => {
     vi.stubEnv("PONTX_ACCOUNTS_ENABLED", "false");
     const response = await loader({
-      request: new Request("https://pontx.example.com/api/account/v1/favorites/apis")
+      request: new Request("https://pontx.example.com/api/account/v1/favorites/endpoints")
     } as never);
     expect(response.status).toBe(404);
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
@@ -27,7 +28,7 @@ describe("private account API", () => {
   it("fails closed when account configuration is incomplete", async () => {
     vi.stubEnv("PONTX_ACCOUNTS_ENABLED", "true");
     const response = await action({
-      request: new Request("https://pontx.example.com/api/account/v1/favorites/apis/dida365", {
+      request: new Request("https://pontx.example.com/api/account/v1/favorites/endpoints/dida365/get-user-projects", {
         method: "PUT",
         headers: { Origin: "https://pontx.example.com" }
       })
@@ -39,7 +40,7 @@ describe("private account API", () => {
   it("rejects cross-origin mutations before reading the session", async () => {
     readyEnvironment();
     const response = await action({
-      request: new Request("https://pontx.example.com/api/account/v1/favorites/apis/dida365", {
+      request: new Request("https://pontx.example.com/api/account/v1/favorites/endpoints/dida365/get-user-projects", {
         method: "PUT",
         headers: { Origin: "https://evil.example" }
       })
@@ -63,20 +64,30 @@ describe("private account API", () => {
     await expect(response.json()).resolves.toEqual({ error: { code: "invalid_origin" } });
   });
 
-  it("rejects unknown catalog API slugs before reading the session", async () => {
+  it("rejects unknown catalog Endpoints before reading the session", async () => {
     readyEnvironment();
     const response = await action({
-      request: new Request("https://pontx.example.com/api/account/v1/favorites/apis/not-in-catalog", {
+      request: new Request("https://pontx.example.com/api/account/v1/favorites/endpoints/dida365/not-in-catalog", {
         method: "PUT",
         headers: { Origin: "https://pontx.example.com" }
       })
     } as never);
     expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({ error: { code: "unknown_api" } });
+    await expect(response.json()).resolves.toEqual({ error: { code: "unknown_endpoint" } });
+  });
+
+  it("does not expose the retired API-product favorite route", async () => {
+    readyEnvironment();
+    const response = await loader({
+      request: new Request("https://pontx.example.com/api/account/v1/favorites/apis")
+    } as never);
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({ error: { code: "not_found" } });
   });
 
   it("disables shared response caching when personalized account data is enabled", () => {
     readyEnvironment();
     expect(apiDetailHeaders()).toEqual({ "Cache-Control": "private, no-store" });
+    expect(catalogHeaders()).toEqual({ "Cache-Control": "private, no-store" });
   });
 });

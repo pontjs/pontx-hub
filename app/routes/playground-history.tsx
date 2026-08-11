@@ -290,7 +290,7 @@ export default function PlaygroundHistory({ loaderData }: Route.ComponentProps) 
           aria-label={zh ? "账户内容" : "Account content"}
         >
           <Link to={`/${locale}/account/saved`}>
-            {zh ? "收藏的 API" : "Saved APIs"}
+            {zh ? "收藏的接口" : "Saved Endpoints"}
           </Link>
           <Link to={`/${locale}/account/history`} aria-current="page">
             {zh ? "调试历史" : "Playground history"}

@@ -1,50 +1,65 @@
 import { and, asc, eq } from "drizzle-orm";
 import { getDatabase } from "~/db/client.server";
-import { userApiFavorites } from "~/db/schema";
+import { userEndpointFavorites } from "~/db/schema";
 import { readAccountsConfiguration } from "./config.server";
+import type { FavoriteEndpointIdentity } from "./favorites";
 import { accountUserId, requireAccountUserId } from "./session.server";
 
-export async function listFavoriteApiSlugsForUser(userId: string): Promise<string[]> {
+export async function listFavoriteEndpointsForUser(
+  userId: string
+): Promise<FavoriteEndpointIdentity[]> {
   const configuration = readAccountsConfiguration();
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const rows = await getDatabase(configuration.databaseUrl)
-    .select({ apiSlug: userApiFavorites.apiSlug })
-    .from(userApiFavorites)
-    .where(eq(userApiFavorites.userId, userId))
-    .orderBy(asc(userApiFavorites.createdAt));
-  return rows.map((row) => row.apiSlug);
+    .select({
+      apiSlug: userEndpointFavorites.apiSlug,
+      operationSlug: userEndpointFavorites.operationSlug
+    })
+    .from(userEndpointFavorites)
+    .where(eq(userEndpointFavorites.userId, userId))
+    .orderBy(asc(userEndpointFavorites.createdAt));
+  return rows;
 }
 
-export async function listFavoriteApiSlugs(request: Request): Promise<string[]> {
+export async function listFavoriteEndpoints(
+  request: Request
+): Promise<FavoriteEndpointIdentity[]> {
   const configuration = readAccountsConfiguration();
   if (configuration.status !== "ready") return [];
   try {
     const userId = await accountUserId(request);
     if (!userId) return [];
-    return await listFavoriteApiSlugsForUser(userId);
+    return await listFavoriteEndpointsForUser(userId);
   } catch {
     return [];
   }
 }
 
-export async function addApiFavorite(request: Request, apiSlug: string) {
+export async function addEndpointFavorite(
+  request: Request,
+  favorite: FavoriteEndpointIdentity
+) {
   const configuration = readAccountsConfiguration();
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const userId = await requireAccountUserId(request);
   await getDatabase(configuration.databaseUrl)
-    .insert(userApiFavorites)
-    .values({ userId, apiSlug })
+    .insert(userEndpointFavorites)
+    .values({ userId, ...favorite })
     .onConflictDoNothing();
 }
 
-export async function removeApiFavorite(request: Request, apiSlug: string) {
+export async function removeEndpointFavorite(
+  request: Request,
+  favorite: FavoriteEndpointIdentity
+) {
   const configuration = readAccountsConfiguration();
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const userId = await requireAccountUserId(request);
   await getDatabase(configuration.databaseUrl)
-    .delete(userApiFavorites)
+    .delete(userEndpointFavorites)
     .where(and(
-      eq(userApiFavorites.userId, userId),
-      eq(userApiFavorites.apiSlug, apiSlug)
+      eq(userEndpointFavorites.userId, userId),
+      eq(userEndpointFavorites.apiSlug, favorite.apiSlug),
+      eq(userEndpointFavorites.operationSlug, favorite.operationSlug)
     ));
 }

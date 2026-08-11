@@ -13,8 +13,8 @@ import {
   listCatalogSummaries,
   searchCatalog
 } from "~/lib/catalog/catalog.server";
-import { requireLocale, siteUrl } from "~/lib/http";
-import { listFavoriteApiSlugs } from "~/lib/accounts/favorites.server";
+import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
 import { createDebouncedTask } from "~/lib/debounce";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -23,12 +23,12 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
   const catalog = listCatalogSummaries();
-  const favoriteApiSlugs = await listFavoriteApiSlugs(request);
+  const favoriteEndpoints = query ? await listFavoriteEndpoints(request) : [];
   return {
     locale,
     query,
     apis: catalog,
-    favoriteApiSlugs,
+    favoriteEndpoints,
     search: query ? searchCatalog(query, locale, { limit: 60 }) : null,
     totals: {
       apis: catalog.length,
@@ -85,6 +85,10 @@ export function meta({ data }: Route.MetaArgs) {
       }
     }] : [])
   ];
+}
+
+export function headers() {
+  return accountAwareCacheHeaders();
 }
 
 function searchHref(locale: "zh" | "en", query: string): string {
@@ -187,7 +191,7 @@ function CatalogSearch({
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
-  const { locale, query, apis, search, totals, favoriteApiSlugs } = loaderData;
+  const { locale, query, apis, search, totals, favoriteEndpoints } = loaderData;
   const zh = locale === "zh";
   const terminology = publicResourceTerminologyCopy(locale);
   const [searchPending, setSearchPending] = useState(false);
@@ -246,7 +250,11 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             aria-busy={searchPending}
           >
             {search ? (
-              <GlobalSearchResults search={search} locale={locale} favoriteApiSlugs={favoriteApiSlugs} />
+              <GlobalSearchResults
+                search={search}
+                locale={locale}
+                favoriteEndpoints={favoriteEndpoints}
+              />
             ) : (
               <div className="api-grid">
                 {apis.map((api, index) => (
@@ -255,7 +263,6 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
                     api={api}
                     locale={locale}
                     index={index}
-                    initialFavorite={favoriteApiSlugs.includes(api.slug)}
                   />
                 ))}
               </div>
