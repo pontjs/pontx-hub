@@ -97,6 +97,24 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps API overview headers compact enough for task content to enter the first viewport", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.api-overview-hero\s*{[\s\S]*?align-items:\s*center;[\s\S]*?padding:\s*28px clamp\(20px, 3vw, 52px\) 30px;/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-intro\s*{[\s\S]*?max-width:\s*920px;[\s\S]*?padding:\s*0;/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-intro h1\s*{[\s\S]*?font-size:\s*clamp\(34px, 3vw, 48px\);/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-facts > div\s*{[\s\S]*?min-height:\s*56px;[\s\S]*?padding:\s*10px 14px;/,
+    );
+    expect(css).toMatch(/\.api-overview-actions\s*{[\s\S]*?margin-top:\s*14px;/);
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
