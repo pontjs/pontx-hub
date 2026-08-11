@@ -33,7 +33,7 @@ import {
   type OAuthClientCredentials,
   type OAuthTokenSet
 } from "~/lib/oauth/client";
-import { hubCliCommand, shellArgument } from "~/lib/hub-cli-command";
+import { hubCliSnippet } from "~/lib/hub-cli-command";
 
 type OAuthAuthorizeInput = {
   schemeName: string;
@@ -130,24 +130,6 @@ const codeGenScenarios: CodeGenScenario[] = [
   { id: "typescript-sdk", label: "TypeScript SDK", language: "typescript" },
   { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
 ];
-
-function hubCliSnippet(
-  request: PlaygroundRequest,
-  api: CatalogApi,
-  operation: CatalogOperation
-): string {
-  const parts = [hubCliCommand(api.slug, operation)];
-  for (const [name, value] of Object.entries({ ...request.path, ...request.query })) {
-    if (value) parts.push("-p", shellArgument(`${name}=${value}`));
-  }
-  for (const [name, value] of Object.entries(request.headers)) {
-    if (value) parts.push("-H", shellArgument(`${name}: ${value}`));
-  }
-  if (request.body !== undefined) {
-    parts.push("--body", shellArgument(JSON.stringify(request.body)));
-  }
-  return parts.join(" ");
-}
 
 function payloadError<T>(payload: ApiEnvelope<T>): string | undefined {
   return "error" in payload ? payload.error.message : undefined;
@@ -495,7 +477,7 @@ export function PontxApiWorkspace({
           return preview.curl;
         }
         if (scenarioId === "hub-cli") {
-          return hubCliSnippet(request, api, activeOperation);
+          return hubCliSnippet(api.slug, activeOperation, request);
         }
         const generated = await postHub<{ code: string }>(
           "/api/v1/codegen/snippet",

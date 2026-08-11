@@ -6,7 +6,7 @@ describe("CodeBlock", () => {
   it("keeps shell commands in server HTML and marks syntax tokens", () => {
     const html = renderToStaticMarkup(
       <CodeBlock
-        code={"pontx-hub frankfurter call 'Exchange Rates' getLatestRates -p base=USD\n# Preview first"}
+        code={"pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD\n# Preview first"}
         language="shell"
         label="Pontx Hub CLI"
         copyLabel="Copy"

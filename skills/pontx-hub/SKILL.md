@@ -36,22 +36,22 @@ product, endpoint, or schema needed for the current task.
 3. For an endpoint, build and review the exact request without sending it:
 
    ```bash
-   pontx-hub <api-collection> preview <api-name> -p key=value --body '<json>'
-   pontx-hub <api-collection> preview <controller> <api-name> -p key=value --body '<json>'
+   pontx-hub <api-collection> preview <api-name> --parameter value --body '<json>'
+   pontx-hub <api-collection> preview <controller> <api-name> --parameter value --body '<json>'
    ```
 
 4. For GET or HEAD, call only when the user requested execution:
 
    ```bash
-   pontx-hub <api-collection> call <api-name> -p key=value
-   pontx-hub <api-collection> call <controller> <api-name> -p key=value
+   pontx-hub <api-collection> call <api-name> --parameter value
+   pontx-hub <api-collection> call <controller> <api-name> --parameter value
    ```
 
 5. For POST, PUT, PATCH, or DELETE, show the dry-run result and obtain explicit
    user confirmation. Then pass `--yes` without changing parameters:
 
    ```bash
-   pontx-hub <api-collection> call <controller> <api-name> -p key=value --body '<json>' --yes
+   pontx-hub <api-collection> call <controller> <api-name> --parameter value --body '<json>' --yes
    ```
 
 6. Generate integration code after the request shape is verified:

@@ -56,9 +56,9 @@ export default function AgentSkill({ loaderData }: Route.ComponentProps) {
   const workflow = `pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
 pontx-hub show schema:frankfurter/ExchangeRateResponse
-pontx-hub frankfurter preview 'Exchange Rates' getLatestRates -p base=USD
+pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
 # GET can run after the user asks for execution.
-pontx-hub frankfurter call 'Exchange Rates' getLatestRates -p base=USD`;
+pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
   const copyLabel = zh ? "复制" : "Copy";
   const copiedLabel = zh ? "已复制" : "Copied";
   const copyFailedLabel = zh ? "复制失败" : "Copy failed";

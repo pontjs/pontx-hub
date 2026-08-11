@@ -2485,13 +2485,19 @@ samp,
 }
 
 .code-frame-content {
+  box-sizing: border-box;
   overflow-x: auto;
   margin: 0;
-  padding: 19px 20px 21px;
+  padding: 20px clamp(18px, 2vw, 24px) 22px;
   color: #d7e0e9;
   font-size: 13px;
   line-height: 1.75;
   scrollbar-color: #42556a #101720;
+}
+
+.code-frame-content > code {
+  display: block;
+  min-width: max-content;
 }
 
 .code-frame-content:focus-visible {
