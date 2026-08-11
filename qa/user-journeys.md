@@ -1,32 +1,53 @@
 # Pontx Hub 生产站每日巡检用户旅程
 
-本文件是生产站 `https://pontx-hub.vercel.app` 的巡检来源。定时任务每天 03:00（Asia/Shanghai）读取并维护本文件，执行结果追加到仓库根目录 `issues.md`。巡检只允许修改这两个文件，不修复源码、不提交、不推送，也不执行写入型 API。
+本文件是生产站 `https://pontx-hub.vercel.app` 的巡检来源。定时任务每天 03:00（Asia/Shanghai）读取本文件与 `qa/core-e2e-cases.json`，执行结果追加到仓库根目录 `issues.md`。日常巡检只允许维护这三个巡检资产，不修复源码、不提交、不推送，也不执行写入型 API。
 
 ## 维护规则
 
 1. 每次先读取生产 sitemap、目录和 API 元数据，自动发现新增或下线的页面、API、接口、Schema、SDK 与语言；发现覆盖缺口时先补旅程，再执行。
 2. 旅程 ID 和问题 signature 保持稳定。已确认问题必须新增回归旅程；问题消失时在 `issues.md` 标记“待复核/已恢复”，不要直接删除历史记录。
-3. 每天执行全站结构检查与每个 API 的一条核心旅程；用七天滚动矩阵覆盖全部接口、Schema、搜索词、错误状态和内容压力场景。
-4. 仅对 `proxyEnabled=true`、无需凭据、只读且无副作用的接口执行真实请求。OAuth、API Key 和写入型接口只检查说明、预览与禁用边界，绝不填写、保存或输出凭据。
-5. 每条失败记录环境、路径、语言、视口、步骤、预期、实际、证据、首次/最近发现日期、严重级别和推测归属仓库。相同 signature 当天只更新一次。
+3. 每天先执行每个 API 的核心端到端金丝雀旅程，再做全站结构检查；用七天滚动矩阵覆盖其余接口、Schema、搜索词、错误状态和内容压力场景。
+4. 每个 API 必须有至少一个只读、无副作用的 Endpoint 完成真实调用。OAuth/API Key 从定时任务的安全环境读取，只输入当前浏览器会话且永不输出、持久化或写入报告；缺少凭据记为 `BLOCKED`，不得算通过。
+5. `proxyEnabled=false`、仅预览、没有可执行 Endpoint、默认参数不合法、请求未发出、非 2xx、空/错误响应或必须重试才能成功，都不能记为 PASS。写入型接口仍禁止执行，API 必须另提供只读金丝雀、sandbox 或明确的 dry-run。
+6. 每条失败记录环境、路径、语言、视口、步骤、预期、实际、证据、首次/最近发现日期、严重级别和推测归属仓库。相同 signature 当天只更新一次。
+
+## 核心端到端硬门槛
+
+每天对 `qa/core-e2e-cases.json` 中的所有 API 逐条完成以下真实用户闭环，不允许用直接 HTTP 请求代替浏览器步骤：
+
+1. 从本地化目录页输入该 API 的自然语言任务，按 Enter 提交搜索。
+2. 在搜索结果中找到清单指定的 Endpoint；激活结果并确认进入预期文档 URL。
+3. 阅读并核对 H1、API 上下文、方法/路径、参数说明、响应结构和示例。
+4. 点击“试用”，确认 Playground 与当前 Endpoint 一致，填写清单中的非敏感参数；鉴权值仅从安全环境注入当前会话。
+5. 点击“执行请求”，确认浏览器实际向 Hub execute 入口发出请求。
+6. 首次尝试即获得 2xx，并通过清单中的非空、内容类型和关键字段断言；同时记录最终上游 URL、状态码、耗时和脱敏响应摘要。
+
+单 API 状态只有以下四种：
+
+- `PASS`：搜索、文档和首次真实调试全部通过。
+- `FAIL`：产品能力、集成、上游响应或用户体验导致闭环失败；即使重试成功也不能改成 PASS。
+- `FLAKY`：首次失败、同一参数的一次诊断性重试成功；必须登记问题并保留首次失败证据。
+- `BLOCKED`：安全凭据或受控测试数据缺失，无法执行；这不是自动判定的代码缺陷，但全站巡检仍不得通过。
+
+当天全局结果只有在所有 API 均为 PASS 时才能标记 `PASS 11/11`。任何 `FAIL`、`FLAKY` 或 `BLOCKED` 都使核心巡检总结果为 FAIL，并在 `issues.md` 建立稳定 signature。
 
 ## 当前站点清单
 
 最后维护：2026-08-11，Asia/Shanghai。
 
-| API | 接口 | Schema | 鉴权 | SDK | 每日代表旅程 |
+| API | 接口 | Schema | 鉴权 | SDK | 每日金丝雀 Endpoint |
 | --- | ---: | ---: | --- | --- | --- |
-| dida365 | 37 | 33 | OAuth 2 | 已发布 | OAuth 指引、Endpoint、Schema、深链切换语言 |
-| frankfurter | 5 | 4 | 无 | 已发布 | 最新汇率真实只读调用与三种代码生成 |
-| frankfurter-v2 | 5 | 4 | 无 | 计划中 | 默认参数、冲突参数与错误反馈 |
-| massive | 6 | 17 | API Key | 计划中 | 鉴权指引、请求预览、Schema |
-| cnbc-market-data | 2 | 5 | 无 | 计划中 | 行情只读调用、长引用类型移动端布局 |
-| eastmoney-funds | 4 | 9 | 无 | 计划中 | 基金只读调用、Endpoint、Schema |
-| i3investor-sgx | 2 | 2 | 无 | 计划中 | SGX 只读调用、Endpoint、Schema |
-| sina-finance | 2 | 5 | 无 | 计划中 | 行情只读调用、延迟与错误反馈 |
-| stooq | 2 | 4 | 无 | 计划中 | 仅预览边界，不执行上游请求 |
-| tencent-finance | 3 | 6 | 无 | 计划中 | 行情只读调用、Endpoint、Schema |
-| yahoo-finance | 7 | 3 | 无 | 计划中 | 仅预览边界，不执行上游请求 |
+| dida365 | 37 | 33 | OAuth 2 | 已发布 | `getUserProjects`（需要安全 canary token） |
+| frankfurter | 5 | 4 | 无 | 已发布 | `getLatestRates` |
+| frankfurter-v2 | 5 | 4 | 无 | 计划中 | `getProviders` |
+| massive | 6 | 17 | API Key | 计划中 | `getPreviousClose`（需要安全 canary key） |
+| cnbc-market-data | 2 | 5 | 无 | 计划中 | `getRestQuotes` |
+| eastmoney-funds | 4 | 9 | 无 | 计划中 | `listHistoricalNav` |
+| i3investor-sgx | 2 | 2 | 无 | 计划中 | `getSgxStockOverviewPage` |
+| sina-finance | 2 | 5 | 无 | 计划中 | `getQuoteSnapshots` |
+| stooq | 2 | 4 | 无 | 计划中 | `downloadLatestQuotes`（当前不可执行，必须报 FAIL） |
+| tencent-finance | 3 | 6 | 无 | 计划中 | `getQuoteSnapshots` |
+| yahoo-finance | 7 | 3 | 无 | 计划中 | `getChart`（当前不可执行，必须报 FAIL） |
 
 当前基线：11 个 API、75 个 Endpoint、92 个 Schema；sitemap 共 364 个双语规范 URL（中文 182、英文 182）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
 
@@ -46,14 +67,15 @@
 
 ### API 概览、Endpoint、Schema 与 Playground
 
+- `E2E-CORE-001`：严格按 `qa/core-e2e-cases.json` 对每个 API 执行“搜索 → Endpoint 文档 → 试用 → 首次 2xx → 响应断言”；这是每日最高优先级硬门槛。
 - `API-001`：对清单中的每个 API 检查本地化标题、说明、鉴权、接口数、在线调用数、SDK 状态和当前 API 上下文。
 - `API-002`：切换“调用目标”，确认方法/路径、参数表单、完整接口文档链接和代码片段同步更新。
 - `ENDPOINT-001`：七天内遍历全部 Endpoint，检查 SSR 语义内容、请求/响应、参数约束、示例、面包屑与兄弟导航。
 - `SCHEMA-001`：七天内遍历全部 Schema，检查属性、必填/可选、enum、约束、嵌套引用和长类型名在桌面/移动端的布局。
 - `PLAY-001`：`proxyEnabled=true` 且无鉴权的只读接口，使用示例值真实调用；校验请求 URL、状态码、耗时、响应和失败说明。
-- `PLAY-002`：`proxyEnabled=false` 的仅预览接口不得显示可执行动作；必须清楚解释原因，且不得把产品限制伪装成 500。
-- `PLAY-003`：API Key 接口只验证凭据说明、session-only 提示、预览和未提供凭据时的安全反馈。
-- `PLAY-004`：OAuth 接口只验证授权说明、回调/错误恢复和未登录状态，不发起真实授权、不记录 token。
+- `PLAY-002`：`proxyEnabled=false` 的 Endpoint 不得伪装成可执行，但所属 API 仍必须有另一条可真实调试成功的金丝雀；整组 API 只有预览能力时记为 FAIL。
+- `PLAY-003`：API Key 金丝雀从安全环境向 session-only 输入注入凭据并完成只读真实调用；未配置凭据记为 BLOCKED，不输出 key。
+- `PLAY-004`：OAuth 金丝雀优先复用安全环境中的 canary access token 完成只读真实调用；另行轮换验证授权/回调体验，绝不在日志中记录 token。
 - `PLAY-005`：POST/PUT/PATCH/DELETE 等潜在写入接口只验证参数、预览和明确的变更确认边界，禁止执行。
 - `CODE-001`：对已发布 SDK 的代表接口切换并检查 cURL、TypeScript SDK、Pontx Hub CLI 三种代码；参数必须与当前表单一致且代码非空。
 
@@ -83,6 +105,8 @@
 - `REG-PREVIEW-ONLY-001`：打开 Stooq 与 Yahoo Finance 概览，在线调用标记为“仅预览”时不应出现可用的“执行请求”，也不应返回通用 500。
 - `REG-SCHEMA-LONG-REF-001`：在 390px 打开 CNBC `FormattedQuoteResponse`，`ExtendedMarketQuote` 等长引用必须在容器内换行或收缩，页面宽度不得超过视口。
 - `REG-SEARCH-LONG-PATH-001`：在 768px 和 1440px 搜索 `exchange rate`，Massive 的长 Endpoint 路径必须在结果卡片内换行或裁剪，不得扩大文档宽度。
+- `REG-API-EXECUTABLE-CANARY-001`：Stooq 与 Yahoo Finance 必须分别至少有一个金丝雀 Endpoint 从搜索进入文档后真实返回 2xx；“仅预览”不再满足核心体验。
+- `REG-I3-DEBUG-STABILITY-001`：i3Investor `getSgxStockOverviewPage` 必须首次调试即返回 2xx，不能依赖重试。
 
 ## 七天滚动覆盖
 

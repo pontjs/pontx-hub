@@ -2,6 +2,52 @@
 
 ## 2026-08-11（Asia/Shanghai）
 
+### 核心端到端基线（优化后）
+
+本轮使用真实浏览器逐个执行“自然语言搜索 → 进入指定 Endpoint 文档 → 阅读参数/响应 → 点击试用 → 首次真实调试”。全局结果为 **FAIL：6 PASS / 1 FLAKY / 2 FAIL / 2 BLOCKED**。只有 11/11 首次成功才允许标记全局 PASS。
+
+| API | 搜索 | 文档 | 首次调试 | 状态 |
+| --- | --- | --- | --- | --- |
+| frankfurter | 通过 | 通过 | 200 | PASS |
+| frankfurter-v2 | 通过 | 通过 | 200 | PASS |
+| cnbc-market-data | 通过 | 通过 | 200 | PASS |
+| eastmoney-funds | 通过 | 通过 | 200 | PASS |
+| sina-finance | 通过 | 通过 | 200 | PASS |
+| tencent-finance | 通过 | 通过 | 200 | PASS |
+| i3investor-sgx | 通过 | 通过 | 首次 500，诊断重试 200 | FLAKY |
+| stooq | 通过 | 通过 | 无可执行 Endpoint | FAIL |
+| yahoo-finance | 通过 | 通过 | 无可执行 Endpoint | FAIL |
+| dida365 | 通过 | 通过 | 缺少 `DIDA365_ACCESS_TOKEN` | BLOCKED |
+| massive | 通过 | 通过 | 缺少 `MASSIVE_API_KEY` | BLOCKED |
+
+搜索结果、Endpoint 深链、H1、方法/路径与参数/响应文档在 11/11 个案例中均可用。Dida365 与 Massive 的 Playground 能正确展示 OAuth/API Key 输入和执行入口，但本机安全环境未配置 canary 凭据，因此未发送无凭据请求，也未把它们误记为通过。
+
+#### [P1] `QA-API-WITHOUT-EXECUTABLE-CANARY` 两个已收录 API 无法完成任何真实调试
+
+- 归属：`pontx-api-metadata` 的代理策略/证据；`pontx-hub` 的产品可用性共同负责。
+- 旅程：`E2E-CORE-001`、`PLAY-002`、`REG-API-EXECUTABLE-CANARY-001`。
+- API：Stooq、Yahoo Finance；首次/最近发现均为 2026-08-11。
+- 步骤：分别搜索“下载 AAPL 最新行情”和“查询 AAPL K 线”，进入指定 Endpoint 文档。
+- 预期：每个 API 至少有一个只读 Endpoint 可在 Playground 首次真实执行并返回 2xx。
+- 实际：搜索与文档均通过，但所有 Endpoint 都是仅预览，没有“试用/执行请求”闭环。
+- 用户影响：目录宣称提供 API 参考和调试能力，但用户对这两个 API 无法完成核心任务；正确隐藏执行按钮只修复了误导，没有补齐能力。
+
+#### [P2] `QA-I3-E2E-FLAKY-500` i3Investor 金丝雀首次调试 500，重试才返回 200
+
+- 归属：优先检查 `pontx-hub` 代理超时/错误保真，其次核查 i3Investor 上游稳定性。
+- 旅程：`E2E-CORE-001`、`ERROR-002`、`REG-I3-DEBUG-STABILITY-001`。
+- 路径：`/zh/apis/i3investor-sgx/get-sgx-stock-overview-page`；参数 `code=D05`。
+- 环境：生产站，中文，真实浏览器；首次/最近发现均为 2026-08-11。
+- 预期：首次点击执行即返回 2xx 和非空 D05/DBS 页面内容。
+- 实际：同一旅程首次返回 500；立即使用相同参数诊断重试返回 200。按新门槛记为 FLAKY，不能以重试成功覆盖首次失败。
+- 用户影响：用户需要重试才能完成核心调试，且首次 500 缺少足够的上游归因证据。
+
+#### 巡检阻断 `QA-AUTH-CANARY-CREDENTIALS-MISSING`
+
+- Dida365 缺少 `DIDA365_ACCESS_TOKEN`，Massive 缺少 `MASSIVE_API_KEY`。
+- 这不是自动归因的站点代码缺陷，但会阻止 11/11 全量闭环；需由运行环境以 secret 注入，值只能进入当前浏览器 session，禁止出现在仓库、日志、截图或 `issues.md`。
+- 凭据配置前，两项每天都必须保持 BLOCKED，不能降级成“鉴权说明已检查”或 PASS。
+
 ### 定向生产回归
 
 - 部署：生产别名 `https://pontx-hub.vercel.app` 指向 Ready 部署 `dpl_9g49Mu9Ct7doHXhVuiHWNKrht5cZ`，对应 `main` 提交 `644038c`。
