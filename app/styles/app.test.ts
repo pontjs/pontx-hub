@@ -105,7 +105,7 @@ describe("API directory integration styles", () => {
         new RegExp(`\\.${page}\\s*{[\\s\\S]*?var\\(--paper\\);`),
       );
     }
-    expect(root).toContain('<meta name="theme-color" content="#f7f8fa" />');
+    expect(root).toContain('<meta name="theme-color" content="#f4f7fb" />');
 
     for (const warmNeutral of ["#f0ece3", "#f8f6f0", "#f7efe3", "#f5f0e6"]) {
       expect(css).not.toContain(warmNeutral);

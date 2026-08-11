@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/saved-apis";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
+import { MethodBadge } from "~/components/method-badge";
 import { SiteShell } from "~/components/site-shell";
 import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
@@ -83,9 +84,7 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
                     className="search-result-row"
                     to={`/${locale}/apis/${api.slug}/${operation.slug}`}
                   >
-                    <span className={`search-method method-${operation.method.toLowerCase()}`}>
-                      {operation.method}
-                    </span>
+                    <MethodBadge method={operation.method} compact />
                     <div className="search-result-main">
                       <div>
                         <strong>{localize(operation.title, locale)}</strong>

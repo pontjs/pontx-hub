@@ -71,7 +71,7 @@ export function SiteShell({
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div className="site-frame">
+    <div className="site-frame" data-pontx-ui="hub">
       <header className="site-header">
         <Link to={`/${locale}`} className="brand" aria-label={text.home}>
           <span className="brand-mark" aria-hidden="true">

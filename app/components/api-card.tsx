@@ -20,10 +20,7 @@ export function ApiCard({
     ? api.authTypes.join(" / ")
     : locale === "zh" ? "无需鉴权" : "No auth";
   return (
-    <article
-      className="api-card-shell"
-      style={{ "--api-accent": api.accent } as React.CSSProperties}
-    >
+    <article className="api-card-shell">
       <Link
         className="api-card"
         to={`/${locale}/apis/${api.slug}`}

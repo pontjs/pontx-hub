@@ -14,6 +14,7 @@ import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import "./styles/app.css";
 import "./styles/account.css";
+import "./styles/system.css";
 
 const GA_MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/i;
 
@@ -51,7 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#f7f8fa" />
+        <meta name="theme-color" content="#f4f7fb" />
         <Meta />
         <Links />
       </head>
@@ -93,7 +94,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="error-page">
+    <main className="error-page" data-pontx-ui="hub">
       <div className="error-code">{status}</div>
       <h1>{title}</h1>
       <p>{details}</p>
