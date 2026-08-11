@@ -50,7 +50,21 @@ type OAuthUiState = {
   error?: string;
 };
 
-function OAuthToolbar({
+export function isOAuthAuthorizationDisabled({
+  busy,
+  clientId,
+  requiresRedirectRegistration,
+  redirectUriRegistered
+}: {
+  busy: boolean;
+  clientId: string;
+  requiresRedirectRegistration: boolean;
+  redirectUriRegistered: boolean;
+}) {
+  return busy || !clientId || (requiresRedirectRegistration && !redirectUriRegistered);
+}
+
+export function OAuthToolbar({
   scheme,
   locale,
   requiredScopes,
@@ -72,11 +86,13 @@ function OAuthToolbar({
   const [flow, setFlow] = useState<OAuthAuthorizeInput["flow"]>(flows[0] ?? "authorizationCode");
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+  const [redirectUriRegistered, setRedirectUriRegistered] = useState(false);
   const flowScopes = scheme.flows?.[flow]?.scopes ?? {};
   const [scopes, setScopes] = useState(requiredScopes);
   if (!flows.length) return null;
   const busy = state.status === "authorizing" || state.status === "refreshing";
   const authorized = state.status === "authorized" || state.status === "refreshing";
+  const requiresRedirectRegistration = flow === "authorizationCode" && Boolean(scheme.credentialGuide);
   return <details className="oauth-toolbar">
     <summary className="oauth-toolbar-heading">
       <div><strong>OAuth 2.0</strong><span>{authorized ? "已授权" : "会话级授权"}</span></div>
@@ -84,7 +100,7 @@ function OAuthToolbar({
     </summary>
     <div className="oauth-toolbar-content">
     <p className="oauth-callback">{locale === "zh" ? "回调地址" : "Callback URL"}：<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
-    {scheme.credentialGuide && <details className="oauth-credential-guide">
+    {scheme.credentialGuide && <details className="oauth-credential-guide" open>
       <summary>
         <span aria-hidden="true">01</span>
         <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
@@ -96,13 +112,14 @@ function OAuthToolbar({
       </div>
     </details>}
     <div className="oauth-toolbar-fields">
-      {flows.length > 1 && <label>Flow<select value={flow} onChange={(event) => { setFlow(event.target.value as OAuthAuthorizeInput["flow"]); setScopes(requiredScopes); }}><option value="authorizationCode">Authorization Code</option><option value="clientCredentials">Client Credentials</option></select></label>}
+      {flows.length > 1 && <label>Flow<select value={flow} onChange={(event) => { setFlow(event.target.value as OAuthAuthorizeInput["flow"]); setScopes(requiredScopes); setRedirectUriRegistered(false); }}><option value="authorizationCode">Authorization Code</option><option value="clientCredentials">Client Credentials</option></select></label>}
       <label>Client ID<input autoComplete="off" value={clientId} onChange={(event) => setClientId(event.target.value)} /></label>
       <label>Client Secret<input type="password" autoComplete="off" value={clientSecret} onChange={(event) => setClientSecret(event.target.value)} /></label>
     </div>
+    {requiresRedirectRegistration && <label className="oauth-redirect-confirmation"><input type="checkbox" checked={redirectUriRegistered} onChange={(event) => setRedirectUriRegistered(event.target.checked)} /><span>{locale === "zh" ? "我已在开发者中心登记上述回调地址（未登记会触发 invalid_request）" : "I registered the callback URL above in the Developer Center (otherwise authorization returns invalid_request)."}</span></label>}
     {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>必需</small>}</label>)}</fieldset>}
     {state.error && <p className="oauth-toolbar-error" role="alert">{state.error}</p>}
-    <div className="oauth-toolbar-actions"><button type="button" disabled={busy || !clientId} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? "授权中…" : authorized ? "重新授权" : "发起授权"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>清除授权</button>}<span>client_secret 不会持久化或写入日志</span></div>
+    <div className="oauth-toolbar-actions"><button type="button" disabled={isOAuthAuthorizationDisabled({ busy, clientId, requiresRedirectRegistration, redirectUriRegistered })} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? "授权中…" : authorized ? "重新授权" : "发起授权"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>清除授权</button>}<span>client_secret 不会持久化或写入日志</span></div>
     </div>
   </details>;
 }

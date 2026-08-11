@@ -1768,6 +1768,39 @@ samp,
   min-width: 0;
 }
 
+/* Compatibility bridge for @pontx/shadcn-ui 1.2.8. The shared component
+   owns this layout from the next release onward. */
+.pontx-directory [role="menuitem"]:has(> p) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+}
+
+.pontx-directory [role="menuitem"]:has(> p) > div {
+  display: contents;
+}
+
+.pontx-directory [role="menuitem"]:has(> p) > div > [aria-label] {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.pontx-directory [role="menuitem"]:has(> p) > div > span:not([aria-label]),
+.pontx-directory [role="menuitem"]:has(> p) > p {
+  min-width: 0;
+  grid-column: 2;
+}
+
+.pontx-directory [role="menuitem"]:has(> p) > div > span:not([aria-label]) {
+  grid-row: 1;
+}
+
+.pontx-directory [role="menuitem"]:has(> p) > p {
+  grid-row: 2;
+}
+
 .pontx-directory [role="menuitem"] code,
 .pontx-directory [role="menuitem"] [class*="font-mono"] {
   overflow: hidden;
@@ -3138,6 +3171,8 @@ samp,
 .oauth-toolbar fieldset legend { margin-bottom: 5px; color: #475569; font-size: 11px; }
 .oauth-toolbar fieldset label { display: flex; align-items: center; gap: 5px; }
 .oauth-toolbar fieldset small { color: #16875a; }
+.oauth-toolbar .oauth-redirect-confirmation { display: flex; align-items: flex-start; gap: 7px; color: #475569; line-height: 1.45; }
+.oauth-redirect-confirmation input { margin-top: 2px; }
 .oauth-toolbar-actions { justify-content: flex-start; }
 .oauth-toolbar-actions button { min-height: 32px; padding: 0 12px; border: 1px solid #0f766e; border-radius: 5px; background: #0f766e; color: white; font-weight: 650; }
 .oauth-toolbar-actions button.secondary { background: white; color: #0f766e; }
