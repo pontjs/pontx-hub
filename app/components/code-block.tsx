@@ -1,4 +1,5 @@
 import { Fragment, useState, type ReactNode } from "react";
+import "./code-block-theme.css";
 
 type CodeLanguage = "shell" | "typescript";
 type TokenKind = "plain" | "command" | "keyword" | "option" | "string" | "comment" | "literal";
@@ -94,7 +95,7 @@ export function CodeBlock({
   }
 
   return (
-    <figure className={["code-frame", className].filter(Boolean).join(" ")}>
+    <figure className={["code-frame", "code-frame-light", className].filter(Boolean).join(" ")}>
       <figcaption className="code-frame-bar">
         <span className="code-frame-lights" aria-hidden="true"><i /><i /><i /></span>
         <span className="code-frame-label">{label ?? languageLabel}</span>
