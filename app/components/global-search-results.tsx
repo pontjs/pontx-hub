@@ -7,6 +7,7 @@ import type {
   Locale
 } from "~/lib/catalog/types";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
+import { MethodBadge } from "~/components/method-badge";
 import {
   isFavoriteEndpoint,
   type FavoriteEndpointIdentity
@@ -41,7 +42,7 @@ function resultMeta(result: GlobalSearchResult, locale: Locale): string {
 
 function ResultBadge({ result, locale }: { result: GlobalSearchResult; locale: Locale }) {
   if (result.kind === "endpoint") {
-    return <span className={`search-method method-${result.method.toLowerCase()}`}>{result.method}</span>;
+    return <MethodBadge method={result.method} compact />;
   }
   const terminology = publicResourceTerminologyCopy(locale);
   return (

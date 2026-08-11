@@ -1,4 +1,5 @@
 import type { HttpMethod } from "~/lib/catalog/types";
+import { MethodBadge as SharedMethodBadge } from "@pontx/shadcn-ui";
 
 export function MethodBadge({
   method,
@@ -8,12 +9,11 @@ export function MethodBadge({
   compact?: boolean;
 }) {
   return (
-    <span
+    <SharedMethodBadge
+      method={method}
       className={`method-badge method-${method.toLowerCase()} ${
         compact ? "method-compact" : ""
       }`}
-    >
-      {method}
-    </span>
+    />
   );
 }

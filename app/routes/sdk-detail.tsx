@@ -80,12 +80,9 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
 
   return (
     <SiteShell locale={locale}>
-      <main>
-        <ResourceNavigation locale={locale} api={api} active="sdk" />
-        <header
-          className="detail-hero"
-          style={{ "--api-accent": api.accent } as React.CSSProperties}
-        >
+      <ResourceNavigation locale={locale} api={api} active="sdk" />
+      <main className="detail-page sdk-page">
+        <header className="detail-hero">
           <p className="eyebrow">TypeScript / Node.js SDK</p>
           <h1>{api.packageName}</h1>
           <p>

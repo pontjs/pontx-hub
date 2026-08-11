@@ -864,7 +864,7 @@ export function PontxApiWorkspace({
     <main className={`resource-page resource-page-workspace${guided ? " resource-page-guided" : ""}`}>
       <ResourceNavigation locale={locale} api={api} active={guided ? "overview" : "docs"} />
       {guided ? (
-        <header className="api-overview-hero" style={{ "--api-accent": api.accent } as React.CSSProperties}>
+        <header className="api-overview-hero">
           <div className="api-overview-intro">
             <p className="eyebrow">{api.provider} / {category}</p>
             <h1>{localize(api.title, locale)}</h1>

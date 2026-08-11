@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/playground-history";
 import { SiteShell } from "~/components/site-shell";
+import { MethodBadge } from "~/components/method-badge";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import { listPlaygroundHistoryForUser } from "~/lib/accounts/playground-history.server";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
@@ -178,9 +179,7 @@ function HistoryCard({
       <div className="playground-history-card-main">
         <div className="playground-history-card-topline">
           {entry.method ? (
-            <span className={`method-badge method-${entry.method.toLowerCase()}`}>
-              {entry.method}
-            </span>
+            <MethodBadge method={entry.method} compact />
           ) : null}
           <code>{entry.pathTemplate ?? entry.operationSlug}</code>
           <span

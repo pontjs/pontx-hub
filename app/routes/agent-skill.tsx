@@ -65,8 +65,8 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
 
   return (
     <SiteShell locale={locale}>
-      <main>
-        <header className="detail-hero" style={{ "--api-accent": "#d7ff43" } as React.CSSProperties}>
+      <main className="detail-page agent-skill-page">
+        <header className="detail-hero">
           <p className="eyebrow">One skill / Every curated API</p>
           <h1>{zh ? "给 Agent 一张可靠的 API 地图。" : "Give your agent a reliable API map."}</h1>
           <p>
