@@ -71,6 +71,24 @@ export function isOAuthAuthorizationDisabled({
   return busy || !clientId || (requiresRedirectRegistration && !redirectUriRegistered);
 }
 
+type PlaygroundApi = ReturnType<typeof toPontxApi>;
+
+export function withoutHostManagedOAuthScheme(
+  api: PlaygroundApi,
+  schemeId?: string
+): PlaygroundApi {
+  if (!schemeId || !api.securitySchemes?.[schemeId]) return api;
+
+  const securitySchemes = Object.fromEntries(
+    Object.entries(api.securitySchemes).filter(([candidate]) => candidate !== schemeId)
+  );
+
+  return {
+    ...api,
+    securitySchemes: Object.keys(securitySchemes).length ? securitySchemes : undefined
+  };
+}
+
 export function OAuthToolbar({
   scheme,
   locale,
@@ -341,6 +359,13 @@ export function PontxApiWorkspace({
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
   const [oauthState, setOAuthState] = useState<OAuthUiState>({ status: "idle" });
+  const playgroundApi = useMemo(
+    () => withoutHostManagedOAuthScheme(
+      pontxApi,
+      oauthScheme?.flows ? oauthScheme.id : undefined
+    ),
+    [oauthScheme?.flows, oauthScheme?.id, pontxApi]
+  );
 
   useEffect(() => {
     if (!requestExample) {
@@ -830,7 +855,7 @@ export function PontxApiWorkspace({
             <ApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
-              api={pontxApi}
+              api={playgroundApi}
               enablePlayground={playgroundAvailable}
               defaultPlaygroundVisible={guided && playgroundAvailable}
               specName={api.slug}
