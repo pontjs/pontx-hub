@@ -415,12 +415,15 @@ textarea {
 }
 
 .api-card-arrow {
+  display: grid;
   width: 34px;
   height: 34px;
+  place-items: center;
   border: 1px solid #bfd0ff;
   border-radius: 10px;
   background: #fff;
   box-shadow: var(--shadow-xs);
+  line-height: 1;
 }
 
 .api-card-meta {
