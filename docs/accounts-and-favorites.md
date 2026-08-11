@@ -1,8 +1,8 @@
 # Accounts and Favorites Design
 
-Status: milestones 1–2 implemented behind a disabled-by-default feature flag
+Status: milestones 1–3 implemented behind a disabled-by-default feature flag
 
-Date: 2026-08-10
+Date: 2026-08-11
 
 ## Decision
 
@@ -15,13 +15,22 @@ The first release will support:
 - signing in and signing out;
 - saving an individual API;
 - saving a platform-curated API collection;
-- creating private personal collections of APIs; and
-- viewing and managing saved content across devices.
+- creating private personal collections of APIs;
+- viewing and managing saved content across devices; and
+- keeping a sanitized history of recent Playground executions for one-click
+  parameter replay.
 
 Cloud credential storage is explicitly out of scope. API keys, OAuth client
 secrets, access tokens, and refresh tokens must continue to stay in browser
 `sessionStorage` or the caller environment and must never enter the account or
 favorites database.
+
+Playground history is not a request/response archive. It stores only the
+catalog identity, approved server identity, response status/duration, and a
+sanitized replay snapshot. Authentication objects, response headers/bodies,
+undeclared inputs, credential-like names, Schema fields marked `writeOnly` or
+formatted as passwords, oversized values, and values beyond the storage
+budget are removed before insertion.
 
 ## Product principles
 
@@ -131,6 +140,22 @@ forking, and arbitrary external URLs are separate future capabilities.
 Unique key: `(collection_id, api_slug)`. All queries must scope collection
 access through the authenticated owner, not merely by collection UUID.
 
+### `user_playground_history`
+
+| Field | Notes |
+| --- | --- |
+| `id` | UUID history identity |
+| `user_id` | Better Auth user ID; ownership boundary |
+| `api_slug` / `operation_slug` / `server_id` | Current catalog replay target |
+| `path` / `query` / `headers` / `request_body` | Sanitized, declared replay values only |
+| `has_request_body` | Distinguishes no body from a JSON `null` body |
+| `omitted_fields` | Field paths removed for sensitivity or size, never their values |
+| `response_status` / `duration_ms` | Small outcome summary; no response payload |
+| `created_at` | Reverse-chronological ordering |
+
+The service retains at most the latest 100 entries per user. A retired API,
+Endpoint, or server remains visible for deletion but cannot be replayed.
+
 ## Private HTTP surface
 
 Account endpoints are browser-oriented private resources and must not be added
@@ -157,7 +182,14 @@ DELETE /api/account/v1/collections/:collectionId
 POST   /api/account/v1/collections/:collectionId/items
 PATCH  /api/account/v1/collections/:collectionId/items/:apiSlug
 DELETE /api/account/v1/collections/:collectionId/items/:apiSlug
+
+GET    /api/account/v1/playground/history
+DELETE /api/account/v1/playground/history/:historyId
 ```
+
+History creation is server-owned by a successful
+`POST /api/v1/playground/execute` path. Browsers cannot post arbitrary history
+snapshots to the private account API.
 
 Mutation responses use stable machine-readable errors. Creation and deletion
 must be idempotent where practical. Requests require a valid same-origin
@@ -169,7 +201,8 @@ session and CSRF protection; CORS is not enabled for this surface.
 
 - Add a localized sign-in entry to desktop and mobile navigation.
 - After sign-in, replace it with an account menu and saved-content entry.
-- Add `/:locale/sign-in/*` and `/:locale/account/saved` routes.
+- Add `/:locale/sign-in/*`, `/:locale/account/saved`, and
+  `/:locale/account/history` routes.
 - Preserve the full safe return path, locale, query, and fragment through
   sign-in. Reject off-origin return URLs.
 - Account, sign-in, callback, and saved-content pages are `noindex` and absent
@@ -188,9 +221,23 @@ session and CSRF protection; CORS is not enabled for this surface.
   message are implemented.
 - All control copy and empty, loading, success, and error states are localized.
 
+### Playground history
+
+- A signed-in live execution is recorded automatically after the provider
+  returns, including non-2xx provider responses that are useful for retrying.
+- “Try again / 重新调试” restores the sanitized server, path, query, declared
+  header, and body values into Playground `sessionStorage`, then opens the
+  matching Endpoint.
+- Any existing credential for that Endpoint may be reused only when it is
+  already present in the same browser session. Cross-device replay requires
+  entering or authorizing credentials again.
+- Users can delete individual entries. Account deletion cascades through all
+  history rows.
+
 ## Security and privacy boundary
 
-Account data may contain identity and favorites only. The following values are
+Account data may contain identity, favorites, private collections, and
+sanitized Playground history only. The following values are
 forbidden from all account tables, collection notes, logs, analytics, error
 tracking, and generated examples:
 
@@ -198,6 +245,14 @@ tracking, and generated examples:
 - OAuth client secrets, authorization codes, access tokens, and refresh tokens;
 - Basic-auth passwords; and
 - complete Playground request headers or bodies that may contain secrets.
+
+The history sanitizer applies defense in depth before every insert: it accepts
+only inputs declared by the current catalog Endpoint; removes catalog auth
+scheme locations and credential-like field names recursively; respects
+`writeOnly`/password Schema hints; limits individual values, nesting, nodes,
+and the total 64 KiB snapshot; and never copies the Playground `auth` object or
+provider response. Recording is best-effort and must never change the public
+execution response.
 
 Collection names, descriptions, and notes are rendered as text, never as HTML.
 Apply conservative length limits and mutation rate limits. Account deletion
@@ -225,14 +280,23 @@ sessions. Publish a concise privacy notice before production rollout.
 - [ ] verify authenticated persistence, expired sessions, and cross-device sync
   against the configured production database and GitHub OAuth application.
 
-### Milestone 3: collections
+### Milestone 3: Playground history
+
+- [x] add the sanitized account history table and migration;
+- [x] record signed-in live executions without changing the public execution contract;
+- [x] add bilingual history navigation, replay, deletion, empty, and retired-target states;
+- [x] cap retention at 100 entries and preserve session-only credential handling; and
+- [ ] verify authenticated persistence, replay, deletion, and cross-device behavior
+  against the configured production database and GitHub OAuth application.
+
+### Milestone 4: collections
 
 - add curated collection metadata contract producer-first compatibility;
 - add curated collection favorites;
 - add private personal collections, ordering, notes, and deletion; and
 - verify ownership isolation and concurrent updates.
 
-### Milestone 4: production hardening
+### Milestone 5: production hardening
 
 - configure distributed rate limiting;
 - complete privacy/account deletion flows and abuse review;
@@ -245,6 +309,10 @@ sessions. Publish a concise privacy notice before production rollout.
 - Every existing public page and public Hub API remains usable when signed out.
 - A user can sign in, save and unsave an API, and observe the same state in a
   second session.
+- A signed-in user can execute an Endpoint, open the synchronized history on a
+  later visit, and restore its non-sensitive inputs without re-entering them.
+- Stored history and its rendered/JSON representations contain no provider
+  credential, response body, or response header.
 - One user cannot read or mutate another user's favorites or collections by
   changing an identifier.
 - Locale switching retains the current account or saved-content resource.

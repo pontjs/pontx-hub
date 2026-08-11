@@ -2,20 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { getDatabase } from "~/db/client.server";
 import { userApiFavorites } from "~/db/schema";
 import { readAccountsConfiguration } from "./config.server";
-
-async function sessionUserId(request: Request): Promise<string | undefined> {
-  const configuration = readAccountsConfiguration();
-  if (configuration.status !== "ready") return undefined;
-  const { auth } = await import("./auth.server");
-  const session = await auth.api.getSession({ headers: request.headers });
-  return session?.user.id;
-}
-
-export async function requireAccountUserId(request: Request): Promise<string> {
-  const userId = await sessionUserId(request);
-  if (!userId) throw new Response("Unauthorized", { status: 401 });
-  return userId;
-}
+import { accountUserId, requireAccountUserId } from "./session.server";
 
 export async function listFavoriteApiSlugsForUser(userId: string): Promise<string[]> {
   const configuration = readAccountsConfiguration();
@@ -32,7 +19,7 @@ export async function listFavoriteApiSlugs(request: Request): Promise<string[]> 
   const configuration = readAccountsConfiguration();
   if (configuration.status !== "ready") return [];
   try {
-    const userId = await sessionUserId(request);
+    const userId = await accountUserId(request);
     if (!userId) return [];
     return await listFavoriteApiSlugsForUser(userId);
   } catch {

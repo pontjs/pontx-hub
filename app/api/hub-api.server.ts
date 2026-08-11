@@ -30,6 +30,7 @@ import {
 import { oauthTokenRequestSchema } from "~/lib/oauth/schemas";
 import { exchangeOAuthToken } from "~/lib/oauth/token.server";
 import { consumeOAuthQuota } from "~/lib/oauth/rate-limit.server";
+import { recordPlaygroundHistory } from "~/lib/accounts/playground-history.server";
 
 type ErrorBody = {
   error: {
@@ -397,6 +398,7 @@ hubApi.post("/api/v1/playground/execute", async (context) => {
     return jsonError("invalid_request", input.error.message, 422);
   }
   const result = await executeProviderRequest(input.data);
+  await recordPlaygroundHistory(context.req.raw, input.data, result);
   return context.json({ version: "v1", data: result });
 });
 

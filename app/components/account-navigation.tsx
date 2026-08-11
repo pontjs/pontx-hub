@@ -5,8 +5,22 @@ import type { Locale } from "~/lib/catalog/types";
 import { authClient } from "~/lib/accounts/auth-client";
 
 const copy = {
-  zh: { signIn: "登录", signOut: "退出", signingOut: "退出中…", account: "账户", saved: "收藏" },
-  en: { signIn: "Sign in", signOut: "Sign out", signingOut: "Signing out…", account: "Account", saved: "Saved" }
+  zh: {
+    signIn: "登录",
+    signOut: "退出",
+    signingOut: "退出中…",
+    account: "账户",
+    saved: "收藏",
+    history: "历史"
+  },
+  en: {
+    signIn: "Sign in",
+    signOut: "Sign out",
+    signingOut: "Signing out…",
+    account: "Account",
+    saved: "Saved",
+    history: "History"
+  }
 } satisfies Record<Locale, Record<string, string>>;
 
 export function AccountNavigation({
@@ -52,6 +66,13 @@ export function AccountNavigation({
     <>
       <Link className="account-link account-saved-link" to={`/${locale}/account/saved`} onClick={onNavigate}>
         {text.saved}
+      </Link>
+      <Link
+        className="account-link account-history-link"
+        to={`/${locale}/account/history`}
+        onClick={onNavigate}
+      >
+        {text.history}
       </Link>
       <span className="account-identity" title={accounts.viewer.email}>
         <span aria-hidden="true">●</span>
