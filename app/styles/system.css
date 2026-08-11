@@ -267,7 +267,7 @@ textarea {
 
 .registry-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -627,8 +627,8 @@ textarea {
 }
 
 .api-full-docs-link {
-  min-height: 32px;
-  padding: 6px 10px;
+  min-height: 38px;
+  padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--blue-deep);
@@ -657,13 +657,6 @@ textarea {
 
 .pontx-documentation[data-pontx-ui] > div {
   border-color: var(--line);
-}
-
-.pontx-hydrated-title {
-  padding: 15px 18px 0;
-  color: var(--ink);
-  font-size: 16px;
-  letter-spacing: -0.02em;
 }
 
 .request-example-notice,
@@ -1278,7 +1271,6 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .registry-stats,
   .api-overview-facts {
     grid-template-columns: 1fr 1fr;
   }

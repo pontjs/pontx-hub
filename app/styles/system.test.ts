@@ -35,10 +35,24 @@ describe("Pontx Hub visual system", () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
     expect(css).toMatch(/\.api-grid\s*{[\s\S]*?grid-template-columns:\s*repeat\(3,/);
+    expect(css).toMatch(/\.registry-stats\s*{[\s\S]*?grid-template-columns:\s*repeat\(3,/);
     expect(css).toMatch(/\.pontx-workspace-directory,[\s\S]*?\.schema-directory\s*{[\s\S]*?clamp\(264px, 20vw, 304px\)/);
     expect(css).toMatch(/\.detail-hero,[\s\S]*?\.detail-page \.section\s*{[\s\S]*?width:\s*min\(1120px, 100%\)/);
     expect(css).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.api-grid\s*{\s*grid-template-columns:\s*1fr;/);
     expect(css).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.schema-reference-grid\s*{\s*display:\s*block;/);
+  });
+
+  it("preserves Playground spacing and quick-call alignment", async () => {
+    const appCss = await readFile(new URL("./app.css", import.meta.url), "utf8");
+    const systemCss = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(appCss).toMatch(/\.pontx-workspace-bar > div:not\(\.api-task-select\)/);
+    expect(appCss).toMatch(/\.api-task-select\s*{[\s\S]*?align-self:\s*end;/);
+    expect(appCss).toMatch(/\.api-task-select > span\s*{[\s\S]*?white-space:\s*nowrap;/);
+    expect(appCss).toMatch(/\.api-full-docs-link\s*{[\s\S]*?align-self:\s*end;/);
+    expect(appCss).toMatch(/@media \(max-width: 1000px\)[\s\S]*?\.pontx-workspace-bar\.api-quickstart-bar\s*{[\s\S]*?grid-template-columns:[^;]*auto;/);
+    expect(systemCss).toMatch(/\.api-full-docs-link\s*{[\s\S]*?min-height:\s*38px;[\s\S]*?padding:\s*0 12px;/);
+    expect(systemCss).not.toMatch(/\.pontx-hydrated-title\s*{/);
   });
 
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {

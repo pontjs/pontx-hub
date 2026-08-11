@@ -1644,6 +1644,7 @@ samp,
 .api-task-select {
   display: grid;
   min-width: 0;
+  align-self: end;
   gap: 5px;
 }
 
@@ -1653,6 +1654,7 @@ samp,
   font-size: var(--type-micro);
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .api-task-select > .api-task-select-trigger {
@@ -1998,7 +2000,7 @@ samp,
   background: #fff;
 }
 
-.pontx-workspace-bar > div {
+.pontx-workspace-bar > div:not(.api-task-select) {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -2879,12 +2881,12 @@ samp,
   }
 
   .pontx-workspace-bar.api-quickstart-bar {
-    grid-template-columns: minmax(190px, 0.7fr) minmax(240px, 1.3fr);
+    grid-template-columns: minmax(210px, 0.7fr) minmax(220px, 1.3fr) auto;
   }
 
   .api-full-docs-link {
-    grid-column: 1 / -1;
-    justify-self: end;
+    grid-column: auto;
+    justify-self: auto;
   }
 
   .pontx-workspace-bar p {
