@@ -8,6 +8,7 @@ import {
 } from "~/components/catalog-search-status";
 import { GlobalSearchResults } from "~/components/global-search-results";
 import { SiteShell } from "~/components/site-shell";
+import { publicResourceTerminologyCopy } from "~/lib/i18n";
 import {
   listCatalogSummaries,
   searchCatalog
@@ -102,6 +103,7 @@ function CatalogSearch({
   onPendingChange: (pending: boolean) => void;
 }) {
   const zh = locale === "zh";
+  const terminology = publicResourceTerminologyCopy(locale);
   const navigate = useNavigate();
   const [draftQuery, setDraftQuery] = useState(query);
   const lastNavigatedQuery = useRef(query);
@@ -167,8 +169,8 @@ function CatalogSearch({
           }}
           placeholder={
             zh
-              ? "语义搜索 API、接口、入参或数据结构…"
-              : "Semantically search APIs, inputs, outputs, or schemas…"
+              ? `语义搜索 ${terminology.apiProducts}、${terminology.endpoints}、入参、出参或${terminology.schemas}…`
+              : `Semantically search ${terminology.apiProducts}, ${terminology.endpoints.toLowerCase()}, inputs, outputs, or ${terminology.schemas.toLowerCase()}…`
           }
           aria-label={zh ? "全局搜索" : "Global search"}
           aria-controls="catalog-search-results"
@@ -187,12 +189,13 @@ function CatalogSearch({
 export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { locale, query, apis, search, totals, favoriteApiSlugs } = loaderData;
   const zh = locale === "zh";
+  const terminology = publicResourceTerminologyCopy(locale);
   const [searchPending, setSearchPending] = useState(false);
   const searchSummary = search
     ? zh
-      ? `${search.counts.api} API · ${search.counts.endpoint} 接口 · ${search.counts.schema} 数据结构`
-      : `${search.counts.api} APIs · ${search.counts.endpoint} endpoints · ${search.counts.schema} schemas`
-    : `${String(apis.length).padStart(2, "0")} API`;
+      ? `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints} · ${search.counts.schema} ${terminology.schemas}`
+      : `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints.toLowerCase()} · ${search.counts.schema} ${terminology.schemas.toLowerCase()}`
+    : `${String(apis.length).padStart(2, "0")} ${terminology.apiProducts}`;
 
   return (
     <SiteShell locale={locale}>
@@ -209,11 +212,11 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           </div>
           <dl className="registry-stats">
             <div>
-              <dt>API</dt>
+              <dt>{terminology.apiProducts}</dt>
               <dd>{String(totals.apis).padStart(2, "0")}</dd>
             </div>
             <div>
-              <dt>{zh ? "接口" : "Endpoints"}</dt>
+              <dt>{terminology.endpoints}</dt>
               <dd>{String(totals.operations).padStart(2, "0")}</dd>
             </div>
             <div>
@@ -226,7 +229,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
         <section className="registry-section">
           <div className="registry-taskline">
             <strong>{zh ? "你想接入什么能力？" : "What do you want to build?"}</strong>
-            <span>{zh ? "搜索接口、参数、返回字段，或浏览完整 API 集合" : "Search endpoints, parameters, response fields, or browse complete APIs"}</span>
+            <span>{zh ? `搜索${terminology.endpoints}、参数、返回字段，或浏览全部 ${terminology.apiProducts}` : `Search ${terminology.endpoints.toLowerCase()}, parameters, response fields, or browse all ${terminology.apiProducts}`}</span>
           </div>
           <div className="registry-toolbar">
             <CatalogSearch

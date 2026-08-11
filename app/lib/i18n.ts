@@ -1,5 +1,26 @@
 import type { Locale } from "./catalog/types";
 
+const PUBLIC_RESOURCE_TERMINOLOGY_COPY = {
+  zh: {
+    apiBadge: "API 产品",
+    apiProduct: "API 产品",
+    apiProducts: "API 产品",
+    endpoint: "接口",
+    endpoints: "接口",
+    schema: "数据结构",
+    schemas: "数据结构"
+  },
+  en: {
+    apiBadge: "API",
+    apiProduct: "API product",
+    apiProducts: "API products",
+    endpoint: "Endpoint",
+    endpoints: "Endpoints",
+    schema: "Schema",
+    schemas: "Schemas"
+  }
+} as const satisfies Record<Locale, Record<string, string>>;
+
 const API_WORKSPACE_NAVIGATION_COPY = {
   zh: {
     endpointTab: "接口",
@@ -14,6 +35,10 @@ const API_WORKSPACE_NAVIGATION_COPY = {
     openRelatedEndpoint: "Open related endpoint"
   }
 } as const satisfies Record<Locale, Record<string, string>>;
+
+export function publicResourceTerminologyCopy(locale: Locale) {
+  return PUBLIC_RESOURCE_TERMINOLOGY_COPY[locale];
+}
 
 export function apiWorkspaceNavigationCopy(locale: Locale) {
   return API_WORKSPACE_NAVIGATION_COPY[locale];
