@@ -55,6 +55,17 @@ describe("Pontx Hub visual system", () => {
     expect(systemCss).not.toMatch(/\.pontx-hydrated-title\s*{/);
   });
 
+  it("uses one underline treatment for the active resource tab", async () => {
+    const appCss = await readFile(new URL("./app.css", import.meta.url), "utf8");
+    const systemCss = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(appCss).toMatch(/\.resource-navigation-tabs a\.is-active::after\s*{[\s\S]*?background:\s*var\(--blue\);/);
+    expect(systemCss).toMatch(/\.resource-navigation-tabs\s*{[\s\S]*?height:\s*54px;/);
+    expect(systemCss).toMatch(/\.resource-navigation-tabs a\s*{[\s\S]*?padding:\s*0 11px;[\s\S]*?border-radius:\s*0;/);
+    expect(systemCss).toMatch(/\.resource-navigation-tabs a\.is-active\s*{[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
+    expect(systemCss).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.resource-navigation\s*{[\s\S]*?padding:\s*8px 12px 0;[\s\S]*?\.resource-navigation-tabs\s*{[\s\S]*?height:\s*40px;/);
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
