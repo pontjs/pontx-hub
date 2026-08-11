@@ -72,6 +72,49 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("uses the shared cool-neutral palette for non-semantic surfaces", async () => {
+    const [css, accountCss, root] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./account.css", import.meta.url), "utf8"),
+      readFile(new URL("../root.tsx", import.meta.url), "utf8"),
+    ]);
+
+    expect(css).toMatch(
+      /\.search-result-group > header\s*{[\s\S]*?background:\s*var\(--paper-deep\);/,
+    );
+    expect(css).toMatch(
+      /\.search-result-row:hover,[\s\S]*?background:\s*var\(--paper\);/,
+    );
+    expect(css).toMatch(
+      /\.search-kind-schema\s*{[\s\S]*?background:\s*var\(--paper-deep\);[\s\S]*?color:\s*#42556a;/,
+    );
+    expect(css).toMatch(
+      /\.schema-reference-header\s*{[\s\S]*?background:\s*var\(--paper-deep\);/,
+    );
+    expect(accountCss).toMatch(
+      /\.favorite-api-control\s*{[\s\S]*?background:\s*#fff;/,
+    );
+    expect(accountCss).toMatch(
+      /\.favorite-api-control\[aria-pressed="true"\]\s*{[\s\S]*?border-color:\s*var\(--blue\);[\s\S]*?background:\s*#edf1ff;/,
+    );
+    expect(accountCss).toMatch(
+      /\.api-favorite-toolbar\s*{[\s\S]*?background:\s*#fff;/,
+    );
+    for (const page of ["saved-apis-page", "playground-history-page", "account-page"]) {
+      expect(accountCss).toMatch(
+        new RegExp(`\\.${page}\\s*{[\\s\\S]*?var\\(--paper\\);`),
+      );
+    }
+    expect(root).toContain('<meta name="theme-color" content="#f7f8fa" />');
+
+    for (const warmNeutral of ["#f0ece3", "#f8f6f0", "#f7efe3", "#f5f0e6"]) {
+      expect(css).not.toContain(warmNeutral);
+    }
+    for (const warmNeutral of ["#fffdf7", "#fff8df", "#fff2ba", "#f7f4ed"]) {
+      expect(accountCss).not.toContain(warmNeutral);
+    }
+  });
+
   it("renders highlighted terminal surfaces with visible keyboard focus", async () => {
     const [css, lightThemeCss, component] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),

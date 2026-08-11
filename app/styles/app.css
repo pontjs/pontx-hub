@@ -965,7 +965,7 @@ samp,
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  background: #f0ece3;
+  background: var(--paper-deep);
 }
 
 .search-result-group h2 {
@@ -1002,7 +1002,7 @@ samp,
 
 .search-result-row:hover,
 .search-result-row:focus-visible {
-  background: #f8f6f0;
+  background: var(--paper);
   outline: none;
   transform: translateX(2px);
 }
@@ -1027,9 +1027,9 @@ samp,
 }
 
 .search-kind-schema {
-  border-color: #c8b49b;
-  background: #f7efe3;
-  color: #6a4925;
+  border-color: #aab9c8;
+  background: var(--paper-deep);
+  color: #42556a;
 }
 
 .search-result-main {
@@ -2249,7 +2249,7 @@ samp,
 .schema-reference-header {
   border-bottom: 1px solid var(--ink);
   padding: 24px clamp(18px, 3vw, 40px) 26px;
-  background: #f5f0e6;
+  background: var(--paper-deep);
 }
 
 .schema-reference-header > div {
