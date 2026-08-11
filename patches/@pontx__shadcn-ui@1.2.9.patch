@@ -1426,13 +1426,13 @@ index 0000000000000000000000000000000000000000..e0819468026ad9d963a76b1475327e42
 +{"version":3,"file":"I18nContext-D9FrDR3s.js","sources":["../../../node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs","../src/components/ui/badge.tsx","../src/components/ui/input.tsx","../src/contexts/I18nContext.tsx"],"sourcesContent":["/**\n * Copyright 2022 Joe Bell. All rights reserved.\n *\n * This file is licensed to you under the Apache License, Version 2.0\n * (the \"License\"); you may not use this file except in compliance with the\n * License. You may obtain a copy of the License at\n *\n *   http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n * WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the\n * License for the specific language governing permissions and limitations under\n * the License.\n */ import { clsx } from \"clsx\";\nconst falsyToString = (value)=>typeof value === \"boolean\" ? `${value}` : value === 0 ? \"0\" : value;\nexport const cx = clsx;\nexport const cva = (base, config)=>(props)=>{\n        var _config_compoundVariants;\n        if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);\n        const { variants, defaultVariants } = config;\n        const getVariantClassNames = Object.keys(variants).map((variant)=>{\n            const variantProp = props === null || props === void 0 ? void 0 : props[variant];\n            const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];\n            if (variantProp === null) return null;\n            const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);\n            return variants[variant][variantKey];\n        });\n        const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param)=>{\n            let [key, value] = param;\n            if (value === undefined) {\n                return acc;\n            }\n            acc[key] = value;\n            return acc;\n        }, {});\n        const getCompoundVariantClassNames = config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param)=>{\n            let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;\n            return Object.entries(compoundVariantOptions).every((param)=>{\n                let [key, value] = param;\n                return Array.isArray(value) ? value.includes({\n                    ...defaultVariants,\n                    ...propsWithoutUndefined\n                }[key]) : ({\n                    ...defaultVariants,\n                    ...propsWithoutUndefined\n                })[key] === value;\n            }) ? [\n                ...acc,\n                cvClass,\n                cvClassName\n            ] : acc;\n        }, []);\n        return cx(base, getVariantClassNames, getCompoundVariantClassNames, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);\n    };\n\n","import * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\n\nimport { cn } from \"@/utils/cn\"\n\nconst badgeVariants = cva(\n  \"inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2\",\n  {\n    variants: {\n      variant: {\n        default:\n          \"border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80\",\n        secondary:\n          \"border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80\",\n        destructive:\n          \"border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80\",\n        outline: \"text-foreground\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n    },\n  }\n)\n\nexport interface BadgeProps\n  extends React.HTMLAttributes<HTMLDivElement>,\n    VariantProps<typeof badgeVariants> {}\n\nfunction Badge({ className, variant, ...props }: BadgeProps) {\n  return (\n    <div className={cn(badgeVariants({ variant }), className)} {...props} />\n  )\n}\n\nexport { Badge, badgeVariants }\n","import * as React from \"react\"\n\nimport { cn } from \"@/utils/cn\"\n\nexport interface InputProps\n  extends React.InputHTMLAttributes<HTMLInputElement> {}\n\nconst Input = React.forwardRef<HTMLInputElement, InputProps>(\n  ({ className, type, ...props }, ref) => {\n    return (\n      <input\n        type={type}\n        className={cn(\n          \"flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50\",\n          className\n        )}\n        ref={ref}\n        {...props}\n      />\n    )\n  }\n)\nInput.displayName = \"Input\"\n\nexport { Input }\n","import React, { createContext, useContext, useMemo } from \"react\";\n\nexport type UiLocale = \"zh-CN\" | \"en\";\n\ntype Messages = Record<string, string>;\n\nconst messages: Record<UiLocale, Messages> = {\n  \"zh-CN\": {\n    apiDocumentation: \"API 文档\", deprecated: \"已弃用\", try: \"试用\",\n    tryApi: \"试用此 API\", executeUnavailable: \"未提供执行回调\", parameters: \"参数\",\n    bodyParameters: \"Body 参数\", required: \"必需\", fields: \"个字段\", parameter: \"参数\",\n    responses: \"响应\", response: \"响应\", closePlayground: \"关闭 Playground\",\n    pathParameters: \"路径参数\", queryParameters: \"查询参数\", headers: \"请求头\",\n    requestBody: \"请求体\", code: \"代码\", viewCodeOrResponse: \"查看代码或响应结果\",\n    executeHint: \"点击「执行请求」按钮发送请求\", apiTestingPlayground: \"API 调试 Playground\",\n    executeRequest: \"执行请求\", executing: \"执行中...\", serverEnvironment: \"服务器环境\",\n    selectServer: \"选择服务器环境\", authentication: \"身份认证\", noAuthentication: \"无需认证\",\n    codeSnippets: \"代码片段\", selectCodeScenario: \"选择代码生成场景\", copied: \"已复制!\",\n    copyFailed: \"复制失败\", copyCode: \"复制代码\", generatingCode: \"生成代码中...\",\n    noCodeScenarios: \"暂无可用的代码生成场景\", responseResult: \"响应结果\",\n    responseHeaders: \"响应头\", noResponseHeaders: \"无响应头\", responseBody: \"响应体\",\n    responseFieldDescriptions: \"{count} 个字段说明\",\n    responseFieldDescriptionsHint: \"字段含义显示在字段下方，悬停可查看完整说明\",\n    copyResponse: \"复制响应\", jsonEditorFallback: \"JSON 编辑器加载失败，使用基本编辑器\",\n    apiDirectory: \"API 目录\", searchApis: \"搜索 API\", clearSearch: \"清除搜索\",\n    noApis: \"暂无 API\", noMatchingApis: \"未找到匹配的 API\", apiList: \"API 列表\",\n    httpMethod: \"HTTP 方法\", selectValue: \"请选择一个值\", enterParameter: \"请输入 {name}\",\n    format: \"格式\", pattern: \"格式规则\", length: \"长度\", characters: \"个字符\",\n    minLength: \"最小长度\", maxLength: \"最大长度\", range: \"范围\", minimum: \"最小值\",\n    maximum: \"最大值\"\n  },\n  en: {\n    apiDocumentation: \"API documentation\", deprecated: \"Deprecated\", try: \"Try\",\n    tryApi: \"Try this API\", executeUnavailable: \"No execution callback provided\", parameters: \"Parameters\",\n    bodyParameters: \"Body parameters\", required: \"Required\", fields: \"fields\", parameter: \"parameter\",\n    responses: \"Responses\", response: \"Response\", closePlayground: \"Close playground\",\n    pathParameters: \"Path parameters\", queryParameters: \"Query parameters\", headers: \"Headers\",\n    requestBody: \"Request body\", code: \"Code\", viewCodeOrResponse: \"View code or response\",\n    executeHint: \"Select Execute request to send the request\", apiTestingPlayground: \"API testing playground\",\n    executeRequest: \"Execute request\", executing: \"Executing...\", serverEnvironment: \"Server environment\",\n    selectServer: \"Select a server environment\", authentication: \"Authentication\", noAuthentication: \"No authentication\",\n    codeSnippets: \"Code snippets\", selectCodeScenario: \"Select a code generation scenario\", copied: \"Copied!\",\n    copyFailed: \"Copy failed\", copyCode: \"Copy code\", generatingCode: \"Generating code...\",\n    noCodeScenarios: \"No code generation scenarios available\", responseResult: \"Response result\",\n    responseHeaders: \"Response headers\", noResponseHeaders: \"No response headers\", responseBody: \"Response body\",\n    responseFieldDescriptions: \"{count} field descriptions\",\n    responseFieldDescriptionsHint: \"Field meanings appear below each field; hover for the full description\",\n    copyResponse: \"Copy response\", jsonEditorFallback: \"The JSON editor failed to load; using the basic editor\",\n    apiDirectory: \"API directory\", searchApis: \"Search APIs\", clearSearch: \"Clear search\",\n    noApis: \"No APIs\", noMatchingApis: \"No matching APIs\", apiList: \"API list\",\n    httpMethod: \"HTTP method\", selectValue: \"Select a value\", enterParameter: \"Enter {name}\",\n    format: \"Format\", pattern: \"Pattern\", length: \"Length\", characters: \"characters\",\n    minLength: \"Min length\", maxLength: \"Max length\", range: \"Range\", minimum: \"Minimum\",\n    maximum: \"Maximum\"\n  }\n};\n\nconst I18nContext = createContext<UiLocale>(\"zh-CN\");\n\nexport function I18nProvider({ locale = \"zh-CN\", children }: { locale?: UiLocale; children: React.ReactNode }) {\n  return <I18nContext.Provider value={locale}>{children}</I18nContext.Provider>;\n}\n\nexport function useI18n() {\n  const locale = useContext(I18nContext);\n  return useMemo(() => ({\n    locale,\n    t: (key: string, variables?: Record<string, string | number>) => {\n      const template = messages[locale][key] ?? messages.en[key] ?? key;\n      return Object.entries(variables ?? {}).reduce(\n        (result, [name, value]) => result.split(`{${name}}`).join(String(value)),\n        template\n      );\n    }\n  }), [locale]);\n}\n"],"names":["falsyToString","value","cx","clsx","cva","base","config","props","_config_compoundVariants","variants","defaultVariants","getVariantClassNames","variant","variantProp","defaultVariantProp","variantKey","propsWithoutUndefined","acc","param","key","getCompoundVariantClassNames","cvClass","cvClassName","compoundVariantOptions","badgeVariants","Badge","className","jsx","cn","Input","React","type","ref","messages","I18nContext","createContext","I18nProvider","locale","children","useI18n","useContext","useMemo","variables","template","result","name"],"mappings":"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","x_google_ignoreList":[0]}
 \ No newline at end of file
 diff --git a/dist/PlaygroundPanel-Dv6Ok6Kj.js b/dist/PlaygroundPanel-3WQrWzLi.js
-similarity index 74%
+similarity index 76%
 rename from dist/PlaygroundPanel-Dv6Ok6Kj.js
 rename to dist/PlaygroundPanel-3WQrWzLi.js
-index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e5fe846a3 100644
+index 97f0ef16fdd31f9296c639020e26e870a8aabba7..0ab03e48c2a4883026ce110c231a48599b277030 100644
 --- a/dist/PlaygroundPanel-Dv6Ok6Kj.js
 +++ b/dist/PlaygroundPanel-3WQrWzLi.js
-@@ -1,9 +1,9 @@
+@@ -1,9 +1,16 @@
  import { jsxs as o, jsx as n, Fragment as Ae } from "react/jsx-runtime";
  import { useState as w, useMemo as _, useEffect as I, useRef as H, useCallback as T } from "react";
  import { C as Ye, a as Ie, b as Ue, c as $e } from "./card-Dnjhc06b.js";
@@ -1442,10 +1442,17 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e
 +import { L as q, S as qe, k as Fe, l as Oe, f as Re, h as de, B as D, e as Ze, t as ue, A as et, R as tt, E as rt, T as nt, b as at, c as ke, d as Se, C as st, a as Ee } from "./CodeSnippets-BpaXy4qH.js";
 +import { u as me, a as F, B as Be } from "./I18nContext-D9FrDR3s.js";
 +import { CornerDownLeft as Kt, X as ot, AlertCircle as oe, XCircle as Pe } from "lucide-react";
++import {
++  fromTemporalInputValue as adaptTemporalInputValue,
++  getTemporalInputStep as getAdaptedTemporalInputStep,
++  getTemporalInputType as getAdaptedTemporalInputType,
++  isTemporalFormat as isAdaptedTemporalFormat,
++  toTemporalInputValue as toAdaptedTemporalInputValue
++} from "./temporal-format.js";
  const X = /* @__PURE__ */ new Map();
  let Q = null;
  const le = /* @__PURE__ */ new Map();
-@@ -410,7 +410,191 @@ const ft = ({
+@@ -410,7 +417,164 @@ const ft = ({
  };
  function yt(e, r) {
    const t = [];
@@ -1595,50 +1602,23 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e
 +  return r.setUTCFullYear(e.year, e.month - 1, e.day), r.setUTCHours(e.hour, e.minute, e.second, e.millisecond), r.getTime();
 +}
 +function getDatePickerInputType(e) {
-+  const r = parseDatePickerFormat(e);
-+  return r ? r.kind === "template" && !r.hasTime ? "date" : "datetime-local" : null;
++  return getAdaptedTemporalInputType(e);
 +}
 +function getDatePickerStep(e, r) {
-+  const t = parseDatePickerFormat(e);
-+  if (!t || t.kind === "template" && !t.hasTime) return;
-+  if (t.kind === "timestamp") {
-+    const i = resolveTimestampUnit(t, r);
-+    return i === "milliseconds" || /\.\d+$/.test(r?.trim() ?? "") ? "0.001" : "1";
-+  }
-+  return t.kind === "template" ? t.captureParts.includes("millisecond") ? "0.001" : "1" : /\.\d+(?:Z|z|[+-]\d{2}:\d{2})$/.test(r ?? "") ? "0.001" : "1";
++  return getAdaptedTemporalInputStep(e, r);
 +}
 +function isDatePickerFormat(e) {
-+  return parseDatePickerFormat(e) !== null;
++  return isAdaptedTemporalFormat(e);
 +}
 +function toDatePickerValue(e, r) {
-+  const t = parseDatePickerFormat(r);
-+  if (!t || !e) return "";
-+  const i = t.kind === "template" ? parseDateParts(e, t) : t.kind === "timestamp" ? parseTimestampDateParts(e, t) : parseRfc3339DateParts(e);
-+  return i ? formatDatePickerParts(i, getDatePickerInputType(r) ?? "date") : "";
++  return toAdaptedTemporalInputValue(e, r);
 +}
 +function fromDatePickerValue(e, r, t) {
-+  if (!e) return "";
-+  const i = parseDatePickerFormat(r), d = getDatePickerInputType(r);
-+  if (!i || !d) return e;
-+  const g = parsePickerDateParts(e, d);
-+  if (!g) return e;
-+  if (i.kind === "timestamp") {
-+    const N = toEpochMilliseconds(g);
-+    return resolveTimestampUnit(i, t) === "milliseconds" ? String(N) : String(N / 1e3);
-+  }
-+  if (i.kind === "rfc3339") {
-+    const N = t?.match(/(Z|z|[+-]\d{2}:\d{2})$/)?.[1] ?? "Z", f = t?.match(/\.(\d+)(?=(?:Z|z|[+-]\d{2}:\d{2})$)/)?.[1].length ?? 0, u = Math.min(Math.max(g.fractionDigits, f), 3);
-+    return `${formatDatePickerParts({ ...g, fractionDigits: u }, "datetime-local")}${N}`;
-+  }
-+  return i.segments.map((N) => {
-+    if (N.literal !== void 0) return N.literal;
-+    const f = N.token, u = g[f.part];
-+    return f.part === "millisecond" ? formatDatePart(u, 3).slice(0, f.maxDigits) : f.minDigits === f.maxDigits ? formatDatePart(u, f.maxDigits) : String(u);
-+  }).join("");
++  return adaptTemporalInputValue(e, r, t);
  }
  const ce = ({
    parameters: e,
-@@ -444,8 +628,9 @@ const ce = ({
+@@ -444,8 +608,9 @@ const ce = ({
        return delete v[a.name], v;
      });
    }, x = { ...N, ...i }, U = (a) => {
@@ -1649,7 +1629,7 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e
        v && !h ? C : null,
        h ? E : null
      ].filter(Boolean).join(" ") || void 0, O = () => a.schema.enum && a.schema.enum.length > 0 ? /* @__PURE__ */ o(qe, { value: s, onValueChange: (y) => b(a.name, y), children: [
-@@ -481,7 +666,22 @@ const ce = ({
+@@ -481,7 +646,22 @@ const ce = ({
            children: a.name
          }
        )
@@ -1673,7 +1653,7 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e
        F,
        {
          id: a.name,
-@@ -529,6 +729,27 @@ const ce = ({
+@@ -529,6 +709,27 @@ const ce = ({
        ),
        O(),
        a.description && /* @__PURE__ */ n("p", { id: B, className: "text-xs text-gray-500 dark:text-gray-400", children: a.description }),
@@ -1701,7 +1681,7 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e
        v && !h && /* @__PURE__ */ n("p", { id: C, className: "text-xs text-muted-foreground", children: v }),
        h && /* @__PURE__ */ n(
          "p",
-@@ -948,4 +1169,4 @@ export {
+@@ -948,4 +1149,4 @@ export {
    $t as l,
    Ut as s
  };
@@ -1847,6 +1827,576 @@ index 5bde2e5d0bd7961e0d0e0ffe2eb598d7629fd960..493e6208369444adb66ca5ffa574bc5a
 @@ -1 +1 @@
 -*,:before,:after{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }*,:before,:after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}:before,:after{--tw-content: ""}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dl,dd,h1,h2,h3,h4,h5,h6,hr,figure,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}ol,ul,menu{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}button,[role=button]{cursor:pointer}:disabled{cursor:default}img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.schema-viewer-container{min-width:0;max-width:100%}.schema-viewer-container .sl-flex.sl-relative.sl-max-w-full>*{min-width:0}.schema-viewer-reference{display:block;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.monaco-editor .pontx-monaco-field-description{color:#64748b!important;font-style:italic}.monaco-editor.vs-dark .pontx-monaco-field-description{color:#a1a1aa!important}.pointer-events-none{pointer-events:none}.\!visible{visibility:visible!important}.visible{visibility:visible}.absolute{position:absolute}.relative{position:relative}.inset-y-0{top:0;bottom:0}.left-3{left:.75rem}.right-2{right:.5rem}.z-50{z-index:50}.m-0{margin:0}.-mx-1{margin-left:-.25rem;margin-right:-.25rem}.-my-6{margin-top:-1.5rem;margin-bottom:-1.5rem}.my-1{margin-top:.25rem;margin-bottom:.25rem}.my-auto{margin-top:auto;margin-bottom:auto}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.mr-2{margin-right:.5rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-12{height:3rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-\[1px\]{height:1px}.h-\[calc\(100vh-53px\)\]{height:calc(100vh - 53px)}.h-\[var\(--radix-select-trigger-height\)\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.max-h-48{max-height:12rem}.min-h-0{min-height:0px}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-12{width:3rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-72{width:18rem}.w-8{width:2rem}.w-\[180px\]{width:180px}.w-\[1px\]{width:1px}.w-auto{width:auto}.w-full{width:100%}.w-px{width:1px}.min-w-0{min-width:0px}.min-w-\[120px\]{min-width:120px}.min-w-\[8rem\]{min-width:8rem}.min-w-\[var\(--radix-select-trigger-width\)\]{min-width:var(--radix-select-trigger-width)}.max-w-full{max-width:100%}.flex-1{flex:1 1 0%}.flex-shrink-0,.shrink-0{flex-shrink:0}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-default{cursor:default}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}.list-none{list-style-type:none}.flex-row{flex-direction:row}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.space-x-2>:not([hidden])~:not([hidden]){--tw-space-x-reverse: 0;margin-right:calc(.5rem * var(--tw-space-x-reverse));margin-left:calc(.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-0>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(0px * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0px * var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem * var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem * var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem * var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem * var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.overflow-x-hidden{overflow-x:hidden}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:var(--radius)}.rounded-md{border-radius:calc(var(--radius) - 2px)}.rounded-none{border-radius:0}.rounded-sm{border-radius:calc(var(--radius) - 4px)}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-0{border-width:0px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-2{border-left-width:2px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-blue-200{--tw-border-opacity: 1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-border{border-color:hsl(var(--border))}.border-border\/70{border-color:hsl(var(--border) / .7)}.border-current{border-color:currentColor}.border-gray-200{--tw-border-opacity: 1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity: 1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-green-200{--tw-border-opacity: 1;border-color:rgb(187 247 208 / var(--tw-border-opacity, 1))}.border-input{border-color:hsl(var(--input))}.border-muted{border-color:hsl(var(--muted))}.border-primary{border-color:hsl(var(--primary))}.border-purple-200{--tw-border-opacity: 1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-red-200{--tw-border-opacity: 1;border-color:rgb(254 202 202 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-yellow-200{--tw-border-opacity: 1;border-color:rgb(254 240 138 / var(--tw-border-opacity, 1))}.border-t-transparent{border-top-color:transparent}.bg-\[\#1e1e1e\]{--tw-bg-opacity: 1;background-color:rgb(30 30 30 / var(--tw-bg-opacity, 1))}.bg-accent{background-color:hsl(var(--accent))}.bg-background{background-color:hsl(var(--background))}.bg-blue-100{--tw-bg-opacity: 1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-border{background-color:hsl(var(--border))}.bg-gray-100{--tw-bg-opacity: 1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-500{--tw-bg-opacity: 1;background-color:rgb(107 114 128 / var(--tw-bg-opacity, 1))}.bg-green-100{--tw-bg-opacity: 1;background-color:rgb(220 252 231 / var(--tw-bg-opacity, 1))}.bg-green-500{--tw-bg-opacity: 1;background-color:rgb(34 197 94 / var(--tw-bg-opacity, 1))}.bg-muted{background-color:hsl(var(--muted))}.bg-muted\/20{background-color:hsl(var(--muted) / .2)}.bg-primary{background-color:hsl(var(--primary))}.bg-purple-100{--tw-bg-opacity: 1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.bg-red-100{--tw-bg-opacity: 1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity: 1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity: 1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-secondary{background-color:hsl(var(--secondary))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity: 1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-yellow-100{--tw-bg-opacity: 1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.bg-yellow-50{--tw-bg-opacity: 1;background-color:rgb(254 252 232 / var(--tw-bg-opacity, 1))}.p-0{padding:0}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-0{padding-left:0;padding-right:0}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0{padding-top:0;padding-bottom:0}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-2{padding-bottom:.5rem}.pb-4{padding-bottom:1rem}.pl-2{padding-left:.5rem}.pl-3{padding-left:.75rem}.pl-4{padding-left:1rem}.pl-6{padding-left:1.5rem}.pl-9{padding-left:2.25rem}.pr-6{padding-right:1.5rem}.pr-8{padding-right:2rem}.pr-9{padding-right:2.25rem}.pt-0{padding-top:0}.pt-3{padding-top:.75rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tabular-nums{--tw-numeric-spacing: tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-5{line-height:1.25rem}.leading-none{line-height:1}.tracking-tight{letter-spacing:-.025em}.tracking-wider{letter-spacing:.05em}.text-blue-800{--tw-text-opacity: 1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-current{color:currentColor}.text-foreground{color:hsl(var(--foreground))}.text-foreground\/75{color:hsl(var(--foreground) / .75)}.text-gray-500{--tw-text-opacity: 1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity: 1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity: 1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity: 1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity: 1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-green-700{--tw-text-opacity: 1;color:rgb(21 128 61 / var(--tw-text-opacity, 1))}.text-green-800{--tw-text-opacity: 1;color:rgb(22 101 52 / var(--tw-text-opacity, 1))}.text-muted-foreground{color:hsl(var(--muted-foreground))}.text-primary{color:hsl(var(--primary))}.text-primary-foreground{color:hsl(var(--primary-foreground))}.text-purple-800{--tw-text-opacity: 1;color:rgb(107 33 168 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity: 1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-red-700{--tw-text-opacity: 1;color:rgb(185 28 28 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity: 1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-secondary-foreground{color:hsl(var(--secondary-foreground))}.text-yellow-600{--tw-text-opacity: 1;color:rgb(202 138 4 / var(--tw-text-opacity, 1))}.text-yellow-700{--tw-text-opacity: 1;color:rgb(161 98 7 / var(--tw-text-opacity, 1))}.text-yellow-800{--tw-text-opacity: 1;color:rgb(133 77 14 / var(--tw-text-opacity, 1))}.underline-offset-4{text-underline-offset:4px}.opacity-50{opacity:.5}.shadow{--tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);--tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-none{--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow: 0 1px 2px 0 rgb(0 0 0 / .05);--tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.ring-offset-background{--tw-ring-offset-color: hsl(var(--background))}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.file\:border-0::file-selector-button{border-width:0px}.file\:bg-transparent::file-selector-button{background-color:transparent}.file\:text-sm::file-selector-button{font-size:.875rem;line-height:1.25rem}.file\:font-medium::file-selector-button{font-weight:500}.file\:text-foreground::file-selector-button{color:hsl(var(--foreground))}.placeholder\:text-muted-foreground::-moz-placeholder{color:hsl(var(--muted-foreground))}.placeholder\:text-muted-foreground::placeholder{color:hsl(var(--muted-foreground))}.last\:border-0:last-child{border-width:0px}.last\:border-b-0:last-child{border-bottom-width:0px}.hover\:bg-accent:hover{background-color:hsl(var(--accent))}.hover\:bg-gray-600:hover{--tw-bg-opacity: 1;background-color:rgb(75 85 99 / var(--tw-bg-opacity, 1))}.hover\:bg-green-600:hover{--tw-bg-opacity: 1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.hover\:bg-primary\/80:hover{background-color:hsl(var(--primary) / .8)}.hover\:bg-primary\/90:hover{background-color:hsl(var(--primary) / .9)}.hover\:bg-red-100:hover{--tw-bg-opacity: 1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.hover\:bg-red-600:hover{--tw-bg-opacity: 1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.hover\:bg-secondary\/80:hover{background-color:hsl(var(--secondary) / .8)}.hover\:bg-transparent:hover{background-color:transparent}.hover\:bg-yellow-100:hover{--tw-bg-opacity: 1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.hover\:text-accent-foreground:hover{color:hsl(var(--accent-foreground))}.hover\:underline:hover{text-decoration-line:underline}.focus\:bg-accent:focus{background-color:hsl(var(--accent))}.focus\:text-accent-foreground:focus{color:hsl(var(--accent-foreground))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-1:focus{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-2:focus{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-ring:focus{--tw-ring-color: hsl(var(--ring))}.focus\:ring-offset-2:focus{--tw-ring-offset-width: 2px}.focus-visible\:outline-none:focus-visible{outline:2px solid transparent;outline-offset:2px}.focus-visible\:ring-1:focus-visible{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus-visible\:ring-2:focus-visible{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus-visible\:ring-inset:focus-visible{--tw-ring-inset: inset}.focus-visible\:ring-ring:focus-visible{--tw-ring-color: hsl(var(--ring))}.focus-visible\:ring-offset-1:focus-visible{--tw-ring-offset-width: 1px}.focus-visible\:ring-offset-2:focus-visible{--tw-ring-offset-width: 2px}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-50:disabled{opacity:.5}.peer:disabled~.peer-disabled\:cursor-not-allowed{cursor:not-allowed}.peer:disabled~.peer-disabled\:opacity-70{opacity:.7}.data-\[disabled\]\:pointer-events-none[data-disabled]{pointer-events:none}.data-\[side\=bottom\]\:translate-y-1[data-side=bottom]{--tw-translate-y: .25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=left\]\:-translate-x-1[data-side=left]{--tw-translate-x: -.25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=right\]\:translate-x-1[data-side=right]{--tw-translate-x: .25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=top\]\:-translate-y-1[data-side=top]{--tw-translate-y: -.25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[state\=active\]\:bg-background[data-state=active]{background-color:hsl(var(--background))}.data-\[state\=checked\]\:bg-primary[data-state=checked]{background-color:hsl(var(--primary))}.data-\[state\=active\]\:text-foreground[data-state=active]{color:hsl(var(--foreground))}.data-\[state\=checked\]\:text-primary-foreground[data-state=checked]{color:hsl(var(--primary-foreground))}.data-\[disabled\]\:opacity-50[data-disabled]{opacity:.5}.data-\[state\=active\]\:shadow[data-state=active]{--tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);--tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.dark\:border-gray-700:is(.dark *){--tw-border-opacity: 1;border-color:rgb(55 65 81 / var(--tw-border-opacity, 1))}.dark\:border-red-900:is(.dark *){--tw-border-opacity: 1;border-color:rgb(127 29 29 / var(--tw-border-opacity, 1))}.dark\:border-yellow-900:is(.dark *){--tw-border-opacity: 1;border-color:rgb(113 63 18 / var(--tw-border-opacity, 1))}.dark\:bg-gray-900:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.dark\:bg-gray-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(3 7 18 / var(--tw-bg-opacity, 1))}.dark\:bg-red-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(69 10 10 / var(--tw-bg-opacity, 1))}.dark\:bg-yellow-900\/20:is(.dark *){background-color:#713f1233}.dark\:bg-yellow-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(66 32 6 / var(--tw-bg-opacity, 1))}.dark\:text-gray-300:is(.dark *){--tw-text-opacity: 1;color:rgb(209 213 219 / var(--tw-text-opacity, 1))}.dark\:text-gray-400:is(.dark *){--tw-text-opacity: 1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.dark\:text-green-400:is(.dark *){--tw-text-opacity: 1;color:rgb(74 222 128 / var(--tw-text-opacity, 1))}.dark\:text-red-200:is(.dark *){--tw-text-opacity: 1;color:rgb(254 202 202 / var(--tw-text-opacity, 1))}.dark\:text-red-300:is(.dark *){--tw-text-opacity: 1;color:rgb(252 165 165 / var(--tw-text-opacity, 1))}.dark\:text-red-400:is(.dark *){--tw-text-opacity: 1;color:rgb(248 113 113 / var(--tw-text-opacity, 1))}.dark\:text-yellow-200:is(.dark *){--tw-text-opacity: 1;color:rgb(254 240 138 / var(--tw-text-opacity, 1))}.dark\:text-yellow-300:is(.dark *){--tw-text-opacity: 1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.dark\:text-yellow-400:is(.dark *){--tw-text-opacity: 1;color:rgb(250 204 21 / var(--tw-text-opacity, 1))}.dark\:hover\:bg-red-900:hover:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(127 29 29 / var(--tw-bg-opacity, 1))}.dark\:hover\:bg-yellow-900:hover:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(113 63 18 / var(--tw-bg-opacity, 1))}@media(min-width:640px){.sm\:flex-row{flex-direction:row}.sm\:items-start{align-items:flex-start}.sm\:justify-between{justify-content:space-between}}
 +*,:before,:after{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }*,:before,:after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}:before,:after{--tw-content: ""}html,:host{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol,"Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dl,dd,h1,h2,h3,h4,h5,h6,hr,figure,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}ol,ul,menu{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}button,[role=button]{cursor:pointer}:disabled{cursor:default}img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.container{width:100%}@media(min-width:640px){.container{max-width:640px}}@media(min-width:768px){.container{max-width:768px}}@media(min-width:1024px){.container{max-width:1024px}}@media(min-width:1280px){.container{max-width:1280px}}@media(min-width:1536px){.container{max-width:1536px}}.schema-viewer-container{min-width:0;max-width:100%}.schema-viewer-container .sl-flex.sl-relative.sl-max-w-full>*{min-width:0}.schema-viewer-reference{display:block;min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:break-word}.monaco-editor .pontx-monaco-field-description{color:#94a3b8!important;font-style:italic;opacity:.78}.monaco-editor.vs-dark .pontx-monaco-field-description{color:#71717a!important;opacity:.9}.pointer-events-none{pointer-events:none}.\!visible{visibility:visible!important}.visible{visibility:visible}.absolute{position:absolute}.relative{position:relative}.inset-y-0{top:0;bottom:0}.left-3{left:.75rem}.right-2{right:.5rem}.z-50{z-index:50}.m-0{margin:0}.-mx-1{margin-left:-.25rem;margin-right:-.25rem}.-my-6{margin-top:-1.5rem;margin-bottom:-1.5rem}.my-1{margin-top:.25rem;margin-bottom:.25rem}.my-auto{margin-top:auto;margin-bottom:auto}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.ml-1{margin-left:.25rem}.ml-2{margin-left:.5rem}.mr-2{margin-right:.5rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.table{display:table}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-12{height:3rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-7{height:1.75rem}.h-8{height:2rem}.h-9{height:2.25rem}.h-\[1px\]{height:1px}.h-\[calc\(100vh-53px\)\]{height:calc(100vh - 53px)}.h-\[var\(--radix-select-trigger-height\)\]{height:var(--radix-select-trigger-height)}.h-auto{height:auto}.h-full{height:100%}.h-px{height:1px}.max-h-48{max-height:12rem}.min-h-0{min-height:0px}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-12{width:3rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-7{width:1.75rem}.w-72{width:18rem}.w-8{width:2rem}.w-\[180px\]{width:180px}.w-\[1px\]{width:1px}.w-auto{width:auto}.w-full{width:100%}.w-px{width:1px}.min-w-0{min-width:0px}.min-w-\[120px\]{min-width:120px}.min-w-\[8rem\]{min-width:8rem}.min-w-\[var\(--radix-select-trigger-width\)\]{min-width:var(--radix-select-trigger-width)}.max-w-full{max-width:100%}.flex-1{flex:1 1 0%}.flex-shrink-0,.shrink-0{flex-shrink:0}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin{animation:spin 1s linear infinite}.cursor-default{cursor:default}.select-none{-webkit-user-select:none;-moz-user-select:none;user-select:none}.list-none{list-style-type:none}.flex-row{flex-direction:row}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-start{justify-content:flex-start}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.space-x-2>:not([hidden])~:not([hidden]){--tw-space-x-reverse: 0;margin-right:calc(.5rem * var(--tw-space-x-reverse));margin-left:calc(.5rem * calc(1 - var(--tw-space-x-reverse)))}.space-y-0>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(0px * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0px * var(--tw-space-y-reverse))}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem * var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem * var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem * var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem * var(--tw-space-y-reverse))}.space-y-4>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-6>:not([hidden])~:not([hidden]){--tw-space-y-reverse: 0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.overflow-x-hidden{overflow-x:hidden}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-nowrap{white-space:nowrap}.break-all{word-break:break-all}.rounded{border-radius:.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:var(--radius)}.rounded-md{border-radius:calc(var(--radius) - 2px)}.rounded-none{border-radius:0}.rounded-sm{border-radius:calc(var(--radius) - 4px)}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-0{border-width:0px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-b-2{border-bottom-width:2px}.border-l-2{border-left-width:2px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-blue-200{--tw-border-opacity: 1;border-color:rgb(191 219 254 / var(--tw-border-opacity, 1))}.border-border{border-color:hsl(var(--border))}.border-border\/70{border-color:hsl(var(--border) / .7)}.border-current{border-color:currentColor}.border-gray-200{--tw-border-opacity: 1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-300{--tw-border-opacity: 1;border-color:rgb(209 213 219 / var(--tw-border-opacity, 1))}.border-green-200{--tw-border-opacity: 1;border-color:rgb(187 247 208 / var(--tw-border-opacity, 1))}.border-input{border-color:hsl(var(--input))}.border-muted{border-color:hsl(var(--muted))}.border-primary{border-color:hsl(var(--primary))}.border-purple-200{--tw-border-opacity: 1;border-color:rgb(233 213 255 / var(--tw-border-opacity, 1))}.border-red-200{--tw-border-opacity: 1;border-color:rgb(254 202 202 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.border-yellow-200{--tw-border-opacity: 1;border-color:rgb(254 240 138 / var(--tw-border-opacity, 1))}.border-t-transparent{border-top-color:transparent}.bg-\[\#1e1e1e\]{--tw-bg-opacity: 1;background-color:rgb(30 30 30 / var(--tw-bg-opacity, 1))}.bg-accent{background-color:hsl(var(--accent))}.bg-background{background-color:hsl(var(--background))}.bg-blue-100{--tw-bg-opacity: 1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-border{background-color:hsl(var(--border))}.bg-gray-100{--tw-bg-opacity: 1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-500{--tw-bg-opacity: 1;background-color:rgb(107 114 128 / var(--tw-bg-opacity, 1))}.bg-green-100{--tw-bg-opacity: 1;background-color:rgb(220 252 231 / var(--tw-bg-opacity, 1))}.bg-green-500{--tw-bg-opacity: 1;background-color:rgb(34 197 94 / var(--tw-bg-opacity, 1))}.bg-muted{background-color:hsl(var(--muted))}.bg-muted\/20{background-color:hsl(var(--muted) / .2)}.bg-primary{background-color:hsl(var(--primary))}.bg-purple-100{--tw-bg-opacity: 1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.bg-red-100{--tw-bg-opacity: 1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.bg-red-50{--tw-bg-opacity: 1;background-color:rgb(254 242 242 / var(--tw-bg-opacity, 1))}.bg-red-500{--tw-bg-opacity: 1;background-color:rgb(239 68 68 / var(--tw-bg-opacity, 1))}.bg-secondary{background-color:hsl(var(--secondary))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity: 1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-yellow-100{--tw-bg-opacity: 1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.bg-yellow-50{--tw-bg-opacity: 1;background-color:rgb(254 252 232 / var(--tw-bg-opacity, 1))}.p-0{padding:0}.p-1{padding:.25rem}.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-0{padding-left:0;padding-right:0}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-8{padding-left:2rem;padding-right:2rem}.py-0{padding-top:0;padding-bottom:0}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-12{padding-top:3rem;padding-bottom:3rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-8{padding-top:2rem;padding-bottom:2rem}.pb-2{padding-bottom:.5rem}.pb-4{padding-bottom:1rem}.pl-2{padding-left:.5rem}.pl-3{padding-left:.75rem}.pl-4{padding-left:1rem}.pl-6{padding-left:1.5rem}.pl-9{padding-left:2.25rem}.pr-6{padding-right:1.5rem}.pr-8{padding-right:2rem}.pr-9{padding-right:2.25rem}.pt-0{padding-top:0}.pt-3{padding-top:.75rem}.pt-4{padding-top:1rem}.text-left{text-align:left}.text-center{text-align:center}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.tabular-nums{--tw-numeric-spacing: tabular-nums;font-variant-numeric:var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction)}.leading-5{line-height:1.25rem}.leading-none{line-height:1}.tracking-tight{letter-spacing:-.025em}.tracking-wider{letter-spacing:.05em}.text-blue-800{--tw-text-opacity: 1;color:rgb(30 64 175 / var(--tw-text-opacity, 1))}.text-current{color:currentColor}.text-foreground{color:hsl(var(--foreground))}.text-foreground\/75{color:hsl(var(--foreground) / .75)}.text-foreground\/80{color:hsl(var(--foreground) / .8)}.text-gray-500{--tw-text-opacity: 1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity: 1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity: 1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity: 1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity: 1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-green-700{--tw-text-opacity: 1;color:rgb(21 128 61 / var(--tw-text-opacity, 1))}.text-green-800{--tw-text-opacity: 1;color:rgb(22 101 52 / var(--tw-text-opacity, 1))}.text-muted-foreground{color:hsl(var(--muted-foreground))}.text-primary{color:hsl(var(--primary))}.text-primary-foreground{color:hsl(var(--primary-foreground))}.text-purple-800{--tw-text-opacity: 1;color:rgb(107 33 168 / var(--tw-text-opacity, 1))}.text-red-600{--tw-text-opacity: 1;color:rgb(220 38 38 / var(--tw-text-opacity, 1))}.text-red-700{--tw-text-opacity: 1;color:rgb(185 28 28 / var(--tw-text-opacity, 1))}.text-red-800{--tw-text-opacity: 1;color:rgb(153 27 27 / var(--tw-text-opacity, 1))}.text-secondary-foreground{color:hsl(var(--secondary-foreground))}.text-yellow-600{--tw-text-opacity: 1;color:rgb(202 138 4 / var(--tw-text-opacity, 1))}.text-yellow-700{--tw-text-opacity: 1;color:rgb(161 98 7 / var(--tw-text-opacity, 1))}.text-yellow-800{--tw-text-opacity: 1;color:rgb(133 77 14 / var(--tw-text-opacity, 1))}.underline-offset-4{text-underline-offset:4px}.opacity-50{opacity:.5}.shadow{--tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);--tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-md{--tw-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);--tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-none{--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow: 0 1px 2px 0 rgb(0 0 0 / .05);--tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.ring-offset-background{--tw-ring-offset-color: hsl(var(--background))}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.file\:border-0::file-selector-button{border-width:0px}.file\:bg-transparent::file-selector-button{background-color:transparent}.file\:text-sm::file-selector-button{font-size:.875rem;line-height:1.25rem}.file\:font-medium::file-selector-button{font-weight:500}.file\:text-foreground::file-selector-button{color:hsl(var(--foreground))}.placeholder\:text-muted-foreground::-moz-placeholder{color:hsl(var(--muted-foreground))}.placeholder\:text-muted-foreground::placeholder{color:hsl(var(--muted-foreground))}.last\:border-0:last-child{border-width:0px}.last\:border-b-0:last-child{border-bottom-width:0px}.hover\:bg-accent:hover{background-color:hsl(var(--accent))}.hover\:bg-gray-600:hover{--tw-bg-opacity: 1;background-color:rgb(75 85 99 / var(--tw-bg-opacity, 1))}.hover\:bg-green-600:hover{--tw-bg-opacity: 1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.hover\:bg-primary\/80:hover{background-color:hsl(var(--primary) / .8)}.hover\:bg-primary\/90:hover{background-color:hsl(var(--primary) / .9)}.hover\:bg-red-100:hover{--tw-bg-opacity: 1;background-color:rgb(254 226 226 / var(--tw-bg-opacity, 1))}.hover\:bg-red-600:hover{--tw-bg-opacity: 1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.hover\:bg-secondary\/80:hover{background-color:hsl(var(--secondary) / .8)}.hover\:bg-transparent:hover{background-color:transparent}.hover\:bg-yellow-100:hover{--tw-bg-opacity: 1;background-color:rgb(254 249 195 / var(--tw-bg-opacity, 1))}.hover\:text-accent-foreground:hover{color:hsl(var(--accent-foreground))}.hover\:text-foreground:hover{color:hsl(var(--foreground))}.hover\:underline:hover{text-decoration-line:underline}.focus\:bg-accent:focus{background-color:hsl(var(--accent))}.focus\:text-accent-foreground:focus{color:hsl(var(--accent-foreground))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-1:focus{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-2:focus{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus\:ring-ring:focus{--tw-ring-color: hsl(var(--ring))}.focus\:ring-offset-2:focus{--tw-ring-offset-width: 2px}.focus-visible\:outline-none:focus-visible{outline:2px solid transparent;outline-offset:2px}.focus-visible\:ring-1:focus-visible{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus-visible\:ring-2:focus-visible{--tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow, 0 0 #0000)}.focus-visible\:ring-inset:focus-visible{--tw-ring-inset: inset}.focus-visible\:ring-ring:focus-visible{--tw-ring-color: hsl(var(--ring))}.focus-visible\:ring-offset-1:focus-visible{--tw-ring-offset-width: 1px}.focus-visible\:ring-offset-2:focus-visible{--tw-ring-offset-width: 2px}.disabled\:pointer-events-none:disabled{pointer-events:none}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.disabled\:opacity-50:disabled{opacity:.5}.peer:disabled~.peer-disabled\:cursor-not-allowed{cursor:not-allowed}.peer:disabled~.peer-disabled\:opacity-70{opacity:.7}.data-\[disabled\]\:pointer-events-none[data-disabled]{pointer-events:none}.data-\[side\=bottom\]\:translate-y-1[data-side=bottom]{--tw-translate-y: .25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=left\]\:-translate-x-1[data-side=left]{--tw-translate-x: -.25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=right\]\:translate-x-1[data-side=right]{--tw-translate-x: .25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[side\=top\]\:-translate-y-1[data-side=top]{--tw-translate-y: -.25rem;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.data-\[state\=active\]\:bg-background[data-state=active]{background-color:hsl(var(--background))}.data-\[state\=checked\]\:bg-primary[data-state=checked]{background-color:hsl(var(--primary))}.data-\[state\=active\]\:text-foreground[data-state=active]{color:hsl(var(--foreground))}.data-\[state\=checked\]\:text-primary-foreground[data-state=checked]{color:hsl(var(--primary-foreground))}.data-\[disabled\]\:opacity-50[data-disabled]{opacity:.5}.data-\[state\=active\]\:shadow[data-state=active]{--tw-shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);--tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000),var(--tw-ring-shadow, 0 0 #0000),var(--tw-shadow)}.dark\:border-gray-700:is(.dark *){--tw-border-opacity: 1;border-color:rgb(55 65 81 / var(--tw-border-opacity, 1))}.dark\:border-red-900:is(.dark *){--tw-border-opacity: 1;border-color:rgb(127 29 29 / var(--tw-border-opacity, 1))}.dark\:border-yellow-900:is(.dark *){--tw-border-opacity: 1;border-color:rgb(113 63 18 / var(--tw-border-opacity, 1))}.dark\:bg-gray-900:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(17 24 39 / var(--tw-bg-opacity, 1))}.dark\:bg-gray-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(3 7 18 / var(--tw-bg-opacity, 1))}.dark\:bg-red-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(69 10 10 / var(--tw-bg-opacity, 1))}.dark\:bg-yellow-900\/20:is(.dark *){background-color:#713f1233}.dark\:bg-yellow-950:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(66 32 6 / var(--tw-bg-opacity, 1))}.dark\:text-gray-300:is(.dark *){--tw-text-opacity: 1;color:rgb(209 213 219 / var(--tw-text-opacity, 1))}.dark\:text-gray-400:is(.dark *){--tw-text-opacity: 1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.dark\:text-green-400:is(.dark *){--tw-text-opacity: 1;color:rgb(74 222 128 / var(--tw-text-opacity, 1))}.dark\:text-red-200:is(.dark *){--tw-text-opacity: 1;color:rgb(254 202 202 / var(--tw-text-opacity, 1))}.dark\:text-red-300:is(.dark *){--tw-text-opacity: 1;color:rgb(252 165 165 / var(--tw-text-opacity, 1))}.dark\:text-red-400:is(.dark *){--tw-text-opacity: 1;color:rgb(248 113 113 / var(--tw-text-opacity, 1))}.dark\:text-yellow-200:is(.dark *){--tw-text-opacity: 1;color:rgb(254 240 138 / var(--tw-text-opacity, 1))}.dark\:text-yellow-300:is(.dark *){--tw-text-opacity: 1;color:rgb(253 224 71 / var(--tw-text-opacity, 1))}.dark\:text-yellow-400:is(.dark *){--tw-text-opacity: 1;color:rgb(250 204 21 / var(--tw-text-opacity, 1))}.dark\:hover\:bg-red-900:hover:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(127 29 29 / var(--tw-bg-opacity, 1))}.dark\:hover\:bg-yellow-900:hover:is(.dark *){--tw-bg-opacity: 1;background-color:rgb(113 63 18 / var(--tw-bg-opacity, 1))}@media(min-width:640px){.sm\:flex-row{flex-direction:row}.sm\:items-start{align-items:flex-start}.sm\:justify-between{justify-content:space-between}}
+diff --git a/dist/temporal-format.js b/dist/temporal-format.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..b2f030a85dad2d998caa798463156d8ef4511780
+--- /dev/null
++++ b/dist/temporal-format.js
+@@ -0,0 +1,564 @@
++const DATE_FORMAT_TOKENS = [
++  { value: "yyyy", part: "year", minDigits: 4, maxDigits: 4 },
++  { value: "YYYY", part: "year", minDigits: 4, maxDigits: 4 },
++  { value: "uuuu", part: "year", minDigits: 4, maxDigits: 4 },
++  { value: "MM", part: "month", minDigits: 2, maxDigits: 2 },
++  { value: "dd", part: "day", minDigits: 2, maxDigits: 2 },
++  { value: "DD", part: "day", minDigits: 2, maxDigits: 2 },
++  { value: "HH", part: "hour", minDigits: 2, maxDigits: 2 },
++  { value: "hh", part: "hour12", minDigits: 2, maxDigits: 2 },
++  { value: "mm", part: "minute", minDigits: 2, maxDigits: 2 },
++  { value: "ss", part: "second", minDigits: 2, maxDigits: 2 },
++  { value: "M", part: "month", minDigits: 1, maxDigits: 2 },
++  { value: "d", part: "day", minDigits: 1, maxDigits: 2 },
++  { value: "D", part: "day", minDigits: 1, maxDigits: 2 },
++  { value: "H", part: "hour", minDigits: 1, maxDigits: 2 },
++  { value: "h", part: "hour12", minDigits: 1, maxDigits: 2 },
++  { value: "m", part: "minute", minDigits: 1, maxDigits: 2 },
++  { value: "s", part: "second", minDigits: 1, maxDigits: 2 },
++  { value: "A", part: "meridiem" },
++  { value: "a", part: "meridiem" }
++];
++const TIMEZONE_FORMAT_TOKENS = [
++  { value: "XXX", part: "timezone", timezoneStyle: "colon" },
++  { value: "xxx", part: "timezone", timezoneStyle: "colon" },
++  { value: "XX", part: "timezone", timezoneStyle: "compact" },
++  { value: "xx", part: "timezone", timezoneStyle: "compact" },
++  { value: "ZZ", part: "timezone", timezoneStyle: "compact" },
++  { value: "X", part: "timezone", timezoneStyle: "hour" },
++  { value: "x", part: "timezone", timezoneStyle: "hour" },
++  { value: "Z", part: "timezone", timezoneStyle: "flexible" },
++  { value: "z", part: "timezone", timezoneStyle: "flexible" }
++];
++const SECOND_TIMESTAMP_FORMATS = /* @__PURE__ */ new Set([
++  "timestamp-s",
++  "timestamp-sec",
++  "timestamp-second",
++  "timestamp-seconds",
++  "unix",
++  "unix-s",
++  "unix-time",
++  "unix-timestamp",
++  "unix-seconds",
++  "epoch",
++  "epoch-s",
++  "epoch-second",
++  "epoch-seconds"
++]);
++const MILLISECOND_TIMESTAMP_FORMATS = /* @__PURE__ */ new Set([
++  "timestamp-ms",
++  "timestamp-milli",
++  "timestamp-millis",
++  "timestamp-millisecond",
++  "timestamp-milliseconds",
++  "unix-ms",
++  "unix-millis",
++  "unix-milliseconds",
++  "epoch-ms",
++  "epoch-millis",
++  "epoch-milliseconds"
++]);
++const MICROSECOND_TIMESTAMP_FORMATS = /* @__PURE__ */ new Set([
++  "timestamp-us",
++  "timestamp-\xB5s",
++  "timestamp-micro",
++  "timestamp-micros",
++  "timestamp-microsecond",
++  "timestamp-microseconds",
++  "unix-us",
++  "unix-micros",
++  "unix-microseconds",
++  "epoch-us",
++  "epoch-micros",
++  "epoch-microseconds"
++]);
++const NANOSECOND_TIMESTAMP_FORMATS = /* @__PURE__ */ new Set([
++  "timestamp-ns",
++  "timestamp-nano",
++  "timestamp-nanos",
++  "timestamp-nanosecond",
++  "timestamp-nanoseconds",
++  "unix-ns",
++  "unix-nanos",
++  "unix-nanoseconds",
++  "epoch-ns",
++  "epoch-nanos",
++  "epoch-nanoseconds"
++]);
++const POWERS_OF_TEN = Array.from({ length: 10 }, (_, exponent) => 10n ** BigInt(exponent));
++function escapeRegExp(value) {
++  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
++}
++function timezoneMatcher(style) {
++  if (style === "colon") return "(Z|z|[+-]\\d{2}:\\d{2})";
++  if (style === "compact") return "(Z|z|[+-]\\d{4})";
++  if (style === "hour") return "(Z|z|[+-]\\d{2}(?:\\d{2})?)";
++  return "(Z|z|UTC|GMT|[+-]\\d{2}(?::?\\d{2})?)";
++}
++function appendLiteral(segments, matcherSource, literal) {
++  segments.push({ literal });
++  return matcherSource + escapeRegExp(literal);
++}
++function parseTemplateFormat(format) {
++  const trimmedFormat = format?.trim();
++  if (!trimmedFormat) return null;
++  const source = trimmedFormat === "date" ? "yyyy-MM-dd" : trimmedFormat;
++  const segments = [];
++  const captureParts = [];
++  const seenParts = /* @__PURE__ */ new Set();
++  let matcherSource = "^";
++  let fractionDigits = 0;
++  let cursor = 0;
++  while (cursor < source.length) {
++    if (source.startsWith("''", cursor)) {
++      matcherSource = appendLiteral(segments, matcherSource, "'");
++      cursor += 2;
++      continue;
++    }
++    if (source[cursor] === "'") {
++      let literal2 = "";
++      let closingQuote = cursor + 1;
++      for (; closingQuote < source.length; closingQuote += 1) {
++        if (source[closingQuote] !== "'") {
++          literal2 += source[closingQuote];
++          continue;
++        }
++        if (source[closingQuote + 1] === "'") {
++          literal2 += "'";
++          closingQuote += 1;
++          continue;
++        }
++        break;
++      }
++      if (closingQuote >= source.length) return null;
++      matcherSource = appendLiteral(segments, matcherSource, literal2);
++      cursor = closingQuote + 1;
++      continue;
++    }
++    if (source[cursor] === "[") {
++      const closingBracket = source.indexOf("]", cursor + 1);
++      if (closingBracket === -1) return null;
++      matcherSource = appendLiteral(
++        segments,
++        matcherSource,
++        source.slice(cursor + 1, closingBracket)
++      );
++      cursor = closingBracket + 1;
++      continue;
++    }
++    if (source[cursor] === "\\") {
++      if (cursor + 1 >= source.length) return null;
++      matcherSource = appendLiteral(segments, matcherSource, source[cursor + 1]);
++      cursor += 2;
++      continue;
++    }
++    if (source[cursor] === "S") {
++      const fraction = /^S{1,9}/.exec(source.slice(cursor))?.[0];
++      if (!fraction || seenParts.has("fraction")) return null;
++      const token2 = {
++        value: fraction,
++        part: "fraction",
++        minDigits: fraction.length,
++        maxDigits: fraction.length
++      };
++      seenParts.add("fraction");
++      captureParts.push("fraction");
++      segments.push({ token: token2 });
++      matcherSource += `(\\d{${fraction.length}})`;
++      fractionDigits = fraction.length;
++      cursor += fraction.length;
++      continue;
++    }
++    const timezoneToken = TIMEZONE_FORMAT_TOKENS.find(
++      (candidate) => source.startsWith(candidate.value, cursor)
++    );
++    if (timezoneToken) {
++      if (seenParts.has("timezone")) return null;
++      seenParts.add("timezone");
++      captureParts.push("timezone");
++      segments.push({ token: timezoneToken });
++      matcherSource += timezoneMatcher(timezoneToken.timezoneStyle);
++      cursor += timezoneToken.value.length;
++      continue;
++    }
++    const token = DATE_FORMAT_TOKENS.find(
++      (candidate) => source.startsWith(candidate.value, cursor)
++    );
++    if (token) {
++      if (seenParts.has(token.part)) return null;
++      seenParts.add(token.part);
++      captureParts.push(token.part);
++      segments.push({ token });
++      if (token.part === "meridiem") {
++        matcherSource += "([AaPp][Mm])";
++      } else {
++        matcherSource += token.minDigits === token.maxDigits ? `(\\d{${token.minDigits}})` : `(\\d{${token.minDigits},${token.maxDigits}})`;
++      }
++      cursor += token.value.length;
++      continue;
++    }
++    const literal = source[cursor];
++    if (/[A-Za-z]/.test(literal) && literal !== "T") return null;
++    matcherSource = appendLiteral(segments, matcherSource, literal);
++    cursor += 1;
++  }
++  const hasFullDate = ["year", "month", "day"].every(
++    (part) => seenParts.has(part)
++  );
++  const hasMonth = seenParts.has("year") && seenParts.has("month") && !seenParts.has("day");
++  const datePartCount = ["year", "month", "day"].filter(
++    (part) => seenParts.has(part)
++  ).length;
++  const has24Hour = seenParts.has("hour");
++  const has12Hour = seenParts.has("hour12");
++  const hasTime = (has24Hour || has12Hour) && seenParts.has("minute");
++  const hasAnyTimePart = [
++    "hour",
++    "hour12",
++    "minute",
++    "second",
++    "fraction",
++    "meridiem",
++    "timezone"
++  ].some((part) => seenParts.has(part));
++  if (datePartCount > 0 && !hasFullDate && !hasMonth) return null;
++  if (hasMonth && hasTime) return null;
++  if (!hasFullDate && !hasMonth && !hasTime) return null;
++  if (hasAnyTimePart && !hasTime) return null;
++  if (has24Hour && has12Hour) return null;
++  if (has12Hour !== seenParts.has("meridiem")) return null;
++  if (seenParts.has("second") && !hasTime) return null;
++  if (seenParts.has("fraction") && !seenParts.has("second")) return null;
++  if (seenParts.has("timezone") && !hasTime) return null;
++  const inputType = hasMonth ? "month" : hasFullDate && hasTime ? "datetime-local" : hasFullDate ? "date" : "time";
++  return {
++    kind: "template",
++    segments,
++    matcher: new RegExp(`${matcherSource}$`),
++    captureParts,
++    inputType,
++    fractionDigits
++  };
++}
++function parseTemporalFormat(format) {
++  const trimmedFormat = format?.trim();
++  if (!trimmedFormat) return null;
++  if (trimmedFormat === "X") return { kind: "timestamp", unit: "seconds" };
++  if (trimmedFormat === "x") return { kind: "timestamp", unit: "milliseconds" };
++  const normalizedFormat = trimmedFormat.toLowerCase();
++  if (["date-time", "rfc3339", "rfc-3339"].includes(normalizedFormat)) {
++    return {
++      kind: "iso",
++      inputType: "datetime-local",
++      timezone: "required",
++      strictSeconds: true
++    };
++  }
++  if (["iso8601", "iso-8601", "iso-date-time"].includes(normalizedFormat)) {
++    return {
++      kind: "iso",
++      inputType: "datetime-local",
++      timezone: "optional",
++      strictSeconds: true
++    };
++  }
++  if (["datetime", "datetime-local", "date-time-local", "local-date-time"].includes(normalizedFormat)) {
++    return {
++      kind: "iso",
++      inputType: "datetime-local",
++      timezone: "none",
++      strictSeconds: false
++    };
++  }
++  if (["time", "local-time"].includes(normalizedFormat)) {
++    return { kind: "iso", inputType: "time", timezone: "optional", strictSeconds: false };
++  }
++  if (["full-time", "rfc3339-time"].includes(normalizedFormat)) {
++    return { kind: "iso", inputType: "time", timezone: "required", strictSeconds: true };
++  }
++  if (normalizedFormat === "timestamp") return { kind: "timestamp", unit: "auto" };
++  if (SECOND_TIMESTAMP_FORMATS.has(normalizedFormat)) return { kind: "timestamp", unit: "seconds" };
++  if (MILLISECOND_TIMESTAMP_FORMATS.has(normalizedFormat)) return { kind: "timestamp", unit: "milliseconds" };
++  if (MICROSECOND_TIMESTAMP_FORMATS.has(normalizedFormat)) return { kind: "timestamp", unit: "microseconds" };
++  if (NANOSECOND_TIMESTAMP_FORMATS.has(normalizedFormat)) return { kind: "timestamp", unit: "nanoseconds" };
++  return parseTemplateFormat(trimmedFormat);
++}
++function isValidCalendarDate(year, month, day) {
++  if (year < 1 || year > 9999 || month < 1 || month > 12 || day < 1) return false;
++  const isLeapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
++  const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
++  return day <= daysInMonth[month - 1];
++}
++function isValidCalendarDateTime(value) {
++  return isValidCalendarDate(value.year, value.month, value.day) && value.hour >= 0 && value.hour <= 23 && value.minute >= 0 && value.minute <= 59 && value.second >= 0 && value.second <= 59 && /^\d{0,9}$/.test(value.fraction);
++}
++function isValidTimezone(timezone) {
++  if (!timezone || ["Z", "z", "UTC", "GMT"].includes(timezone)) return true;
++  const match = /^[+-](\d{2})(?::?(\d{2}))?$/.exec(timezone);
++  return !!match && Number(match[1]) <= 23 && Number(match[2] ?? 0) <= 59;
++}
++function parseTemplateValue(value, dateFormat) {
++  const match = dateFormat.matcher.exec(value.trim());
++  if (!match) return null;
++  const capturedValues = dateFormat.captureParts.reduce(
++    (result2, part, index) => {
++      result2[part] = match[index + 1];
++      return result2;
++    },
++    {}
++  );
++  let hour = Number(capturedValues.hour ?? capturedValues.hour12 ?? 0);
++  if (capturedValues.hour12) {
++    if (hour < 1 || hour > 12 || !capturedValues.meridiem) return null;
++    hour %= 12;
++    if (capturedValues.meridiem.toUpperCase() === "PM") hour += 12;
++  }
++  const result = {
++    year: Number(capturedValues.year ?? 1970),
++    month: Number(capturedValues.month ?? 1),
++    day: Number(capturedValues.day ?? 1),
++    hour,
++    minute: Number(capturedValues.minute ?? 0),
++    second: Number(capturedValues.second ?? 0),
++    fraction: capturedValues.fraction ?? "",
++    timezone: capturedValues.timezone
++  };
++  return isValidCalendarDateTime(result) && isValidTimezone(result.timezone) ? result : null;
++}
++function parsePickerValue(value, inputType) {
++  const match = inputType === "date" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim()) : inputType === "month" ? /^(\d{4})-(\d{2})$/.exec(value.trim()) : inputType === "time" ? /^(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?$/.exec(value.trim()) : /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,9}))?)?$/.exec(value.trim());
++  if (!match) return null;
++  const isTimeOnly = inputType === "time";
++  const result = {
++    year: Number(isTimeOnly ? 1970 : match[1]),
++    month: Number(isTimeOnly ? 1 : match[2]),
++    day: Number(inputType === "date" || inputType === "datetime-local" ? match[3] : 1),
++    hour: Number(isTimeOnly ? match[1] : inputType === "datetime-local" ? match[4] : 0),
++    minute: Number(isTimeOnly ? match[2] : inputType === "datetime-local" ? match[5] : 0),
++    second: Number(isTimeOnly ? match[3] ?? 0 : inputType === "datetime-local" ? match[6] ?? 0 : 0),
++    fraction: isTimeOnly ? match[4] ?? "" : inputType === "datetime-local" ? match[7] ?? "" : ""
++  };
++  return isValidCalendarDateTime(result) ? result : null;
++}
++function parseIsoValue(value, dateFormat) {
++  const timezoneSource = "(Z|z|[+-]\\d{2}(?::?\\d{2})?)";
++  const matcher = dateFormat.inputType === "time" ? new RegExp(`^(\\d{2}):(\\d{2})(?::(\\d{2})(?:\\.(\\d{1,9}))?)?${timezoneSource}?$`) : new RegExp(`^(\\d{4})-(\\d{2})-(\\d{2})([Tt ])(\\d{2}):(\\d{2})(?::(\\d{2})(?:\\.(\\d{1,9}))?)?${timezoneSource}?$`);
++  const match = matcher.exec(value.trim());
++  if (!match) return null;
++  const isTimeOnly = dateFormat.inputType === "time";
++  const second = isTimeOnly ? match[3] : match[7];
++  const fraction = isTimeOnly ? match[4] : match[8];
++  const timezone = isTimeOnly ? match[5] : match[9];
++  if (dateFormat.strictSeconds && second === void 0) return null;
++  if (dateFormat.timezone === "required" && !timezone) return null;
++  if (dateFormat.timezone === "none" && timezone) return null;
++  const result = {
++    year: Number(isTimeOnly ? 1970 : match[1]),
++    month: Number(isTimeOnly ? 1 : match[2]),
++    day: Number(isTimeOnly ? 1 : match[3]),
++    hour: Number(isTimeOnly ? match[1] : match[5]),
++    minute: Number(isTimeOnly ? match[2] : match[6]),
++    second: Number(second ?? 0),
++    fraction: fraction ?? "",
++    timezone,
++    dateTimeSeparator: isTimeOnly ? void 0 : match[4]
++  };
++  return isValidCalendarDateTime(result) && isValidTimezone(timezone) ? result : null;
++}
++function resolveTimestampUnit(dateFormat, referenceValue) {
++  if (dateFormat.unit !== "auto") return dateFormat.unit;
++  const integerDigits = referenceValue?.trim().replace(/^[+-]/, "").split(".")[0].replace(/^0+/, "").length ?? 0;
++  if (integerDigits >= 18) return "nanoseconds";
++  if (integerDigits >= 15) return "microseconds";
++  if (integerDigits >= 12) return "milliseconds";
++  return "seconds";
++}
++function timestampUnitScale(unit) {
++  if (unit === "milliseconds") return 3;
++  if (unit === "microseconds") return 6;
++  if (unit === "nanoseconds") return 9;
++  return 0;
++}
++function floorDiv(value, divisor) {
++  const quotient = value / divisor;
++  const remainder = value % divisor;
++  return remainder < 0n ? quotient - 1n : quotient;
++}
++function positiveModulo(value, divisor) {
++  const remainder = value % divisor;
++  return remainder < 0n ? remainder + divisor : remainder;
++}
++function parseTimestampValue(value, dateFormat) {
++  const match = /^([+-]?)(\d+)(?:\.(\d+))?$/.exec(value.trim());
++  if (!match) return null;
++  const unit = resolveTimestampUnit(dateFormat, value);
++  const scale = timestampUnitScale(unit);
++  const fractionalUnitDigits = 9 - scale;
++  const fractionalValue = match[3] ?? "";
++  if (fractionalValue.length > fractionalUnitDigits) return null;
++  const nanosecondsPerUnit = POWERS_OF_TEN[fractionalUnitDigits];
++  let epochNanoseconds = BigInt(match[2]) * nanosecondsPerUnit;
++  if (fractionalValue) {
++    epochNanoseconds += BigInt(fractionalValue.padEnd(fractionalUnitDigits, "0"));
++  }
++  if (match[1] === "-") epochNanoseconds *= -1n;
++  const epochMilliseconds = floorDiv(epochNanoseconds, 1000000n);
++  const numericMilliseconds = Number(epochMilliseconds);
++  if (!Number.isSafeInteger(numericMilliseconds)) return null;
++  const date = new Date(numericMilliseconds);
++  if (Number.isNaN(date.getTime())) return null;
++  const visibleFractionDigits = Math.min(9, scale + fractionalValue.length);
++  const nanosecondsWithinSecond = positiveModulo(epochNanoseconds, 1000000000n);
++  const fraction = visibleFractionDigits > 0 ? nanosecondsWithinSecond.toString().padStart(9, "0").slice(0, visibleFractionDigits).replace(/0+$/, "") : "";
++  const calendarDate = {
++    year: date.getUTCFullYear(),
++    month: date.getUTCMonth() + 1,
++    day: date.getUTCDate(),
++    hour: date.getUTCHours(),
++    minute: date.getUTCMinutes(),
++    second: date.getUTCSeconds(),
++    fraction
++  };
++  return isValidCalendarDateTime(calendarDate) ? { date: calendarDate, epochNanoseconds, unit } : null;
++}
++function formatDatePart(value, width) {
++  return String(value).padStart(width, "0");
++}
++function formatPickerValue(value, inputType, maxFractionDigits = 3) {
++  const date = [
++    formatDatePart(value.year, 4),
++    formatDatePart(value.month, 2),
++    formatDatePart(value.day, 2)
++  ].join("-");
++  if (inputType === "date") return date;
++  if (inputType === "month") return date.slice(0, 7);
++  const time = [
++    formatDatePart(value.hour, 2),
++    formatDatePart(value.minute, 2),
++    formatDatePart(value.second, 2)
++  ].join(":");
++  const pickerFraction = value.fraction.slice(0, maxFractionDigits);
++  const fraction = pickerFraction ? `.${pickerFraction}` : "";
++  return inputType === "time" ? `${time}${fraction}` : `${date}T${time}${fraction}`;
++}
++function calendarToEpochNanoseconds(value) {
++  const date = /* @__PURE__ */ new Date(0);
++  date.setUTCFullYear(value.year, value.month - 1, value.day);
++  date.setUTCHours(value.hour, value.minute, value.second, 0);
++  return BigInt(date.getTime()) * 1000000n + BigInt((value.fraction || "0").padEnd(9, "0"));
++}
++function formatEpochNanoseconds(value, unit) {
++  const divisor = POWERS_OF_TEN[9 - timestampUnitScale(unit)];
++  const sign = value < 0n ? "-" : "";
++  const absoluteValue = value < 0n ? -value : value;
++  const integer = absoluteValue / divisor;
++  const remainder = absoluteValue % divisor;
++  if (remainder === 0n) return `${sign}${integer}`;
++  const fraction = remainder.toString().padStart(9 - timestampUnitScale(unit), "0").replace(/0+$/, "");
++  return `${sign}${integer}.${fraction}`;
++}
++function mergeFraction(pickerFraction, referenceFraction, digits) {
++  if (digits === 0) return "";
++  if (pickerFraction.length > 3 || referenceFraction.length <= 3) {
++    return pickerFraction.padEnd(digits, "0").slice(0, digits);
++  }
++  const millisecondPrefix = pickerFraction.padEnd(3, "0").slice(0, Math.min(3, digits));
++  return `${millisecondPrefix}${referenceFraction.slice(3)}`.padEnd(digits, "0").slice(0, digits);
++}
++function defaultTimezone(token) {
++  if (token.value.startsWith("x")) {
++    if (token.timezoneStyle === "colon") return "+00:00";
++    if (token.timezoneStyle === "compact") return "+0000";
++    return "+00";
++  }
++  return "Z";
++}
++function getTemporalInputType(format) {
++  const temporalFormat = parseTemporalFormat(format);
++  if (!temporalFormat) return null;
++  return temporalFormat.kind === "timestamp" ? "datetime-local" : temporalFormat.inputType;
++}
++function stepForFractionDigits(digits) {
++  const pickerDigits = Math.min(digits, 3);
++  return pickerDigits <= 0 ? "1" : `0.${"0".repeat(pickerDigits - 1)}1`;
++}
++function getTemporalInputStep(format, referenceValue) {
++  const temporalFormat = parseTemporalFormat(format);
++  const inputType = getTemporalInputType(format);
++  if (!temporalFormat || inputType === "date" || inputType === "month") return void 0;
++  if (temporalFormat.kind === "timestamp") {
++    const unit = resolveTimestampUnit(temporalFormat, referenceValue);
++    const fractionalUnitDigits = referenceValue?.trim().match(/\.(\d+)$/)?.[1].length ?? 0;
++    return stepForFractionDigits(Math.min(9, timestampUnitScale(unit) + fractionalUnitDigits));
++  }
++  if (temporalFormat.kind === "template") {
++    if (temporalFormat.fractionDigits > 0) {
++      return stepForFractionDigits(temporalFormat.fractionDigits);
++    }
++    return temporalFormat.captureParts.includes("second") ? "1" : "60";
++  }
++  const referenceFractionDigits = referenceValue?.match(/\.(\d+)/)?.[1].length ?? 0;
++  return stepForFractionDigits(referenceFractionDigits);
++}
++function isTemporalFormat(format) {
++  return parseTemporalFormat(format) !== null;
++}
++function toTemporalInputValue(value, format) {
++  const temporalFormat = parseTemporalFormat(format);
++  if (!temporalFormat || !value) return "";
++  const date = temporalFormat.kind === "template" ? parseTemplateValue(value, temporalFormat) : temporalFormat.kind === "timestamp" ? parseTimestampValue(value, temporalFormat)?.date ?? null : parseIsoValue(value, temporalFormat);
++  if (!date) return "";
++  return formatPickerValue(date, getTemporalInputType(format) ?? "date");
++}
++function fromTemporalInputValue(value, format, referenceValue) {
++  if (!value) return "";
++  const temporalFormat = parseTemporalFormat(format);
++  const inputType = getTemporalInputType(format);
++  if (!temporalFormat || !inputType) return value;
++  const date = parsePickerValue(value, inputType);
++  if (!date) return value;
++  if (temporalFormat.kind === "timestamp") {
++    const unit = resolveTimestampUnit(temporalFormat, referenceValue);
++    let epochNanoseconds = calendarToEpochNanoseconds(date);
++    const referenceTimestamp = referenceValue ? parseTimestampValue(referenceValue, temporalFormat) : null;
++    if (date.fraction.length <= 3 && referenceTimestamp) {
++      epochNanoseconds = floorDiv(epochNanoseconds, 1000000n) * 1000000n + positiveModulo(referenceTimestamp.epochNanoseconds, 1000000n);
++    }
++    return formatEpochNanoseconds(epochNanoseconds, unit);
++  }
++  if (temporalFormat.kind === "iso") {
++    const referenceDate2 = referenceValue ? parseIsoValue(referenceValue, temporalFormat) : null;
++    const fractionDigits = Math.max(date.fraction.length, referenceDate2?.fraction.length ?? 0);
++    const fraction = mergeFraction(date.fraction, referenceDate2?.fraction ?? "", fractionDigits);
++    const normalizedDate = { ...date, fraction };
++    const time = formatPickerValue(normalizedDate, temporalFormat.inputType, 9);
++    const timezone = temporalFormat.timezone === "none" ? "" : referenceDate2?.timezone ?? (temporalFormat.timezone === "required" ? "Z" : "");
++    if (temporalFormat.inputType === "time") return `${time}${timezone}`;
++    const separator = referenceDate2?.dateTimeSeparator ?? "T";
++    return `${time.slice(0, 10)}${separator}${time.slice(11)}${timezone}`;
++  }
++  const referenceDate = referenceValue ? parseTemplateValue(referenceValue, temporalFormat) : null;
++  return temporalFormat.segments.map((segment) => {
++    if (segment.literal !== void 0) return segment.literal;
++    const token = segment.token;
++    if (token.part === "fraction") {
++      return mergeFraction(date.fraction, referenceDate?.fraction ?? "", token.maxDigits);
++    }
++    if (token.part === "timezone") {
++      return referenceDate?.timezone ?? defaultTimezone(token);
++    }
++    if (token.part === "meridiem") {
++      const meridiem = date.hour >= 12 ? "PM" : "AM";
++      return token.value === "a" ? meridiem.toLowerCase() : meridiem;
++    }
++    const partValue = token.part === "hour12" ? date.hour % 12 || 12 : date[token.part];
++    return token.minDigits === token.maxDigits ? formatDatePart(partValue, token.maxDigits) : String(partValue);
++  }).join("");
++}
++export {
++  fromTemporalInputValue,
++  getTemporalInputStep,
++  getTemporalInputType,
++  isTemporalFormat,
++  toTemporalInputValue
++};
 diff --git a/dist/types/playground.d.ts b/dist/types/playground.d.ts
 index cfae636c0a93ec13d942b140783b0aaec4eb5421..2abfa38f133f32d0c49e8c6a392d06a5fcad8480 100644
 --- a/dist/types/playground.d.ts

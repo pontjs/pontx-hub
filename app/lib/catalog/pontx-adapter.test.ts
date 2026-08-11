@@ -201,6 +201,51 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     expect(timestampHtml).toContain('step="0.001"');
     expect(timestampHtml).toContain('value="2026-08-11T12:34:56.123"');
     expect(timestampHtml).toContain(">1705311045123</code>");
+
+    const temporalMatrixHtml = renderToStaticMarkup(
+      createElement(ParametersForm, {
+        parameters: [
+          {
+            ...dateParameter!,
+            name: "billing_month",
+            schema: { type: "string", format: "yyyyMM" }
+          },
+          {
+            ...dateParameter!,
+            name: "daily_cutoff",
+            schema: { type: "string", format: "HH:mm:ssXX" }
+          },
+          {
+            ...dateParameter!,
+            name: "precise_at",
+            schema: { type: "integer", format: "timestamp-ns" }
+          },
+          {
+            ...dateParameter!,
+            name: "offset_at",
+            schema: {
+              type: "string",
+              format: "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX"
+            }
+          }
+        ] as unknown as ParametersFormProps["parameters"],
+        values: {
+          billing_month: "202608",
+          daily_cutoff: "18:30:00+0800",
+          precise_at: "1786451696123456789",
+          offset_at: "2026-08-11T12:34:56.123456789+08:00"
+        },
+        onChange: () => undefined
+      })
+    );
+    expect(temporalMatrixHtml).toContain('type="month"');
+    expect(temporalMatrixHtml).toContain('value="2026-08"');
+    expect(temporalMatrixHtml).toContain('type="time"');
+    expect(temporalMatrixHtml).toContain('value="18:30:00"');
+    expect(temporalMatrixHtml.match(/step="0.001"/g)).toHaveLength(2);
+    expect(
+      temporalMatrixHtml.match(/value="2026-08-11T12:34:56.123"/g)
+    ).toHaveLength(2);
   });
 
   it("passes localized response schemas to the Playground by status code", () => {
