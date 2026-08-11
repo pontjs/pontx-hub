@@ -128,10 +128,12 @@ export function ApiOverviewActions({
 
 export function ApiOverviewFacts({
   locale,
-  api
+  api,
+  operationSlug
 }: {
   locale: Locale;
   api: CatalogApi;
+  operationSlug: string;
 }) {
   const executableOperationCount = api.operations.filter(
     (operation) => getPlaygroundAvailability(api, operation, locale).executionEnabled
@@ -153,27 +155,90 @@ export function ApiOverviewFacts({
     : locale === "zh"
       ? "计划中"
       : "Planned";
+  const defaultSchema = api.schemas[0];
+  const linkedFact = ({
+    label,
+    value,
+    href,
+    ariaLabel,
+    arrow = "↗",
+    reloadDocument = false
+  }: {
+    label: string;
+    value: string | number;
+    href: string;
+    ariaLabel: string;
+    arrow?: string;
+    reloadDocument?: boolean;
+  }) => (
+    <div className="api-overview-link-fact">
+      <dt>{label}</dt>
+      <dd>
+        {href.startsWith("#") ? (
+          <a className="api-overview-fact-link" href={href} aria-label={ariaLabel}>
+            <span>{value}</span>
+            <span className="api-overview-fact-arrow" aria-hidden="true">{arrow}</span>
+          </a>
+        ) : (
+          <Link
+            className="api-overview-fact-link"
+            to={href}
+            aria-label={ariaLabel}
+            reloadDocument={reloadDocument}
+          >
+            <span>{value}</span>
+            <span className="api-overview-fact-arrow" aria-hidden="true">{arrow}</span>
+          </Link>
+        )}
+      </dd>
+    </div>
+  );
 
   return (
     <dl className="api-overview-facts">
       <div><dt>{locale === "zh" ? "提供方" : "Provider"}</dt><dd>{api.provider}</dd></div>
       <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{authLabel}</dd></div>
-      <div><dt>{locale === "zh" ? "接口" : "Endpoints"}</dt><dd>{api.operations.length}</dd></div>
-      <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
-      <div><dt>{locale === "zh" ? "在线调用" : "Live calls"}</dt><dd>{executableOperationCount ? `${executableOperationCount}/${api.operations.length}` : locale === "zh" ? "仅预览" : "Preview only"}</dd></div>
-      <div className="api-overview-sdk-fact">
-        <dt>SDK</dt>
-        <dd>
-          <Link
-            className="api-overview-sdk-link"
-            to={`/${locale}/sdks/${api.slug}`}
-            aria-label={locale === "zh" ? `打开 ${apiTitle} SDK 页面` : `Open the ${apiTitle} SDK page`}
-          >
-            <span>{sdkValue}</span>
-            <span className="api-overview-sdk-arrow" aria-hidden="true">↗</span>
-          </Link>
-        </dd>
-      </div>
+      {linkedFact({
+        label: locale === "zh" ? "接口" : "Endpoints",
+        value: api.operations.length,
+        href: `/${locale}/apis/${api.slug}/${operationSlug}`,
+        ariaLabel: locale === "zh"
+          ? `打开 ${apiTitle} 接口目录`
+          : `Open the ${apiTitle} endpoint directory`,
+        reloadDocument: true
+      })}
+      {defaultSchema ? linkedFact({
+        label: locale === "zh" ? "数据结构" : "Schemas",
+        value: api.schemas.length,
+        href: `/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchema.name)}`,
+        ariaLabel: locale === "zh"
+          ? `打开 ${apiTitle} 数据结构目录`
+          : `Open the ${apiTitle} schema directory`,
+        reloadDocument: true
+      }) : (
+        <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
+      )}
+      {linkedFact({
+        label: locale === "zh" ? "在线调用" : "Live calls",
+        value: executableOperationCount
+          ? `${executableOperationCount}/${api.operations.length}`
+          : locale === "zh"
+            ? "仅预览"
+            : "Preview only",
+        href: "#quick-call",
+        ariaLabel: locale === "zh"
+          ? `跳到 ${apiTitle} 在线调用`
+          : `Jump to ${apiTitle} live calls`,
+        arrow: "↓"
+      })}
+      {linkedFact({
+        label: "SDK",
+        value: sdkValue,
+        href: `/${locale}/sdks/${api.slug}`,
+        ariaLabel: locale === "zh"
+          ? `打开 ${apiTitle} SDK 页面`
+          : `Open the ${apiTitle} SDK page`
+      })}
     </dl>
   );
 }
@@ -913,7 +978,11 @@ export function PontxApiWorkspace({
               quickCallAction={quickCallAction}
             />
           </div>
-          <ApiOverviewFacts locale={locale} api={api} />
+          <ApiOverviewFacts
+            locale={locale}
+            api={api}
+            operationSlug={activeOperation.slug}
+          />
         </header>
       ) : null}
       <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
