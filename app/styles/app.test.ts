@@ -72,6 +72,19 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("keeps search result geometry stable on hover and keyboard focus", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+    const rowRule = css.match(/\.search-result-row\s*{([^}]*)}/)?.[1];
+    const interactiveRule = css.match(
+      /\.search-result-row:hover,\s*\.search-result-row:focus-visible\s*{([^}]*)}/,
+    )?.[1];
+
+    expect(rowRule).toContain("transition: background 140ms ease;");
+    expect(rowRule).not.toContain("transform");
+    expect(interactiveRule).not.toContain("transform");
+    expect(interactiveRule).not.toContain("outline: none");
+  });
+
   it("shows search progress without motion-only feedback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
