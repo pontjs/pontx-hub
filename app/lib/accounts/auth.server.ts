@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { getDatabase } from "~/db/client.server";
 import {
   authAccounts,
+  authRateLimits,
   authSessions,
   authUsers,
   authVerifications
@@ -24,9 +25,14 @@ export const auth = betterAuth({
       user: authUsers,
       session: authSessions,
       account: authAccounts,
-      verification: authVerifications
+      verification: authVerifications,
+      rateLimit: authRateLimits
     }
   }),
+  rateLimit: {
+    enabled: true,
+    storage: "database"
+  },
   socialProviders: {
     github: {
       clientId: configuration.githubClientId,

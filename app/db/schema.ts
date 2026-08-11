@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   foreignKey,
   index,
@@ -83,6 +84,17 @@ export const authVerifications = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [index("verification_identifier_index").on(table.identifier)]
+);
+
+export const authRateLimits = pgTable(
+  "rateLimit",
+  {
+    id: text("id").primaryKey(),
+    key: text("key").notNull(),
+    count: integer("count").notNull(),
+    lastRequest: bigint("last_request", { mode: "number" }).notNull()
+  },
+  (table) => [uniqueIndex("rate_limit_key_unique").on(table.key)]
 );
 
 export const userApiFavorites = pgTable(

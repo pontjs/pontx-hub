@@ -49,7 +49,8 @@ Initial sign-in methods:
   are configured; and
 - no Pontx-managed password authentication in the MVP.
 
-Better Auth owns its generated user, session, account, and verification tables.
+Better Auth owns its generated user, session, account, verification, and
+database-backed rate-limit tables.
 Hub business tables reference the Better Auth user ID. Auth handlers are
 mounted under `/api/auth/*`, while localized sign-in and account pages remain
 normal React Router pages.
@@ -211,7 +212,7 @@ sessions. Publish a concise privacy notice before production rollout.
 - [ ] configure real GitHub OAuth and production/preview callback URLs;
 - [x] add localized sign-in, account navigation, sign-out, and session loading;
 - [x] add fail-closed configuration, return-path validation, tests, and noindex metadata;
-- [ ] add distributed auth rate limiting before production enablement; and
+- [x] add distributed database-backed auth rate limiting before production enablement; and
 - [ ] deploy behind the disabled-by-default environment feature flag.
 
 ### Milestone 2: individual API favorites
