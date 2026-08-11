@@ -40,7 +40,9 @@ Register `${BETTER_AUTH_URL}/api/auth/callback/github` as the GitHub OAuth App
 callback, then run `pnpm db:migrate` before enabling the feature. Do not put API
 provider credentials in these variables or in the account database. GitHub
 OAuth access, refresh, and ID tokens are removed before the identity mapping is
-persisted. See [`docs/accounts-and-favorites.md`](./docs/accounts-and-favorites.md)
+persisted. Authentication requests use Better Auth's database-backed rate
+limiter, so the generated `rateLimit` table must be present before the feature
+flag is enabled. See [`docs/accounts-and-favorites.md`](./docs/accounts-and-favorites.md)
 for the product and security boundary.
 
 The curated source of truth lives in the separate
