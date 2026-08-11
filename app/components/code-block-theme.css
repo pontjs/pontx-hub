@@ -1,0 +1,61 @@
+.code-frame.code-frame-light {
+  border-color: var(--line);
+  background: #f7f9fb;
+  box-shadow: 0 8px 22px rgba(24, 32, 42, 0.07);
+}
+
+.code-frame-light .code-frame-bar {
+  border-bottom-color: var(--line);
+  background: var(--paper-deep);
+}
+
+.code-frame-light .code-frame-label {
+  color: #566273;
+}
+
+.code-frame-light .code-copy-button {
+  border-color: #c8d0da;
+  background: #ffffff;
+  color: #344054;
+}
+
+.code-frame-light .code-copy-button:hover {
+  border-color: var(--blue);
+  background: #edf2ff;
+  color: var(--blue);
+}
+
+.code-frame-light .code-copy-button:focus-visible,
+.code-frame-light .code-frame-content:focus-visible {
+  outline-color: var(--blue);
+}
+
+.code-frame-light .code-frame-content {
+  background: #f7f9fb;
+  color: #253042;
+  scrollbar-color: #aeb8c4 #eef2f6;
+}
+
+.code-frame-light .code-token-command {
+  color: #2949b8;
+}
+
+.code-frame-light .code-token-keyword {
+  color: #08708a;
+}
+
+.code-frame-light .code-token-option {
+  color: #a23f1b;
+}
+
+.code-frame-light .code-token-string {
+  color: #806000;
+}
+
+.code-frame-light .code-token-comment {
+  color: #657285;
+}
+
+.code-frame-light .code-token-literal {
+  color: #7240a3;
+}

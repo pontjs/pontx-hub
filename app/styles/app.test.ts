@@ -73,15 +73,29 @@ describe("API directory integration styles", () => {
   });
 
   it("renders highlighted terminal surfaces with visible keyboard focus", async () => {
-    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+    const [css, lightThemeCss, component] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("../components/code-block-theme.css", import.meta.url), "utf8"),
+      readFile(new URL("../components/code-block.tsx", import.meta.url), "utf8"),
+    ]);
 
-    expect(css).toMatch(/\.code-frame\s*{[\s\S]*?background:\s*#101720;/);
     expect(css).toMatch(/\.code-frame-content:focus-visible\s*{[\s\S]*?outline:/);
     expect(css).toMatch(/\.code-frame-content\s*{[\s\S]*?padding:\s*20px clamp\(18px, 2vw, 24px\) 22px;/);
     expect(css).toMatch(/\.code-frame-content > code\s*{[\s\S]*?display:\s*block;/);
     expect(css).toMatch(/\.code-token-command\s*{[\s\S]*?color:\s*var\(--acid\);/);
     expect(css).toMatch(/\.code-token-option\s*{[\s\S]*?color:/);
     expect(css).toMatch(/\.code-token-comment\s*{[\s\S]*?color:/);
+    expect(component).toContain('"code-frame-light"');
+    expect(lightThemeCss).toMatch(
+      /\.code-frame\.code-frame-light\s*{[\s\S]*?border-color:\s*var\(--line\);[\s\S]*?background:\s*#f7f9fb;/,
+    );
+    expect(lightThemeCss).toMatch(
+      /\.code-frame-light \.code-frame-content\s*{[\s\S]*?color:\s*#253042;/,
+    );
+    expect(lightThemeCss).toMatch(
+      /\.code-frame-light \.code-token-command\s*{[\s\S]*?color:\s*#2949b8;/,
+    );
+    expect(lightThemeCss).toMatch(/outline-color:\s*var\(--blue\);/);
   });
 
   it("scrolls the whole endpoint workspace and keeps the request example compact", async () => {
