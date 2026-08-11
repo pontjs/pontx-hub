@@ -58,6 +58,20 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("shows search progress without motion-only feedback", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.catalog-search-state\.is-loading\s*{[\s\S]*?color:\s*var\(--blue\);/,
+    );
+    expect(css).toMatch(
+      /\.catalog-results-frame\[aria-busy="true"\]\s*{[\s\S]*?opacity:/,
+    );
+    expect(css).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.catalog-search-spinner\s*{\s*animation:\s*none;/,
+    );
+  });
+
   it("renders highlighted terminal surfaces with visible keyboard focus", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 

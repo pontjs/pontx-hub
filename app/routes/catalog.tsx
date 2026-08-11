@@ -2,6 +2,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Form, useNavigate } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
+import {
+  CatalogSearchStatus,
+  isCatalogSearchPending,
+} from "~/components/catalog-search-status";
 import { GlobalSearchResults } from "~/components/global-search-results";
 import { SiteShell } from "~/components/site-shell";
 import {
@@ -88,10 +92,14 @@ function searchHref(locale: "zh" | "en", query: string): string {
 
 function CatalogSearch({
   locale,
-  query
+  query,
+  summary,
+  onPendingChange,
 }: {
   locale: "zh" | "en";
   query: string;
+  summary: string;
+  onPendingChange: (pending: boolean) => void;
 }) {
   const zh = locale === "zh";
   const navigate = useNavigate();
@@ -100,8 +108,15 @@ function CatalogSearch({
   const debouncedSearch = useRef(
     createDebouncedTask<string>(SEARCH_DEBOUNCE_MS)
   );
+  const searchPending = isCatalogSearchPending(draftQuery, query);
 
   useEffect(() => () => debouncedSearch.current.cancel(), []);
+
+  useEffect(() => {
+    onPendingChange(searchPending);
+  }, [onPendingChange, searchPending]);
+
+  useEffect(() => () => onPendingChange(false), [onPendingChange]);
 
   useEffect(() => {
     debouncedSearch.current.cancel();
@@ -130,38 +145,54 @@ function CatalogSearch({
   }
 
   return (
-    <Form
-      action={`/${locale}`}
-      className="catalog-search"
-      method="get"
-      onSubmit={handleSubmit}
-      role="search"
-    >
-      <span aria-hidden="true">⌕</span>
-      <input
-        name="q"
-        value={draftQuery}
-        onChange={(event) => {
-          const nextQuery = event.currentTarget.value;
-          setDraftQuery(nextQuery);
-          debouncedSearch.current.schedule(nextQuery, (latestQuery) => {
-            navigateToQuery(latestQuery, true);
-          });
-        }}
-        placeholder={
-          zh
-            ? "语义搜索 API、接口、入参或数据结构…"
-            : "Semantically search APIs, inputs, outputs, or schemas…"
-        }
-        aria-label={zh ? "全局搜索" : "Global search"}
+    <>
+      <Form
+        action={`/${locale}`}
+        className="catalog-search"
+        method="get"
+        onSubmit={handleSubmit}
+        role="search"
+        aria-busy={searchPending}
+      >
+        <span aria-hidden="true">⌕</span>
+        <input
+          name="q"
+          value={draftQuery}
+          onChange={(event) => {
+            const nextQuery = event.currentTarget.value;
+            setDraftQuery(nextQuery);
+            debouncedSearch.current.schedule(nextQuery, (latestQuery) => {
+              navigateToQuery(latestQuery, true);
+            });
+          }}
+          placeholder={
+            zh
+              ? "语义搜索 API、接口、入参或数据结构…"
+              : "Semantically search APIs, inputs, outputs, or schemas…"
+          }
+          aria-label={zh ? "全局搜索" : "Global search"}
+          aria-controls="catalog-search-results"
+          aria-describedby="catalog-search-status"
+        />
+      </Form>
+      <CatalogSearchStatus
+        locale={locale}
+        pending={searchPending}
+        summary={summary}
       />
-    </Form>
+    </>
   );
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { locale, query, apis, search, totals, favoriteApiSlugs } = loaderData;
   const zh = locale === "zh";
+  const [searchPending, setSearchPending] = useState(false);
+  const searchSummary = search
+    ? zh
+      ? `${search.counts.api} API · ${search.counts.endpoint} 接口 · ${search.counts.schema} 数据结构`
+      : `${search.counts.api} APIs · ${search.counts.endpoint} endpoints · ${search.counts.schema} schemas`
+    : `${String(apis.length).padStart(2, "0")} API`;
 
   return (
     <SiteShell locale={locale}>
@@ -198,31 +229,35 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             <span>{zh ? "搜索接口、参数、返回字段，或浏览完整 API 集合" : "Search endpoints, parameters, response fields, or browse complete APIs"}</span>
           </div>
           <div className="registry-toolbar">
-            <CatalogSearch locale={locale} query={query} />
-            <span>
-              {search
-                ? zh
-                  ? `${search.counts.api} API · ${search.counts.endpoint} 接口 · ${search.counts.schema} 数据结构`
-                  : `${search.counts.api} APIs · ${search.counts.endpoint} endpoints · ${search.counts.schema} schemas`
-                : `${String(apis.length).padStart(2, "0")} API`}
-            </span>
+            <CatalogSearch
+              locale={locale}
+              query={query}
+              summary={searchSummary}
+              onPendingChange={setSearchPending}
+            />
           </div>
 
-          {search ? (
-            <GlobalSearchResults search={search} locale={locale} favoriteApiSlugs={favoriteApiSlugs} />
-          ) : (
-            <div className="api-grid">
-              {apis.map((api, index) => (
-                <ApiCard
-                  key={api.slug}
-                  api={api}
-                  locale={locale}
-                  index={index}
-                  initialFavorite={favoriteApiSlugs.includes(api.slug)}
-                />
-              ))}
-            </div>
-          )}
+          <div
+            id="catalog-search-results"
+            className="catalog-results-frame"
+            aria-busy={searchPending}
+          >
+            {search ? (
+              <GlobalSearchResults search={search} locale={locale} favoriteApiSlugs={favoriteApiSlugs} />
+            ) : (
+              <div className="api-grid">
+                {apis.map((api, index) => (
+                  <ApiCard
+                    key={api.slug}
+                    api={api}
+                    locale={locale}
+                    index={index}
+                    initialFavorite={favoriteApiSlugs.includes(api.slug)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </section>
       </main>
     </SiteShell>
