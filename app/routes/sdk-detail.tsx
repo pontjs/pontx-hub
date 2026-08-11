@@ -136,7 +136,7 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
               <CodeBlock className="code-frame-spaced" code={usage} language="typescript" label={zh ? "TypeScript 调用" : "TypeScript usage"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
               <div className="section-heading" style={{ marginTop: 32 }}>
                 <h2>{zh ? "命令行调用" : "Command-line access"}</h2>
-                <p>{zh ? "Pontx Hub CLI 先选择 API 集合，再按 controller 与 API 名称调用接口。没有 controller 的集合可直接写 API 名称。" : "Pontx Hub CLI selects the API collection first, then calls an API by controller and name. Collections without a controller use the API name directly."}</p>
+                <p>{zh ? "Pontx Hub CLI 先选择 API 产品，再按 controller 与接口名称调用。没有 controller 分组的 API 产品可直接写接口名称。" : "Pontx Hub CLI selects the API product first, then calls an endpoint by controller and name. API products without a controller group use the endpoint name directly."}</p>
               </div>
               <CodeBlock code={cliUsage} language="shell" label="Pontx Hub CLI" copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
             </>

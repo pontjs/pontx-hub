@@ -3,7 +3,8 @@ import {
   alternateLocaleUrl,
   alternateLocaleHref,
   apiWorkspaceNavigationCopy,
-  preferredLocale
+  preferredLocale,
+  publicResourceTerminologyCopy
 } from "./i18n";
 
 describe("internationalized routing", () => {
@@ -58,6 +59,27 @@ describe("internationalized routing", () => {
       browseAllEndpoints: "Browse all endpoints",
       openSelectedEndpoint: "Open selected endpoint",
       openRelatedEndpoint: "Open related endpoint"
+    });
+  });
+
+  it("keeps public API products distinct from their endpoints", () => {
+    expect(publicResourceTerminologyCopy("zh")).toEqual({
+      apiBadge: "API 产品",
+      apiProduct: "API 产品",
+      apiProducts: "API 产品",
+      endpoint: "接口",
+      endpoints: "接口",
+      schema: "数据结构",
+      schemas: "数据结构"
+    });
+    expect(publicResourceTerminologyCopy("en")).toEqual({
+      apiBadge: "API",
+      apiProduct: "API product",
+      apiProducts: "API products",
+      endpoint: "Endpoint",
+      endpoints: "Endpoints",
+      schema: "Schema",
+      schemas: "Schemas"
     });
   });
 });
