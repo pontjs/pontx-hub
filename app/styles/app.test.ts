@@ -84,6 +84,18 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("makes successful OAuth state prominent inside the authorization card", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.oauth-toolbar-authorized\s*{[\s\S]*?border-color:\s*#86c8ae;[\s\S]*?background:\s*linear-gradient/,
+    );
+    expect(css).toMatch(
+      /\.oauth-toolbar-heading-status-success\s*{[\s\S]*?background:\s*#dcfce7;[\s\S]*?color:\s*#166534;/,
+    );
+    expect(css).not.toContain(".oauth-result-success");
+  });
+
   it("keeps Endpoint and Schema groups in the desktop directory with a mobile fallback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
