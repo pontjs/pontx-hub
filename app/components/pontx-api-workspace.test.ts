@@ -1,15 +1,32 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { toPontxApi } from "~/lib/catalog/pontx-adapter";
+import { localize } from "~/lib/catalog/types";
 import {
   ApiOverviewActions,
+  ApiOverviewFacts,
   isOAuthAuthorizationDisabled,
   OperationTaskSelect,
   OAuthToolbar,
   withoutHostManagedOAuthScheme
 } from "./pontx-api-workspace";
+
+function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
+  const api = getCatalogApi(apiSlug);
+  if (!api) throw new Error(`Expected catalog API: ${apiSlug}`);
+
+  return {
+    api,
+    html: renderToStaticMarkup(createElement(
+      MemoryRouter,
+      null,
+      createElement(ApiOverviewFacts, { locale, api })
+    ))
+  };
+}
 
 describe("ApiOverviewActions", () => {
   it.each([
@@ -30,6 +47,25 @@ describe("ApiOverviewActions", () => {
       `<a class="button" href="#quick-call">${quickCallLabel}</a>`
     );
     expect(html.indexOf(workspaceLabel)).toBeLessThan(html.indexOf(quickCallLabel));
+  });
+});
+
+describe("ApiOverviewFacts", () => {
+  it("links the complete published SDK fact to its localized SDK page", () => {
+    const { api, html } = renderOverviewFacts("dida365", "zh");
+
+    expect(html).toContain('class="api-overview-sdk-fact"');
+    expect(html).toContain('href="/zh/sdks/dida365"');
+    expect(html).toContain(`aria-label="打开 ${localize(api.title, "zh")} SDK 页面"`);
+    expect(html).toContain(`v${api.sdkVersion}`);
+  });
+
+  it("keeps planned SDKs navigable with an English label", () => {
+    const { api, html } = renderOverviewFacts("frankfurter-v2", "en");
+
+    expect(html).toContain('href="/en/sdks/frankfurter-v2"');
+    expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} SDK page"`);
+    expect(html).toContain("Planned");
   });
 });
 

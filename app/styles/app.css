@@ -1628,6 +1628,50 @@ samp,
   font-weight: 700;
 }
 
+.api-overview-sdk-fact {
+  position: relative;
+  transition: background 180ms ease;
+}
+
+.api-overview-sdk-fact:hover {
+  background: color-mix(in srgb, var(--blue) 7%, #fff);
+}
+
+.api-overview-sdk-link {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.api-overview-sdk-link::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.api-overview-sdk-link:focus-visible {
+  outline: none;
+}
+
+.api-overview-sdk-link:focus-visible::after {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+}
+
+.api-overview-sdk-arrow {
+  color: var(--ink-soft);
+  font-size: 13px;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.api-overview-sdk-link:hover .api-overview-sdk-arrow,
+.api-overview-sdk-link:focus-visible .api-overview-sdk-arrow {
+  color: var(--blue);
+  transform: translate(2px, -2px);
+}
+
 .resource-page-guided .pontx-workspace {
   display: block;
   height: auto;

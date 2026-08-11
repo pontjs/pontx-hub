@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
@@ -123,6 +123,58 @@ export function ApiOverviewActions({
         {quickCallAction}
       </a>
     </div>
+  );
+}
+
+export function ApiOverviewFacts({
+  locale,
+  api
+}: {
+  locale: Locale;
+  api: CatalogApi;
+}) {
+  const executableOperationCount = api.operations.filter(
+    (operation) => getPlaygroundAvailability(api, operation, locale).executionEnabled
+  ).length;
+  const authLabel = api.auth.length
+    ? api.auth
+        .map((item) => {
+          if (item.type === "oauth2") return "OAuth 2.0";
+          if (item.type === "apiKey") return "API Key";
+          return item.type;
+        })
+        .join(" / ")
+    : locale === "zh"
+      ? "无需鉴权"
+      : "None";
+  const apiTitle = localize(api.title, locale);
+  const sdkValue = api.sdkStatus === "published"
+    ? `v${api.sdkVersion}`
+    : locale === "zh"
+      ? "计划中"
+      : "Planned";
+
+  return (
+    <dl className="api-overview-facts">
+      <div><dt>{locale === "zh" ? "提供方" : "Provider"}</dt><dd>{api.provider}</dd></div>
+      <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{authLabel}</dd></div>
+      <div><dt>{locale === "zh" ? "接口" : "Endpoints"}</dt><dd>{api.operations.length}</dd></div>
+      <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
+      <div><dt>{locale === "zh" ? "在线调用" : "Live calls"}</dt><dd>{executableOperationCount ? `${executableOperationCount}/${api.operations.length}` : locale === "zh" ? "仅预览" : "Preview only"}</dd></div>
+      <div className="api-overview-sdk-fact">
+        <dt>SDK</dt>
+        <dd>
+          <Link
+            className="api-overview-sdk-link"
+            to={`/${locale}/sdks/${api.slug}`}
+            aria-label={locale === "zh" ? `打开 ${apiTitle} SDK 页面` : `Open the ${apiTitle} SDK page`}
+          >
+            <span>{sdkValue}</span>
+            <span className="api-overview-sdk-arrow" aria-hidden="true">↗</span>
+          </Link>
+        </dd>
+      </div>
+    </dl>
   );
 }
 
@@ -792,10 +844,6 @@ export function PontxApiWorkspace({
   );
 
   const getCodeGenScenarios = useCallback(() => codeGenScenarios, []);
-  const executableOperationCount = api.operations.filter(
-    (candidate) =>
-      getPlaygroundAvailability(api, candidate, locale).executionEnabled
-  ).length;
   const zh = locale === "zh";
   const quickCallAction = playgroundAvailability.executionEnabled
     ? zh ? "立即试用" : "Try it now"
@@ -819,17 +867,6 @@ export function PontxApiWorkspace({
           string
         >)[api.category] ?? api.category
       : api.category;
-  const authLabel = api.auth.length
-    ? api.auth
-        .map((item) => {
-          if (item.type === "oauth2") return "OAuth 2.0";
-          if (item.type === "apiKey") return "API Key";
-          return item.type;
-        })
-        .join(" / ")
-    : locale === "zh"
-      ? "无需鉴权"
-      : "None";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
 
   const generateCode = useCallback(
@@ -876,14 +913,7 @@ export function PontxApiWorkspace({
               quickCallAction={quickCallAction}
             />
           </div>
-          <dl className="api-overview-facts">
-            <div><dt>{locale === "zh" ? "提供方" : "Provider"}</dt><dd>{api.provider}</dd></div>
-            <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{authLabel}</dd></div>
-            <div><dt>{locale === "zh" ? "接口" : "Endpoints"}</dt><dd>{api.operations.length}</dd></div>
-            <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
-            <div><dt>{locale === "zh" ? "在线调用" : "Live calls"}</dt><dd>{executableOperationCount ? `${executableOperationCount}/${api.operations.length}` : locale === "zh" ? "仅预览" : "Preview only"}</dd></div>
-            <div><dt>SDK</dt><dd>{api.sdkStatus === "published" ? `v${api.sdkVersion}` : locale === "zh" ? "计划中" : "Planned"}</dd></div>
-          </dl>
+          <ApiOverviewFacts locale={locale} api={api} />
         </header>
       ) : null}
       <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
