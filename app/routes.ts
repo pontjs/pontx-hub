@@ -12,6 +12,7 @@ export default [
   route("oauth/callback", "routes/oauth-callback.tsx"),
   route(":locale/sign-in/*", "routes/sign-in.tsx"),
   route(":locale/account/saved", "routes/saved-apis.tsx"),
+  route(":locale/account/history", "routes/playground-history.tsx"),
   route(":locale", "routes/catalog.tsx"),
   route(":locale/apis", "routes/catalog-redirect.tsx"),
   route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),

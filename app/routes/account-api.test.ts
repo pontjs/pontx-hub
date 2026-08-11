@@ -20,6 +20,7 @@ describe("private account API", () => {
       request: new Request("https://pontx.example.com/api/account/v1/favorites/apis")
     } as never);
     expect(response.status).toBe(404);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     await expect(response.json()).resolves.toEqual({ error: { code: "not_found" } });
   });
 
@@ -42,6 +43,21 @@ describe("private account API", () => {
         method: "PUT",
         headers: { Origin: "https://evil.example" }
       })
+    } as never);
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({ error: { code: "invalid_origin" } });
+  });
+
+  it("rejects cross-origin history deletion before reading the session", async () => {
+    readyEnvironment();
+    const response = await action({
+      request: new Request(
+        "https://pontx.example.com/api/account/v1/playground/history/11111111-1111-4111-8111-111111111111",
+        {
+          method: "DELETE",
+          headers: { Origin: "https://evil.example" }
+        }
+      )
     } as never);
     expect(response.status).toBe(403);
     await expect(response.json()).resolves.toEqual({ error: { code: "invalid_origin" } });

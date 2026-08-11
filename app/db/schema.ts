@@ -112,6 +112,53 @@ export const userApiFavorites = pgTable(
   ]
 );
 
+export const userPlaygroundHistory = pgTable(
+  "user_playground_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    apiSlug: text("api_slug").notNull(),
+    operationSlug: text("operation_slug").notNull(),
+    serverId: text("server_id").notNull(),
+    path: jsonb("path")
+      .$type<Record<string, string | number | boolean>>()
+      .notNull()
+      .default({}),
+    query: jsonb("query")
+      .$type<Record<string, string | number | boolean>>()
+      .notNull()
+      .default({}),
+    headers: jsonb("headers")
+      .$type<Record<string, string>>()
+      .notNull()
+      .default({}),
+    requestBody: jsonb("request_body"),
+    hasRequestBody: boolean("has_request_body").notNull().default(false),
+    omittedFields: jsonb("omitted_fields")
+      .$type<string[]>()
+      .notNull()
+      .default([]),
+    responseStatus: integer("response_status").notNull(),
+    durationMs: integer("duration_ms").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+  },
+  (table) => [
+    index("user_playground_history_user_created_index").on(
+      table.userId,
+      table.createdAt
+    ),
+    index("user_playground_history_user_api_created_index").on(
+      table.userId,
+      table.apiSlug,
+      table.createdAt
+    ),
+    foreignKey({ columns: [table.userId], foreignColumns: [authUsers.id] })
+      .onDelete("cascade")
+  ]
+);
+
 export const specStatus = pgEnum("spec_status", [
   "candidate",
   "approved",

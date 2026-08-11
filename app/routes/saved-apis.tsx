@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import type { Route } from "./+types/saved-apis";
 import { ApiCard } from "~/components/api-card";
 import { SiteShell } from "~/components/site-shell";
@@ -53,6 +53,17 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
               : "Keep useful APIs in sync across devices. API keys and OAuth tokens always stay in this browser session."}
           </p>
         </header>
+        <nav
+          className="account-section-nav"
+          aria-label={locale === "zh" ? "账户内容" : "Account content"}
+        >
+          <Link to={`/${locale}/account/saved`} aria-current="page">
+            {locale === "zh" ? "收藏的 API" : "Saved APIs"}
+          </Link>
+          <Link to={`/${locale}/account/history`}>
+            {locale === "zh" ? "调试历史" : "Playground history"}
+          </Link>
+        </nav>
         {available.length ? (
           <div className="api-grid saved-apis-grid">
             {available.map((api, index) => (
