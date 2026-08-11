@@ -244,20 +244,23 @@ describe("API directory integration styles", () => {
     );
   });
 
-  it("makes the complete API overview SDK fact a keyboard-accessible link", async () => {
+  it("makes every actionable API overview fact a keyboard-accessible full-cell link", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.api-overview-sdk-fact\s*{[\s\S]*?position:\s*relative;/,
+      /\.api-overview-link-fact\s*{[\s\S]*?position:\s*relative;/,
     );
     expect(css).toMatch(
-      /\.api-overview-sdk-link::after\s*{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/,
+      /\.api-overview-fact-link::after\s*{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/,
     );
     expect(css).toMatch(
-      /\.api-overview-sdk-link:focus-visible::after\s*{[\s\S]*?outline:\s*2px solid var\(--blue\);/,
+      /\.api-overview-fact-link:focus-visible::after\s*{[\s\S]*?outline:\s*2px solid var\(--blue\);/,
     );
     expect(css).toMatch(
-      /\.api-overview-sdk-link:hover \.api-overview-sdk-arrow,[\s\S]*?transform:\s*translate\(2px, -2px\);/,
+      /\.api-overview-fact-link:hover \.api-overview-fact-arrow,[\s\S]*?color:\s*var\(--blue\);/,
+    );
+    expect(css).not.toMatch(
+      /\.api-overview-fact-link:hover \.api-overview-fact-arrow,[\s\S]{0,180}?transform:/,
     );
   });
 });

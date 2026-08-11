@@ -1628,16 +1628,16 @@ samp,
   font-weight: 700;
 }
 
-.api-overview-sdk-fact {
+.api-overview-link-fact {
   position: relative;
   transition: background 180ms ease;
 }
 
-.api-overview-sdk-fact:hover {
+.api-overview-link-fact:hover {
   background: color-mix(in srgb, var(--blue) 7%, #fff);
 }
 
-.api-overview-sdk-link {
+.api-overview-fact-link {
   display: flex;
   width: 100%;
   align-items: center;
@@ -1645,31 +1645,30 @@ samp,
   gap: 8px;
 }
 
-.api-overview-sdk-link::after {
+.api-overview-fact-link::after {
   position: absolute;
   inset: 0;
   content: "";
 }
 
-.api-overview-sdk-link:focus-visible {
+.api-overview-fact-link:focus-visible {
   outline: none;
 }
 
-.api-overview-sdk-link:focus-visible::after {
+.api-overview-fact-link:focus-visible::after {
   outline: 2px solid var(--blue);
   outline-offset: -3px;
 }
 
-.api-overview-sdk-arrow {
+.api-overview-fact-arrow {
   color: var(--ink-soft);
   font-size: 13px;
-  transition: color 180ms ease, transform 180ms ease;
+  transition: color 180ms ease;
 }
 
-.api-overview-sdk-link:hover .api-overview-sdk-arrow,
-.api-overview-sdk-link:focus-visible .api-overview-sdk-arrow {
+.api-overview-fact-link:hover .api-overview-fact-arrow,
+.api-overview-fact-link:focus-visible .api-overview-fact-arrow {
   color: var(--blue);
-  transform: translate(2px, -2px);
 }
 
 .resource-page-guided .pontx-workspace {

@@ -17,13 +17,15 @@ import {
 function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
   const api = getCatalogApi(apiSlug);
   if (!api) throw new Error(`Expected catalog API: ${apiSlug}`);
+  const operationSlug = api.quickStart?.operationSlug ?? api.operations[0].slug;
 
   return {
     api,
+    operationSlug,
     html: renderToStaticMarkup(createElement(
       MemoryRouter,
       null,
-      createElement(ApiOverviewFacts, { locale, api })
+      createElement(ApiOverviewFacts, { locale, api, operationSlug })
     ))
   };
 }
@@ -51,21 +53,33 @@ describe("ApiOverviewActions", () => {
 });
 
 describe("ApiOverviewFacts", () => {
-  it("links the complete published SDK fact to its localized SDK page", () => {
-    const { api, html } = renderOverviewFacts("dida365", "zh");
+  it("links every actionable Chinese fact to its matching resource", () => {
+    const { api, operationSlug, html } = renderOverviewFacts("dida365", "zh");
+    const firstSchema = api.schemas[0];
 
-    expect(html).toContain('class="api-overview-sdk-fact"');
+    expect(html).toContain(`href="/zh/apis/dida365/${operationSlug}"`);
+    expect(html).toContain(`aria-label="打开 ${localize(api.title, "zh")} 接口目录"`);
+    expect(html).toContain(`href="/zh/apis/dida365/schemas/${encodeURIComponent(firstSchema.name)}"`);
+    expect(html).toContain(`aria-label="打开 ${localize(api.title, "zh")} 数据结构目录"`);
+    expect(html).toContain('href="#quick-call"');
+    expect(html).toContain(`aria-label="跳到 ${localize(api.title, "zh")} 在线调用"`);
     expect(html).toContain('href="/zh/sdks/dida365"');
     expect(html).toContain(`aria-label="打开 ${localize(api.title, "zh")} SDK 页面"`);
     expect(html).toContain(`v${api.sdkVersion}`);
   });
 
-  it("keeps planned SDKs navigable with an English label", () => {
-    const { api, html } = renderOverviewFacts("frankfurter-v2", "en");
+  it("keeps English endpoint, schema, live-call, and planned SDK facts navigable", () => {
+    const { api, operationSlug, html } = renderOverviewFacts("frankfurter-v2", "en");
 
+    expect(html).toContain(`href="/en/apis/frankfurter-v2/${operationSlug}"`);
+    expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} endpoint directory"`);
+    expect(html).toContain(`href="/en/apis/frankfurter-v2/schemas/${encodeURIComponent(api.schemas[0].name)}"`);
+    expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} schema directory"`);
+    expect(html).toContain(`aria-label="Jump to ${localize(api.title, "en")} live calls"`);
     expect(html).toContain('href="/en/sdks/frankfurter-v2"');
     expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} SDK page"`);
     expect(html).toContain("Planned");
+    expect(html.match(/class="api-overview-fact-link"/g)).toHaveLength(4);
   });
 });
 
