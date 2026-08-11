@@ -85,6 +85,14 @@ describe("API directory integration styles", () => {
     expect(interactiveRule).not.toContain("outline: none");
   });
 
+  it("centers catalog card arrows inside their fixed-size control", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.api-card-arrow\s*{[\s\S]*?display:\s*grid;[\s\S]*?width:\s*34px;[\s\S]*?height:\s*34px;[\s\S]*?place-items:\s*center;[\s\S]*?line-height:\s*1;/,
+    );
+  });
+
   it("shows search progress without motion-only feedback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
