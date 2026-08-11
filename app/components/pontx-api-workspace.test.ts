@@ -4,10 +4,33 @@ import { describe, expect, it, vi } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { toPontxApi } from "~/lib/catalog/pontx-adapter";
 import {
+  ApiOverviewActions,
   isOAuthAuthorizationDisabled,
   OAuthToolbar,
   withoutHostManagedOAuthScheme
 } from "./pontx-api-workspace";
+
+describe("ApiOverviewActions", () => {
+  it.each([
+    ["zh" as const, "浏览全部接口", "立即试用"],
+    ["en" as const, "Browse all endpoints", "Try it now"]
+  ])("promotes the full endpoint workspace before quick call in %s", (locale, workspaceLabel, quickCallLabel) => {
+    const html = renderToStaticMarkup(createElement(ApiOverviewActions, {
+      locale,
+      apiSlug: "dida365",
+      operationSlug: "get-user-projects",
+      quickCallAction: quickCallLabel
+    }));
+
+    expect(html).toContain(
+      `<a class="button button-dark" href="/${locale}/apis/dida365/get-user-projects">${workspaceLabel}</a>`
+    );
+    expect(html).toContain(
+      `<a class="button" href="#quick-call">${quickCallLabel}</a>`
+    );
+    expect(html.indexOf(workspaceLabel)).toBeLessThan(html.indexOf(quickCallLabel));
+  });
+});
 
 describe("OAuthToolbar", () => {
   it("keeps authorization disabled until the callback URL is registered", () => {

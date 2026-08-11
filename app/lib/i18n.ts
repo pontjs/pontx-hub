@@ -1,5 +1,24 @@
 import type { Locale } from "./catalog/types";
 
+const API_WORKSPACE_NAVIGATION_COPY = {
+  zh: {
+    endpointTab: "接口",
+    browseAllEndpoints: "浏览全部接口",
+    openSelectedEndpoint: "打开所选接口",
+    openRelatedEndpoint: "查看相关接口"
+  },
+  en: {
+    endpointTab: "Endpoints",
+    browseAllEndpoints: "Browse all endpoints",
+    openSelectedEndpoint: "Open selected endpoint",
+    openRelatedEndpoint: "Open related endpoint"
+  }
+} as const satisfies Record<Locale, Record<string, string>>;
+
+export function apiWorkspaceNavigationCopy(locale: Locale) {
+  return API_WORKSPACE_NAVIGATION_COPY[locale];
+}
+
 export function preferredLocale(acceptLanguage: string | null): Locale {
   const candidates = (acceptLanguage ?? "")
     .split(",")
@@ -28,4 +47,19 @@ export function alternateLocaleUrl(
 ): string {
   const localizedPath = pathname.replace(/^\/(?:zh|en)(?=\/|$)/, `/${nextLocale}`);
   return `${localizedPath}${search}${hash}`;
+}
+
+export function alternateLocaleHref(
+  pathname: string,
+  search: string,
+  hash: string,
+  nextLocale: Locale,
+  hydrated: boolean
+): string {
+  return alternateLocaleUrl(
+    pathname,
+    search,
+    hydrated ? hash : "",
+    nextLocale
+  );
 }
