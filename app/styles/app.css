@@ -993,7 +993,7 @@ samp,
   grid-template-columns: 66px minmax(0, 1fr) minmax(180px, 260px) 20px;
   text-decoration: none;
   gap: 14px;
-  transition: background 140ms ease, transform 140ms ease;
+  transition: background 140ms ease;
 }
 
 .search-result-row:last-child {
@@ -1003,8 +1003,6 @@ samp,
 .search-result-row:hover,
 .search-result-row:focus-visible {
   background: var(--paper);
-  outline: none;
-  transform: translateX(2px);
 }
 
 .search-kind,
