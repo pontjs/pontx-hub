@@ -112,25 +112,6 @@ export const userApiFavorites = pgTable(
   ]
 );
 
-export const userEndpointFavorites = pgTable(
-  "user_endpoint_favorites",
-  {
-    userId: text("user_id").notNull(),
-    apiSlug: text("api_slug").notNull(),
-    operationSlug: text("operation_slug").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table) => [
-    primaryKey({ columns: [table.userId, table.apiSlug, table.operationSlug] }),
-    index("user_endpoint_favorites_user_created_index").on(
-      table.userId,
-      table.createdAt
-    ),
-    foreignKey({ columns: [table.userId], foreignColumns: [authUsers.id] })
-      .onDelete("cascade")
-  ]
-);
-
 export const userPlaygroundHistory = pgTable(
   "user_playground_history",
   {

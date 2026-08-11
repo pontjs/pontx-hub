@@ -78,22 +78,23 @@ Required session policy:
 
 Better Auth generated tables are omitted below.
 
-### `user_endpoint_favorites`
+### `user_api_favorites` Endpoint compatibility storage
 
 | Field | Notes |
 | --- | --- |
 | `user_id` | Better Auth user ID |
-| `api_slug` | Stable parent API slug |
-| `operation_slug` | Stable catalog Endpoint slug |
+| `api_slug` | Versioned, URL-encoded `endpoint:v1:<apiSlug>:<operationSlug>` identity |
 | `created_at` | Ordering and audit timestamp |
 
-Primary key: `(user_id, api_slug, operation_slug)`.
+Primary key: `(user_id, api_slug)`.
 
 The write path validates that the `(api_slug, operation_slug)` pair exists in
 the active compiled catalog. The read path tolerates a retired pair and returns
 it as unavailable so users can remove it instead of silently losing saved data.
-The superseded `user_api_favorites` table may remain during migration but is no
-longer read by the product or exposed through the private account API.
+The versioned composite value lets the Endpoint-granular contract deploy without
+running the unrelated pending Playground-history migration first. Superseded
+plain product-level values do not match the prefix and are ignored by the
+product and private account API.
 
 ### `curated_collections`
 
@@ -278,7 +279,7 @@ sessions. Publish a concise privacy notice before production rollout.
 
 ### Milestone 2: individual Endpoint favorites
 
-- [x] add `user_endpoint_favorites` migration and private API;
+- [x] add a versioned Endpoint identity to the existing favorites table and private API;
 - [x] add save controls to Endpoint search results and Endpoint detail pages;
 - [x] add the localized saved-content page;
 - [x] verify disabled, invalid configuration, anonymous, cross-origin,
