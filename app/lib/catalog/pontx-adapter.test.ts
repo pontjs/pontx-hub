@@ -156,6 +156,51 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     expect(customFormatHtml).toContain('value="2026-08-11"');
     expect(customFormatHtml).toContain("格式: yyyyMMdd");
     expect(customFormatHtml).toContain(">20240115</code>");
+
+    const utcDateTimeHtml = renderToStaticMarkup(
+      createElement(ParametersForm, {
+        parameters: [
+          {
+            ...dateParameter!,
+            name: "requested_at",
+            schema: {
+              ...dateParameter!.schema,
+              format: "date-time",
+              examples: ["2024-01-15T08:30:45Z"]
+            }
+          }
+        ] as ParametersFormProps["parameters"],
+        values: { requested_at: "2026-08-11T12:34:56Z" },
+        onChange: () => undefined
+      })
+    );
+    expect(utcDateTimeHtml).toContain('type="datetime-local"');
+    expect(utcDateTimeHtml).toContain('step="1"');
+    expect(utcDateTimeHtml).toContain('value="2026-08-11T12:34:56"');
+    expect(utcDateTimeHtml).toContain(">2024-01-15T08:30:45Z</code>");
+
+    const timestampHtml = renderToStaticMarkup(
+      createElement(ParametersForm, {
+        parameters: [
+          {
+            ...dateParameter!,
+            name: "created_at",
+            schema: {
+              ...dateParameter!.schema,
+              type: "integer",
+              format: "timestamp-ms",
+              examples: ["1705311045123"]
+            }
+          }
+        ] as unknown as ParametersFormProps["parameters"],
+        values: { created_at: "1786451696123" },
+        onChange: () => undefined
+      })
+    );
+    expect(timestampHtml).toContain('type="datetime-local"');
+    expect(timestampHtml).toContain('step="0.001"');
+    expect(timestampHtml).toContain('value="2026-08-11T12:34:56.123"');
+    expect(timestampHtml).toContain(">1705311045123</code>");
   });
 
   it("passes localized response schemas to the Playground by status code", () => {

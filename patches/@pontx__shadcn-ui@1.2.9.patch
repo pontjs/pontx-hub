@@ -1426,10 +1426,10 @@ index 0000000000000000000000000000000000000000..e0819468026ad9d963a76b1475327e42
 +{"version":3,"file":"I18nContext-D9FrDR3s.js","sources":["../../../node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority/dist/index.mjs","../src/components/ui/badge.tsx","../src/components/ui/input.tsx","../src/contexts/I18nContext.tsx"],"sourcesContent":["/**\n * Copyright 2022 Joe Bell. All rights reserved.\n *\n * This file is licensed to you under the Apache License, Version 2.0\n * (the \"License\"); you may not use this file except in compliance with the\n * License. You may obtain a copy of the License at\n *\n *   http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT\n * WARRANTIES OR REPRESENTATIONS OF ANY KIND, either express or implied. See the\n * License for the specific language governing permissions and limitations under\n * the License.\n */ import { clsx } from \"clsx\";\nconst falsyToString = (value)=>typeof value === \"boolean\" ? `${value}` : value === 0 ? \"0\" : value;\nexport const cx = clsx;\nexport const cva = (base, config)=>(props)=>{\n        var _config_compoundVariants;\n        if ((config === null || config === void 0 ? void 0 : config.variants) == null) return cx(base, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);\n        const { variants, defaultVariants } = config;\n        const getVariantClassNames = Object.keys(variants).map((variant)=>{\n            const variantProp = props === null || props === void 0 ? void 0 : props[variant];\n            const defaultVariantProp = defaultVariants === null || defaultVariants === void 0 ? void 0 : defaultVariants[variant];\n            if (variantProp === null) return null;\n            const variantKey = falsyToString(variantProp) || falsyToString(defaultVariantProp);\n            return variants[variant][variantKey];\n        });\n        const propsWithoutUndefined = props && Object.entries(props).reduce((acc, param)=>{\n            let [key, value] = param;\n            if (value === undefined) {\n                return acc;\n            }\n            acc[key] = value;\n            return acc;\n        }, {});\n        const getCompoundVariantClassNames = config === null || config === void 0 ? void 0 : (_config_compoundVariants = config.compoundVariants) === null || _config_compoundVariants === void 0 ? void 0 : _config_compoundVariants.reduce((acc, param)=>{\n            let { class: cvClass, className: cvClassName, ...compoundVariantOptions } = param;\n            return Object.entries(compoundVariantOptions).every((param)=>{\n                let [key, value] = param;\n                return Array.isArray(value) ? value.includes({\n                    ...defaultVariants,\n                    ...propsWithoutUndefined\n                }[key]) : ({\n                    ...defaultVariants,\n                    ...propsWithoutUndefined\n                })[key] === value;\n            }) ? [\n                ...acc,\n                cvClass,\n                cvClassName\n            ] : acc;\n        }, []);\n        return cx(base, getVariantClassNames, getCompoundVariantClassNames, props === null || props === void 0 ? void 0 : props.class, props === null || props === void 0 ? void 0 : props.className);\n    };\n\n","import * as React from \"react\"\nimport { cva, type VariantProps } from \"class-variance-authority\"\n\nimport { cn } from \"@/utils/cn\"\n\nconst badgeVariants = cva(\n  \"inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2\",\n  {\n    variants: {\n      variant: {\n        default:\n          \"border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80\",\n        secondary:\n          \"border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80\",\n        destructive:\n          \"border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80\",\n        outline: \"text-foreground\",\n      },\n    },\n    defaultVariants: {\n      variant: \"default\",\n    },\n  }\n)\n\nexport interface BadgeProps\n  extends React.HTMLAttributes<HTMLDivElement>,\n    VariantProps<typeof badgeVariants> {}\n\nfunction Badge({ className, variant, ...props }: BadgeProps) {\n  return (\n    <div className={cn(badgeVariants({ variant }), className)} {...props} />\n  )\n}\n\nexport { Badge, badgeVariants }\n","import * as React from \"react\"\n\nimport { cn } from \"@/utils/cn\"\n\nexport interface InputProps\n  extends React.InputHTMLAttributes<HTMLInputElement> {}\n\nconst Input = React.forwardRef<HTMLInputElement, InputProps>(\n  ({ className, type, ...props }, ref) => {\n    return (\n      <input\n        type={type}\n        className={cn(\n          \"flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50\",\n          className\n        )}\n        ref={ref}\n        {...props}\n      />\n    )\n  }\n)\nInput.displayName = \"Input\"\n\nexport { Input }\n","import React, { createContext, useContext, useMemo } from \"react\";\n\nexport type UiLocale = \"zh-CN\" | \"en\";\n\ntype Messages = Record<string, string>;\n\nconst messages: Record<UiLocale, Messages> = {\n  \"zh-CN\": {\n    apiDocumentation: \"API 文档\", deprecated: \"已弃用\", try: \"试用\",\n    tryApi: \"试用此 API\", executeUnavailable: \"未提供执行回调\", parameters: \"参数\",\n    bodyParameters: \"Body 参数\", required: \"必需\", fields: \"个字段\", parameter: \"参数\",\n    responses: \"响应\", response: \"响应\", closePlayground: \"关闭 Playground\",\n    pathParameters: \"路径参数\", queryParameters: \"查询参数\", headers: \"请求头\",\n    requestBody: \"请求体\", code: \"代码\", viewCodeOrResponse: \"查看代码或响应结果\",\n    executeHint: \"点击「执行请求」按钮发送请求\", apiTestingPlayground: \"API 调试 Playground\",\n    executeRequest: \"执行请求\", executing: \"执行中...\", serverEnvironment: \"服务器环境\",\n    selectServer: \"选择服务器环境\", authentication: \"身份认证\", noAuthentication: \"无需认证\",\n    codeSnippets: \"代码片段\", selectCodeScenario: \"选择代码生成场景\", copied: \"已复制!\",\n    copyFailed: \"复制失败\", copyCode: \"复制代码\", generatingCode: \"生成代码中...\",\n    noCodeScenarios: \"暂无可用的代码生成场景\", responseResult: \"响应结果\",\n    responseHeaders: \"响应头\", noResponseHeaders: \"无响应头\", responseBody: \"响应体\",\n    responseFieldDescriptions: \"{count} 个字段说明\",\n    responseFieldDescriptionsHint: \"字段含义显示在字段下方，悬停可查看完整说明\",\n    copyResponse: \"复制响应\", jsonEditorFallback: \"JSON 编辑器加载失败，使用基本编辑器\",\n    apiDirectory: \"API 目录\", searchApis: \"搜索 API\", clearSearch: \"清除搜索\",\n    noApis: \"暂无 API\", noMatchingApis: \"未找到匹配的 API\", apiList: \"API 列表\",\n    httpMethod: \"HTTP 方法\", selectValue: \"请选择一个值\", enterParameter: \"请输入 {name}\",\n    format: \"格式\", pattern: \"格式规则\", length: \"长度\", characters: \"个字符\",\n    minLength: \"最小长度\", maxLength: \"最大长度\", range: \"范围\", minimum: \"最小值\",\n    maximum: \"最大值\"\n  },\n  en: {\n    apiDocumentation: \"API documentation\", deprecated: \"Deprecated\", try: \"Try\",\n    tryApi: \"Try this API\", executeUnavailable: \"No execution callback provided\", parameters: \"Parameters\",\n    bodyParameters: \"Body parameters\", required: \"Required\", fields: \"fields\", parameter: \"parameter\",\n    responses: \"Responses\", response: \"Response\", closePlayground: \"Close playground\",\n    pathParameters: \"Path parameters\", queryParameters: \"Query parameters\", headers: \"Headers\",\n    requestBody: \"Request body\", code: \"Code\", viewCodeOrResponse: \"View code or response\",\n    executeHint: \"Select Execute request to send the request\", apiTestingPlayground: \"API testing playground\",\n    executeRequest: \"Execute request\", executing: \"Executing...\", serverEnvironment: \"Server environment\",\n    selectServer: \"Select a server environment\", authentication: \"Authentication\", noAuthentication: \"No authentication\",\n    codeSnippets: \"Code snippets\", selectCodeScenario: \"Select a code generation scenario\", copied: \"Copied!\",\n    copyFailed: \"Copy failed\", copyCode: \"Copy code\", generatingCode: \"Generating code...\",\n    noCodeScenarios: \"No code generation scenarios available\", responseResult: \"Response result\",\n    responseHeaders: \"Response headers\", noResponseHeaders: \"No response headers\", responseBody: \"Response body\",\n    responseFieldDescriptions: \"{count} field descriptions\",\n    responseFieldDescriptionsHint: \"Field meanings appear below each field; hover for the full description\",\n    copyResponse: \"Copy response\", jsonEditorFallback: \"The JSON editor failed to load; using the basic editor\",\n    apiDirectory: \"API directory\", searchApis: \"Search APIs\", clearSearch: \"Clear search\",\n    noApis: \"No APIs\", noMatchingApis: \"No matching APIs\", apiList: \"API list\",\n    httpMethod: \"HTTP method\", selectValue: \"Select a value\", enterParameter: \"Enter {name}\",\n    format: \"Format\", pattern: \"Pattern\", length: \"Length\", characters: \"characters\",\n    minLength: \"Min length\", maxLength: \"Max length\", range: \"Range\", minimum: \"Minimum\",\n    maximum: \"Maximum\"\n  }\n};\n\nconst I18nContext = createContext<UiLocale>(\"zh-CN\");\n\nexport function I18nProvider({ locale = \"zh-CN\", children }: { locale?: UiLocale; children: React.ReactNode }) {\n  return <I18nContext.Provider value={locale}>{children}</I18nContext.Provider>;\n}\n\nexport function useI18n() {\n  const locale = useContext(I18nContext);\n  return useMemo(() => ({\n    locale,\n    t: (key: string, variables?: Record<string, string | number>) => {\n      const template = messages[locale][key] ?? messages.en[key] ?? key;\n      return Object.entries(variables ?? {}).reduce(\n        (result, [name, value]) => result.split(`{${name}}`).join(String(value)),\n        template\n      );\n    }\n  }), [locale]);\n}\n"],"names":["falsyToString","value","cx","clsx","cva","base","config","props","_config_compoundVariants","variants","defaultVariants","getVariantClassNames","variant","variantProp","defaultVariantProp","variantKey","propsWithoutUndefined","acc","param","key","getCompoundVariantClassNames","cvClass","cvClassName","compoundVariantOptions","badgeVariants","Badge","className","jsx","cn","Input","React","type","ref","messages","I18nContext","createContext","I18nProvider","locale","children","useI18n","useContext","useMemo","variables","template","result","name"],"mappings":"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","x_google_ignoreList":[0]}
 \ No newline at end of file
 diff --git a/dist/PlaygroundPanel-Dv6Ok6Kj.js b/dist/PlaygroundPanel-3WQrWzLi.js
-similarity index 88%
+similarity index 74%
 rename from dist/PlaygroundPanel-Dv6Ok6Kj.js
 rename to dist/PlaygroundPanel-3WQrWzLi.js
-index 97f0ef16fdd31f9296c639020e26e870a8aabba7..323b4a4d449d28dadbf249cd900c26ac75fd2619 100644
+index 97f0ef16fdd31f9296c639020e26e870a8aabba7..27f892ecc48380fdd9afee1097cbd45e5fe846a3 100644
 --- a/dist/PlaygroundPanel-Dv6Ok6Kj.js
 +++ b/dist/PlaygroundPanel-3WQrWzLi.js
 @@ -1,9 +1,9 @@
@@ -1445,56 +1445,167 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..323b4a4d449d28dadbf249cd900c26ac
  const X = /* @__PURE__ */ new Map();
  let Q = null;
  const le = /* @__PURE__ */ new Map();
-@@ -412,6 +412,73 @@ function yt(e, r) {
+@@ -410,7 +410,191 @@ const ft = ({
+ };
+ function yt(e, r) {
    const t = [];
-   return e.format && t.push(`${r("format")}: ${e.format}`), e.pattern && t.push(`${r("pattern")}: ${e.pattern}`), e.type === "string" && (e.minLength !== void 0 && e.maxLength !== void 0 ? t.push(`${r("length")}: ${e.minLength}-${e.maxLength} ${r("characters")}`) : e.minLength !== void 0 ? t.push(`${r("minLength")}: ${e.minLength} ${r("characters")}`) : e.maxLength !== void 0 && t.push(`${r("maxLength")}: ${e.maxLength} ${r("characters")}`)), e.type === "number" && (e.minimum !== void 0 && e.maximum !== void 0 ? t.push(`${r("range")}: ${e.minimum}-${e.maximum}`) : e.minimum !== void 0 ? t.push(`${r("minimum")}: ${e.minimum}`) : e.maximum !== void 0 && t.push(`${r("maximum")}: ${e.maximum}`)), t.length > 0 ? t.join(", ") : null;
- }
+-  return e.format && t.push(`${r("format")}: ${e.format}`), e.pattern && t.push(`${r("pattern")}: ${e.pattern}`), e.type === "string" && (e.minLength !== void 0 && e.maxLength !== void 0 ? t.push(`${r("length")}: ${e.minLength}-${e.maxLength} ${r("characters")}`) : e.minLength !== void 0 ? t.push(`${r("minLength")}: ${e.minLength} ${r("characters")}`) : e.maxLength !== void 0 && t.push(`${r("maxLength")}: ${e.maxLength} ${r("characters")}`)), e.type === "number" && (e.minimum !== void 0 && e.maximum !== void 0 ? t.push(`${r("range")}: ${e.minimum}-${e.maximum}`) : e.minimum !== void 0 ? t.push(`${r("minimum")}: ${e.minimum}`) : e.maximum !== void 0 && t.push(`${r("maximum")}: ${e.maximum}`)), t.length > 0 ? t.join(", ") : null;
++  return e.format && t.push(`${r("format")}: ${e.format}`), e.pattern && t.push(`${r("pattern")}: ${e.pattern}`), e.type === "string" && (e.minLength !== void 0 && e.maxLength !== void 0 ? t.push(`${r("length")}: ${e.minLength}-${e.maxLength} ${r("characters")}`) : e.minLength !== void 0 ? t.push(`${r("minLength")}: ${e.minLength} ${r("characters")}`) : e.maxLength !== void 0 && t.push(`${r("maxLength")}: ${e.maxLength} ${r("characters")}`)), (e.type === "number" || e.type === "integer") && (e.minimum !== void 0 && e.maximum !== void 0 ? t.push(`${r("range")}: ${e.minimum}-${e.maximum}`) : e.minimum !== void 0 ? t.push(`${r("minimum")}: ${e.minimum}`) : e.maximum !== void 0 && t.push(`${r("maximum")}: ${e.maximum}`)), t.length > 0 ? t.join(", ") : null;
++}
 +function Vt(e) {
 +  if (!e) return "";
 +  const r = e.example !== void 0 ? e.example : e.examples?.[0];
 +  return r == null ? "" : String(r);
 +}
 +const dateFormatTokens = [
-+  { value: "yyyy", part: "year", padded: !0 },
-+  { value: "YYYY", part: "year", padded: !0 },
-+  { value: "MM", part: "month", padded: !0 },
-+  { value: "dd", part: "day", padded: !0 },
-+  { value: "DD", part: "day", padded: !0 },
-+  { value: "M", part: "month", padded: !1 },
-+  { value: "d", part: "day", padded: !1 },
-+  { value: "D", part: "day", padded: !1 }
-+];
++  { value: "yyyy", part: "year", minDigits: 4, maxDigits: 4 },
++  { value: "YYYY", part: "year", minDigits: 4, maxDigits: 4 },
++  { value: "SSS", part: "millisecond", minDigits: 3, maxDigits: 3 },
++  { value: "MM", part: "month", minDigits: 2, maxDigits: 2 },
++  { value: "dd", part: "day", minDigits: 2, maxDigits: 2 },
++  { value: "DD", part: "day", minDigits: 2, maxDigits: 2 },
++  { value: "HH", part: "hour", minDigits: 2, maxDigits: 2 },
++  { value: "mm", part: "minute", minDigits: 2, maxDigits: 2 },
++  { value: "ss", part: "second", minDigits: 2, maxDigits: 2 },
++  { value: "SS", part: "millisecond", minDigits: 2, maxDigits: 2 },
++  { value: "M", part: "month", minDigits: 1, maxDigits: 2 },
++  { value: "d", part: "day", minDigits: 1, maxDigits: 2 },
++  { value: "D", part: "day", minDigits: 1, maxDigits: 2 },
++  { value: "H", part: "hour", minDigits: 1, maxDigits: 2 },
++  { value: "m", part: "minute", minDigits: 1, maxDigits: 2 },
++  { value: "s", part: "second", minDigits: 1, maxDigits: 2 },
++  { value: "S", part: "millisecond", minDigits: 1, maxDigits: 1 }
++], rfc3339Formats = /* @__PURE__ */ new Set(["date-time", "datetime", "rfc3339", "iso8601", "iso-8601"]), secondTimestampFormats = /* @__PURE__ */ new Set([
++  "timestamp-s",
++  "timestamp-sec",
++  "timestamp-seconds",
++  "unix",
++  "unix-time",
++  "unix-timestamp",
++  "unix-seconds",
++  "epoch",
++  "epoch-seconds"
++]), millisecondTimestampFormats = /* @__PURE__ */ new Set([
++  "timestamp-ms",
++  "timestamp-millis",
++  "timestamp-milliseconds",
++  "unix-ms",
++  "unix-millis",
++  "unix-milliseconds",
++  "epoch-ms",
++  "epoch-milliseconds"
++]);
 +function escapeDateFormatLiteral(e) {
 +  return e.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 +}
-+function parseDatePickerFormat(e) {
++function parseDateTemplateFormat(e) {
 +  const r = e?.trim();
 +  if (!r) return null;
 +  const t = r === "date" ? "yyyy-MM-dd" : r, i = [], d = [], g = /* @__PURE__ */ new Set();
 +  let N = "^", f = 0;
 +  for (; f < t.length; ) {
++    if (t[f] === "'") {
++      const b = t.indexOf("'", f + 1);
++      if (b === -1 || b === f + 1) return null;
++      const s = t.slice(f + 1, b);
++      i.push({ literal: s }), N += escapeDateFormatLiteral(s), f = b + 1;
++      continue;
++    }
 +    const u = dateFormatTokens.find((b) => t.startsWith(b.value, f));
 +    if (u) {
 +      if (g.has(u.part)) return null;
-+      g.add(u.part), d.push(u.part), i.push({ token: u }), N += u.part === "year" ? "(\\d{4})" : u.padded ? "(\\d{2})" : "(\\d{1,2})", f += u.value.length;
++      g.add(u.part), d.push(u.part), i.push({ token: u }), N += u.minDigits === u.maxDigits ? `(\\d{${u.minDigits}})` : `(\\d{${u.minDigits},${u.maxDigits}})`, f += u.value.length;
 +      continue;
 +    }
 +    const b = t[f];
-+    if (/[A-Za-z]/.test(b)) return null;
++    if (/[A-Za-z]/.test(b) && !["T", "Z", "z"].includes(b)) return null;
 +    i.push({ literal: b }), N += escapeDateFormatLiteral(b), f += 1;
 +  }
-+  return ["year", "month", "day"].every((u) => g.has(u)) ? { segments: i, matcher: new RegExp(`${N}$`), captureParts: d } : null;
++  if (!["year", "month", "day"].every((u) => g.has(u))) return null;
++  const u = ["hour", "minute", "second", "millisecond"].some((b) => g.has(b));
++  return u && (!g.has("hour") || !g.has("minute")) || g.has("millisecond") && !g.has("second") ? null : { kind: "template", segments: i, matcher: new RegExp(`${N}$`), captureParts: d, hasTime: u };
++}
++function parseDatePickerFormat(e) {
++  const r = e?.trim();
++  if (!r) return null;
++  if (r === "X") return { kind: "timestamp", unit: "seconds" };
++  if (r === "x") return { kind: "timestamp", unit: "milliseconds" };
++  const t = r.toLowerCase();
++  return rfc3339Formats.has(t) ? { kind: "rfc3339" } : t === "timestamp" ? { kind: "timestamp", unit: "auto" } : secondTimestampFormats.has(t) ? { kind: "timestamp", unit: "seconds" } : millisecondTimestampFormats.has(t) ? { kind: "timestamp", unit: "milliseconds" } : parseDateTemplateFormat(r);
 +}
 +function isValidDateParts(e, r, t) {
 +  if (e < 1 || e > 9999 || r < 1 || r > 12 || t < 1) return !1;
 +  const i = e % 4 === 0 && (e % 100 !== 0 || e % 400 === 0);
 +  return t <= [31, i ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][r - 1];
 +}
++function isValidDateTimeParts(e) {
++  return isValidDateParts(e.year, e.month, e.day) && e.hour >= 0 && e.hour <= 23 && e.minute >= 0 && e.minute <= 59 && e.second >= 0 && e.second <= 59 && e.millisecond >= 0 && e.millisecond <= 999;
++}
 +function parseDateParts(e, r) {
 +  const t = r.matcher.exec(e.trim());
 +  if (!t) return null;
-+  const i = r.captureParts.reduce((f, u, b) => (f[u] = Number(t[b + 1]), f), {}), d = i.year, g = i.month, N = i.day;
-+  return d === void 0 || g === void 0 || N === void 0 || !isValidDateParts(d, g, N) ? null : { year: d, month: g, day: N };
++  const i = r.captureParts.reduce((f, u, b) => (f[u] = t[b + 1], f), {});
++  if (!i.year || !i.month || !i.day) return null;
++  const d = i.millisecond ?? "", g = { year: Number(i.year), month: Number(i.month), day: Number(i.day), hour: Number(i.hour ?? 0), minute: Number(i.minute ?? 0), second: Number(i.second ?? 0), millisecond: d ? Number(d.padEnd(3, "0")) : 0, fractionDigits: d.length };
++  return isValidDateTimeParts(g) ? g : null;
++}
++function parsePickerDateParts(e, r) {
++  const t = (r === "date" ? /^(\d{4})-(\d{2})-(\d{2})$/ : /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/).exec(e.trim());
++  if (!t) return null;
++  const i = t[7] ?? "", d = { year: Number(t[1]), month: Number(t[2]), day: Number(t[3]), hour: Number(t[4] ?? 0), minute: Number(t[5] ?? 0), second: Number(t[6] ?? 0), millisecond: i ? Number(i.padEnd(3, "0")) : 0, fractionDigits: i.length };
++  return isValidDateTimeParts(d) ? d : null;
++}
++function parseRfc3339DateParts(e) {
++  const r = /^(\d{4})-(\d{2})-(\d{2})[Tt](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,9}))?(Z|z|[+-]\d{2}:\d{2})$/.exec(e.trim());
++  if (!r) return null;
++  const t = r[8];
++  if (t !== "Z" && t !== "z") {
++    const [, u, b] = /[+-](\d{2}):(\d{2})/.exec(t) ?? [];
++    if (Number(u) > 23 || Number(b) > 59) return null;
++  }
++  const i = r[7] ?? "", d = { year: Number(r[1]), month: Number(r[2]), day: Number(r[3]), hour: Number(r[4]), minute: Number(r[5]), second: Number(r[6]), millisecond: i ? Number(i.slice(0, 3).padEnd(3, "0")) : 0, fractionDigits: Math.min(i.length, 3) };
++  return isValidDateTimeParts(d) ? d : null;
++}
++function resolveTimestampUnit(e, r) {
++  if (e.unit !== "auto") return e.unit;
++  const t = Number(r);
++  return Number.isFinite(t) && Math.abs(t) >= 1e11 ? "milliseconds" : "seconds";
++}
++function parseTimestampDateParts(e, r) {
++  const t = e.trim();
++  if (!t) return null;
++  const i = Number(t);
++  if (!Number.isFinite(i)) return null;
++  const d = new Date(resolveTimestampUnit(r, e) === "milliseconds" ? i : i * 1e3);
++  if (Number.isNaN(d.getTime())) return null;
++  const g = { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate(), hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: d.getUTCSeconds(), millisecond: d.getUTCMilliseconds(), fractionDigits: d.getUTCMilliseconds() === 0 ? 0 : 3 };
++  return isValidDateTimeParts(g) ? g : null;
++}
++function formatDatePart(e, r) {
++  return String(e).padStart(r, "0");
++}
++function formatDatePickerParts(e, r) {
++  const t = [formatDatePart(e.year, 4), formatDatePart(e.month, 2), formatDatePart(e.day, 2)].join("-");
++  if (r === "date") return t;
++  const i = [formatDatePart(e.hour, 2), formatDatePart(e.minute, 2), formatDatePart(e.second, 2)].join(":"), d = e.fractionDigits > 0 ? `.${formatDatePart(e.millisecond, 3).slice(0, e.fractionDigits)}` : "";
++  return `${t}T${i}${d}`;
++}
++function toEpochMilliseconds(e) {
++  const r = new Date(0);
++  return r.setUTCFullYear(e.year, e.month - 1, e.day), r.setUTCHours(e.hour, e.minute, e.second, e.millisecond), r.getTime();
++}
++function getDatePickerInputType(e) {
++  const r = parseDatePickerFormat(e);
++  return r ? r.kind === "template" && !r.hasTime ? "date" : "datetime-local" : null;
++}
++function getDatePickerStep(e, r) {
++  const t = parseDatePickerFormat(e);
++  if (!t || t.kind === "template" && !t.hasTime) return;
++  if (t.kind === "timestamp") {
++    const i = resolveTimestampUnit(t, r);
++    return i === "milliseconds" || /\.\d+$/.test(r?.trim() ?? "") ? "0.001" : "1";
++  }
++  return t.kind === "template" ? t.captureParts.includes("millisecond") ? "0.001" : "1" : /\.\d+(?:Z|z|[+-]\d{2}:\d{2})$/.test(r ?? "") ? "0.001" : "1";
 +}
 +function isDatePickerFormat(e) {
 +  return parseDatePickerFormat(e) !== null;
@@ -1502,48 +1613,67 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..323b4a4d449d28dadbf249cd900c26ac
 +function toDatePickerValue(e, r) {
 +  const t = parseDatePickerFormat(r);
 +  if (!t || !e) return "";
-+  const i = parseDateParts(e, t);
-+  return i ? [String(i.year).padStart(4, "0"), String(i.month).padStart(2, "0"), String(i.day).padStart(2, "0")].join("-") : "";
++  const i = t.kind === "template" ? parseDateParts(e, t) : t.kind === "timestamp" ? parseTimestampDateParts(e, t) : parseRfc3339DateParts(e);
++  return i ? formatDatePickerParts(i, getDatePickerInputType(r) ?? "date") : "";
 +}
-+function fromDatePickerValue(e, r) {
++function fromDatePickerValue(e, r, t) {
 +  if (!e) return "";
-+  const t = parseDatePickerFormat(r), i = parseDatePickerFormat("date");
-+  if (!t || !i) return e;
-+  const d = parseDateParts(e, i);
-+  return d ? t.segments.map((g) => {
-+    if (g.literal !== void 0) return g.literal;
-+    const N = g.token, f = d[N.part];
-+    return N.part === "year" ? String(f).padStart(4, "0") : N.padded ? String(f).padStart(2, "0") : String(f);
-+  }).join("") : e;
-+}
++  const i = parseDatePickerFormat(r), d = getDatePickerInputType(r);
++  if (!i || !d) return e;
++  const g = parsePickerDateParts(e, d);
++  if (!g) return e;
++  if (i.kind === "timestamp") {
++    const N = toEpochMilliseconds(g);
++    return resolveTimestampUnit(i, t) === "milliseconds" ? String(N) : String(N / 1e3);
++  }
++  if (i.kind === "rfc3339") {
++    const N = t?.match(/(Z|z|[+-]\d{2}:\d{2})$/)?.[1] ?? "Z", f = t?.match(/\.(\d+)(?=(?:Z|z|[+-]\d{2}:\d{2})$)/)?.[1].length ?? 0, u = Math.min(Math.max(g.fractionDigits, f), 3);
++    return `${formatDatePickerParts({ ...g, fractionDigits: u }, "datetime-local")}${N}`;
++  }
++  return i.segments.map((N) => {
++    if (N.literal !== void 0) return N.literal;
++    const f = N.token, u = g[f.part];
++    return f.part === "millisecond" ? formatDatePart(u, 3).slice(0, f.maxDigits) : f.minDigits === f.maxDigits ? formatDatePart(u, f.maxDigits) : String(u);
++  }).join("");
+ }
  const ce = ({
    parameters: e,
-   values: r,
-@@ -444,8 +511,9 @@ const ce = ({
+@@ -444,8 +628,9 @@ const ce = ({
        return delete v[a.name], v;
      });
    }, x = { ...N, ...i }, U = (a) => {
 -    const s = r[a.name] || "", h = x[a.name], m = a.required || !1, v = yt(a.schema, g), B = `${a.name}-description`, C = `${a.name}-hint`, E = `${a.name}-error`, l = [
-+    const s = r[a.name] || "", h = x[a.name], m = a.required || !1, usesDatePicker = a.schema.type === "string" && isDatePickerFormat(a.schema.format), v = yt(a.schema, g), G = Vt(a.schema), B = `${a.name}-description`, z = `${a.name}-example`, C = `${a.name}-hint`, E = `${a.name}-error`, l = [
++    const s = r[a.name] || "", h = x[a.name], m = a.required || !1, datePickerInputType = getDatePickerInputType(a.schema.format), usesDatePicker = datePickerInputType !== null && ["string", "number", "integer"].includes(a.schema.type ?? ""), v = yt(a.schema, g), G = Vt(a.schema), B = `${a.name}-description`, z = `${a.name}-example`, C = `${a.name}-hint`, E = `${a.name}-error`, l = [
        a.description ? B : null,
 +      G ? z : null,
        v && !h ? C : null,
        h ? E : null
      ].filter(Boolean).join(" ") || void 0, O = () => a.schema.enum && a.schema.enum.length > 0 ? /* @__PURE__ */ o(qe, { value: s, onValueChange: (y) => b(a.name, y), children: [
-@@ -499,9 +567,9 @@ const ce = ({
+@@ -481,7 +666,22 @@ const ce = ({
+           children: a.name
+         }
+       )
+-    ] }) : a.schema.type === "number" ? /* @__PURE__ */ n(
++    ] }) : usesDatePicker && datePickerInputType ? /* @__PURE__ */ n(
++      F,
++      {
++        id: a.name,
++        type: datePickerInputType,
++        step: getDatePickerStep(a.schema.format, s),
++        value: toDatePickerValue(s, a.schema.format),
++        onChange: (y) => b(a.name, fromDatePickerValue(y.target.value, a.schema.format, s)),
++        onBlur: () => S(a),
++        placeholder: ue(a.schema) || g("enterParameter", { name: a.name }),
++        "aria-label": a.name,
++        "aria-required": m,
++        "aria-invalid": !!h,
++        "aria-describedby": l
++      }
++    ) : a.schema.type === "number" || a.schema.type === "integer" ? /* @__PURE__ */ n(
        F,
        {
          id: a.name,
--        type: "text",
--        value: s,
--        onChange: (y) => b(a.name, y.target.value),
-+        type: usesDatePicker ? "date" : "text",
-+        value: usesDatePicker ? toDatePickerValue(s, a.schema.format) : s,
-+        onChange: (y) => b(a.name, usesDatePicker ? fromDatePickerValue(y.target.value, a.schema.format) : y.target.value),
-         onBlur: () => S(a),
-         placeholder: ue(a.schema) || g("enterParameter", { name: a.name }),
-         "aria-label": a.name,
-@@ -529,6 +597,27 @@ const ce = ({
+@@ -529,6 +729,27 @@ const ce = ({
        ),
        O(),
        a.description && /* @__PURE__ */ n("p", { id: B, className: "text-xs text-gray-500 dark:text-gray-400", children: a.description }),
@@ -1571,7 +1701,7 @@ index 97f0ef16fdd31f9296c639020e26e870a8aabba7..323b4a4d449d28dadbf249cd900c26ac
        v && !h && /* @__PURE__ */ n("p", { id: C, className: "text-xs text-muted-foreground", children: v }),
        h && /* @__PURE__ */ n(
          "p",
-@@ -948,4 +1037,4 @@ export {
+@@ -948,4 +1169,4 @@ export {
    $t as l,
    Ut as s
  };
