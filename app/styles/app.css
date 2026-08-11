@@ -1826,7 +1826,8 @@ samp,
   min-width: 0;
   min-height: 0;
   flex-direction: column;
-  overflow: hidden;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
 }
 
 .pontx-workspace-body > .pontx-hydrated-title,
@@ -1838,8 +1839,10 @@ samp,
 }
 
 .pontx-workspace-body > .pontx-documentation {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  height: auto;
   min-height: 0;
+  overflow: visible;
 }
 
 .pontx-workspace-bar {
@@ -3318,14 +3321,20 @@ samp,
 .documentation-evidence p { margin: 5px 0 0; font-size: 12px; }
 .request-example-notice {
   display: grid;
+  grid-template:
+    "heading heading"
+    "description actions"
+    "meta actions"
+    "inputs inputs" / minmax(0, 1fr) auto;
+  align-items: start;
   margin: 14px 18px 0;
   border: 1px solid #cbd8e5;
   border-left: 3px solid #22c55e;
   border-radius: 7px;
-  padding: 11px 13px;
+  padding: 9px 11px;
   background: #f8fbf9;
   color: var(--ink);
-  gap: 7px;
+  gap: 4px 12px;
 }
 .request-example-notice.requires-input {
   border-left-color: #f59e0b;
@@ -3333,6 +3342,7 @@ samp,
 }
 .request-example-heading {
   display: flex;
+  grid-area: heading;
   min-width: 0;
   align-items: start;
   justify-content: space-between;
@@ -3365,12 +3375,13 @@ samp,
   color: #92400e;
 }
 .request-example-notice > p {
+  grid-area: description;
   margin: 0;
   color: var(--ink-soft);
   font-size: 12px;
   line-height: 1.5;
 }
-.request-example-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.request-example-meta { display: flex; grid-area: meta; flex-wrap: wrap; gap: 6px; }
 .request-example-meta span {
   border: 1px solid var(--line);
   border-radius: 3px;
@@ -3382,6 +3393,7 @@ samp,
 }
 .request-example-inputs {
   display: grid;
+  grid-area: inputs;
   margin: 2px 0 0;
   padding: 0;
   list-style: none;
@@ -3402,7 +3414,9 @@ samp,
 .request-example-inputs a { color: var(--blue); text-decoration: underline; }
 .request-example-actions {
   display: flex;
+  grid-area: actions;
   flex-wrap: wrap;
+  align-self: center;
   align-items: end;
   justify-content: flex-end;
   gap: 8px;
@@ -3447,6 +3461,14 @@ samp,
   .oauth-credential-guide > div { align-items: flex-start; flex-direction: column; }
   .oauth-toolbar-actions span { margin-left: 0; }
   .request-example-notice { margin-inline: 12px; }
+  .request-example-notice {
+    grid-template:
+      "heading"
+      "description"
+      "meta"
+      "inputs"
+      "actions" / minmax(0, 1fr);
+  }
   .resource-page-guided .request-example-notice { margin-inline: 0; }
   .request-example-inputs li { grid-template-columns: 1fr; gap: 2px; }
   .request-example-actions { align-items: stretch; flex-direction: column; }

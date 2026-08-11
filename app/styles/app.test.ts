@@ -61,4 +61,18 @@ describe("API directory integration styles", () => {
     expect(css).toMatch(/\.code-token-option\s*{[\s\S]*?color:/);
     expect(css).toMatch(/\.code-token-comment\s*{[\s\S]*?color:/);
   });
+
+  it("scrolls the whole endpoint workspace and keeps the request example compact", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.pontx-workspace-body\s*{[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior:\s*contain;/,
+    );
+    expect(css).toMatch(
+      /\.pontx-workspace-body > \.pontx-documentation\s*{[\s\S]*?flex:\s*0 0 auto;[\s\S]*?height:\s*auto;[\s\S]*?overflow:\s*visible;/,
+    );
+    expect(css).toMatch(
+      /\.request-example-notice\s*{[\s\S]*?"description actions"[\s\S]*?"meta actions"[\s\S]*?padding:\s*9px 11px;/,
+    );
+  });
 });

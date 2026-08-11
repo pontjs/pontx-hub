@@ -4,8 +4,43 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import { OperationSeoContent } from "./operation-seo-content";
+import { RequestExampleNotice } from "./request-example-notice";
 
 describe("OperationSeoContent", () => {
+  it.each([
+    [
+      "zh" as const,
+      "已填入一组可成功调用的示例值；检查并确认后即可发送。",
+      "一键填入成功示例"
+    ],
+    [
+      "en" as const,
+      "A successful request example is prefilled and ready to review before sending.",
+      "Prefill successful example"
+    ]
+  ])("describes the successful example as a quick prefill in %s", (locale, description, action) => {
+    const match = getCatalogOperation("dida365", "create-project");
+    expect(match).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(RequestExampleNotice, {
+          locale,
+          api: match!.api,
+          operation: match!.operation,
+          example: match!.operation.requestExamples[0],
+          onReset: () => undefined
+        })
+      )
+    );
+
+    expect(html).toContain(description);
+    expect(html).toContain(action);
+    expect(html).not.toContain(locale === "zh" ? "恢复此示例" : "Restore example");
+  });
+
   it("renders endpoint input and output metadata as semantic server HTML", () => {
     const match = getCatalogOperation("dida365", "create-project");
     expect(match).toBeDefined();
