@@ -4,8 +4,10 @@ import { SiteShell } from "~/components/site-shell";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import type { CatalogOperation } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
+import { FavoriteApiButton } from "~/components/favorite-api-button";
+import { listFavoriteApiSlugs } from "~/lib/accounts/favorites.server";
 
 function quickStartScore(operation: CatalogOperation): number {
   const required = operation.parameters.filter((parameter) => parameter.required);
@@ -24,14 +26,15 @@ function quickStartScore(operation: CatalogOperation): number {
   );
 }
 
-export function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const api = getCatalogApi(params.apiSlug ?? "");
   if (!api) throw new Response("API not found", { status: 404 });
   const operation = [...api.operations].sort(
     (left, right) => quickStartScore(right) - quickStartScore(left)
   )[0];
-  return { locale, api, operation };
+  const favoriteApiSlugs = await listFavoriteApiSlugs(request);
+  return { locale, api, operation, favorite: favoriteApiSlugs.includes(api.slug) };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -82,13 +85,16 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function headers() {
-  return cacheHeaders();
+  return accountAwareCacheHeaders();
 }
 
 export default function ApiDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, operation } = loaderData;
+  const { locale, api, operation, favorite } = loaderData;
   return (
     <SiteShell locale={locale}>
+      <div className="api-favorite-toolbar">
+        <FavoriteApiButton apiSlug={api.slug} locale={locale} initialFavorite={favorite} />
+      </div>
       <PontxApiWorkspace
         locale={locale}
         api={api}

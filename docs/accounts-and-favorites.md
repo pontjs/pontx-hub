@@ -1,6 +1,6 @@
 # Accounts and Favorites Design
 
-Status: milestone 1 implemented behind a disabled-by-default feature flag
+Status: milestones 1–2 implemented behind a disabled-by-default feature flag
 
 Date: 2026-08-10
 
@@ -216,10 +216,13 @@ sessions. Publish a concise privacy notice before production rollout.
 
 ### Milestone 2: individual API favorites
 
-- add `user_api_favorites` migration and private API;
-- add save controls to cards, search results, and API overview pages;
-- add the localized saved-content page; and
-- verify anonymous, authenticated, expired-session, and retired-API states.
+- [x] add `user_api_favorites` migration and private API;
+- [x] add save controls to cards, search results, and API overview pages;
+- [x] add the localized saved-content page;
+- [x] verify disabled, invalid configuration, anonymous, cross-origin, unknown-API,
+  retired-API presentation, bilingual, desktop, and 390px states; and
+- [ ] verify authenticated persistence, expired sessions, and cross-device sync
+  against the configured production database and GitHub OAuth application.
 
 ### Milestone 3: collections
 

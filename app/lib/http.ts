@@ -19,3 +19,9 @@ export function cacheHeaders(seconds = 300): HeadersInit {
     "Cache-Control": `public, s-maxage=${seconds}, stale-while-revalidate=${seconds * 5}`
   };
 }
+
+export function accountAwareCacheHeaders(seconds = 300): HeadersInit {
+  return process.env.PONTX_ACCOUNTS_ENABLED === "true"
+    ? { "Cache-Control": "private, no-store" }
+    : cacheHeaders(seconds);
+}

@@ -5,6 +5,7 @@ import {
   integer,
   jsonb,
   pgEnum,
+  primaryKey,
   pgTable,
   text,
   timestamp,
@@ -82,6 +83,21 @@ export const authVerifications = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (table) => [index("verification_identifier_index").on(table.identifier)]
+);
+
+export const userApiFavorites = pgTable(
+  "user_api_favorites",
+  {
+    userId: text("user_id").notNull(),
+    apiSlug: text("api_slug").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.apiSlug] }),
+    index("user_api_favorites_user_created_index").on(table.userId, table.createdAt),
+    foreignKey({ columns: [table.userId], foreignColumns: [authUsers.id] })
+      .onDelete("cascade")
+  ]
 );
 
 export const specStatus = pgEnum("spec_status", [
