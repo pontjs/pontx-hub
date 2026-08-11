@@ -2,6 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@pontx/shadcn-ui";
 import type {
   AuthData,
   CodeGenRequest,
@@ -115,6 +122,50 @@ export function ApiOverviewActions({
       <a className="button" href="#quick-call">
         {quickCallAction}
       </a>
+    </div>
+  );
+}
+
+export function OperationTaskSelect({
+  locale,
+  apiSlug,
+  operations,
+  value,
+  onValueChange
+}: {
+  locale: Locale;
+  apiSlug: string;
+  operations: CatalogOperation[];
+  value: string;
+  onValueChange: (slug: string) => void;
+}) {
+  const activeOperation = operations.find((operation) => operation.slug === value);
+  const labelId = `api-task-select-label-${apiSlug}`;
+
+  return (
+    <div className="api-task-select">
+      <span id={labelId}>{locale === "zh" ? "调用目标" : "Task"}</span>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger
+          className="api-task-select-trigger"
+          aria-labelledby={labelId}
+        >
+          <SelectValue>
+            {activeOperation ? localize(activeOperation.title, locale) : undefined}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent className="api-task-select-content">
+          {operations.map((operation) => (
+            <SelectItem
+              className="api-task-select-item"
+              key={operation.slug}
+              value={operation.slug}
+            >
+              {localize(operation.title, locale)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -245,7 +296,24 @@ export function OAuthToolbar({
       </div>
     </details>}
     <div className="oauth-toolbar-fields">
-      {flows.length > 1 && <label>Flow<select value={flow} onChange={(event) => { setFlow(event.target.value as OAuthAuthorizeInput["flow"]); setScopes(requiredScopes); setRedirectUriRegistered(false); }}><option value="authorizationCode">Authorization Code</option><option value="clientCredentials">Client Credentials</option></select></label>}
+      {flows.length > 1 && <div className="oauth-flow-select">
+        <span id="oauth-flow-label">Flow</span>
+        <Select value={flow} onValueChange={(selectedFlow) => {
+          setFlow(selectedFlow as OAuthAuthorizeInput["flow"]);
+          setScopes(requiredScopes);
+          setRedirectUriRegistered(false);
+        }}>
+          <SelectTrigger className="oauth-select-trigger" aria-labelledby="oauth-flow-label">
+            <SelectValue>
+              {flow === "authorizationCode" ? "Authorization Code" : "Client Credentials"}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="oauth-select-content">
+            <SelectItem value="authorizationCode">Authorization Code</SelectItem>
+            <SelectItem value="clientCredentials">Client Credentials</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>}
       <label>Client ID<input autoComplete="off" value={clientId} onChange={(event) => setClientId(event.target.value)} /></label>
       <label>Client Secret<input type="password" autoComplete="off" value={clientSecret} onChange={(event) => setClientSecret(event.target.value)} /></label>
     </div>
@@ -842,28 +910,22 @@ export function PontxApiWorkspace({
                 <small>{quickCallDescription}</small>
               </span>
             </div>
-            <label className="api-task-select">
-              <span>{locale === "zh" ? "调用目标" : "Task"}</span>
-              <select
-                value={activeOperation.slug}
-                onChange={(event) => {
-                  const candidate = api.operations.find((item) => item.slug === event.target.value);
-                  if (candidate) {
-                    setSelectedOperation(candidate);
-                    setSelectedRequestExampleId(
-                      defaultRequestExample(api, candidate)?.id
-                    );
-                    setExecutionResult(undefined);
-                  }
-                }}
-              >
-                {api.operations.map((candidate) => (
-                  <option key={candidate.slug} value={candidate.slug}>
-                    {localize(candidate.title, locale)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <OperationTaskSelect
+              locale={locale}
+              apiSlug={api.slug}
+              operations={api.operations}
+              value={activeOperation.slug}
+              onValueChange={(selectedSlug) => {
+                const candidate = api.operations.find((item) => item.slug === selectedSlug);
+                if (candidate) {
+                  setSelectedOperation(candidate);
+                  setSelectedRequestExampleId(
+                    defaultRequestExample(api, candidate)?.id
+                  );
+                  setExecutionResult(undefined);
+                }
+              }}
+            />
             <a className="api-full-docs-link" href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>
               {workspaceCopy.openSelectedEndpoint}<span aria-hidden="true">→</span>
             </a>
