@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { alternateLocaleUrl, preferredLocale } from "./i18n";
+import {
+  alternateLocaleUrl,
+  alternateLocaleHref,
+  apiWorkspaceNavigationCopy,
+  preferredLocale
+} from "./i18n";
 
 describe("internationalized routing", () => {
   it("negotiates supported languages by quality and falls back to English", () => {
@@ -18,5 +23,41 @@ describe("internationalized routing", () => {
         "en"
       )
     ).toBe("/en/apis/dida365/get-project?q=projectId#response");
+  });
+
+  it("keeps the first language-link render hydration-safe, then restores the fragment", () => {
+    expect(
+      alternateLocaleHref(
+        "/zh/apis/dida365",
+        "",
+        "#quick-call",
+        "en",
+        false
+      )
+    ).toBe("/en/apis/dida365");
+    expect(
+      alternateLocaleHref(
+        "/zh/apis/dida365",
+        "",
+        "#quick-call",
+        "en",
+        true
+      )
+    ).toBe("/en/apis/dida365#quick-call");
+  });
+
+  it("names the full endpoint workspace without reducing it to documentation", () => {
+    expect(apiWorkspaceNavigationCopy("zh")).toEqual({
+      endpointTab: "接口",
+      browseAllEndpoints: "浏览全部接口",
+      openSelectedEndpoint: "打开所选接口",
+      openRelatedEndpoint: "查看相关接口"
+    });
+    expect(apiWorkspaceNavigationCopy("en")).toEqual({
+      endpointTab: "Endpoints",
+      browseAllEndpoints: "Browse all endpoints",
+      openSelectedEndpoint: "Open selected endpoint",
+      openRelatedEndpoint: "Open related endpoint"
+    });
   });
 });

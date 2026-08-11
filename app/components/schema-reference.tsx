@@ -4,6 +4,7 @@ import { SchemaProvider } from "@pontx/shadcn-ui";
 import { SchemaViewer } from "@pontx/shadcn-ui/schema-viewer";
 import type { CatalogApi, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
+import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 import { ResourceNavigation } from "~/components/resource-navigation";
 
 export function SchemaReference({
@@ -16,6 +17,7 @@ export function SchemaReference({
   schema: CatalogSchema;
 }) {
   const zh = locale === "zh";
+  const workspaceCopy = apiWorkspaceNavigationCopy(locale);
   const [isHydrated, setIsHydrated] = useState(false);
   const components = useMemo(
     () => ({
@@ -110,7 +112,7 @@ export function SchemaReference({
             to={`/${locale}/apis/${api.slug}/${api.operations[0].slug}`}
             reloadDocument
           >
-            {zh ? "查看接口文档 →" : "Open endpoint reference →"}
+            {workspaceCopy.openRelatedEndpoint} <span aria-hidden="true">→</span>
           </Link>
         </aside>
       </div>

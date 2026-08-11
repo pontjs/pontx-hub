@@ -35,6 +35,7 @@ import {
   type OAuthTokenSet
 } from "~/lib/oauth/client";
 import { hubCliSnippet } from "~/lib/hub-cli-command";
+import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 import {
   defaultRequestExample,
   requestExampleInputLabel,
@@ -87,6 +88,34 @@ export function withoutHostManagedOAuthScheme(
     ...api,
     securitySchemes: Object.keys(securitySchemes).length ? securitySchemes : undefined
   };
+}
+
+export function ApiOverviewActions({
+  locale,
+  apiSlug,
+  operationSlug,
+  quickCallAction
+}: {
+  locale: Locale;
+  apiSlug: string;
+  operationSlug: string;
+  quickCallAction: string;
+}) {
+  const workspaceCopy = apiWorkspaceNavigationCopy(locale);
+
+  return (
+    <div className="api-overview-actions">
+      <a
+        className="button button-dark"
+        href={`/${locale}/apis/${apiSlug}/${operationSlug}`}
+      >
+        {workspaceCopy.browseAllEndpoints}
+      </a>
+      <a className="button" href="#quick-call">
+        {quickCallAction}
+      </a>
+    </div>
+  );
 }
 
 export function OAuthToolbar({
@@ -721,6 +750,7 @@ export function PontxApiWorkspace({
     : locale === "zh"
       ? "无需鉴权"
       : "None";
+  const workspaceCopy = apiWorkspaceNavigationCopy(locale);
 
   const generateCode = useCallback(
     async ({ scenarioId, request }: CodeGenRequest) => {
@@ -759,17 +789,12 @@ export function PontxApiWorkspace({
             <p className="eyebrow">{api.provider} / {category}</p>
             <h1>{localize(api.title, locale)}</h1>
             <p>{localize(api.summary, locale)}</p>
-            <div className="api-overview-actions">
-              <a className="button button-dark" href="#quick-call">
-                {quickCallAction}
-              </a>
-              <a
-                className="button"
-                href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}
-              >
-                {locale === "zh" ? "浏览接口文档" : "Browse endpoint docs"}
-              </a>
-            </div>
+            <ApiOverviewActions
+              locale={locale}
+              apiSlug={api.slug}
+              operationSlug={activeOperation.slug}
+              quickCallAction={quickCallAction}
+            />
           </div>
           <dl className="api-overview-facts">
             <div><dt>{locale === "zh" ? "提供方" : "Provider"}</dt><dd>{api.provider}</dd></div>
@@ -831,7 +856,7 @@ export function PontxApiWorkspace({
               </select>
             </label>
             <a className="api-full-docs-link" href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>
-              {locale === "zh" ? "查看完整接口文档" : "Full endpoint docs"}<span aria-hidden="true">→</span>
+              {workspaceCopy.openSelectedEndpoint}<span aria-hidden="true">→</span>
             </a>
           </> : <>
             <div>

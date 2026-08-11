@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { GitHubIcon } from "~/components/github-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
-import { alternateLocaleUrl } from "~/lib/i18n";
+import { alternateLocaleHref, alternateLocaleUrl } from "~/lib/i18n";
 import { AccountNavigation } from "~/components/account-navigation";
 
 const copy = {
@@ -47,11 +47,14 @@ export function SiteShell({
   const nextLocale = locale === "zh" ? "en" : "zh";
   const text = copy[locale];
   const location = useLocation();
-  const languageTarget = alternateLocaleUrl(
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const languageTarget = alternateLocaleHref(
     location.pathname,
     location.search,
     location.hash,
-    nextLocale
+    nextLocale,
+    hydrated
   );
   const handleLanguageChange = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();

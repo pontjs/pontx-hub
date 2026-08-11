@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import type { CatalogApi, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
+import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 
 export function ResourceNavigation({
   locale,
@@ -12,6 +13,7 @@ export function ResourceNavigation({
   active: "overview" | "docs" | "schemas" | "sdk";
 }) {
   const zh = locale === "zh";
+  const workspaceCopy = apiWorkspaceNavigationCopy(locale);
   const defaultOperation = api.operations[0]?.slug;
 
   return (
@@ -39,7 +41,7 @@ export function ResourceNavigation({
             aria-current={active === "docs" ? "page" : undefined}
             reloadDocument
           >
-            {zh ? "接口文档" : "Endpoints"}
+            {workspaceCopy.endpointTab}
           </Link>
         ) : null}
         {api.schemas[0] ? (
