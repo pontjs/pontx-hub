@@ -535,6 +535,10 @@ samp,
   padding: 17px 20px 15px 22px;
 }
 
+.api-card-main:focus-visible {
+  outline-offset: -3px;
+}
+
 .api-card-topline {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -656,6 +660,50 @@ samp,
   color: #176a3a;
 }
 
+.api-card-sdk-cell {
+  position: relative;
+  transition: background 180ms ease;
+}
+
+.api-card-sdk-cell:hover {
+  background: color-mix(in srgb, var(--api-accent) 8%, #fff);
+}
+
+.api-card-sdk-link {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.api-card-sdk-link::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.api-card-sdk-link:focus-visible {
+  outline: none;
+}
+
+.api-card-sdk-link:focus-visible::after {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+}
+
+.api-card-sdk-arrow {
+  color: var(--ink-soft);
+  font-size: 13px;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.api-card-sdk-link:hover .api-card-sdk-arrow,
+.api-card-sdk-link:focus-visible .api-card-sdk-arrow {
+  color: var(--api-accent);
+  transform: translate(2px, -2px);
+}
+
 .api-card-action {
   display: flex;
   align-items: center;
@@ -675,7 +723,8 @@ samp,
   transition: transform 180ms ease;
 }
 
-.api-card:hover .api-card-arrow {
+.api-card-main:hover .api-card-arrow,
+.api-card-main:focus-visible .api-card-arrow {
   color: var(--api-accent);
   transform: translate(2px, -2px);
 }

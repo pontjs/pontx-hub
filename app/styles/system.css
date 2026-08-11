@@ -1327,7 +1327,8 @@ textarea {
 
 @media (max-width: 420px) {
   .api-card-meta {
-    display: none;
+    display: grid;
+    width: 100%;
   }
 
   .api-card {

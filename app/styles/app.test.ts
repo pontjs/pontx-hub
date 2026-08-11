@@ -218,4 +218,29 @@ describe("API directory integration styles", () => {
       /\.schema-reference-grid\s*{[\s\S]*?grid-template-columns:\s*clamp\(260px, 22vw, 304px\) minmax\(0, 1fr\);/,
     );
   });
+
+  it("makes the complete SDK metadata cell a stable keyboard-accessible link", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.api-card-sdk-link::after\s*{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/,
+    );
+    expect(css).toMatch(
+      /\.api-card-sdk-link:focus-visible::after\s*{[\s\S]*?outline:\s*2px solid var\(--blue\);/,
+    );
+    expect(css).toMatch(
+      /\.api-card-sdk-link:hover \.api-card-sdk-arrow,[\s\S]*?transform:\s*translate\(2px, -2px\);/,
+    );
+    expect(css).toMatch(
+      /\.api-card-sdk-cell\s*{[\s\S]*?position:\s*relative;/,
+    );
+    expect(css).not.toMatch(
+      /\.api-card-sdk-cell,[\s\S]{0,160}?display:\s*none;/,
+    );
+
+    const systemCss = await readFile(new URL("./system.css", import.meta.url), "utf8");
+    expect(systemCss).toMatch(
+      /@media \(max-width: 420px\)[\s\S]*?\.api-card-meta\s*{\s*display:\s*grid;\s*width:\s*100%;/,
+    );
+  });
 });
