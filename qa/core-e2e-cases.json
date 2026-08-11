@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "updatedAt": "2026-08-11",
   "baseUrl": "https://pontx-hub.vercel.app",
   "locale": "zh",
@@ -11,7 +11,78 @@
     "diagnosticRetries": 1,
     "retrySuccessStatus": "FLAKY",
     "missingCredentialStatus": "BLOCKED",
-    "globalPassRequiresEveryApiPass": true
+    "globalPassRequiresEveryApiPass": true,
+    "globalPassRequiresDailyCoverageTargets": true
+  },
+  "casesPurpose": "One high-value breadth canary per API product. These cases are the first phase, never the daily coverage ceiling.",
+  "coveragePolicy": {
+    "inventorySource": "production catalog",
+    "recomputeDenominatorsEveryRun": true,
+    "ordering": [
+      "one canary per API product",
+      "required path and body parameters",
+      "authentication",
+      "date ranges and multi-parameter requests",
+      "nested, HTML, CSV, and text responses",
+      "known flaky and regression endpoints",
+      "zero-parameter list endpoints"
+    ],
+    "daily": {
+      "allEndpointsSearchAndDocs": true,
+      "safeLive": {
+        "include": {
+          "apiProxyEnabled": true,
+          "operationProxyEnabled": true,
+          "methods": ["GET"]
+        },
+        "target": "all",
+        "execute": true,
+        "requireFirstAttempt2xx": true,
+        "missingCredentialStatus": "BLOCKED"
+      },
+      "previewOnly": {
+        "include": {
+          "operationProxyEnabled": false
+        },
+        "target": "all",
+        "execute": false,
+        "assert": [
+          "request preview is complete",
+          "code generation is non-empty",
+          "disabled reason is visible",
+          "an executable alternative is identified when one exists"
+        ]
+      },
+      "nonGet": {
+        "include": {
+          "methodsExcept": ["GET"]
+        },
+        "target": "all",
+        "execute": false,
+        "assert": [
+          "request body documentation is complete",
+          "request preview and generated code are non-empty",
+          "mutation approval boundary is explicit"
+        ]
+      }
+    },
+    "sevenDayExpansion": {
+      "everyEndpoint": [
+        "non-default parameter combination",
+        "English locale",
+        "390px mobile layout",
+        "documented error or empty state"
+      ],
+      "allSchemas": true
+    },
+    "baselineInventory": {
+      "asOf": "2026-08-11",
+      "apiProducts": 11,
+      "endpoints": 75,
+      "safeLiveGet": 41,
+      "previewOnly": 11,
+      "nonGet": 23
+    }
   },
   "cases": [
     {

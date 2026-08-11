@@ -6,14 +6,14 @@
 
 1. 每次先读取生产 sitemap、目录和 API 元数据，自动发现新增或下线的页面、API、接口、Schema、SDK 与语言；发现覆盖缺口时先补旅程，再执行。
 2. 旅程 ID 和问题 signature 保持稳定。已确认问题必须新增回归旅程；问题消失时在 `issues.md` 标记“待复核/已恢复”，不要直接删除历史记录。
-3. 每天先执行每个 API 的核心端到端金丝雀旅程，再做全站结构检查；用七天滚动矩阵覆盖其余接口、Schema、搜索词、错误状态和内容压力场景。
-4. 每个 API 必须有至少一个只读、无副作用的 Endpoint 完成真实调用。OAuth/API Key 从定时任务的安全环境读取，只输入当前浏览器会话且永不输出、持久化或写入报告；缺少凭据记为 `BLOCKED`，不得算通过。
+3. 每天先按 API 轮询完成每个产品的一条核心金丝雀，再继续覆盖 catalog 中全部 Endpoint；不得在几个无鉴权、无参数的简单接口通过后提前结束。七天滚动矩阵只用于扩大数据组合、Schema、错误状态和内容压力覆盖，不用于推迟 Endpoint 基础覆盖。
+4. 每个安全只读 Endpoint 都应完成真实调用，而不只是每个 API 一个代表。OAuth/API Key 从定时任务的安全环境读取，只输入当前浏览器会话且永不输出、持久化或写入报告；缺少凭据时相关 Endpoint 全部记为 `BLOCKED`，不得算通过。
 5. `proxyEnabled=false`、仅预览、没有可执行 Endpoint、默认参数不合法、请求未发出、非 2xx、空/错误响应或必须重试才能成功，都不能记为 PASS。写入型接口仍禁止执行，API 必须另提供只读金丝雀、sandbox 或明确的 dry-run。
 6. 每条失败记录环境、路径、语言、视口、步骤、预期、实际、证据、首次/最近发现日期、严重级别和推测归属仓库。相同 signature 当天只更新一次。
 
 ## 核心端到端硬门槛
 
-每天对 `qa/core-e2e-cases.json` 中的所有 API 逐条完成以下真实用户闭环，不允许用直接 HTTP 请求代替浏览器步骤：
+每天先对 `qa/core-e2e-cases.json` 中的每个 API 金丝雀完成以下真实用户闭环，再按同样链路扩展到 catalog 中的全部 Endpoint；金丝雀是广度保底，不是覆盖上限。不允许用直接 HTTP 请求代替浏览器步骤：
 
 1. 从本地化目录页输入该 API 的自然语言任务，按 Enter 提交搜索。
 2. 在搜索结果中找到清单指定的 Endpoint；激活结果并确认进入预期文档 URL。
@@ -29,25 +29,45 @@
 - `FLAKY`：首次失败、同一参数的一次诊断性重试成功；必须登记问题并保留首次失败证据。
 - `BLOCKED`：安全凭据或受控测试数据缺失，无法执行；这不是自动判定的代码缺陷，但全站巡检仍不得通过。
 
-当天全局结果只有在所有 API 均为 PASS 时才能标记 `PASS 11/11`。任何 `FAIL`、`FLAKY` 或 `BLOCKED` 都使核心巡检总结果为 FAIL，并在 `issues.md` 建立稳定 signature。
+当天全局结果必须同时满足 API 产品核心闭环 11/11、Endpoint 搜索与文档 75/75、SAFE-LIVE 41/41、PREVIEW-ONLY 11/11 和 NON-GET 23/23，才能标记 PASS。任何 `FAIL`、`FLAKY`、`BLOCKED` 或覆盖未完成都使核心巡检总结果为 FAIL，并在 `issues.md` 建立稳定 signature；不得用少数简单 Endpoint 的成功率代替全量分母。
+
+## 每日 Endpoint 全覆盖策略
+
+当前 75 个 Endpoint 每天全部进入“搜索 → 文档”链路，并按风险分层继续：
+
+1. `SAFE-LIVE`：API 与 Endpoint 均允许代理、方法为 GET 的 41 个 Endpoint，全部从 Playground 真实执行并断言首次 2xx。包含 Dida365 的 14 个 OAuth GET 与 Massive 的 6 个 API Key GET；缺少凭据时逐项 BLOCKED，不能只测一个鉴权示例。
+2. `PREVIEW-ONLY`：11 个 `proxyEnabled=false` Endpoint（Yahoo Finance 7、Stooq 2、Eastmoney 2）全部检查搜索、文档、完整参数预览、代码生成、禁用原因和同 API 的可执行替代路径。它们仍不能满足真实调试，所属 API 没有可执行金丝雀时为 FAIL。
+3. `NON-GET`：Dida365 的 23 个 POST/DELETE Endpoint 全部检查搜索、文档、请求体、代码生成和明确的变更确认边界，但禁止对生产账户执行。只有元数据明确标记为只读且具备受控测试数据/sandbox 时，才可升级到真实调用。
+
+执行顺序必须按 API 轮询：先 11 个产品各一个高价值 Endpoint，再运行带必填路径参数、多参数、日期区间、鉴权、嵌套响应、HTML/CSV/文本响应和已知不稳定性的 Endpoint，最后才运行无参数列表类接口。不得连续耗尽一个 API 后因时间不足遗漏其他产品，也不得长期固定选择最简单的 Endpoint。
+
+每天报告以下动态分母，不能只写“11 个 API 已覆盖”：
+
+- API 产品闭环覆盖率：通过核心金丝雀的产品数 / catalog API 总数。
+- Endpoint 搜索与文档覆盖率：完成真实搜索和文档核对的 Endpoint 数 / catalog Endpoint 总数，目标 75/75。
+- 安全真实调试覆盖率：首次 2xx 且响应断言通过数 / `SAFE-LIVE` 总数，当前目标 41/41。
+- 仅预览合同覆盖率：完成预览/禁用原因/替代路径检查数 / `PREVIEW-ONLY` 总数，当前目标 11/11。
+- 非 GET 安全覆盖率：完成文档、请求体、代码和变更边界检查数 / `NON-GET` 总数，当前目标 23/23。
+
+新增或变更 Endpoint 时以 catalog 实时重算分母，并在当天加入相应层级；固定数字只是 2026-08-11 的基线。
 
 ## 当前站点清单
 
 最后维护：2026-08-11，Asia/Shanghai。
 
-| API | 接口 | Schema | 鉴权 | SDK | 每日金丝雀 Endpoint |
-| --- | ---: | ---: | --- | --- | --- |
-| dida365 | 37 | 33 | OAuth 2 | 已发布 | `getUserProjects`（需要安全 canary token） |
-| frankfurter | 5 | 4 | 无 | 已发布 | `getLatestRates` |
-| frankfurter-v2 | 5 | 4 | 无 | 计划中 | `getProviders` |
-| massive | 6 | 17 | API Key | 计划中 | `getPreviousClose`（需要安全 canary key） |
-| cnbc-market-data | 2 | 5 | 无 | 计划中 | `getRestQuotes` |
-| eastmoney-funds | 4 | 9 | 无 | 计划中 | `listHistoricalNav` |
-| i3investor-sgx | 2 | 2 | 无 | 计划中 | `getSgxStockOverviewPage` |
-| sina-finance | 2 | 5 | 无 | 计划中 | `getQuoteSnapshots` |
-| stooq | 2 | 4 | 无 | 计划中 | `downloadLatestQuotes`（当前不可执行，必须报 FAIL） |
-| tencent-finance | 3 | 6 | 无 | 计划中 | `getQuoteSnapshots` |
-| yahoo-finance | 7 | 3 | 无 | 计划中 | `getChart`（当前不可执行，必须报 FAIL） |
+| API | Endpoint | SAFE-LIVE | PREVIEW-ONLY | NON-GET | 每日首个金丝雀 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| dida365 | 37 | 14 | 0 | 23 | `getUserProjects`（需要安全 canary token） |
+| frankfurter | 5 | 5 | 0 | 0 | `getLatestRates` |
+| frankfurter-v2 | 5 | 5 | 0 | 0 | `getProviders` |
+| massive | 6 | 6 | 0 | 0 | `getPreviousClose`（需要安全 canary key） |
+| cnbc-market-data | 2 | 2 | 0 | 0 | `getRestQuotes` |
+| eastmoney-funds | 4 | 2 | 2 | 0 | `listHistoricalNav` |
+| i3investor-sgx | 2 | 2 | 0 | 0 | `getSgxStockOverviewPage` |
+| sina-finance | 2 | 2 | 0 | 0 | `getQuoteSnapshots` |
+| stooq | 2 | 0 | 2 | 0 | `downloadLatestQuotes`（当前不可执行，必须报 FAIL） |
+| tencent-finance | 3 | 3 | 0 | 0 | `getQuoteSnapshots` |
+| yahoo-finance | 7 | 0 | 7 | 0 | `getChart`（当前不可执行，必须报 FAIL） |
 
 当前基线：11 个 API、75 个 Endpoint、92 个 Schema；sitemap 共 364 个双语规范 URL（中文 182、英文 182）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
 
@@ -68,9 +88,12 @@
 ### API 概览、Endpoint、Schema 与 Playground
 
 - `E2E-CORE-001`：严格按 `qa/core-e2e-cases.json` 对每个 API 执行“搜索 → Endpoint 文档 → 试用 → 首次 2xx → 响应断言”；这是每日最高优先级硬门槛。
+- `E2E-EXPAND-001`：金丝雀完成后，对 catalog 中全部 41 个 `SAFE-LIVE` Endpoint 重复真实浏览器闭环；不得只运行无参数列表接口。
+- `E2E-EXPAND-002`：对全部 11 个 `PREVIEW-ONLY` Endpoint 完成搜索、文档、参数预览、代码、禁用原因和可执行替代路径检查。
+- `E2E-EXPAND-003`：对全部 23 个 `NON-GET` Endpoint 完成搜索、文档、请求体、代码和变更确认边界检查，禁止生产写入。
 - `API-001`：对清单中的每个 API 检查本地化标题、说明、鉴权、接口数、在线调用数、SDK 状态和当前 API 上下文。
 - `API-002`：切换“调用目标”，确认方法/路径、参数表单、完整接口文档链接和代码片段同步更新。
-- `ENDPOINT-001`：七天内遍历全部 Endpoint，检查 SSR 语义内容、请求/响应、参数约束、示例、面包屑与兄弟导航。
+- `ENDPOINT-001`：每天遍历全部 Endpoint，检查 SSR 语义内容、请求/响应、参数约束、示例、面包屑与兄弟导航；七天滚动仅轮换更多参数组合和错误状态。
 - `SCHEMA-001`：七天内遍历全部 Schema，检查属性、必填/可选、enum、约束、嵌套引用和长类型名在桌面/移动端的布局。
 - `PLAY-001`：`proxyEnabled=true` 且无鉴权的只读接口，使用示例值真实调用；校验请求 URL、状态码、耗时、响应和失败说明。
 - `PLAY-002`：`proxyEnabled=false` 的 Endpoint 不得伪装成可执行，但所属 API 仍必须有另一条可真实调试成功的金丝雀；整组 API 只有预览能力时记为 FAIL。
@@ -110,6 +133,6 @@
 
 ## 七天滚动覆盖
 
-每天从 sitemap 顺序、API slug 和日期生成稳定分片，保证七天内覆盖全部 Endpoint 与 Schema；同时轮换以下压力数据：无结果、超长路径、超长 Schema 引用、大段 JSON、特殊字符、慢响应、上游 4xx/5xx、英文长文案和移动端菜单。新增 API 或页面在发现当天加入每日代表旅程，并在七天内完成一次全量资源覆盖。
+每天覆盖全部 Endpoint 的基础搜索、文档和安全层级；再从 API slug、Endpoint slug 和日期生成稳定分片，在七天内让每个 Endpoint 额外覆盖至少一个非默认参数组合、英文路径、390px 移动端或错误状态，并遍历全部 Schema。压力数据包括无结果、超长路径、超长 Schema 引用、大段 JSON、特殊字符、慢响应、上游 4xx/5xx、英文长文案和移动端菜单。新增 API 或 Endpoint 在发现当天加入全量基础覆盖，而不是等下一轮分片。
 
 每次运行结束后，在 `issues.md` 写明：结构检查数量、用户旅程数量、真实调用/跳过原因、浏览器与视口、控制台错误、覆盖缺口、新增/仍存在/已恢复问题，以及本文件是否因站点变化而更新。
