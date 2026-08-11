@@ -95,22 +95,59 @@ export function OAuthToolbar({
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
   const [redirectUriRegistered, setRedirectUriRegistered] = useState(false);
+  const [callbackCopied, setCallbackCopied] = useState(false);
   const flowScopes = scheme.flows?.[flow]?.scopes ?? {};
   const [scopes, setScopes] = useState(requiredScopes);
   if (!flows.length) return null;
   const busy = state.status === "authorizing" || state.status === "refreshing";
   const authorized = state.status === "authorized" || state.status === "refreshing";
   const requiresRedirectRegistration = flow === "authorizationCode" && Boolean(scheme.credentialGuide);
+  const callbackUrl = typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`;
+  const callbackCopy = locale === "zh" ? {
+    ariaLabel: "OAuth 回调地址登记",
+    step: "第一步",
+    title: "先登记这个回调地址",
+    instruction: "复制完整地址，粘贴到开发者中心应用的 OAuth Redirect URL。",
+    copy: "复制地址",
+    copied: "已复制",
+    warning: "地址必须完全一致；未登记会直接触发 invalid_request。"
+  } : {
+    ariaLabel: "OAuth callback registration",
+    step: "Step 1",
+    title: "Register this callback URL first",
+    instruction: "Copy the full URL into your app's OAuth Redirect URL in the Developer Center.",
+    copy: "Copy URL",
+    copied: "Copied",
+    warning: "The URL must match exactly; an unregistered URL immediately returns invalid_request."
+  };
+
+  const copyCallbackUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(callbackUrl);
+      setCallbackCopied(true);
+      window.setTimeout(() => setCallbackCopied(false), 2_000);
+    } catch {
+      setCallbackCopied(false);
+    }
+  };
   return <details className="oauth-toolbar">
     <summary className="oauth-toolbar-heading">
       <div><strong>OAuth 2.0</strong><span>{authorized ? zh ? "已授权" : "Authorized" : zh ? "会话级授权" : "Session-only authorization"}</span></div>
       <p>{locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
     </summary>
     <div className="oauth-toolbar-content">
-    <p className="oauth-callback">{locale === "zh" ? "回调地址：" : "Callback URL: "}<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
+    <div className="oauth-callback-panel" role="note" aria-label={callbackCopy.ariaLabel}>
+      <div className="oauth-callback-title"><span>{callbackCopy.step}</span><strong>{callbackCopy.title}</strong></div>
+      <p>{callbackCopy.instruction}</p>
+      <div className="oauth-callback-value">
+        <code>{callbackUrl}</code>
+        <button type="button" onClick={() => void copyCallbackUrl()}>{callbackCopied ? callbackCopy.copied : callbackCopy.copy}</button>
+      </div>
+      <p className="oauth-callback-warning"><strong>OAuth Redirect URL</strong> · {callbackCopy.warning}</p>
+    </div>
     {scheme.credentialGuide && <details className="oauth-credential-guide" open>
       <summary>
-        <span aria-hidden="true">01</span>
+        <span aria-hidden="true">02</span>
         <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
         <span>{locale === "zh" ? "查看申请步骤" : "View setup steps"}</span>
       </summary>

@@ -43,5 +43,9 @@ describe("OAuthToolbar", () => {
 
     expect(html).toContain('class="oauth-credential-guide" open=""');
     expect(html).toContain(confirmation);
+    expect(html).toContain('class="oauth-callback-panel"');
+    expect(html).toContain("/oauth/callback");
+    expect(html).toContain(locale === "zh" ? "复制地址" : "Copy URL");
+    expect(html).toContain("invalid_request");
   });
 });
