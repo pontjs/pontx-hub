@@ -37,7 +37,7 @@ export function ResourceNavigation({
         {defaultOperation ? (
           <Link
             to={`/${locale}/apis/${api.slug}/${defaultOperation}`}
-            className={active === "docs" ? "is-active" : undefined}
+            className={`resource-navigation-mobile-link${active === "docs" ? " is-active" : ""}`}
             aria-current={active === "docs" ? "page" : undefined}
             reloadDocument
           >
@@ -47,7 +47,7 @@ export function ResourceNavigation({
         {api.schemas[0] ? (
           <Link
             to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(api.schemas[0].name)}`}
-            className={active === "schemas" ? "is-active" : undefined}
+            className={`resource-navigation-mobile-link${active === "schemas" ? " is-active" : ""}`}
             aria-current={active === "schemas" ? "page" : undefined}
             reloadDocument
           >
