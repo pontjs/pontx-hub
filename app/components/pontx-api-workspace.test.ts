@@ -6,6 +6,7 @@ import { toPontxApi } from "~/lib/catalog/pontx-adapter";
 import {
   ApiOverviewActions,
   isOAuthAuthorizationDisabled,
+  OperationTaskSelect,
   OAuthToolbar,
   withoutHostManagedOAuthScheme
 } from "./pontx-api-workspace";
@@ -29,6 +30,26 @@ describe("ApiOverviewActions", () => {
       `<a class="button" href="#quick-call">${quickCallLabel}</a>`
     );
     expect(html.indexOf(workspaceLabel)).toBeLessThan(html.indexOf(quickCallLabel));
+  });
+});
+
+describe("OperationTaskSelect", () => {
+  it("renders the current task with the shared accessible Select", () => {
+    const api = getCatalogApi("dida365")!;
+    const operation = api.operations.find((candidate) => candidate.slug === "get-user-projects")!;
+    const html = renderToStaticMarkup(createElement(OperationTaskSelect, {
+      locale: "zh",
+      apiSlug: api.slug,
+      operations: api.operations,
+      value: operation.slug,
+      onValueChange: vi.fn()
+    }));
+
+    expect(html).toContain('id="api-task-select-label-dida365"');
+    expect(html).toContain('role="combobox"');
+    expect(html).toContain("获取项目列表");
+    expect(html).toContain('<select aria-hidden="true"');
+    expect(html).not.toContain('<option');
   });
 });
 
@@ -72,6 +93,36 @@ describe("OAuthToolbar", () => {
     expect(html).toContain("/oauth/callback");
     expect(html).toContain(locale === "zh" ? "复制地址" : "Copy URL");
     expect(html).toContain("invalid_request");
+  });
+
+  it("uses the shared Select for multiple OAuth flows", () => {
+    const api = getCatalogApi("dida365");
+    const originalScheme = api?.auth.find((candidate) => candidate.type === "oauth2");
+    expect(originalScheme).toBeDefined();
+
+    const scheme = {
+      ...originalScheme!,
+      flows: {
+        ...originalScheme!.flows,
+        clientCredentials: {
+          tokenUrl: "https://example.com/token",
+          scopes: {}
+        }
+      }
+    };
+    const html = renderToStaticMarkup(createElement(OAuthToolbar, {
+      scheme,
+      locale: "en",
+      requiredScopes: [],
+      state: { status: "idle" },
+      onAuthorize: vi.fn(),
+      onClear: vi.fn()
+    }));
+
+    expect(html).toContain("oauth-select-trigger");
+    expect(html).toContain('role="combobox"');
+    expect(html).toContain('<select aria-hidden="true"');
+    expect(html).not.toContain('<option');
   });
 
   it("removes only the OAuth scheme managed by the Hub", () => {
