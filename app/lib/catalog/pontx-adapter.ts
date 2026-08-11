@@ -112,7 +112,7 @@ function parameterSchema(
   const includeExamples =
     options.parameterExamples !== "required" || Boolean(parameter.required);
   const constraintKeys = [
-    "default", "const", "multipleOf", "minimum", "maximum",
+    "format", "default", "const", "multipleOf", "minimum", "maximum",
     "exclusiveMinimum", "exclusiveMaximum", "minLength", "maxLength",
     "pattern", "minItems", "maxItems", "uniqueItems", "minProperties",
     "maxProperties", "nullable", "readOnly", "writeOnly", "deprecated"

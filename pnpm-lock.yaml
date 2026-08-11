@@ -8,6 +8,11 @@ overrides:
   dompurify@<=3.4.12: 3.4.13
   nanoid@<3.3.17: 3.3.17
 
+patchedDependencies:
+  '@pontx/shadcn-ui@1.2.9':
+    hash: f932cf519b8c8ee3da8be7c2159dc3766c52dc30a7e31b1b56d22e180e76c009
+    path: patches/@pontx__shadcn-ui@1.2.9.patch
+
 importers:
 
   .:
@@ -20,7 +25,7 @@ importers:
         version: 0.1.0(zod@3.25.76)
       '@pontx/shadcn-ui':
         specifier: ^1.2.9
-        version: 1.2.9(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 1.2.9(patch_hash=f932cf519b8c8ee3da8be7c2159dc3766c52dc30a7e31b1b56d22e180e76c009)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec':
         specifier: ^0.1.16-alpha.2
         version: 0.1.16-alpha.2
@@ -4247,7 +4252,7 @@ snapshots:
     optionalDependencies:
       zod: 3.25.76
 
-  '@pontx/shadcn-ui@1.2.9(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@pontx/shadcn-ui@1.2.9(patch_hash=f932cf519b8c8ee3da8be7c2159dc3766c52dc30a7e31b1b56d22e180e76c009)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@monaco-editor/react': 4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec': 0.1.15

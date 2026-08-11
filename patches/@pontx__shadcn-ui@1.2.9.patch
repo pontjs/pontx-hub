@@ -1,0 +1,13 @@
+diff --git a/dist/PlaygroundPanel-Dv6Ok6Kj.js b/dist/PlaygroundPanel-Dv6Ok6Kj.js
+index 97f0ef16fdd31f9296c639020e26e870a8aabba7..55f5e8928bbafa016d28e020ae13d99165165d77 100644
+--- a/dist/PlaygroundPanel-Dv6Ok6Kj.js
++++ b/dist/PlaygroundPanel-Dv6Ok6Kj.js
+@@ -499,7 +499,7 @@ const ce = ({
+       F,
+       {
+         id: a.name,
+-        type: "text",
++        type: a.schema.type === "string" && a.schema.format === "date" ? "date" : "text",
+         value: s,
+         onChange: (y) => b(a.name, y.target.value),
+         onBlur: () => S(a),

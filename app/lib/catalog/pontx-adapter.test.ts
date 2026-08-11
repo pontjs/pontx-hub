@@ -1,4 +1,10 @@
 import { getSchemaInputValue } from "@pontx/shadcn-ui";
+import {
+  ParametersForm,
+  type ParametersFormProps
+} from "@pontx/shadcn-ui/playground";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "./catalog.server";
 import {
@@ -87,6 +93,41 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       description: "Project identifier",
       schema: { description: "Project identifier" }
     });
+  });
+
+  it("preserves parameter formats for specialized Playground fields", () => {
+    const api = getCatalogApi("frankfurter");
+    const operation = api?.operations.find(
+      (item) => item.slug === "get-historical-rates"
+    );
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+
+    const pontxApi = toPontxApi(api!, operation!, "en");
+    const dateParameter = pontxApi.parameters?.find(
+      (parameter) => parameter.name === "date"
+    );
+    expect(dateParameter).toBeDefined();
+    expect(
+      dateParameter?.schema
+    ).toMatchObject({
+      type: "string",
+      format: "date",
+      examples: ["2024-01-15"]
+    });
+    expect(
+      pontxApi.parameters?.find((parameter) => parameter.name === "amount")
+        ?.schema
+    ).toMatchObject({ type: "number", format: "double" });
+
+    const html = renderToStaticMarkup(
+      createElement(ParametersForm, {
+        parameters: [dateParameter!] as ParametersFormProps["parameters"],
+        values: { date: "2024-01-15" },
+        onChange: () => undefined
+      })
+    );
+    expect(html).toContain('type="date"');
   });
 
   it("passes localized response schemas to the Playground by status code", () => {
