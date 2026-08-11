@@ -994,6 +994,9 @@ samp,
 }
 
 .search-result-main strong {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   font-size: 13px;
   text-overflow: ellipsis;
