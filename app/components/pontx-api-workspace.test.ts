@@ -75,4 +75,50 @@ describe("OAuthToolbar", () => {
 
     expect(stripped.securitySchemes).toBeUndefined();
   });
+
+  it.each([
+    ["zh" as const, "授权成功", "访问令牌已保存在当前浏览器会话中"],
+    ["en" as const, "Authorization successful", "The access token is saved in this browser session"]
+  ])("shows a visible successful authorization notice in %s", (locale, title, description) => {
+    const api = getCatalogApi("dida365");
+    const scheme = api?.auth.find((candidate) => candidate.type === "oauth2");
+    expect(scheme).toBeDefined();
+
+    const html = renderToStaticMarkup(createElement(OAuthToolbar, {
+      scheme: scheme!,
+      locale,
+      requiredScopes: ["tasks:read"],
+      state: { status: "authorized", scopes: ["tasks:read"] },
+      onAuthorize: vi.fn(),
+      onClear: vi.fn()
+    }));
+
+    expect(html).toContain('class="oauth-result-notice oauth-result-success"');
+    expect(html).toContain('role="status"');
+    expect(html).toContain(title);
+    expect(html).toContain(description);
+  });
+
+  it.each([
+    ["zh" as const, "授权未完成"],
+    ["en" as const, "Authorization failed"]
+  ])("shows a visible failed authorization notice in %s", (locale, title) => {
+    const api = getCatalogApi("dida365");
+    const scheme = api?.auth.find((candidate) => candidate.type === "oauth2");
+    expect(scheme).toBeDefined();
+
+    const html = renderToStaticMarkup(createElement(OAuthToolbar, {
+      scheme: scheme!,
+      locale,
+      requiredScopes: ["tasks:read"],
+      state: { status: "error", error: "Provider rejected the authorization request" },
+      onAuthorize: vi.fn(),
+      onClear: vi.fn()
+    }));
+
+    expect(html).toContain('class="oauth-result-notice oauth-result-error"');
+    expect(html).toContain('role="alert"');
+    expect(html).toContain(title);
+    expect(html).toContain("Provider rejected the authorization request");
+  });
 });

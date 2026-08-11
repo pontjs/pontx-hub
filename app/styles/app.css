@@ -1830,6 +1830,7 @@ samp,
 }
 
 .pontx-workspace-body > .pontx-hydrated-title,
+.pontx-workspace-body > .oauth-result-notice,
 .pontx-workspace-body > .oauth-toolbar,
 .pontx-workspace-body > .documentation-evidence,
 .pontx-workspace-body > .request-example-notice {
@@ -3144,6 +3145,55 @@ samp,
   border-radius: 8px;
   background: #f8fbfa;
 }
+.oauth-result-notice {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: 12px 14px 0;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 11px 12px 11px 10px;
+  box-shadow: 0 1px 0 rgb(15 23 42 / 4%);
+}
+.oauth-result-notice + .oauth-toolbar { margin-top: 8px; }
+.resource-page-guided .oauth-result-notice { margin: 0 0 8px; }
+.oauth-result-notice > div { min-width: 0; }
+.oauth-result-notice strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  letter-spacing: -.01em;
+}
+.oauth-result-notice p {
+  margin: 3px 0 0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.oauth-result-mark {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+  font: 750 14px/1 var(--mono);
+}
+.oauth-result-success {
+  border-color: #86c8ae;
+  border-left-color: #16875a;
+  background: linear-gradient(90deg, #ecfdf5 0%, #f8fffb 100%);
+}
+.oauth-result-success .oauth-result-mark { background: #16875a; }
+.oauth-result-error {
+  border-color: #f0aaa3;
+  border-left-color: #b42318;
+  background: linear-gradient(90deg, #fff1f0 0%, #fffafa 100%);
+}
+.oauth-result-error .oauth-result-mark { background: #b42318; }
 .oauth-toolbar-heading, .oauth-toolbar-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .oauth-toolbar-heading { padding: 12px; cursor: pointer; list-style: none; }
 .oauth-toolbar-heading::-webkit-details-marker { display: none; }
@@ -3240,7 +3290,6 @@ samp,
 .oauth-toolbar-actions button.secondary { background: white; color: #0f766e; }
 .oauth-toolbar-actions button:disabled { opacity: .55; cursor: not-allowed; }
 .oauth-toolbar-actions span { margin-left: auto; }
-.oauth-toolbar-error { margin: 0; color: #b42318; font-size: 12px; }
 .documentation-status {
   align-self: center;
   width: max-content;
@@ -3388,6 +3437,7 @@ samp,
   .oauth-callback-value { grid-template-columns: 1fr; }
   .oauth-callback-value code { font-size: 12px; }
   .oauth-callback-value button { width: 100%; }
+  .resource-page-guided .oauth-result-notice { margin-inline: 12px; }
   .oauth-toolbar-fields { grid-template-columns: 1fr; }
   .oauth-toolbar-actions { align-items: flex-start; flex-direction: column; }
   .oauth-toolbar-heading p { display: none; }

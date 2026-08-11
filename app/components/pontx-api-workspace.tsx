@@ -148,7 +148,36 @@ export function OAuthToolbar({
       setCallbackCopied(false);
     }
   };
-  return <details className="oauth-toolbar">
+  const resultNotice = authorized
+    ? {
+        kind: "success" as const,
+        title: locale === "zh" ? "授权成功" : "Authorization successful",
+        description: locale === "zh"
+          ? "访问令牌已保存在当前浏览器会话中，现在可以直接调试接口。"
+          : "The access token is saved in this browser session. You can now debug endpoints directly."
+      }
+    : state.status === "error"
+      ? {
+          kind: "error" as const,
+          title: locale === "zh" ? "授权未完成" : "Authorization failed",
+          description: state.error ?? (locale === "zh" ? "请检查授权配置后重试。" : "Check the authorization configuration and try again.")
+        }
+      : undefined;
+
+  return <>
+    {resultNotice ? <div
+      className={`oauth-result-notice oauth-result-${resultNotice.kind}`}
+      role={resultNotice.kind === "error" ? "alert" : "status"}
+      aria-live={resultNotice.kind === "error" ? "assertive" : "polite"}
+      aria-atomic="true"
+    >
+      <span className="oauth-result-mark" aria-hidden="true">{resultNotice.kind === "success" ? "✓" : "!"}</span>
+      <div>
+        <strong>{resultNotice.title}</strong>
+        <p>{resultNotice.description}</p>
+      </div>
+    </div> : null}
+    <details className="oauth-toolbar">
     <summary className="oauth-toolbar-heading">
       <div><strong>OAuth 2.0</strong><span>{authorized ? zh ? "已授权" : "Authorized" : zh ? "会话级授权" : "Session-only authorization"}</span></div>
       <p>{locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
@@ -180,11 +209,11 @@ export function OAuthToolbar({
       <label>Client Secret<input type="password" autoComplete="off" value={clientSecret} onChange={(event) => setClientSecret(event.target.value)} /></label>
     </div>
     {requiresRedirectRegistration && <label className="oauth-redirect-confirmation"><input type="checkbox" checked={redirectUriRegistered} onChange={(event) => setRedirectUriRegistered(event.target.checked)} /><span>{locale === "zh" ? "我已在开发者中心登记上述回调地址（未登记会触发 invalid_request）" : "I registered the callback URL above in the Developer Center (otherwise authorization returns invalid_request)."}</span></label>}
-      {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>{zh ? "必需" : "required"}</small>}</label>)}</fieldset>}
-    {state.error && <p className="oauth-toolbar-error" role="alert">{state.error}</p>}
+    {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>{zh ? "必需" : "required"}</small>}</label>)}</fieldset>}
     <div className="oauth-toolbar-actions"><button type="button" disabled={isOAuthAuthorizationDisabled({ busy, clientId, requiresRedirectRegistration, redirectUriRegistered })} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? zh ? "授权中…" : "Authorizing…" : authorized ? zh ? "重新授权" : "Reauthorize" : zh ? "发起授权" : "Authorize"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>{zh ? "清除授权" : "Clear authorization"}</button>}<span>{zh ? "client_secret 不会持久化或写入日志" : "client_secret is never persisted or written to logs"}</span></div>
     </div>
-  </details>;
+    </details>
+  </>;
 }
 
 type ApiEnvelope<T> =
