@@ -291,8 +291,23 @@ samp,
 }
 
 .language-link {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
   border: 1px solid var(--line);
-  padding: 7px 10px !important;
+  padding: 0 !important;
+}
+
+.language-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.mobile-language-link {
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .mobile-nav {

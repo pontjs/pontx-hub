@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { GitHubIcon } from "~/components/github-icon";
+import { LanguageIcon } from "~/components/language-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 import { alternateLocaleHref, alternateLocaleUrl } from "~/lib/i18n";
@@ -11,7 +12,8 @@ const copy = {
     catalog: "API 目录",
     skill: "Agent Skill",
     github: "GitHub",
-    language: "EN",
+    language: "English",
+    languageLabel: "切换到英文",
     menu: "菜单",
     tagline: "面向开发者与 Agent 的 API 参考",
     home: "Pontx Hub 首页",
@@ -26,6 +28,7 @@ const copy = {
     skill: "Agent Skill",
     github: "GitHub",
     language: "中文",
+    languageLabel: "Switch to Chinese",
     menu: "Menu",
     tagline: "API reference for humans & agents",
     home: "Pontx Hub home",
@@ -91,8 +94,15 @@ export function SiteShell({
             <GitHubIcon className="github-icon" />
             <span>{text.github}</span>
           </a>
-          <a href={languageTarget} className="language-link" hrefLang={nextLocale === "zh" ? "zh-CN" : "en"} onClick={handleLanguageChange}>
-            {text.language}
+          <a
+            href={languageTarget}
+            className="language-link"
+            hrefLang={nextLocale === "zh" ? "zh-CN" : "en"}
+            aria-label={text.languageLabel}
+            title={text.languageLabel}
+            onClick={handleLanguageChange}
+          >
+            <LanguageIcon className="language-icon" />
           </a>
           <AccountNavigation locale={locale} />
         </nav>
@@ -125,11 +135,18 @@ export function SiteShell({
             >
               {text.github}
             </a>
-            <a href={languageTarget} hrefLang={nextLocale === "zh" ? "zh-CN" : "en"} onClick={(event) => {
-              setMobileNavOpen(false);
-              handleLanguageChange(event);
-            }}>
-              {text.language}
+            <a
+              className="mobile-language-link"
+              href={languageTarget}
+              hrefLang={nextLocale === "zh" ? "zh-CN" : "en"}
+              aria-label={text.languageLabel}
+              onClick={(event) => {
+                setMobileNavOpen(false);
+                handleLanguageChange(event);
+              }}
+            >
+              <LanguageIcon className="language-icon" />
+              <span>{text.language}</span>
             </a>
             <AccountNavigation locale={locale} onNavigate={() => setMobileNavOpen(false)} />
           </nav>
