@@ -243,4 +243,21 @@ describe("API directory integration styles", () => {
       /@media \(max-width: 420px\)[\s\S]*?\.api-card-meta\s*{\s*display:\s*grid;\s*width:\s*100%;/,
     );
   });
+
+  it("makes the complete API overview SDK fact a keyboard-accessible link", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.api-overview-sdk-fact\s*{[\s\S]*?position:\s*relative;/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-sdk-link::after\s*{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-sdk-link:focus-visible::after\s*{[\s\S]*?outline:\s*2px solid var\(--blue\);/,
+    );
+    expect(css).toMatch(
+      /\.api-overview-sdk-link:hover \.api-overview-sdk-arrow,[\s\S]*?transform:\s*translate\(2px, -2px\);/,
+    );
+  });
 });
