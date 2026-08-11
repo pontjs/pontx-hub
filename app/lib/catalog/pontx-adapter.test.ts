@@ -134,6 +134,28 @@ describe("pontx-shadcn-ui catalog adapter", () => {
     expect(html).toContain(
       'aria-describedby="date-description date-example date-hint"'
     );
+
+    const customFormatHtml = renderToStaticMarkup(
+      createElement(ParametersForm, {
+        parameters: [
+          {
+            ...dateParameter!,
+            name: "compact_date",
+            schema: {
+              ...dateParameter!.schema,
+              format: "yyyyMMdd",
+              examples: ["20240115"]
+            }
+          }
+        ] as ParametersFormProps["parameters"],
+        values: { compact_date: "20260811" },
+        onChange: () => undefined
+      })
+    );
+    expect(customFormatHtml).toContain('type="date"');
+    expect(customFormatHtml).toContain('value="2026-08-11"');
+    expect(customFormatHtml).toContain("格式: yyyyMMdd");
+    expect(customFormatHtml).toContain(">20240115</code>");
   });
 
   it("passes localized response schemas to the Playground by status code", () => {
