@@ -56,10 +56,11 @@ describe("Playground availability", () => {
     );
 
     expect(workspace).toContain(
-      "enablePlayground={playgroundAvailability.executionEnabled}"
+      "enablePlayground={playgroundAvailable}"
     );
     expect(workspace).toContain(
-      "onExecute={playgroundAvailability.executionEnabled ? execute : undefined}"
+      "onExecute={playgroundAvailable ? execute : undefined}"
     );
+    expect(workspace).toContain("if (!playgroundAvailability.executionEnabled)");
   });
 });

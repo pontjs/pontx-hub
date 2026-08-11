@@ -1831,7 +1831,8 @@ samp,
 
 .pontx-workspace-body > .pontx-hydrated-title,
 .pontx-workspace-body > .oauth-toolbar,
-.pontx-workspace-body > .documentation-evidence {
+.pontx-workspace-body > .documentation-evidence,
+.pontx-workspace-body > .request-example-notice {
   flex: 0 0 auto;
 }
 
@@ -3205,6 +3206,121 @@ samp,
 .documentation-evidence.status-observed { border-left-color: #3b82f6; }
 .documentation-evidence.status-inferred { border-left-color: #f59e0b; }
 .documentation-evidence p { margin: 5px 0 0; font-size: 12px; }
+.request-example-notice {
+  display: grid;
+  margin: 14px 18px 0;
+  border: 1px solid #cbd8e5;
+  border-left: 3px solid #22c55e;
+  border-radius: 7px;
+  padding: 11px 13px;
+  background: #f8fbf9;
+  color: var(--ink);
+  gap: 7px;
+}
+.request-example-notice.requires-input {
+  border-left-color: #f59e0b;
+  background: #fffaf0;
+}
+.request-example-heading {
+  display: flex;
+  min-width: 0;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.request-example-heading > div { display: grid; min-width: 0; gap: 2px; }
+.request-example-kicker {
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.request-example-heading strong { font-size: 13px; line-height: 1.35; }
+.request-example-state {
+  flex: 0 0 auto;
+  border: 1px solid #86efac;
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.requires-input .request-example-state {
+  border-color: #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+.request-example-notice > p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.request-example-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.request-example-meta span {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 2px 6px;
+  background: #fff;
+  color: #536171;
+  font-family: var(--mono);
+  font-size: 9px;
+}
+.request-example-inputs {
+  display: grid;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  gap: 5px;
+}
+.request-example-inputs li {
+  display: grid;
+  grid-template-columns: minmax(120px, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  font-size: 11px;
+}
+.request-example-inputs code {
+  overflow-wrap: anywhere;
+  color: #7c4a03;
+  font-weight: 700;
+}
+.request-example-inputs a { color: var(--blue); text-decoration: underline; }
+.request-example-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.request-example-actions label { display: grid; gap: 3px; }
+.request-example-actions label > span {
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.request-example-actions select,
+.request-example-actions button {
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 9px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 11px;
+}
+.request-example-actions select:focus-visible,
+.request-example-actions button:focus-visible {
+  border-color: var(--blue);
+  outline: 3px solid rgba(49, 87, 213, .12);
+}
+.request-example-actions button { cursor: pointer; }
+.resource-page-guided .request-example-notice { margin: 0 0 16px; }
 @media (max-width: 760px) {
   .oauth-toolbar-fields { grid-template-columns: 1fr; }
   .oauth-toolbar-actions { align-items: flex-start; flex-direction: column; }
@@ -3214,4 +3330,11 @@ samp,
   .oauth-credential-guide summary > span:last-child { display: none; }
   .oauth-credential-guide > div { align-items: flex-start; flex-direction: column; }
   .oauth-toolbar-actions span { margin-left: 0; }
+  .request-example-notice { margin-inline: 12px; }
+  .resource-page-guided .request-example-notice { margin-inline: 0; }
+  .request-example-inputs li { grid-template-columns: 1fr; gap: 2px; }
+  .request-example-actions { align-items: stretch; flex-direction: column; }
+  .request-example-actions label,
+  .request-example-actions select,
+  .request-example-actions button { width: 100%; }
 }

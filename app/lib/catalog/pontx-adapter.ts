@@ -8,6 +8,7 @@ import type {
   CatalogAuthScheme,
   CatalogOperation,
   CatalogParameter,
+  CatalogRequestExample,
   CatalogResponseMetadata,
   CatalogSchema,
   Locale
@@ -56,7 +57,48 @@ export type PontxAdapterOptions = {
    * examples are not mistaken for defaults and combined into one request.
    */
   parameterExamples?: "all" | "required";
+  /** A coherent request example overrides scattered parameter examples. */
+  requestExample?: CatalogRequestExample;
 };
+
+type ParameterInitialValue =
+  | { state: "value"; value: unknown }
+  | { state: "empty" }
+  | undefined;
+
+function hasOwn(record: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function parameterInitialValue(
+  parameter: CatalogParameter,
+  requestExample: CatalogRequestExample | undefined
+): ParameterInitialValue {
+  if (!requestExample) return undefined;
+  const unresolved = requestExample.unresolved.some(
+    (input) => input.in === parameter.in && input.name === parameter.name
+  );
+  if (unresolved) return { state: "empty" };
+
+  const values =
+    parameter.in === "path"
+      ? requestExample.request.path
+      : parameter.in === "query"
+        ? requestExample.request.query
+        : parameter.in === "header"
+          ? requestExample.request.headers
+          : undefined;
+  if (values && hasOwn(values, parameter.name)) {
+    return { state: "value", value: values[parameter.name] };
+  }
+  if (
+    parameter.in === "body" &&
+    hasOwn(requestExample.request as Record<string, unknown>, "body")
+  ) {
+    return { state: "value", value: requestExample.request.body };
+  }
+  return undefined;
+}
 
 function schemaType(value: unknown): PontxJsonSchema["type"] {
   if (Array.isArray(value)) return "array";
@@ -107,10 +149,13 @@ export function inferPontxSchema(value: unknown): PontxJsonSchema {
 function parameterSchema(
   parameter: CatalogParameter,
   locale: Locale,
-  options: PontxAdapterOptions
+  options: PontxAdapterOptions,
+  initialValue = parameterInitialValue(parameter, options.requestExample)
 ): PontxJsonSchema {
   const includeExamples =
-    options.parameterExamples !== "required" || Boolean(parameter.required);
+    initialValue?.state === "value" ||
+    options.parameterExamples !== "required" ||
+    Boolean(parameter.required);
   const constraintKeys = [
     "format", "default", "const", "multipleOf", "minimum", "maximum",
     "exclusiveMinimum", "exclusiveMaximum", "minLength", "maxLength",
@@ -119,27 +164,34 @@ function parameterSchema(
   ] as const;
   const constraints = Object.fromEntries(
     constraintKeys
+      .filter((key) => key !== "default" || initialValue === undefined)
       .filter((key) => parameter[key] !== undefined)
       .map((key) => [key, parameter[key]])
   );
+  const sourceExample =
+    initialValue?.state === "value"
+      ? initialValue.value
+      : initialValue?.state === "empty"
+        ? undefined
+        : parameter.example;
   const exampleSchema =
-    parameter.example === undefined || !includeExamples
+    sourceExample === undefined || !includeExamples
       ? { type: parameter.type }
-      : inferPontxSchema(parameter.example);
+      : inferPontxSchema(sourceExample);
   return {
     ...exampleSchema,
     type: parameter.type,
     ...constraints,
     ...(parameter.enum ? { enum: parameter.enum } : {}),
-    ...(includeExamples && parameter.examples
+    ...(initialValue === undefined && includeExamples && parameter.examples
       ? { examples: parameter.examples }
       : {}),
     ...(parameter.description
       ? { description: localize(parameter.description, locale) }
       : {}),
-    ...(parameter.example === undefined || !includeExamples
+    ...(sourceExample === undefined || !includeExamples
       ? {}
-      : { examples: [parameter.example] })
+      : { examples: [sourceExample] })
   } as PontxJsonSchema;
 }
 

@@ -30,6 +30,29 @@ describe("OperationSeoContent", () => {
     expect(html).toContain("<h2 id=\"responses-heading\">响应</h2>");
     expect(html).toContain("Project</a>");
     expect(html).toContain("OAuth2");
+    expect(html).toContain("成功请求示例");
+  });
+
+  it("renders arbitrary dynamic inputs and their prerequisite Endpoint", () => {
+    const match = getCatalogOperation("dida365", "create-task");
+    expect(match).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(OperationSeoContent, {
+          locale: "zh",
+          api: match!.api,
+          operation: match!.operation
+        })
+      )
+    );
+
+    expect(html).toContain("需补充输入");
+    expect(html).toContain("body/projectId");
+    expect(html).toContain("获取项目列表");
+    expect(html).toContain("/zh/apis/dida365/get-user-projects");
   });
 
   it.each([

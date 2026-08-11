@@ -60,7 +60,7 @@ export function listCatalogSummaries(): CatalogSummary[] {
     ...api,
     operationCount: operations.length,
     schemaCount: schemas.length,
-    defaultOperationSlug: operations[0].slug,
+    defaultOperationSlug: api.quickStart?.operationSlug ?? operations[0].slug,
     authTypes: [...new Set(auth.map((scheme) => scheme.type))]
   }));
 }

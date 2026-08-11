@@ -26,12 +26,39 @@ describe("curated catalog", () => {
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
+  it("provides every endpoint with a successful request example and a ready Quick Start", () => {
+    const catalog = listCatalog();
+    const operations = catalog.flatMap((api) => api.operations);
+    expect(operations).toHaveLength(75);
+    expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
+    expect(
+      operations.flatMap((operation) => operation.requestExamples).every(
+        (example) =>
+          (example.completeness === "ready") === (example.unresolved.length === 0)
+      )
+    ).toBe(true);
+    for (const api of catalog) {
+      const operation = api.operations.find(
+        (candidate) => candidate.slug === api.quickStart?.operationSlug
+      );
+      const example = operation?.requestExamples.find(
+        (candidate) => candidate.id === api.quickStart?.requestExampleId
+      );
+      expect(example?.completeness, api.slug).toBe("ready");
+    }
+  });
+
   it("returns summaries without operation payloads", () => {
-    const summary = listCatalogSummaries()[0];
+    const summaries = listCatalogSummaries();
+    const summary = summaries[0];
     expect(summary.operationCount).toBeGreaterThan(0);
     expect(summary.defaultOperationSlug).toBeTruthy();
     expect(summary).not.toHaveProperty("operations");
     expect(summary).not.toHaveProperty("servers");
+    expect(
+      summaries.find((candidate) => candidate.slug === "stooq")
+        ?.defaultOperationSlug
+    ).toBe("download-historical-quotes");
   });
 
   it("finds operations by stable slug", () => {

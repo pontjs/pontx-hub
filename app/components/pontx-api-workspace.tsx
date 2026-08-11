@@ -24,6 +24,7 @@ import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
+import { RequestExampleNotice } from "~/components/request-example-notice";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import {
   pkceChallenge,
@@ -34,6 +35,12 @@ import {
   type OAuthTokenSet
 } from "~/lib/oauth/client";
 import { hubCliSnippet } from "~/lib/hub-cli-command";
+import {
+  defaultRequestExample,
+  requestExampleInputLabel,
+  storedConfigForRequestExample,
+  unresolvedRequestInputs
+} from "~/lib/playground/request-examples";
 
 type OAuthAuthorizeInput = {
   schemeName: string;
@@ -79,6 +86,7 @@ export function OAuthToolbar({
   onAuthorize: (input: OAuthAuthorizeInput) => Promise<void>;
   onClear: () => void;
 }) {
+  const zh = locale === "zh";
   const flows = Object.keys(scheme.flows ?? {}).filter(
     (flow): flow is OAuthAuthorizeInput["flow"] =>
       flow === "authorizationCode" || flow === "clientCredentials"
@@ -95,11 +103,11 @@ export function OAuthToolbar({
   const requiresRedirectRegistration = flow === "authorizationCode" && Boolean(scheme.credentialGuide);
   return <details className="oauth-toolbar">
     <summary className="oauth-toolbar-heading">
-      <div><strong>OAuth 2.0</strong><span>{authorized ? "已授权" : "会话级授权"}</span></div>
+      <div><strong>OAuth 2.0</strong><span>{authorized ? zh ? "已授权" : "Authorized" : zh ? "会话级授权" : "Session-only authorization"}</span></div>
       <p>{locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
     </summary>
     <div className="oauth-toolbar-content">
-    <p className="oauth-callback">{locale === "zh" ? "回调地址" : "Callback URL"}：<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
+    <p className="oauth-callback">{locale === "zh" ? "回调地址：" : "Callback URL: "}<code>{typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`}</code></p>
     {scheme.credentialGuide && <details className="oauth-credential-guide" open>
       <summary>
         <span aria-hidden="true">01</span>
@@ -117,9 +125,9 @@ export function OAuthToolbar({
       <label>Client Secret<input type="password" autoComplete="off" value={clientSecret} onChange={(event) => setClientSecret(event.target.value)} /></label>
     </div>
     {requiresRedirectRegistration && <label className="oauth-redirect-confirmation"><input type="checkbox" checked={redirectUriRegistered} onChange={(event) => setRedirectUriRegistered(event.target.checked)} /><span>{locale === "zh" ? "我已在开发者中心登记上述回调地址（未登记会触发 invalid_request）" : "I registered the callback URL above in the Developer Center (otherwise authorization returns invalid_request)."}</span></label>}
-    {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>必需</small>}</label>)}</fieldset>}
+      {Object.keys(flowScopes).length > 0 && <fieldset><legend>Scopes</legend>{Object.keys(flowScopes).map((scope) => <label key={scope}><input type="checkbox" checked={scopes.includes(scope)} disabled={requiredScopes.includes(scope)} onChange={(event) => setScopes(event.target.checked ? [...scopes, scope] : scopes.filter((item) => item !== scope))} /><code>{scope}</code>{requiredScopes.includes(scope) && <small>{zh ? "必需" : "required"}</small>}</label>)}</fieldset>}
     {state.error && <p className="oauth-toolbar-error" role="alert">{state.error}</p>}
-    <div className="oauth-toolbar-actions"><button type="button" disabled={isOAuthAuthorizationDisabled({ busy, clientId, requiresRedirectRegistration, redirectUriRegistered })} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? "授权中…" : authorized ? "重新授权" : "发起授权"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>清除授权</button>}<span>client_secret 不会持久化或写入日志</span></div>
+    <div className="oauth-toolbar-actions"><button type="button" disabled={isOAuthAuthorizationDisabled({ busy, clientId, requiresRedirectRegistration, redirectUriRegistered })} onClick={() => void onAuthorize({ schemeName: scheme.id, flow, clientId, clientSecret: clientSecret || undefined, scopes })}>{busy ? zh ? "授权中…" : "Authorizing…" : authorized ? zh ? "重新授权" : "Reauthorize" : zh ? "发起授权" : "Authorize"}</button>{authorized && <button type="button" className="secondary" onClick={onClear}>{zh ? "清除授权" : "Clear authorization"}</button>}<span>{zh ? "client_secret 不会持久化或写入日志" : "client_secret is never persisted or written to logs"}</span></div>
     </div>
   </details>;
 }
@@ -129,9 +137,14 @@ type ApiEnvelope<T> =
   | { error: { code: string; message: string; requestId: string } };
 
 type Preview = {
+  method: string;
+  url: string;
+  headers: Record<string, string>;
+  body?: unknown;
   curl: string;
   requiresConfirmation: boolean;
   confirmationToken?: string;
+  warnings: string[];
 };
 
 type Execution = {
@@ -238,22 +251,49 @@ export function PontxApiWorkspace({
   const guided = variant === "guided";
   const [selectedOperation, setSelectedOperation] = useState(operation);
   const activeOperation = guided ? selectedOperation : operation;
+  const preferredRequestExample = useMemo(
+    () => defaultRequestExample(api, activeOperation),
+    [activeOperation, api]
+  );
+  const [selectedRequestExampleId, setSelectedRequestExampleId] = useState(
+    preferredRequestExample?.id
+  );
+  const [playgroundRevision, setPlaygroundRevision] = useState(0);
+  const [preparedRequestExampleKey, setPreparedRequestExampleKey] = useState<string>();
+  useEffect(() => {
+    setSelectedRequestExampleId(preferredRequestExample?.id);
+  }, [activeOperation.slug, preferredRequestExample?.id]);
+  const requestExample =
+    activeOperation.requestExamples.find(
+      (example) => example.id === selectedRequestExampleId
+    ) ?? preferredRequestExample;
+  const requestExamplePreparationKey = `${activeOperation.method}:${activeOperation.path}:${requestExample?.id ?? "none"}`;
   const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
   const pontxApi = useMemo(
     () =>
       toPontxApi(api, activeOperation, locale, {
-        parameterExamples: guided ? "required" : "all"
+        parameterExamples: guided || requestExample ? "required" : "all",
+        requestExample
       }),
-    [activeOperation, api, guided, locale]
+    [activeOperation, api, guided, locale, requestExample]
   );
   const playgroundAvailability = getPlaygroundAvailability(
     api,
     activeOperation,
     locale
   );
-  const operationServers = activeOperation.serverIds.length
+  const approvedOperationServers = activeOperation.serverIds.length
     ? api.servers.filter((server) => activeOperation.serverIds.includes(server.id))
     : api.servers;
+  const operationServers = requestExample?.request.serverId
+    ? [...approvedOperationServers].sort((left, right) =>
+        left.id === requestExample.request.serverId
+          ? -1
+          : right.id === requestExample.request.serverId
+            ? 1
+            : 0
+      )
+    : approvedOperationServers;
   const selectedApiName = pontxOperationName(activeOperation);
   const [isHydrated, setIsHydrated] = useState(false);
   const [executionResult, setExecutionResult] =
@@ -264,6 +304,74 @@ export function PontxApiWorkspace({
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
   const [oauthState, setOAuthState] = useState<OAuthUiState>({ status: "idle" });
+
+  useEffect(() => {
+    if (!requestExample) {
+      setPreparedRequestExampleKey(requestExamplePreparationKey);
+      return;
+    }
+    const configKey = `playground:${activeOperation.method}:${activeOperation.path}:params`;
+    if (!window.sessionStorage.getItem(configKey)) {
+      const server = api.servers.find(
+        (candidate) => candidate.id === requestExample.request.serverId
+      ) ?? operationServers[0];
+      window.sessionStorage.setItem(
+        configKey,
+        JSON.stringify(
+          storedConfigForRequestExample(requestExample, undefined, server?.url ?? "")
+        )
+      );
+      if (server) {
+        window.sessionStorage.setItem(
+          `playground:spec:${api.slug}:baseUrl`,
+          server.url
+        );
+      }
+    }
+    setPreparedRequestExampleKey(requestExamplePreparationKey);
+  }, [
+    activeOperation.method,
+    activeOperation.path,
+    api.servers,
+    api.slug,
+    operationServers[0]?.url,
+    requestExample,
+    requestExamplePreparationKey
+  ]);
+
+  const applyRequestExample = useCallback((exampleId: string) => {
+    const example = activeOperation.requestExamples.find(
+      (candidate) => candidate.id === exampleId
+    );
+    if (!example) return;
+    const configKey = `playground:${activeOperation.method}:${activeOperation.path}:params`;
+    let previous: Record<string, unknown> | undefined;
+    try {
+      previous = JSON.parse(window.sessionStorage.getItem(configKey) ?? "null") as
+        | Record<string, unknown>
+        | undefined;
+    } catch {
+      previous = undefined;
+    }
+    const server = api.servers.find(
+      (candidate) => candidate.id === example.request.serverId
+    ) ?? operationServers[0];
+    window.sessionStorage.setItem(
+      configKey,
+      JSON.stringify(
+        storedConfigForRequestExample(example, previous, server?.url ?? "")
+      )
+    );
+    if (server) {
+      window.sessionStorage.setItem(
+        `playground:spec:${api.slug}:baseUrl`,
+        server.url
+      );
+    }
+    setSelectedRequestExampleId(example.id);
+    setExecutionResult(undefined);
+    setPlaygroundRevision((revision) => revision + 1);
+  }, [activeOperation, api.servers, api.slug, operationServers]);
 
   const saveOAuthToken = useCallback((token: OAuthTokenSet) => {
     setOAuthToken(token);
@@ -394,15 +502,48 @@ export function PontxApiWorkspace({
 
   const execute = useCallback(
     async (request: PlaygroundRequest) => {
-      if (!playgroundAvailability.executionEnabled) return;
       setIsExecuting(true);
       setExecutionResult(undefined);
       try {
+        const unresolved = unresolvedRequestInputs(request, requestExample);
+        if (unresolved.length) {
+          setExecutionResult({
+            status: 422,
+            statusText:
+              locale === "zh" ? "需要补充动态输入" : "Dynamic input required",
+            headers: {},
+            body: {
+              error:
+                locale === "zh"
+                  ? "请补充成功请求示例中列出的动态输入后再继续。"
+                  : "Complete the dynamic inputs listed by the successful request example before continuing.",
+              inputs: unresolved.map(requestExampleInputLabel)
+            },
+            duration: 0
+          });
+          return;
+        }
         const requestBody = hubRequestPayload(request, api, activeOperation);
         const preview = await postHub<Preview>(
           "/api/v1/playground/preview",
           requestBody
         );
+        if (!playgroundAvailability.executionEnabled) {
+          setExecutionResult({
+            status: 0,
+            statusText: locale === "zh" ? "请求预览" : "Request preview",
+            headers: preview.headers,
+            body: {
+              method: preview.method,
+              url: preview.url,
+              body: preview.body,
+              curl: preview.curl,
+              warnings: preview.warnings
+            },
+            duration: 0
+          });
+          return;
+        }
         if (
           preview.requiresConfirmation &&
           !window.confirm(
@@ -441,7 +582,13 @@ export function PontxApiWorkspace({
         setIsExecuting(false);
       }
     },
-    [activeOperation, api, locale, playgroundAvailability.executionEnabled]
+    [
+      activeOperation,
+      api,
+      locale,
+      playgroundAvailability.executionEnabled,
+      requestExample
+    ]
   );
 
   const getCodeGenScenarios = useCallback(() => codeGenScenarios, []);
@@ -463,6 +610,8 @@ export function PontxApiWorkspace({
     : zh
       ? "此接口不支持由 Hub 代理执行"
       : "Hub proxy execution is unavailable for this endpoint";
+  const playgroundAvailable =
+    playgroundAvailability.executionEnabled || Boolean(requestExample);
   const category =
     locale === "zh"
       ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
@@ -576,6 +725,9 @@ export function PontxApiWorkspace({
                   const candidate = api.operations.find((item) => item.slug === event.target.value);
                   if (candidate) {
                     setSelectedOperation(candidate);
+                    setSelectedRequestExampleId(
+                      defaultRequestExample(api, candidate)?.id
+                    );
                     setExecutionResult(undefined);
                   }
                 }}
@@ -621,23 +773,35 @@ export function PontxApiWorkspace({
               onClear={clearOAuth}
             /> : null
           ) : null}
-          {isHydrated ? (
+          {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
             {!guided || !playgroundAvailability.executionEnabled ? (
               <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
             ) : null}
+            {requestExample ? (
+              <RequestExampleNotice
+                locale={locale}
+                api={api}
+                operation={activeOperation}
+                example={requestExample}
+                selectedId={requestExample.id}
+                previewOnly={!playgroundAvailability.executionEnabled}
+                onSelect={applyRequestExample}
+                onReset={() => applyRequestExample(requestExample.id)}
+              />
+            ) : null}
             <ApiDocumentation
-              key={`${locale}:${api.slug}:${activeOperation.slug}:${oauthToken?.accessToken ?? "anonymous"}`}
+              key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={pontxApi}
-              enablePlayground={playgroundAvailability.executionEnabled}
-              defaultPlaygroundVisible={guided && playgroundAvailability.executionEnabled}
+              enablePlayground={playgroundAvailable}
+              defaultPlaygroundVisible={guided && playgroundAvailable}
               specName={api.slug}
               servers={operationServers.map((server) => ({
                 url: server.url,
                 description: localize(server.description, locale)
               }))}
-              onExecute={playgroundAvailability.executionEnabled ? execute : undefined}
+              onExecute={playgroundAvailable ? execute : undefined}
               executionResult={executionResult}
               isExecuting={isExecuting}
               {...({
@@ -649,7 +813,7 @@ export function PontxApiWorkspace({
               } as Record<string, unknown>)}
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
-              className={`pontx-documentation${guided && playgroundAvailability.executionEnabled ? " pontx-documentation-guided" : ""}`}
+              className={`pontx-documentation${guided && playgroundAvailable ? " pontx-documentation-guided" : ""}`}
             />
             </>
           ) : (

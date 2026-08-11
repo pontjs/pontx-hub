@@ -60,6 +60,32 @@ export type CatalogResponseMetadata = CatalogPayloadMetadata & {
   status: string;
 };
 
+export type CatalogRequestScalar = string | number | boolean;
+
+export type CatalogRequestExampleInput = {
+  in: "path" | "query" | "header" | "body";
+  name: string;
+  source:
+    | { kind: "operation"; operationId: string }
+    | { kind: "runtime"; reason: string };
+};
+
+export type CatalogRequestExample = {
+  id: string;
+  title: LocalizedText;
+  request: {
+    serverId?: string;
+    path: Record<string, CatalogRequestScalar>;
+    query: Record<string, CatalogRequestScalar>;
+    headers: Record<string, string>;
+    body?: unknown;
+  };
+  expectedStatus: string;
+  verifiedAt?: string;
+  completeness: "ready" | "requires-input";
+  unresolved: CatalogRequestExampleInput[];
+};
+
 export type CatalogOperation = {
   slug: string;
   operationId: string;
@@ -81,6 +107,7 @@ export type CatalogOperation = {
   verifiedAt?: string;
   stabilityNote?: LocalizedText;
   security?: Array<{ schemeId: string; scopes: string[] }>;
+  requestExamples: CatalogRequestExample[];
   responseExample?: unknown;
   deprecated?: boolean;
 };
@@ -185,6 +212,10 @@ export type CatalogApi = {
   evidenceUrls: string[];
   verifiedAt?: string;
   stabilityNote?: LocalizedText;
+  quickStart?: {
+    operationSlug: string;
+    requestExampleId: string;
+  };
   servers: CatalogServer[];
   auth: CatalogAuthScheme[];
   operations: CatalogOperation[];

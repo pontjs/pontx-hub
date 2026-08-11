@@ -238,4 +238,41 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       )
     ).toEqual({ base: "EUR", quote: "USD" });
   });
+
+  it("prefills one coherent successful request and clears unresolved values", () => {
+    const ratesApi = getCatalogApi("frankfurter");
+    const rates = ratesApi?.operations.find(
+      (item) => item.slug === "get-latest-rates"
+    );
+    const ratesExample = rates?.requestExamples[0];
+    expect(ratesExample).toBeDefined();
+
+    const adaptedRates = toPontxApi(ratesApi!, rates!, "en", {
+      parameterExamples: "required",
+      requestExample: ratesExample
+    });
+    expect(
+      Object.fromEntries(
+        (adaptedRates.parameters ?? [])
+          .filter((parameter) => parameter.in === "query")
+          .map((parameter) => [parameter.name, getSchemaInputValue(parameter.schema)])
+          .filter(([, value]) => value !== "")
+      )
+    ).toEqual({ amount: "100", base: "USD" });
+
+    const dida = getCatalogApi("dida365");
+    const task = dida?.operations.find(
+      (item) => item.slug === "get-task-by-project-id-and-task-id"
+    );
+    const adaptedTask = toPontxApi(dida!, task!, "en", {
+      requestExample: task?.requestExamples[0]
+    });
+    expect(
+      Object.fromEntries(
+        (adaptedTask.parameters ?? [])
+          .filter((parameter) => parameter.in === "path")
+          .map((parameter) => [parameter.name, getSchemaInputValue(parameter.schema)])
+      )
+    ).toEqual({ projectId: "", taskId: "" });
+  });
 });

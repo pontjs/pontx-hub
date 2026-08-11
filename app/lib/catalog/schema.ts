@@ -59,6 +59,39 @@ const responseMetadataSchema = payloadMetadataSchema.extend({
   status: z.string().min(1)
 });
 
+const requestScalarSchema = z.union([z.string(), z.number(), z.boolean()]);
+
+const requestExampleInputSchema = z.object({
+  in: z.enum(["path", "query", "header", "body"]),
+  name: z.string().min(1),
+  source: z.discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("operation"),
+      operationId: z.string().min(1)
+    }),
+    z.object({
+      kind: z.literal("runtime"),
+      reason: z.string().min(1)
+    })
+  ])
+});
+
+const requestExampleSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  title: localizedTextSchema,
+  request: z.object({
+    serverId: z.string().min(1).optional(),
+    path: z.record(z.string(), requestScalarSchema).default({}),
+    query: z.record(z.string(), requestScalarSchema).default({}),
+    headers: z.record(z.string(), z.string()).default({}),
+    body: z.unknown().optional()
+  }),
+  expectedStatus: z.string().regex(/^(?:2\d\d|2[xX]{2})$/),
+  verifiedAt: z.string().date().optional(),
+  completeness: z.enum(["ready", "requires-input"]),
+  unresolved: z.array(requestExampleInputSchema).default([])
+});
+
 const operationSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   operationId: z.string().min(1),
@@ -94,8 +127,35 @@ const operationSchema = z.object({
       })
     )
     .optional(),
+  requestExamples: z.array(requestExampleSchema).default([]),
   responseExample: z.unknown().optional(),
   deprecated: z.boolean().optional()
+}).superRefine((operation, context) => {
+  const exampleIds = new Set<string>();
+  for (const [index, example] of operation.requestExamples.entries()) {
+    if (exampleIds.has(example.id)) {
+      context.addIssue({
+        code: "custom",
+        path: ["requestExamples", index, "id"],
+        message: `Duplicate request example id: ${example.id}`
+      });
+    }
+    exampleIds.add(example.id);
+    if (example.completeness === "ready" && example.unresolved.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["requestExamples", index, "completeness"],
+        message: "Ready request examples cannot contain unresolved inputs"
+      });
+    }
+    if (example.completeness === "requires-input" && !example.unresolved.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["requestExamples", index, "completeness"],
+        message: "Request examples marked requires-input need an unresolved input"
+      });
+    }
+  }
 });
 
 const schemaPropertySchema = z.object({
@@ -210,6 +270,12 @@ export const catalogApiSchema = z
     evidenceUrls: z.array(z.string().url()).default([]),
     verifiedAt: z.string().date().optional(),
     stabilityNote: localizedTextSchema.optional(),
+    quickStart: z
+      .object({
+        operationSlug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        requestExampleId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+      })
+      .optional(),
     servers: z.array(serverSchema).min(1),
     auth: z.array(authSchema),
     operations: z.array(operationSchema).min(1),
@@ -217,6 +283,7 @@ export const catalogApiSchema = z
   })
   .superRefine((api, context) => {
     const operationSlugs = new Set<string>();
+    const operationIds = new Set<string>();
     for (const operation of api.operations) {
       if (operationSlugs.has(operation.slug)) {
         context.addIssue({
@@ -226,6 +293,47 @@ export const catalogApiSchema = z
         });
       }
       operationSlugs.add(operation.slug);
+      if (operationIds.has(operation.operationId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["operations"],
+          message: `Duplicate operation id: ${operation.operationId}`
+        });
+      }
+      operationIds.add(operation.operationId);
+    }
+
+    if (api.quickStart) {
+      const operation = api.operations.find(
+        (item) => item.slug === api.quickStart?.operationSlug
+      );
+      if (!operation) {
+        context.addIssue({
+          code: "custom",
+          path: ["quickStart", "operationSlug"],
+          message: `Quick Start operation not found: ${api.quickStart.operationSlug}`
+        });
+      } else if (
+        !operation.requestExamples.some(
+          (example) => example.id === api.quickStart?.requestExampleId
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["quickStart", "requestExampleId"],
+          message: `Quick Start request example not found: ${api.quickStart.requestExampleId}`
+        });
+      } else if (
+        operation.requestExamples.find(
+          (example) => example.id === api.quickStart?.requestExampleId
+        )?.completeness !== "ready"
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["quickStart", "requestExampleId"],
+          message: "Quick Start request example must be ready to send"
+        });
+      }
     }
 
     const serverIds = new Set<string>();
@@ -238,5 +346,35 @@ export const catalogApiSchema = z
         });
       }
       serverIds.add(server.id);
+    }
+
+    for (const [operationIndex, operation] of api.operations.entries()) {
+      for (const serverId of operation.serverIds) {
+        if (!serverIds.has(serverId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["operations", operationIndex, "serverIds"],
+            message: `Unknown operation server id: ${serverId}`
+          });
+        }
+      }
+      for (const [exampleIndex, example] of operation.requestExamples.entries()) {
+        if (example.request.serverId && !serverIds.has(example.request.serverId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["operations", operationIndex, "requestExamples", exampleIndex, "request", "serverId"],
+            message: `Unknown request example server id: ${example.request.serverId}`
+          });
+        }
+        for (const [inputIndex, input] of example.unresolved.entries()) {
+          if (input.source.kind === "operation" && !operationIds.has(input.source.operationId)) {
+            context.addIssue({
+              code: "custom",
+              path: ["operations", operationIndex, "requestExamples", exampleIndex, "unresolved", inputIndex],
+              message: `Unknown source operation id: ${input.source.operationId}`
+            });
+          }
+        }
+      }
     }
   });

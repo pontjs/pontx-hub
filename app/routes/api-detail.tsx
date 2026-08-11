@@ -30,9 +30,13 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const api = getCatalogApi(params.apiSlug ?? "");
   if (!api) throw new Response("API not found", { status: 404 });
-  const operation = [...api.operations].sort(
-    (left, right) => quickStartScore(right) - quickStartScore(left)
-  )[0];
+  const operation =
+    api.operations.find(
+      (candidate) => candidate.slug === api.quickStart?.operationSlug
+    ) ??
+    [...api.operations].sort(
+      (left, right) => quickStartScore(right) - quickStartScore(left)
+    )[0];
   const favoriteApiSlugs = await listFavoriteApiSlugs(request);
   return { locale, api, operation, favorite: favoriteApiSlugs.includes(api.slug) };
 }

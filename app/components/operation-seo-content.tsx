@@ -2,6 +2,8 @@ import { Link } from "react-router";
 import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
+import { defaultRequestExample } from "~/lib/playground/request-examples";
+import { RequestExampleNotice } from "~/components/request-example-notice";
 
 export function DocumentationEvidence({
   locale,
@@ -79,6 +81,7 @@ export function OperationSeoContent({
   const parameters = operation.parameters.filter((parameter) => parameter.in !== "body");
   const requestSchemaName = operation.requestBody?.schemaName ?? body?.schemaName;
   const requestProperties = operation.requestBody?.properties ?? [];
+  const requestExample = defaultRequestExample(api, operation);
 
   return (
     <article className="pontx-documentation-fallback" aria-labelledby="endpoint-title">
@@ -105,6 +108,16 @@ export function OperationSeoContent({
           <div><dt>{zh ? "认证" : "Authentication"}</dt><dd>{api.auth.map((auth) => auth.id).join(", ") || (zh ? "无" : "None")}</dd></div>
         </dl>
       </section>
+
+      {requestExample ? (
+        <RequestExampleNotice
+          locale={locale}
+          api={api}
+          operation={operation}
+          example={requestExample}
+          previewOnly={!getPlaygroundAvailability(api, operation, locale).executionEnabled}
+        />
+      ) : null}
 
       <section aria-labelledby="parameters-heading">
         <h2 id="parameters-heading">{zh ? "请求参数" : "Request parameters"}</h2>
