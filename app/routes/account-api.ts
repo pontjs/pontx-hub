@@ -1,9 +1,9 @@
 import type { Route } from "./+types/account-api";
-import { getCatalogApi } from "~/lib/catalog/catalog.server";
+import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import {
-  addApiFavorite,
-  listFavoriteApiSlugsForUser,
-  removeApiFavorite
+  addEndpointFavorite,
+  listFavoriteEndpointsForUser,
+  removeEndpointFavorite
 } from "~/lib/accounts/favorites.server";
 import { readAccountsConfiguration } from "~/lib/accounts/config.server";
 import { requireAccountUserId } from "~/lib/accounts/session.server";
@@ -13,6 +13,7 @@ import {
 } from "~/lib/accounts/playground-history.server";
 
 const HISTORY_PATH = "/api/account/v1/playground/history";
+const FAVORITE_ENDPOINTS_PATH = "/api/account/v1/favorites/endpoints";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -36,13 +37,16 @@ function accountsAvailable() {
   if (configuration.status === "invalid") return jsonError("accounts_unavailable", 503);
 }
 
-function apiSlugFrom(request: Request): string | undefined {
+function endpointIdentityFrom(request: Request) {
   const match = new URL(request.url).pathname.match(
-    /^\/api\/account\/v1\/favorites\/apis\/([^/]+)$/
+    /^\/api\/account\/v1\/favorites\/endpoints\/([^/]+)\/([^/]+)$/
   );
   if (!match) return undefined;
   try {
-    return decodeURIComponent(match[1]);
+    return {
+      apiSlug: decodeURIComponent(match[1]),
+      operationSlug: decodeURIComponent(match[2])
+    };
   } catch {
     return undefined;
   }
@@ -71,7 +75,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (unavailable) return unavailable;
   const url = new URL(request.url);
   if (
-    url.pathname !== "/api/account/v1/favorites/apis" &&
+    url.pathname !== FAVORITE_ENDPOINTS_PATH &&
     url.pathname !== HISTORY_PATH
   ) {
     return jsonError("not_found", 404);
@@ -85,7 +89,7 @@ export async function loader({ request }: Route.LoaderArgs) {
         entries: await listPlaygroundHistoryForUser(userId, limit)
       });
     }
-    return jsonData({ apiSlugs: await listFavoriteApiSlugsForUser(userId) });
+    return jsonData({ endpoints: await listFavoriteEndpointsForUser(userId) });
   } catch (error) {
     if (error instanceof Response && error.status === 401) return jsonError("unauthorized", 401);
     return jsonError("accounts_unavailable", 503);
@@ -112,18 +116,23 @@ export async function action({ request }: Route.ActionArgs) {
     }
   }
 
-  const apiSlug = apiSlugFrom(request);
-  if (!apiSlug) return jsonError("not_found", 404);
-  if (!getCatalogApi(apiSlug)) return jsonError("unknown_api", 404);
+  const endpoint = endpointIdentityFrom(request);
+  if (!endpoint) return jsonError("not_found", 404);
+  if (request.method === "PUT" && !getCatalogOperation(
+    endpoint.apiSlug,
+    endpoint.operationSlug
+  )) {
+    return jsonError("unknown_endpoint", 404);
+  }
 
   try {
     if (request.method === "PUT") {
-      await addApiFavorite(request, apiSlug);
-      return jsonData({ apiSlug, saved: true });
+      await addEndpointFavorite(request, endpoint);
+      return jsonData({ ...endpoint, saved: true });
     }
     if (request.method === "DELETE") {
-      await removeApiFavorite(request, apiSlug);
-      return jsonData({ apiSlug, saved: false });
+      await removeEndpointFavorite(request, endpoint);
+      return jsonData({ ...endpoint, saved: false });
     }
     return jsonError("method_not_allowed", 405);
   } catch (error) {

@@ -38,8 +38,8 @@ export function meta({ data }: Route.MetaArgs) {
     {
       name: "description",
       content: zh
-        ? "登录 Pontx Hub，同步收藏的 API 与集合。"
-        : "Sign in to Pontx Hub to synchronize saved APIs and collections."
+        ? "登录 Pontx Hub，同步收藏的接口与集合。"
+        : "Sign in to Pontx Hub to synchronize saved Endpoints and collections."
     },
     { name: "robots", content: "noindex,nofollow" }
   ];
@@ -76,8 +76,8 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
           <h1 id="sign-in-heading">{zh ? "保存你的 API 工作台" : "Save your API workspace"}</h1>
           <p>
             {zh
-              ? "登录后可跨设备同步收藏的 API 与集合。API 密钥和 OAuth Token 仍只保存在当前会话中。"
-              : "Sign in to sync saved APIs and collections across devices. API keys and OAuth tokens still stay in this browser session."}
+              ? "登录后可跨设备同步收藏的接口与集合。API 密钥和 OAuth Token 仍只保存在当前会话中。"
+              : "Sign in to sync saved Endpoints and collections across devices. API keys and OAuth tokens still stay in this browser session."}
           </p>
           <button
             className="github-sign-in"

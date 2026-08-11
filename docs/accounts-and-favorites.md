@@ -13,7 +13,7 @@ discovery, Playground preview, or session-scoped execution.
 The first release will support:
 
 - signing in and signing out;
-- saving an individual API;
+- saving an individual Endpoint;
 - saving a platform-curated API collection;
 - creating private personal collections of APIs;
 - viewing and managing saved content across devices; and
@@ -40,9 +40,10 @@ budget are removed before insertion.
 3. Minimal identity: collect only the provider identity, verified email,
    display name, avatar, and session data required for account operation.
 4. Private by default: personal collections are private in the first release.
-5. Stable resource identity: saved APIs use the catalog `api.slug`; saved
-   curated collections use a stable `collection_key`. Locale-specific titles,
-   routes, and database UUIDs are not resource identities.
+5. Stable resource identity: saved Endpoints use the catalog pair
+   `(api.slug, operation.slug)`; saved curated collections use a stable
+   `collection_key`. Locale-specific titles, routes, and database UUIDs are not
+   resource identities.
 6. No credential persistence: account sessions and provider API credentials
    are separate security domains.
 
@@ -77,19 +78,22 @@ Required session policy:
 
 Better Auth generated tables are omitted below.
 
-### `user_api_favorites`
+### `user_endpoint_favorites`
 
 | Field | Notes |
 | --- | --- |
 | `user_id` | Better Auth user ID |
-| `api_slug` | Stable catalog API slug |
+| `api_slug` | Stable parent API slug |
+| `operation_slug` | Stable catalog Endpoint slug |
 | `created_at` | Ordering and audit timestamp |
 
-Primary key: `(user_id, api_slug)`.
+Primary key: `(user_id, api_slug, operation_slug)`.
 
-The write path validates that `api_slug` exists in the active compiled catalog.
-The read path tolerates a retired slug and returns it as unavailable so users
-can remove it instead of silently losing saved data.
+The write path validates that the `(api_slug, operation_slug)` pair exists in
+the active compiled catalog. The read path tolerates a retired pair and returns
+it as unavailable so users can remove it instead of silently losing saved data.
+The superseded `user_api_favorites` table may remain during migration but is no
+longer read by the product or exposed through the private account API.
 
 ### `curated_collections`
 
@@ -167,9 +171,9 @@ Proposed routes:
 GET    /api/account/v1/me
 DELETE /api/account/v1/me
 
-GET    /api/account/v1/favorites/apis
-PUT    /api/account/v1/favorites/apis/:apiSlug
-DELETE /api/account/v1/favorites/apis/:apiSlug
+GET    /api/account/v1/favorites/endpoints
+PUT    /api/account/v1/favorites/endpoints/:apiSlug/:operationSlug
+DELETE /api/account/v1/favorites/endpoints/:apiSlug/:operationSlug
 
 GET    /api/account/v1/favorites/collections
 PUT    /api/account/v1/favorites/collections/:collectionKey
@@ -210,10 +214,12 @@ session and CSRF protection; CORS is not enabled for this surface.
 
 ### Save controls
 
-- API catalog cards, search results, and API overview pages expose the same
-  accessible save state.
-- Because the existing API card is a whole-card link, the save button must be a
-  sibling control rather than an interactive element nested inside that link.
+- Endpoint search results and Endpoint detail pages expose the same accessible
+  save state. API product cards and API overview pages do not expose a save
+  control because a product is not the saved resource.
+- Because a search result row is a whole-row link, the Endpoint save button must
+  be a sibling control rather than an interactive element nested inside that
+  link.
 - An anonymous save action opens sign-in and preserves the resource context.
   It does not silently mutate data after authentication; the returned page
   shows the save control prominently for explicit confirmation.
@@ -270,13 +276,14 @@ sessions. Publish a concise privacy notice before production rollout.
 - [x] add distributed database-backed auth rate limiting before production enablement; and
 - [ ] deploy behind the disabled-by-default environment feature flag.
 
-### Milestone 2: individual API favorites
+### Milestone 2: individual Endpoint favorites
 
-- [x] add `user_api_favorites` migration and private API;
-- [x] add save controls to cards, search results, and API overview pages;
+- [x] add `user_endpoint_favorites` migration and private API;
+- [x] add save controls to Endpoint search results and Endpoint detail pages;
 - [x] add the localized saved-content page;
-- [x] verify disabled, invalid configuration, anonymous, cross-origin, unknown-API,
-  retired-API presentation, bilingual, desktop, and 390px states; and
+- [x] verify disabled, invalid configuration, anonymous, cross-origin,
+  unknown-Endpoint, retired-Endpoint presentation, bilingual, desktop, and
+  390px states; and
 - [ ] verify authenticated persistence, expired sessions, and cross-device sync
   against the configured production database and GitHub OAuth application.
 
@@ -307,7 +314,7 @@ sessions. Publish a concise privacy notice before production rollout.
 ## Acceptance criteria
 
 - Every existing public page and public Hub API remains usable when signed out.
-- A user can sign in, save and unsave an API, and observe the same state in a
+- A user can sign in, save and unsave an Endpoint, and observe the same state in a
   second session.
 - A signed-in user can execute an Endpoint, open the synchronized history on a
   later visit, and restore its non-sensitive inputs without re-entering them.

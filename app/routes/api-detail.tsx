@@ -6,8 +6,6 @@ import type { CatalogOperation } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
-import { FavoriteApiButton } from "~/components/favorite-api-button";
-import { listFavoriteApiSlugs } from "~/lib/accounts/favorites.server";
 
 function quickStartScore(operation: CatalogOperation): number {
   const required = operation.parameters.filter((parameter) => parameter.required);
@@ -26,7 +24,7 @@ function quickStartScore(operation: CatalogOperation): number {
   );
 }
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const api = getCatalogApi(params.apiSlug ?? "");
   if (!api) throw new Response("API not found", { status: 404 });
@@ -37,8 +35,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     [...api.operations].sort(
       (left, right) => quickStartScore(right) - quickStartScore(left)
     )[0];
-  const favoriteApiSlugs = await listFavoriteApiSlugs(request);
-  return { locale, api, operation, favorite: favoriteApiSlugs.includes(api.slug) };
+  return { locale, api, operation };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -93,12 +90,9 @@ export function headers() {
 }
 
 export default function ApiDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, operation, favorite } = loaderData;
+  const { locale, api, operation } = loaderData;
   return (
     <SiteShell locale={locale}>
-      <div className="api-favorite-toolbar">
-        <FavoriteApiButton apiSlug={api.slug} locale={locale} initialFavorite={favorite} />
-      </div>
       <PontxApiWorkspace
         locale={locale}
         api={api}

@@ -90,7 +90,7 @@ describe("public route SEO metadata", () => {
 });
 
 describe("private account route metadata", () => {
-  it("keeps saved APIs out of search indexes", () => {
+  it("keeps saved Endpoints out of search indexes", () => {
     const meta = descriptors(savedApisMeta({ data: { locale: "zh" } } as never));
     expect(meta).toContainEqual({ name: "robots", content: "noindex,nofollow" });
     expect(meta).not.toEqual(expect.arrayContaining([

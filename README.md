@@ -23,7 +23,7 @@ Google Analytics is not loaded.
 
 The account foundation is disabled by default. Public catalog, documentation,
 search, SDK, and Playground routes do not require an account or database.
-When enabled, signed-in users can synchronize API favorites and retain their
+When enabled, signed-in users can synchronize Endpoint favorites and retain their
 latest 100 Playground executions for parameter replay. History excludes auth
 objects, provider responses, and detected credential fields; API keys, OAuth
 tokens, and passwords remain browser-session-only.

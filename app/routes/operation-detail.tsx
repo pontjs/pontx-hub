@@ -1,19 +1,31 @@
 import type { Route } from "./+types/operation-detail";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
+import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
+import { isFavoriteEndpoint } from "~/lib/accounts/favorites";
+import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
 import { localize } from "~/lib/catalog/types";
 import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 
-export function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const match = getCatalogOperation(
     params.apiSlug ?? "",
     params.operationSlug ?? ""
   );
   if (!match) throw new Response("Operation not found", { status: 404 });
-  return { locale, ...match };
+  const favorites = await listFavoriteEndpoints(request);
+  return {
+    locale,
+    ...match,
+    favorite: isFavoriteEndpoint(
+      favorites,
+      match.api.slug,
+      match.operation.slug
+    )
+  };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -86,10 +98,19 @@ export function headers() {
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const { locale, api, operation } = loaderData;
+  const { locale, api, operation, favorite } = loaderData;
 
   return (
     <SiteShell locale={locale}>
+      <div className="api-favorite-toolbar">
+        <FavoriteEndpointButton
+          apiSlug={api.slug}
+          operationSlug={operation.slug}
+          endpointLabel={localize(operation.title, locale)}
+          locale={locale}
+          initialFavorite={favorite}
+        />
+      </div>
       <PontxApiWorkspace locale={locale} api={api} operation={operation} />
     </SiteShell>
   );

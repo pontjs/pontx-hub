@@ -5,31 +5,35 @@ import type { Locale } from "~/lib/catalog/types";
 
 const copy = {
   zh: {
-    save: "收藏 API",
+    save: "收藏接口",
     saved: "已收藏",
     saving: "保存中…",
     remove: "取消收藏",
-    signIn: "登录后收藏",
+    signIn: "登录后收藏接口",
     error: "收藏状态更新失败，请重试。"
   },
   en: {
-    save: "Save API",
+    save: "Save Endpoint",
     saved: "Saved",
     saving: "Saving…",
-    remove: "Remove saved API",
-    signIn: "Sign in to save",
-    error: "Could not update this saved API. Try again."
+    remove: "Remove saved Endpoint",
+    signIn: "Sign in to save Endpoint",
+    error: "Could not update this saved Endpoint. Try again."
   }
 } satisfies Record<Locale, Record<string, string>>;
 
-export function FavoriteApiButton({
+export function FavoriteEndpointButton({
   apiSlug,
+  operationSlug,
+  endpointLabel = operationSlug,
   locale,
   initialFavorite = false,
   compact = false,
   onChange
 }: {
   apiSlug: string;
+  operationSlug: string;
+  endpointLabel?: string;
   locale: Locale;
   initialFavorite?: boolean;
   compact?: boolean;
@@ -52,7 +56,7 @@ export function FavoriteApiButton({
       <Link
         className={className}
         to={`/${locale}/sign-in?returnTo=${encodeURIComponent(returnTo)}`}
-        aria-label={`${text.signIn}: ${apiSlug}`}
+        aria-label={`${text.signIn}: ${endpointLabel}`}
         title={text.signIn}
       >
         <span aria-hidden="true">☆</span>
@@ -66,7 +70,7 @@ export function FavoriteApiButton({
     setError(undefined);
     try {
       const response = await fetch(
-        `/api/account/v1/favorites/apis/${encodeURIComponent(apiSlug)}`,
+        `/api/account/v1/favorites/endpoints/${encodeURIComponent(apiSlug)}/${encodeURIComponent(operationSlug)}`,
         { method: saved ? "DELETE" : "PUT" }
       );
       if (response.status === 401) {
@@ -91,7 +95,7 @@ export function FavoriteApiButton({
         className={className}
         type="button"
         aria-pressed={saved}
-        aria-label={`${label}: ${apiSlug}`}
+        aria-label={`${label}: ${endpointLabel}`}
         title={saved ? text.saved : text.save}
         disabled={pending}
         onClick={() => void toggle()}

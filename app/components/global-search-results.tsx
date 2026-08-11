@@ -6,7 +6,11 @@ import type {
   GlobalSearchResult,
   Locale
 } from "~/lib/catalog/types";
-import { FavoriteApiButton } from "~/components/favorite-api-button";
+import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
+import {
+  isFavoriteEndpoint,
+  type FavoriteEndpointIdentity
+} from "~/lib/accounts/favorites";
 import { publicResourceTerminologyCopy } from "~/lib/i18n";
 
 const kinds: GlobalSearchKind[] = ["api", "endpoint", "schema"];
@@ -65,11 +69,11 @@ function matchFieldLabel(field: GlobalSearchMatchField, locale: Locale): string 
 export function GlobalSearchResults({
   search,
   locale,
-  favoriteApiSlugs = []
+  favoriteEndpoints = []
 }: {
   search: GlobalSearchResponse;
   locale: Locale;
-  favoriteApiSlugs?: string[];
+  favoriteEndpoints?: FavoriteEndpointIdentity[];
 }) {
   const zh = locale === "zh";
   const terminology = publicResourceTerminologyCopy(locale);
@@ -136,11 +140,17 @@ export function GlobalSearchResults({
                   </div>
                   <span className="search-result-arrow" aria-hidden="true">→</span>
                   </Link>
-                  {result.kind === "api" ? (
-                    <FavoriteApiButton
+                  {result.kind === "endpoint" ? (
+                    <FavoriteEndpointButton
                       apiSlug={result.apiSlug}
+                      operationSlug={result.operationSlug}
+                      endpointLabel={result.title}
                       locale={locale}
-                      initialFavorite={favoriteApiSlugs.includes(result.apiSlug)}
+                      initialFavorite={isFavoriteEndpoint(
+                        favoriteEndpoints,
+                        result.apiSlug,
+                        result.operationSlug
+                      )}
                       compact
                     />
                   ) : null}
