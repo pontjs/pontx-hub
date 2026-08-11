@@ -90,7 +90,7 @@ index 0000000000000000000000000000000000000000..81d3cb02ade05b7dea21436e920440e9
 +          "mx-1 block w-[calc(100%_-_0.5rem)] max-w-full overflow-hidden rounded-lg px-2.5 py-2 text-left transition-[background-color,color,box-shadow]",
 +          "hover:bg-accent/80 focus:bg-accent/80",
 +          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
-+          t && "bg-primary/10 text-foreground shadow-[inset_3px_0_0_hsl(var(--primary))]",
++          t && "bg-primary/10 text-foreground ring-1 ring-inset ring-primary/25",
 +          h
 +        ),
 +        children: /* @__PURE__ */ m("div", { className: "flex w-full min-w-0 items-center gap-2 overflow-hidden", children: [

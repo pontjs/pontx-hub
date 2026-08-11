@@ -1959,8 +1959,8 @@ samp,
 }
 
 .pontx-directory [role="menuitem"][aria-selected="true"] {
-  border-left: 2px solid hsl(var(--primary));
   background: hsl(var(--accent));
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 22%);
 }
 
 .pontx-workspace-content {
@@ -2333,8 +2333,6 @@ samp,
 
 .schema-directory-list a:hover,
 .schema-directory-list a.is-active {
-  border-left: 3px solid var(--blue);
-  padding-left: 9px;
   background: #eef2ff;
 }
 

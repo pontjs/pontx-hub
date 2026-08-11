@@ -66,6 +66,23 @@ describe("Pontx Hub visual system", () => {
     expect(systemCss).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.resource-navigation\s*{[\s\S]*?padding:\s*8px 12px 0;[\s\S]*?\.resource-navigation-tabs\s*{[\s\S]*?height:\s*40px;/);
   });
 
+  it("never uses a colored left edge as a selected-state treatment", async () => {
+    const styleSources = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+      readFile(new URL("./account.css", import.meta.url), "utf8"),
+    ]);
+
+    const selectedRule = /([^{}]*(?:is-active|aria-selected|aria-current|data-state)[^{}]*)\{([^{}]*)\}/g;
+    for (const css of styleSources) {
+      for (const match of css.matchAll(selectedRule)) {
+        const [, selector, declarations] = match;
+        expect(`${selector} {${declarations}}`).not.toMatch(/border-(?:left|inline-start)\s*:/);
+        expect(`${selector} {${declarations}}`).not.toMatch(/box-shadow:\s*inset\s+-?[1-9]/);
+      }
+    }
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
