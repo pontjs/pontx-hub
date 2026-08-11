@@ -6,6 +6,7 @@ import type {
   GlobalSearchResult,
   Locale
 } from "~/lib/catalog/types";
+import { FavoriteApiButton } from "~/components/favorite-api-button";
 
 const kinds: GlobalSearchKind[] = ["api", "endpoint", "schema"];
 
@@ -60,10 +61,12 @@ function matchFieldLabel(field: GlobalSearchMatchField, locale: Locale): string 
 
 export function GlobalSearchResults({
   search,
-  locale
+  locale,
+  favoriteApiSlugs = []
 }: {
   search: GlobalSearchResponse;
   locale: Locale;
+  favoriteApiSlugs?: string[];
 }) {
   const zh = locale === "zh";
 
@@ -101,11 +104,8 @@ export function GlobalSearchResults({
             </header>
             <div className="search-result-list">
               {results.map((result) => (
-                <Link
-                  className="search-result-row"
-                  key={result.id}
-                  to={result.href}
-                >
+                <div className="search-result-item" key={result.id}>
+                  <Link className="search-result-row" to={result.href}>
                   <ResultBadge result={result} />
                   <div className="search-result-main">
                     <div>
@@ -131,7 +131,16 @@ export function GlobalSearchResults({
                     <code>{resultMeta(result, locale)}</code>
                   </div>
                   <span className="search-result-arrow" aria-hidden="true">→</span>
-                </Link>
+                  </Link>
+                  {result.kind === "api" ? (
+                    <FavoriteApiButton
+                      apiSlug={result.apiSlug}
+                      locale={locale}
+                      initialFavorite={favoriteApiSlugs.includes(result.apiSlug)}
+                      compact
+                    />
+                  ) : null}
+                </div>
               ))}
             </div>
           </section>

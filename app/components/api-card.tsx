@@ -1,15 +1,18 @@
 import { Link } from "react-router";
 import type { CatalogSummary, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
+import { FavoriteApiButton } from "~/components/favorite-api-button";
 
 export function ApiCard({
   api,
   locale,
-  index
+  index,
+  initialFavorite = false
 }: {
   api: CatalogSummary;
   locale: Locale;
   index: number;
+  initialFavorite?: boolean;
 }) {
   const category = locale === "zh"
     ? ({ Finance: "金融", Productivity: "效率工具" } as Record<string, string>)[api.category] ?? api.category
@@ -18,16 +21,19 @@ export function ApiCard({
     ? api.authTypes.join(" / ")
     : locale === "zh" ? "无需鉴权" : "No auth";
   return (
-    <Link
-      className="api-card"
-      to={`/${locale}/apis/${api.slug}`}
-      reloadDocument
+    <article
+      className="api-card-shell"
       style={{ "--api-accent": api.accent } as React.CSSProperties}
-      aria-label={`${localize(api.title, locale)} — ${api.operationCount} ${
+    >
+      <Link
+        className="api-card"
+        to={`/${locale}/apis/${api.slug}`}
+        reloadDocument
+        aria-label={`${localize(api.title, locale)} — ${api.operationCount} ${
         locale === "zh" ? "个接口" : "endpoints"
       }`}
-    >
-      <div className="api-card-main">
+      >
+        <div className="api-card-main">
         <div className="api-card-topline">
           <span>{locale === "zh" ? "API 产品" : "API product"}</span>
           <span>{category}</span>
@@ -45,8 +51,8 @@ export function ApiCard({
           <span>{locale === "zh" ? "查看 API 概览" : "Open API overview"}</span>
           <span className="api-card-arrow" aria-hidden="true">↗</span>
         </div>
-      </div>
-      <dl className="api-card-meta">
+        </div>
+        <dl className="api-card-meta">
         <div>
           <dt>{locale === "zh" ? "接口" : "Endpoints"}</dt>
           <dd>{api.operationCount}</dd>
@@ -65,7 +71,14 @@ export function ApiCard({
                 : "Planned"}
           </dd>
         </div>
-      </dl>
-    </Link>
+        </dl>
+      </Link>
+      <FavoriteApiButton
+        apiSlug={api.slug}
+        locale={locale}
+        initialFavorite={initialFavorite}
+        compact
+      />
+    </article>
   );
 }

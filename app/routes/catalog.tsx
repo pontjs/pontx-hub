@@ -8,15 +8,18 @@ import {
   searchCatalog
 } from "~/lib/catalog/catalog.server";
 import { requireLocale, siteUrl } from "~/lib/http";
+import { listFavoriteApiSlugs } from "~/lib/accounts/favorites.server";
 
-export function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
   const catalog = listCatalogSummaries();
+  const favoriteApiSlugs = await listFavoriteApiSlugs(request);
   return {
     locale,
     query,
     apis: catalog,
+    favoriteApiSlugs,
     search: query ? searchCatalog(query, locale, { limit: 60 }) : null,
     totals: {
       apis: catalog.length,
@@ -76,7 +79,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
-  const { locale, query, apis, search, totals } = loaderData;
+  const { locale, query, apis, search, totals, favoriteApiSlugs } = loaderData;
   const zh = locale === "zh";
 
   return (
@@ -137,11 +140,17 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           </div>
 
           {search ? (
-            <GlobalSearchResults search={search} locale={locale} />
+            <GlobalSearchResults search={search} locale={locale} favoriteApiSlugs={favoriteApiSlugs} />
           ) : (
             <div className="api-grid">
               {apis.map((api, index) => (
-                <ApiCard key={api.slug} api={api} locale={locale} index={index} />
+                <ApiCard
+                  key={api.slug}
+                  api={api}
+                  locale={locale}
+                  index={index}
+                  initialFavorite={favoriteApiSlugs.includes(api.slug)}
+                />
               ))}
             </div>
           )}

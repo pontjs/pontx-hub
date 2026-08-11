@@ -27,6 +27,8 @@ describe("SEO resource routes", () => {
     expect(body).toContain('hreflang="zh-CN"');
     expect(body).toContain('hreflang="en"');
     expect(body).toContain('hreflang="x-default"');
+    expect(body).not.toContain("/account/");
+    expect(body).not.toContain("/sign-in");
     expect(body).not.toContain("<!DOCTYPE html>");
   });
 });
