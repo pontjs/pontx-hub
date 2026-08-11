@@ -83,4 +83,21 @@ describe("API directory integration styles", () => {
       /\.request-example-notice\s*{[\s\S]*?"description actions"[\s\S]*?"meta actions"[\s\S]*?padding:\s*9px 11px;/,
     );
   });
+
+  it("keeps Endpoint and Schema groups in the desktop directory with a mobile fallback", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.resource-directory-navigation\s*{[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/,
+    );
+    expect(css).toMatch(
+      /\.resource-navigation-tabs a\.resource-navigation-mobile-link\s*{\s*display:\s*none;/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.resource-navigation-tabs a\.resource-navigation-mobile-link\s*{\s*display:\s*inline-flex;/,
+    );
+    expect(css).toMatch(
+      /\.schema-reference-grid\s*{[\s\S]*?grid-template-columns:\s*clamp\(260px, 22vw, 304px\) minmax\(0, 1fr\);/,
+    );
+  });
 });

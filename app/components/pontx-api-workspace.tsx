@@ -25,6 +25,7 @@ import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
 import { RequestExampleNotice } from "~/components/request-example-notice";
+import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import {
   pkceChallenge,
@@ -808,10 +809,7 @@ export function PontxApiWorkspace({
       ) : null}
       <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
       {!guided ? <aside className="pontx-workspace-directory">
-        <div className="pontx-pane-label">
-          <span>{locale === "zh" ? "接口目录" : "Endpoint directory"}</span>
-          <strong>{api.operations.length}</strong>
-        </div>
+        <ResourceDirectoryNavigation locale={locale} api={api} active="endpoints" />
         <ApiDirectory
           locale={locale === "zh" ? "zh-CN" : "en"}
           spec={spec}
