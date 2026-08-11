@@ -1,8 +1,12 @@
 import { and, asc, eq } from "drizzle-orm";
 import { getDatabase } from "~/db/client.server";
-import { userEndpointFavorites } from "~/db/schema";
+import { userApiFavorites } from "~/db/schema";
 import { readAccountsConfiguration } from "./config.server";
-import type { FavoriteEndpointIdentity } from "./favorites";
+import {
+  endpointFavoriteStorageKey,
+  parseEndpointFavoriteStorageKey,
+  type FavoriteEndpointIdentity
+} from "./favorites";
 import { accountUserId, requireAccountUserId } from "./session.server";
 
 export async function listFavoriteEndpointsForUser(
@@ -12,13 +16,15 @@ export async function listFavoriteEndpointsForUser(
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const rows = await getDatabase(configuration.databaseUrl)
     .select({
-      apiSlug: userEndpointFavorites.apiSlug,
-      operationSlug: userEndpointFavorites.operationSlug
+      favoriteKey: userApiFavorites.apiSlug
     })
-    .from(userEndpointFavorites)
-    .where(eq(userEndpointFavorites.userId, userId))
-    .orderBy(asc(userEndpointFavorites.createdAt));
-  return rows;
+    .from(userApiFavorites)
+    .where(eq(userApiFavorites.userId, userId))
+    .orderBy(asc(userApiFavorites.createdAt));
+  return rows.flatMap(({ favoriteKey }) => {
+    const favorite = parseEndpointFavoriteStorageKey(favoriteKey);
+    return favorite ? [favorite] : [];
+  });
 }
 
 export async function listFavoriteEndpoints(
@@ -43,8 +49,8 @@ export async function addEndpointFavorite(
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const userId = await requireAccountUserId(request);
   await getDatabase(configuration.databaseUrl)
-    .insert(userEndpointFavorites)
-    .values({ userId, ...favorite })
+    .insert(userApiFavorites)
+    .values({ userId, apiSlug: endpointFavoriteStorageKey(favorite) })
     .onConflictDoNothing();
 }
 
@@ -56,10 +62,9 @@ export async function removeEndpointFavorite(
   if (configuration.status !== "ready") throw new Response("Not found", { status: 404 });
   const userId = await requireAccountUserId(request);
   await getDatabase(configuration.databaseUrl)
-    .delete(userEndpointFavorites)
+    .delete(userApiFavorites)
     .where(and(
-      eq(userEndpointFavorites.userId, userId),
-      eq(userEndpointFavorites.apiSlug, favorite.apiSlug),
-      eq(userEndpointFavorites.operationSlug, favorite.operationSlug)
+      eq(userApiFavorites.userId, userId),
+      eq(userApiFavorites.apiSlug, endpointFavoriteStorageKey(favorite))
     ));
 }
