@@ -642,6 +642,26 @@ textarea {
   background: var(--paper);
 }
 
+.resource-page-workspace .pontx-workspace-body > .oauth-toolbar,
+.resource-page-workspace .pontx-workspace-body > .oauth-result-notice,
+.resource-page-workspace .pontx-workspace-body > .documentation-evidence,
+.resource-page-workspace .pontx-workspace-body > .request-example-notice {
+  margin: 0;
+}
+
+.resource-page-workspace .pontx-documentation {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resource-page-workspace .pontx-documentation > div:first-child {
+  padding-right: 0;
+}
+
 .pontx-documentation,
 .pontx-documentation-fallback,
 .api-quick-call-fallback {
