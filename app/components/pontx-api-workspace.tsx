@@ -177,39 +177,50 @@ export function OAuthToolbar({
       setCallbackCopied(false);
     }
   };
-  const resultNotice = authorized
+  const authorizedCopy = locale === "zh"
     ? {
-        kind: "success" as const,
-        title: locale === "zh" ? "授权成功" : "Authorization successful",
-        description: locale === "zh"
-          ? "访问令牌已保存在当前浏览器会话中，现在可以直接调试接口。"
-          : "The access token is saved in this browser session. You can now debug endpoints directly."
+        status: "已授权成功",
+        description: "访问令牌已保存在当前浏览器会话中，现在可以直接调试接口。"
       }
-    : state.status === "error"
-      ? {
-          kind: "error" as const,
-          title: locale === "zh" ? "授权未完成" : "Authorization failed",
-          description: state.error ?? (locale === "zh" ? "请检查授权配置后重试。" : "Check the authorization configuration and try again.")
-        }
-      : undefined;
+    : {
+        status: "Authorization successful",
+        description: "The access token is saved in this browser session. You can now debug endpoints directly."
+      };
+  const errorNotice = state.status === "error"
+    ? {
+        title: locale === "zh" ? "授权未完成" : "Authorization failed",
+        description: state.error ?? (locale === "zh" ? "请检查授权配置后重试。" : "Check the authorization configuration and try again.")
+      }
+    : undefined;
 
   return <>
-    {resultNotice ? <div
-      className={`oauth-result-notice oauth-result-${resultNotice.kind}`}
-      role={resultNotice.kind === "error" ? "alert" : "status"}
-      aria-live={resultNotice.kind === "error" ? "assertive" : "polite"}
+    {errorNotice ? <div
+      className="oauth-result-notice oauth-result-error"
+      role="alert"
+      aria-live="assertive"
       aria-atomic="true"
     >
-      <span className="oauth-result-mark" aria-hidden="true">{resultNotice.kind === "success" ? "✓" : "!"}</span>
+      <span className="oauth-result-mark" aria-hidden="true">!</span>
       <div>
-        <strong>{resultNotice.title}</strong>
-        <p>{resultNotice.description}</p>
+        <strong>{errorNotice.title}</strong>
+        <p>{errorNotice.description}</p>
       </div>
     </div> : null}
-    <details className="oauth-toolbar">
+    <details className={`oauth-toolbar${authorized ? " oauth-toolbar-authorized" : ""}`}>
     <summary className="oauth-toolbar-heading">
-      <div><strong>OAuth 2.0</strong><span>{authorized ? zh ? "已授权" : "Authorized" : zh ? "会话级授权" : "Session-only authorization"}</span></div>
-      <p>{locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
+      <div>
+        <strong>OAuth 2.0</strong>
+        {authorized ? <span
+          className="oauth-toolbar-heading-status oauth-toolbar-heading-status-success"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span className="oauth-toolbar-heading-status-mark" aria-hidden="true">✓</span>
+          {authorizedCopy.status}
+        </span> : <span className="oauth-toolbar-heading-status">{zh ? "会话级授权" : "Session-only authorization"}</span>}
+      </div>
+      <p>{authorized ? authorizedCopy.description : locale === "zh" ? "配置凭证并授权" : "Configure credentials"}</p>
     </summary>
     <div className="oauth-toolbar-content">
     <div className="oauth-callback-panel" role="note" aria-label={callbackCopy.ariaLabel}>

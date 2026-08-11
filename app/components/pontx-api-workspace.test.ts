@@ -100,9 +100,9 @@ describe("OAuthToolbar", () => {
   });
 
   it.each([
-    ["zh" as const, "授权成功", "访问令牌已保存在当前浏览器会话中"],
+    ["zh" as const, "已授权成功", "访问令牌已保存在当前浏览器会话中"],
     ["en" as const, "Authorization successful", "The access token is saved in this browser session"]
-  ])("shows a visible successful authorization notice in %s", (locale, title, description) => {
+  ])("merges the successful authorization status into the OAuth card in %s", (locale, title, description) => {
     const api = getCatalogApi("dida365");
     const scheme = api?.auth.find((candidate) => candidate.type === "oauth2");
     expect(scheme).toBeDefined();
@@ -116,10 +116,12 @@ describe("OAuthToolbar", () => {
       onClear: vi.fn()
     }));
 
-    expect(html).toContain('class="oauth-result-notice oauth-result-success"');
+    expect(html).toContain('class="oauth-toolbar oauth-toolbar-authorized"');
+    expect(html).toContain('oauth-toolbar-heading-status oauth-toolbar-heading-status-success');
     expect(html).toContain('role="status"');
     expect(html).toContain(title);
     expect(html).toContain(description);
+    expect(html).not.toContain("oauth-result-success");
   });
 
   it.each([
