@@ -50,6 +50,14 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("lets long search result titles shrink inside narrow result rows", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.search-result-main strong\s*{[\s\S]*?display:\s*block;[\s\S]*?min-width:\s*0;[\s\S]*?max-width:\s*100%;[\s\S]*?overflow:\s*hidden;[\s\S]*?text-overflow:\s*ellipsis;/,
+    );
+  });
+
   it("renders highlighted terminal surfaces with visible keyboard focus", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
