@@ -61,8 +61,8 @@ export function RequestExampleNotice({
         ? "请求已按成功示例预填；Hub 仅生成预览，不会向供应商发送。"
         : "The successful request example is prefilled; Hub will preview it without contacting the provider."
       : zh
-        ? "请求已按成功示例预填，可以检查后直接发送。"
-        : "The successful request example is prefilled and ready to review and send.";
+        ? "已填入一组可成功调用的示例值；检查并确认后即可发送。"
+        : "A successful request example is prefilled and ready to review before sending.";
 
   return (
     <aside
@@ -142,7 +142,7 @@ export function RequestExampleNotice({
           ) : null}
           {onReset ? (
             <button type="button" onClick={onReset}>
-              {zh ? "恢复此示例" : "Restore example"}
+              {zh ? "一键填入成功示例" : "Prefill successful example"}
             </button>
           ) : null}
         </div>
