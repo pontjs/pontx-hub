@@ -1,4 +1,5 @@
-import { Form } from "react-router";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Form, useNavigate } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
 import { GlobalSearchResults } from "~/components/global-search-results";
@@ -9,6 +10,9 @@ import {
 } from "~/lib/catalog/catalog.server";
 import { requireLocale, siteUrl } from "~/lib/http";
 import { listFavoriteApiSlugs } from "~/lib/accounts/favorites.server";
+import { createDebouncedTask } from "~/lib/debounce";
+
+const SEARCH_DEBOUNCE_MS = 350;
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -78,6 +82,83 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
+function searchHref(locale: "zh" | "en", query: string): string {
+  return query ? `/${locale}?q=${encodeURIComponent(query)}` : `/${locale}`;
+}
+
+function CatalogSearch({
+  locale,
+  query
+}: {
+  locale: "zh" | "en";
+  query: string;
+}) {
+  const zh = locale === "zh";
+  const navigate = useNavigate();
+  const [draftQuery, setDraftQuery] = useState(query);
+  const lastNavigatedQuery = useRef(query);
+  const debouncedSearch = useRef(
+    createDebouncedTask<string>(SEARCH_DEBOUNCE_MS)
+  );
+
+  useEffect(() => () => debouncedSearch.current.cancel(), []);
+
+  useEffect(() => {
+    debouncedSearch.current.cancel();
+  }, [locale]);
+
+  useEffect(() => {
+    if (query === lastNavigatedQuery.current) return;
+    lastNavigatedQuery.current = query;
+    setDraftQuery(query);
+  }, [query]);
+
+  function navigateToQuery(nextQuery: string, replace: boolean) {
+    const normalizedQuery = nextQuery.trim();
+    if (normalizedQuery === lastNavigatedQuery.current) return;
+    lastNavigatedQuery.current = normalizedQuery;
+    void navigate(searchHref(locale, normalizedQuery), {
+      replace,
+      preventScrollReset: true
+    });
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    debouncedSearch.current.cancel();
+    navigateToQuery(draftQuery, false);
+  }
+
+  return (
+    <Form
+      action={`/${locale}`}
+      className="catalog-search"
+      method="get"
+      onSubmit={handleSubmit}
+      role="search"
+    >
+      <span aria-hidden="true">⌕</span>
+      <input
+        name="q"
+        value={draftQuery}
+        onChange={(event) => {
+          const nextQuery = event.currentTarget.value;
+          setDraftQuery(nextQuery);
+          debouncedSearch.current.schedule(nextQuery, (latestQuery) => {
+            navigateToQuery(latestQuery, true);
+          });
+        }}
+        placeholder={
+          zh
+            ? "语义搜索 API、接口、入参或数据结构…"
+            : "Semantically search APIs, inputs, outputs, or schemas…"
+        }
+        aria-label={zh ? "全局搜索" : "Global search"}
+      />
+    </Form>
+  );
+}
+
 export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { locale, query, apis, search, totals, favoriteApiSlugs } = loaderData;
   const zh = locale === "zh";
@@ -117,19 +198,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             <span>{zh ? "搜索接口、参数、返回字段，或浏览完整 API 集合" : "Search endpoints, parameters, response fields, or browse complete APIs"}</span>
           </div>
           <div className="registry-toolbar">
-            <Form className="catalog-search" method="get">
-              <span aria-hidden="true">⌕</span>
-              <input
-                name="q"
-                defaultValue={query}
-                placeholder={
-                  zh
-                    ? "语义搜索 API、接口、入参或数据结构…"
-                    : "Semantically search APIs, inputs, outputs, or schemas…"
-                }
-                aria-label={zh ? "全局搜索" : "Global search"}
-              />
-            </Form>
+            <CatalogSearch locale={locale} query={query} />
             <span>
               {search
                 ? zh
