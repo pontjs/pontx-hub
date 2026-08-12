@@ -38,7 +38,6 @@
   border-color: var(--blue);
   background: #f4f7ff;
   color: #2447a8;
-  outline: none;
 }
 
 .favorite-api-control[aria-pressed="true"] {
@@ -90,16 +89,6 @@
   z-index: 2;
   top: 11px;
   right: 143px;
-}
-
-.api-favorite-toolbar {
-  display: flex;
-  min-height: 50px;
-  align-items: center;
-  justify-content: flex-end;
-  border-bottom: 1px solid var(--line);
-  padding: 7px clamp(14px, 2.5vw, 28px);
-  background: #fff;
 }
 
 .saved-apis-page {
@@ -813,15 +802,6 @@
   .api-card-shell > .favorite-api-control-wrap {
     top: 11px;
     right: 12px;
-  }
-
-  .api-favorite-toolbar {
-    justify-content: stretch;
-  }
-
-  .api-favorite-toolbar .favorite-api-control-wrap,
-  .api-favorite-toolbar .favorite-api-control {
-    width: 100%;
   }
 
   .saved-apis-page {

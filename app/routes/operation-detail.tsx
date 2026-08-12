@@ -1,7 +1,6 @@
 import type { Route } from "./+types/operation-detail";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
-import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import { isFavoriteEndpoint } from "~/lib/accounts/favorites";
 import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
@@ -102,16 +101,12 @@ export default function OperationDetail({
 
   return (
     <SiteShell locale={locale}>
-      <div className="api-favorite-toolbar">
-        <FavoriteEndpointButton
-          apiSlug={api.slug}
-          operationSlug={operation.slug}
-          endpointLabel={localize(operation.title, locale)}
-          locale={locale}
-          initialFavorite={favorite}
-        />
-      </div>
-      <PontxApiWorkspace locale={locale} api={api} operation={operation} />
+      <PontxApiWorkspace
+        locale={locale}
+        api={api}
+        operation={operation}
+        initialFavorite={favorite}
+      />
     </SiteShell>
   );
 }
