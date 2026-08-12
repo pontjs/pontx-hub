@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000000000000000000000000000000000000..bcfd55875d58f4f21f9320fdb4b42ae9fc1a40aa
 --- /dev/null
 +++ b/dist/ApiDirectory-CTkHe3C6.js
-@@ -0,0 +1,324 @@
+@@ -0,0 +1,320 @@
 +import { jsxs as m, jsx as r, Fragment as $ } from "react/jsx-runtime";
 +import * as a from "react";
 +import { PontxSpec as R } from "@pontx/spec";
@@ -173,16 +173,12 @@ index 0000000000000000000000000000000000000000..bcfd55875d58f4f21f9320fdb4b42ae9
 +            ),
 +            /* @__PURE__ */ r("span", { className: "truncate text-xs font-semibold", children: e })
 +          ] }),
-+          /* @__PURE__ */ m(
++          /* @__PURE__ */ r(
 +            "span",
 +            {
 +              className: "rounded-full border border-border/70 bg-card px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground",
 +              "aria-label": o === "zh-CN" ? `${t.length} 个 API` : `${t.length} APIs`,
-+              children: [
-+                "(",
-+                t.length,
-+                ")"
-+              ]
++              children: t.length
 +            }
 +          )
 +        ]
