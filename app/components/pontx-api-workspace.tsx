@@ -31,6 +31,7 @@ import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
+import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
 import { RequestExampleNotice } from "~/components/request-example-notice";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
@@ -591,11 +592,13 @@ export function PontxApiWorkspace({
   locale,
   api,
   operation,
+  initialFavorite = false,
   variant = "reference"
 }: {
   locale: Locale;
   api: CatalogApi;
   operation: CatalogOperation;
+  initialFavorite?: boolean;
   variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
@@ -1122,13 +1125,23 @@ export function PontxApiWorkspace({
               <b>/</b>
               <code>{activeOperation.operationId}</code>
             </div>
-            <p>
-              {!playgroundAvailability.executionEnabled
-                ? locale === "zh" ? "仅预览 · 原因见下方" : "Preview only · details below"
-                : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
-              ? "调试经 Hub 代理 · 凭证仅保留当前会话"
-              : "Hub-proxied execution · credentials stay in this session"}
-            </p>
+            <div className="pontx-workspace-bar-actions">
+              <p>
+                {!playgroundAvailability.executionEnabled
+                  ? locale === "zh" ? "仅预览 · 原因见下方" : "Preview only · details below"
+                  : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
+                ? "调试经 Hub 代理 · 凭证仅保留当前会话"
+                : "Hub-proxied execution · credentials stay in this session"}
+              </p>
+              <FavoriteEndpointButton
+                apiSlug={api.slug}
+                operationSlug={activeOperation.slug}
+                endpointLabel={localize(activeOperation.title, locale)}
+                locale={locale}
+                initialFavorite={initialFavorite}
+                compact
+              />
+            </div>
           </>}
         </div>
         <div

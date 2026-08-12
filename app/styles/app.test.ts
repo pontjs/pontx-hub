@@ -132,9 +132,6 @@ describe("API directory integration styles", () => {
     expect(accountCss).toMatch(
       /\.favorite-api-control\[aria-pressed="true"\]\s*{[\s\S]*?border-color:\s*var\(--blue\);[\s\S]*?background:\s*#edf1ff;/,
     );
-    expect(accountCss).toMatch(
-      /\.api-favorite-toolbar\s*{[\s\S]*?background:\s*#fff;/,
-    );
     for (const page of ["saved-apis-page", "playground-history-page", "account-page"]) {
       expect(accountCss).toMatch(
         new RegExp(`\\.${page}\\s*{[\\s\\S]*?var\\(--paper\\);`),

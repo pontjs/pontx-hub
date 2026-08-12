@@ -128,6 +128,29 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps the Endpoint favorite inside the existing workspace toolbar", async () => {
+    const [route, workspace, accountCss, systemCss] = await Promise.all([
+      readFile(new URL("../routes/operation-detail.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../components/pontx-api-workspace.tsx", import.meta.url), "utf8"),
+      readFile(new URL("./account.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(route).toMatch(/<PontxApiWorkspace[\s\S]*?initialFavorite=\{favorite\}/);
+    expect(workspace).toMatch(
+      /className="pontx-workspace-bar-actions"[\s\S]*?<FavoriteEndpointButton[\s\S]*?compact/,
+    );
+    for (const source of [route, accountCss, systemCss]) {
+      expect(source).not.toContain("api-favorite-toolbar");
+    }
+    expect(accountCss).not.toMatch(
+      /\.favorite-api-control:hover,[\s\S]*?\.favorite-api-control:focus-visible\s*{[^}]*outline:\s*none/,
+    );
+    expect(systemCss).toMatch(
+      /:where\(a, button, input, select, textarea, \[tabindex\]\):focus-visible\s*{[\s\S]*?outline:/,
+    );
+  });
+
   it("keeps API overview headers compact enough for task content to enter the first viewport", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 

@@ -740,13 +740,6 @@ textarea {
   box-shadow: var(--shadow-md);
 }
 
-.api-favorite-toolbar {
-  min-height: 48px;
-  padding: 7px 12px;
-  border-color: var(--line);
-  background: #fff;
-}
-
 .favorite-api-control {
   border-color: var(--line-strong);
   border-radius: 8px;
