@@ -1,4 +1,5 @@
 import { getSchemaInputValue } from "@pontx/shadcn-ui";
+import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
 import {
   ParametersForm,
   type ParametersFormProps
@@ -47,6 +48,22 @@ describe("pontx-shadcn-ui catalog adapter", () => {
       "Exchange Rates/getLatestRates"
     );
     expect(spec.tags?.map((tag) => tag.name)).toContain("Exchange Rates");
+  });
+
+  it.each([
+    ["zh" as const, "zh-CN" as const, "8 个 API"],
+    ["en" as const, "en" as const, "8 APIs"]
+  ])("renders API group counts without parentheses in %s", (catalogLocale, uiLocale, accessibleCount) => {
+    const api = getCatalogApi("dida365");
+    expect(api).toBeDefined();
+
+    const html = renderToStaticMarkup(createElement(ApiDirectory, {
+      spec: toPontxSpec(api!, catalogLocale),
+      locale: uiLocale
+    }));
+
+    expect(html).toContain(`aria-label="${accessibleCount}">8</span>`);
+    expect(html).not.toMatch(/aria-label="(?:\d+ 个 API|\d+ APIs)">\(\d+\)<\/span>/);
   });
 
   it("maps request bodies and auth for the real Playground component", () => {
