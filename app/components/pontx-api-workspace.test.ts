@@ -9,6 +9,7 @@ import {
   ApiOverviewActions,
   ApiOverviewFacts,
   isOAuthAuthorizationDisabled,
+  isOAuthExecutionBlocked,
   OperationTaskSelect,
   OAuthToolbar,
   withoutHostManagedOAuthScheme
@@ -120,6 +121,48 @@ describe("OAuthToolbar", () => {
     })).toBe(false);
   });
 
+  it("blocks provider execution only when the selected endpoint requires an unauthorised OAuth flow", () => {
+    const input = {
+      schemeId: "OAuth2",
+      hasSupportedFlow: true,
+      operationSecurity: [{ schemeId: "OAuth2", scopes: ["tasks:read"] }],
+      executionEnabled: true
+    };
+
+    expect(isOAuthExecutionBlocked(input)).toBe(true);
+    expect(isOAuthExecutionBlocked({ ...input, accessToken: "session-token" })).toBe(false);
+    expect(isOAuthExecutionBlocked({ ...input, executionEnabled: false })).toBe(false);
+    expect(isOAuthExecutionBlocked({
+      ...input,
+      operationSecurity: [{ schemeId: "ApiKey", scopes: [] }]
+    })).toBe(false);
+  });
+
+  it.each([
+    ["zh" as const, "试用前需完成 OAuth 授权", "授权成功前不会向供应商发送请求"],
+    ["en" as const, "Authorize OAuth before trying this endpoint", "No request is sent to the provider until authorization succeeds"]
+  ])("opens the Playground prerequisite and explains the execution gate in %s", (locale, title, description) => {
+    const api = getCatalogApi("dida365");
+    const scheme = api?.auth.find((candidate) => candidate.type === "oauth2");
+    expect(scheme).toBeDefined();
+
+    const html = renderToStaticMarkup(createElement(OAuthToolbar, {
+      scheme: scheme!,
+      locale,
+      requiredScopes: ["tasks:read"],
+      state: { status: "idle" },
+      onAuthorize: vi.fn(),
+      onClear: vi.fn(),
+      executionRequired: true
+    }));
+
+    expect(html).toContain('class="oauth-execution-prerequisite"');
+    expect(html).toContain('role="status"');
+    expect(html).toContain(title);
+    expect(html).toContain(description);
+    expect(html).toContain('class="oauth-toolbar" open=""');
+  });
+
   it.each([
     ["zh" as const, "我已在开发者中心登记上述回调地址"],
     ["en" as const, "I registered the callback URL above"]
@@ -223,6 +266,7 @@ describe("OAuthToolbar", () => {
     expect(html).toContain(title);
     expect(html).toContain(description);
     expect(html).not.toContain("oauth-result-success");
+    expect(html).not.toContain("oauth-execution-prerequisite");
   });
 
   it.each([
