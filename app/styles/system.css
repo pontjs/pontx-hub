@@ -882,14 +882,17 @@ textarea {
   margin-top: 24px;
 }
 
-.detail-meta span,
-.npm-registry-link {
+.detail-meta span {
   min-height: 30px;
   padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #475569;
   background: var(--paper-soft);
+}
+
+.detail-actions {
+  margin-top: 20px;
 }
 
 .detail-page .section {

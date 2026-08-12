@@ -1349,58 +1349,6 @@ samp,
   font-size: 10px;
 }
 
-.npm-registry-link {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  max-width: 760px;
-  margin-top: 22px;
-  border: 1px solid #cb3837;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 3px 3px 0 rgba(203, 56, 55, 0.16);
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-}
-
-.npm-registry-link:hover {
-  background: #fff;
-  box-shadow: 5px 5px 0 rgba(203, 56, 55, 0.22);
-  transform: translate(-1px, -1px);
-}
-
-.npm-registry-link span,
-.npm-registry-link strong {
-  color: #a42c2b;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.npm-registry-link code {
-  overflow: hidden;
-  color: var(--ink);
-  font-size: 11px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (max-width: 640px) {
-  .npm-registry-link {
-    grid-template-columns: 1fr auto;
-    gap: 7px 10px;
-  }
-
-  .npm-registry-link code {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-}
-
 .reference-layout {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
