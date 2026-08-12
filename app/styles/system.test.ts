@@ -115,6 +115,17 @@ describe("Pontx Hub visual system", () => {
     expect(css).toMatch(/\.api-overview-actions\s*{[\s\S]*?margin-top:\s*14px;/);
   });
 
+  it("uses the shared primary button for the SDK registry action", async () => {
+    const [route, appCss] = await Promise.all([
+      readFile(new URL("../routes/sdk-detail.tsx", import.meta.url), "utf8"),
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(route).toMatch(/className="button button-dark"[\s\S]*?href=\{npmUrl\}/);
+    expect(route).not.toContain("npm-registry-link");
+    expect(appCss).not.toContain(".npm-registry-link");
+  });
+
   it("keeps the API catalog summary compact enough for search results to enter the first viewport", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 

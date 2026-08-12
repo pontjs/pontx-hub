@@ -95,17 +95,17 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
                 : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the approved OAS.`}
           </p>
           {published ? (
-            <a
-              className="npm-registry-link"
-              href={npmUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`${zh ? "在 npm 打开" : "Open on npm"} ${api.packageName}`}
-            >
-              <span>npm registry</span>
-              <code>{npmUrl}</code>
-              <strong>{zh ? "打开 npm 主页" : "Open npm page"} ↗</strong>
-            </a>
+            <div className="hero-actions detail-actions">
+              <a
+                className="button button-dark"
+                href={npmUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`${zh ? "在 npm 打开" : "Open on npm"} ${api.packageName}`}
+              >
+                {zh ? "在 npm 查看" : "Open on npm"} <span aria-hidden="true">↗</span>
+              </a>
+            </div>
           ) : null}
           <div className="detail-meta">
             <span>{published ? `v${api.sdkVersion}` : zh ? "即将发布" : "Coming soon"}</span>
