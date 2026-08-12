@@ -36,12 +36,25 @@ const API_WORKSPACE_NAVIGATION_COPY = {
   }
 } as const satisfies Record<Locale, Record<string, string>>;
 
+const AGENT_SKILL_HERO_COPY = {
+  zh: {
+    heading: "让 Agent 搜索、集成并调用 Pontx Hub 中的任意 API。"
+  },
+  en: {
+    heading: "Let agents search, integrate, and call any API in Pontx Hub."
+  }
+} as const satisfies Record<Locale, Record<string, string>>;
+
 export function publicResourceTerminologyCopy(locale: Locale) {
   return PUBLIC_RESOURCE_TERMINOLOGY_COPY[locale];
 }
 
 export function apiWorkspaceNavigationCopy(locale: Locale) {
   return API_WORKSPACE_NAVIGATION_COPY[locale];
+}
+
+export function agentSkillHeroCopy(locale: Locale) {
+  return AGENT_SKILL_HERO_COPY[locale];
 }
 
 export function preferredLocale(acceptLanguage: string | null): Locale {
