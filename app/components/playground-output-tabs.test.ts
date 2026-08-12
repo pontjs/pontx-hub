@@ -41,4 +41,31 @@ describe("shared Playground output navigation", () => {
     expect(html).not.toContain(">代码</button>");
     expect(html).not.toContain('aria-label="选择代码生成场景"');
   });
+
+  it("disables execution with an explicit prerequisite reason", () => {
+    const api = {
+      name: "getProjects",
+      method: "GET",
+      path: "/projects",
+      parameters: [],
+      responses: {},
+    } as unknown as PontxAPI;
+
+    const html = renderToStaticMarkup(
+      createElement(PlaygroundPanel, {
+        visible: true,
+        onVisibleChange: () => {},
+        api,
+        specName: "dida365",
+        servers: [{ url: "https://api.example.com", description: "Example" }],
+        onExecute: () => {},
+        isExecuting: false,
+        executeDisabled: true,
+        executeDisabledReason: "Complete OAuth authorization first",
+      })
+    );
+
+    expect(html).toContain("disabled=\"\"");
+    expect(html).toContain('title="Complete OAuth authorization first"');
+  });
 });

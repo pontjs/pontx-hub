@@ -80,6 +80,25 @@ export function isOAuthAuthorizationDisabled({
   return busy || !clientId || (requiresRedirectRegistration && !redirectUriRegistered);
 }
 
+export function isOAuthExecutionBlocked({
+  schemeId,
+  hasSupportedFlow,
+  operationSecurity,
+  executionEnabled,
+  accessToken
+}: {
+  schemeId?: string;
+  hasSupportedFlow: boolean;
+  operationSecurity?: CatalogOperation["security"];
+  executionEnabled: boolean;
+  accessToken?: string;
+}) {
+  if (!schemeId || !hasSupportedFlow || !executionEnabled) return false;
+  return Boolean(
+    operationSecurity?.some((requirement) => requirement.schemeId === schemeId)
+  ) && !accessToken;
+}
+
 type PlaygroundApi = ReturnType<typeof toPontxApi>;
 
 export function withoutHostManagedOAuthScheme(
@@ -293,7 +312,8 @@ export function OAuthToolbar({
   requiredScopes,
   state,
   onAuthorize,
-  onClear
+  onClear,
+  executionRequired = false
 }: {
   scheme: Extract<CatalogApi["auth"][number], { type: "oauth2" }>;
   locale: Locale;
@@ -301,6 +321,7 @@ export function OAuthToolbar({
   state: OAuthUiState;
   onAuthorize: (input: OAuthAuthorizeInput) => Promise<void>;
   onClear: () => void;
+  executionRequired?: boolean;
 }) {
   const zh = locale === "zh";
   const flows = Object.keys(scheme.flows ?? {}).filter(
@@ -314,9 +335,9 @@ export function OAuthToolbar({
   const [callbackCopied, setCallbackCopied] = useState(false);
   const flowScopes = scheme.flows?.[flow]?.scopes ?? {};
   const [scopes, setScopes] = useState(requiredScopes);
-  if (!flows.length) return null;
   const busy = state.status === "authorizing" || state.status === "refreshing";
   const authorized = state.status === "authorized" || state.status === "refreshing";
+  const [expanded, setExpanded] = useState(executionRequired && !authorized);
   const requiresRedirectRegistration = flow === "authorizationCode" && Boolean(scheme.credentialGuide);
   const callbackUrl = typeof window === "undefined" ? "/oauth/callback" : `${window.location.origin}/oauth/callback`;
   const callbackCopy = locale === "zh" ? {
@@ -362,7 +383,25 @@ export function OAuthToolbar({
       }
     : undefined;
 
+  useEffect(() => {
+    if (authorized) setExpanded(false);
+    else if (executionRequired) setExpanded(true);
+  }, [authorized, executionRequired]);
+
+  if (!flows.length) return null;
+
   return <>
+    {executionRequired && !authorized ? <div
+      id="oauth-execution-prerequisite"
+      className="oauth-execution-prerequisite"
+      role="status"
+      aria-live="polite"
+    >
+      <strong>{zh ? "试用前需完成 OAuth 授权" : "Authorize OAuth before trying this endpoint"}</strong>
+      <p>{zh
+        ? "请先配置凭证并完成授权；授权成功前不会向供应商发送请求。凭据仅保留在当前浏览器会话。"
+        : "Configure credentials and authorize first. No request is sent to the provider until authorization succeeds; credentials stay in this browser session."}</p>
+    </div> : null}
     {errorNotice ? <div
       className="oauth-result-notice oauth-result-error"
       role="alert"
@@ -375,7 +414,11 @@ export function OAuthToolbar({
         <p>{errorNotice.description}</p>
       </div>
     </div> : null}
-    <details className={`oauth-toolbar${authorized ? " oauth-toolbar-authorized" : ""}`}>
+    <details
+      className={`oauth-toolbar${authorized ? " oauth-toolbar-authorized" : ""}`}
+      open={expanded}
+      onToggle={(event) => setExpanded(event.currentTarget.open)}
+    >
     <summary className="oauth-toolbar-heading">
       <div>
         <strong>OAuth 2.0</strong>
@@ -614,6 +657,7 @@ export function PontxApiWorkspace({
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
   const [oauthState, setOAuthState] = useState<OAuthUiState>({ status: "idle" });
+  const [isPlaygroundOpen, setIsPlaygroundOpen] = useState(guided);
   const playgroundApi = useMemo(
     () => withoutHostManagedOAuthScheme(
       pontxApi,
@@ -621,6 +665,30 @@ export function PontxApiWorkspace({
     ),
     [oauthScheme?.flows, oauthScheme?.id, pontxApi]
   );
+  const oauthExecutionBlocked = isOAuthExecutionBlocked({
+    schemeId: oauthScheme?.id,
+    hasSupportedFlow: Boolean(oauthScheme?.flows),
+    operationSecurity: activeOperation.security,
+    executionEnabled: playgroundAvailability.executionEnabled,
+    accessToken: oauthToken?.accessToken
+  });
+
+  useEffect(() => {
+    if (
+      !isPlaygroundOpen ||
+      !oauthExecutionBlocked ||
+      !window.matchMedia("(max-width: 760px)").matches
+    ) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .getElementById("oauth-execution-prerequisite")
+        ?.scrollIntoView({ block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [isPlaygroundOpen, oauthExecutionBlocked]);
 
   useEffect(() => {
     if (!requestExample) {
@@ -822,6 +890,20 @@ export function PontxApiWorkspace({
       setIsExecuting(true);
       setExecutionResult(undefined);
       try {
+        if (oauthExecutionBlocked) {
+          setExecutionResult({
+            status: 401,
+            statusText: locale === "zh" ? "需要先完成 OAuth 授权" : "OAuth authorization required",
+            headers: {},
+            body: {
+              error: locale === "zh"
+                ? "请先在 Playground 的 OAuth 配置中完成授权，再发送调试请求。"
+                : "Complete OAuth authorization in the Playground before sending a debug request."
+            },
+            duration: 0
+          });
+          return;
+        }
         const unresolved = unresolvedRequestInputs(request, requestExample);
         if (unresolved.length) {
           setExecutionResult({
@@ -904,6 +986,7 @@ export function PontxApiWorkspace({
       api,
       locale,
       playgroundAvailability.executionEnabled,
+      oauthExecutionBlocked,
       requestExample
     ]
   );
@@ -925,6 +1008,11 @@ export function PontxApiWorkspace({
       : "Hub proxy execution is unavailable for this endpoint";
   const playgroundAvailable =
     playgroundAvailability.executionEnabled || Boolean(requestExample);
+  const showOAuthConfiguration = Boolean(
+    oauthScheme?.flows &&
+    activeOperation.security?.some((requirement) => requirement.schemeId === oauthScheme.id) &&
+    (guided || isPlaygroundOpen)
+  );
   const category =
     locale === "zh"
       ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
@@ -1043,13 +1131,16 @@ export function PontxApiWorkspace({
             </p>
           </>}
         </div>
-        <div className="pontx-workspace-body">
+        <div
+          className="pontx-workspace-body"
+          data-oauth-execution-blocked={oauthExecutionBlocked || undefined}
+        >
           {isHydrated && !guided ? (
             <h1 className="pontx-hydrated-title">
               {localize(activeOperation.title, locale)} — {api.name}
             </h1>
           ) : null}
-          {isHydrated ? (
+          {isHydrated && showOAuthConfiguration ? (
             oauthScheme?.flows ? <OAuthToolbar
               scheme={oauthScheme}
               locale={locale}
@@ -1057,6 +1148,7 @@ export function PontxApiWorkspace({
               state={oauthState}
               onAuthorize={authorizeOAuth}
               onClear={clearOAuth}
+              executionRequired={oauthExecutionBlocked}
             /> : null
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
@@ -1088,8 +1180,17 @@ export function PontxApiWorkspace({
                 description: localize(server.description, locale)
               }))}
               onExecute={playgroundAvailable ? execute : undefined}
+              onPlaygroundStateChange={(state) => setIsPlaygroundOpen(state.isOpen)}
               executionResult={executionResult}
               isExecuting={isExecuting}
+              executeDisabled={oauthExecutionBlocked}
+              executeDisabledReason={
+                oauthExecutionBlocked
+                  ? locale === "zh"
+                    ? "请先完成 OAuth 授权"
+                    : "Complete OAuth authorization first"
+                  : undefined
+              }
               {...({
                 onOAuthAuthorize: authorizeOAuth,
                 onOAuthClear: clearOAuth,
