@@ -229,6 +229,12 @@ describe("API directory integration styles", () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
+      /\.api-card-sdk-link\s*{[\s\S]*?width:\s*fit-content;[\s\S]*?justify-content:\s*flex-start;[\s\S]*?gap:\s*3px;/,
+    );
+    expect(css).toMatch(
+      /\.api-card-sdk-link > span\s*{\s*padding:\s*2px 4px;/,
+    );
+    expect(css).toMatch(
       /\.api-card-sdk-link::after\s*{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/,
     );
     expect(css).toMatch(

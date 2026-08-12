@@ -671,10 +671,14 @@ samp,
 
 .api-card-sdk-link {
   display: flex;
-  width: 100%;
+  width: fit-content;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 3px;
+}
+
+.api-card-sdk-link > span {
+  padding: 2px 4px;
 }
 
 .api-card-sdk-link::after {
