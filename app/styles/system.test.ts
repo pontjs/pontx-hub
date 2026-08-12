@@ -31,6 +31,23 @@ describe("Pontx Hub visual system", () => {
     expect(css).toMatch(/\.api-card\s*{[\s\S]*?--api-accent:\s*var\(--blue\) !important;/);
   });
 
+  it("keeps the GitHub hover border clear of its icon and label", async () => {
+    const [appCss, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(appCss).toMatch(
+      /\.github-link\s*{[\s\S]*?padding-inline:\s*10px;/,
+    );
+    expect(systemCss).toMatch(
+      /\.site-header :where\(\.github-link,[\s\S]*?border:\s*1px solid transparent;/,
+    );
+    expect(systemCss).toMatch(
+      /\.site-header :where\(\.github-link,[\s\S]*?:hover,[\s\S]*?border-color:\s*var\(--line\);/,
+    );
+  });
+
   it("uses one responsive geometry system across every public resource layout", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
