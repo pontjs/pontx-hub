@@ -3,6 +3,7 @@ import { SiteShell } from "~/components/site-shell";
 import { requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { CodeBlock } from "~/components/code-block";
+import { agentSkillHeroCopy } from "~/lib/i18n";
 
 export function loader({ params }: Route.LoaderArgs) {
   return { locale: requireLocale(params.locale) };
@@ -53,6 +54,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function AgentSkill({ loaderData }: Route.ComponentProps) {
   const { locale } = loaderData;
   const zh = locale === "zh";
+  const heroCopy = agentSkillHeroCopy(locale);
   const workflow = `pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
 pontx-hub show schema:frankfurter/ExchangeRateResponse
@@ -68,7 +70,7 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
       <main className="detail-page agent-skill-page">
         <header className="detail-hero">
           <p className="eyebrow">One skill / Every curated API</p>
-          <h1>{zh ? "给 Agent 一张可靠的 API 地图。" : "Give your agent a reliable API map."}</h1>
+          <h1>{heroCopy.heading}</h1>
           <p>
             {zh
               ? "Skill 不把所有文档塞进上下文，而是教 Agent 通过 CLI 语义检索产品、入参、出参与数据结构，再按需阅读、预演与调用。"

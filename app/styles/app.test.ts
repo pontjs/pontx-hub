@@ -200,6 +200,12 @@ describe("API directory integration styles", () => {
       /\.oauth-toolbar-heading-status-success\s*{[\s\S]*?background:\s*#dcfce7;[\s\S]*?color:\s*#166534;/,
     );
     expect(css).not.toContain(".oauth-result-success");
+    expect(css).toMatch(
+      /\.oauth-execution-prerequisite\s*{[\s\S]*?border-left:\s*4px solid #d97706;[\s\S]*?background:\s*#fffbeb;/,
+    );
+    expect(css).toContain(
+      '.pontx-workspace-body[data-oauth-execution-blocked="true"]',
+    );
   });
 
   it("keeps Endpoint and Schema groups in the desktop directory with a mobile fallback", async () => {

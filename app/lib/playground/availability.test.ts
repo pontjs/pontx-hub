@@ -62,5 +62,16 @@ describe("Playground availability", () => {
       "onExecute={playgroundAvailable ? execute : undefined}"
     );
     expect(workspace).toContain("if (!playgroundAvailability.executionEnabled)");
+    expect(workspace).toContain(
+      "onPlaygroundStateChange={(state) => setIsPlaygroundOpen(state.isOpen)}"
+    );
+    expect(workspace).toContain("if (oauthExecutionBlocked)");
+    expect(workspace).toContain("executeDisabled={oauthExecutionBlocked}");
+    expect(workspace).toContain(
+      "data-oauth-execution-blocked={oauthExecutionBlocked || undefined}"
+    );
+    expect(workspace).toContain(
+      '.getElementById("oauth-execution-prerequisite")'
+    );
   });
 });

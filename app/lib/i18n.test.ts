@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  agentSkillHeroCopy,
   alternateLocaleUrl,
   alternateLocaleHref,
   apiWorkspaceNavigationCopy,
@@ -8,6 +9,15 @@ import {
 } from "./i18n";
 
 describe("internationalized routing", () => {
+  it("describes the Agent Skill capability directly in both locales", () => {
+    expect(agentSkillHeroCopy("zh")).toEqual({
+      heading: "让 Agent 搜索、集成并调用 Pontx Hub 中的任意 API。"
+    });
+    expect(agentSkillHeroCopy("en")).toEqual({
+      heading: "Let agents search, integrate, and call any API in Pontx Hub."
+    });
+  });
+
   it("negotiates supported languages by quality and falls back to English", () => {
     expect(preferredLocale("zh-CN,zh;q=0.9,en;q=0.8")).toBe("zh");
     expect(preferredLocale("fr;q=1,en-US;q=0.9,zh;q=0.2")).toBe("en");

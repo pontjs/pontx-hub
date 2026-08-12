@@ -651,6 +651,7 @@ textarea {
 }
 
 .resource-page-workspace .pontx-workspace-body > .oauth-toolbar,
+.resource-page-workspace .pontx-workspace-body > .oauth-execution-prerequisite,
 .resource-page-workspace .pontx-workspace-body > .oauth-result-notice,
 .resource-page-workspace .pontx-workspace-body > .documentation-evidence,
 .resource-page-workspace .pontx-workspace-body > .request-example-notice {
@@ -690,6 +691,7 @@ textarea {
 
 .request-example-notice,
 .oauth-toolbar,
+.oauth-execution-prerequisite,
 .oauth-result-notice {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -704,6 +706,7 @@ textarea {
 }
 
 .request-example-notice.requires-input,
+.oauth-execution-prerequisite,
 .oauth-callback-warning {
   border-color: #f0d49c;
   background: var(--warning-soft);
