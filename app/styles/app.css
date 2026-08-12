@@ -2014,7 +2014,7 @@ samp,
   display: grid;
   min-width: 0;
   min-height: 0;
-  grid-template-rows: 39px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
 }
 

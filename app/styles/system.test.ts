@@ -97,6 +97,20 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("lets the workspace toolbar define its grid track height", async () => {
+    const [appCss, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(appCss).toMatch(
+      /\.pontx-workspace-content\s*{[\s\S]*?grid-template-rows:\s*auto minmax\(0, 1fr\);/,
+    );
+    expect(systemCss).toMatch(
+      /\.pontx-workspace-bar\s*{[\s\S]*?min-height:\s*50px;[\s\S]*?padding:\s*8px 16px;/,
+    );
+  });
+
   it("keeps API overview headers compact enough for task content to enter the first viewport", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
