@@ -13,7 +13,7 @@ type Descriptor = Record<string, unknown>;
 function renderDocs(
   path: string,
   locale: "zh" | "en" = "zh",
-  slug: "overview" | "sdk" | "cli" | "agent-skill" = "sdk"
+  slug: "overview" | "sdk" | "cli" | "agent-skill" | "web" = "sdk"
 ) {
   const router = createMemoryRouter([
     {
@@ -47,12 +47,12 @@ describe("localized documentation", () => {
 
   it("presents Skill, CLI, SDK, then the website as the product hierarchy", () => {
     const html = renderDocs("/zh/docs", "zh", "overview");
-    const skill = html.indexOf("把用户意图转为可审查的 API 发现");
-    const cli = html.indexOf("为 Skill、终端和自动化提供统一的搜索");
-    const sdk = html.indexOf("把验证过的请求变成类型安全的生产代码");
-    const web = html.indexOf("用可视化界面浏览同一份 API");
+    const skill = html.indexOf("告诉 Agent 你想做什么");
+    const cli = html.indexOf("喜欢在终端工作时");
+    const sdk = html.indexOf("准备写进应用时");
+    const web = html.indexOf("不安装任何工具");
 
-    expect(html).toContain("一套 Skill，把 API 意图变成可靠集成");
+    expect(html).toContain("先从 Agent Skill 开始，再选择你习惯的方式");
     expect(html).not.toContain("TypeScript SDK");
     expect(html).toContain("<h3>统一 SDK</h3>");
     expect(html).toContain(">统一 SDK</button>");
@@ -67,12 +67,32 @@ describe("localized documentation", () => {
     expect(englishHtml).toContain(">Unified SDK</button>");
   });
 
+  it("explains website use in practical, human language", () => {
+    const zh = renderDocs("/zh/docs/web", "zh", "web");
+    expect(zh).toContain("在网站上找到需要的 API，并放心试一次");
+    expect(zh).toContain("不用先记住 API 名称");
+    expect(zh).toContain("先看概览，再看接口");
+    expect(zh).toContain("它不会自动发送");
+    expect(zh).toContain("把可用示例带回项目");
+    expect(zh).not.toContain("从意图开始搜索");
+    expect(zh).not.toContain("重新建立所属 API 的上下文");
+    expect(zh).not.toContain("请求形状可见、可检查、可复制");
+
+    const en = renderDocs("/en/docs/web", "en", "web");
+    expect(en).toContain("Find the API you need and try it with confidence");
+    expect(en).toContain("You do not need to know an API name first");
+    expect(en).toContain("Preview before you send");
+    expect(en).not.toContain("Start with intent");
+    expect(en).not.toContain("re-establishes its parent API context");
+    expect(en).not.toContain("visible, reviewable, and portable");
+  });
+
   it("describes the Skill as an operating workflow, with on-demand loading as a benefit", () => {
     const html = renderDocs("/zh/docs/agent-skill", "zh", "agent-skill");
 
-    expect(html).toContain("让 Agent 遵循可执行、可审查的 API 工作流");
-    expect(html).toContain("Skill 的核心是操作规范");
-    expect(html).toContain("按需加载是工作流收益");
+    expect(html).toContain("让 Agent 用一套清楚可靠的步骤来使用 API");
+    expect(html).toContain("Skill 主要规定做事步骤");
+    expect(html).toContain("需要时再读取 API 资料");
     expect(html).not.toContain("让 Agent 按需查找，而不是背下全部 API");
   });
 
