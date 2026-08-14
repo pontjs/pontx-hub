@@ -63,9 +63,9 @@ OAuth-capable provider applications must also register
 `https://pontx.dev/oauth/callback`. Existing Dida365 applications created for
 the former Vercel hostname need their callback updated before authorization.
 
-## AI assistant
+## Pontx Agent
 
-The signed-in AI assistant is disabled unless its model and database backing
+The signed-in execution agent is disabled unless its model and database backing
 services are configured explicitly. It accepts Anthropic's Messages API or an
 Anthropic-compatible provider without storing the model credential in Git or
 the account database. For DeepSeek V4 Flash, use:
