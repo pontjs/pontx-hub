@@ -290,7 +290,10 @@ const sdkContractSchema = z.object({
     kind: z.literal("bearer-request-init"),
     envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/)
   }).optional(),
-  controllers: z.record(z.string().min(1), javascriptIdentifierSchema),
+  controllers: z.record(
+    z.string().min(1),
+    javascriptIdentifierSchema.nullable()
+  ),
   operations: z.array(z.string().min(1)).min(1)
 });
 
@@ -440,7 +443,10 @@ export const catalogApiSchema = z
             path: ["sdkContract", "operations", index],
             message: `Unknown SDK contract operation: ${operationId}`
           });
-        } else if (!api.sdkContract.controllers[operation.tag]) {
+        } else if (!Object.prototype.hasOwnProperty.call(
+          api.sdkContract.controllers,
+          operation.tag
+        )) {
           context.addIssue({
             code: "custom",
             path: ["sdkContract", "controllers"],

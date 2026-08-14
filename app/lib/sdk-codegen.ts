@@ -18,9 +18,10 @@ export function supportsSdkOperation(
   api: CatalogApi,
   operation: CatalogOperation
 ): boolean {
+  const contract = api.sdkContract;
   return Boolean(
-    api.sdkContract?.operations.includes(operation.operationId) &&
-    api.sdkContract.controllers[operation.tag]
+    contract?.operations.includes(operation.operationId) &&
+    Object.prototype.hasOwnProperty.call(contract.controllers, operation.tag)
   );
 }
 
@@ -151,7 +152,7 @@ export function generateSdkSnippet(
     );
   }
 
-  const controller = contract.controllers[operation.tag]!;
+  const controller = contract.controllers[operation.tag];
   const lines: string[] = [];
   if (contract.client.kind === "default") {
     lines.push(
@@ -197,7 +198,9 @@ export function generateSdkSnippet(
     : "()";
   lines.push(
     "",
-    `const result = await ${contract.client.identifier}.${controller}.${operation.operationId}${call};`
+    `const result = await ${contract.client.identifier}.${
+      controller ? `${controller}.` : ""
+    }${operation.operationId}${call};`
   );
   return lines.join("\n");
 }

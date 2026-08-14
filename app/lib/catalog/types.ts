@@ -240,7 +240,8 @@ export type SdkContract = {
     kind: "bearer-request-init";
     envVar: string;
   };
-  controllers: Record<string, string>;
+  /** OAS tag 到 SDK Controller 的映射；null 表示方法直接位于 client 根级。 */
+  controllers: Record<string, string | null>;
   operations: string[];
 };
 
