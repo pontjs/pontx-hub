@@ -7,7 +7,7 @@ import { meta as schemaMeta } from "./schema-detail";
 import { meta as sdkMeta } from "./sdk-detail";
 import { meta as savedApisMeta } from "./saved-apis";
 import { meta as catalogMeta } from "./catalog";
-import { meta as rootMeta } from "~/root";
+import { siteVerificationMeta } from "~/root";
 
 type Descriptor = Record<string, unknown>;
 
@@ -47,9 +47,9 @@ describe("public route SEO metadata", () => {
     expect(graph).toContain('"logo":"https://pontx.dev/pontx-logo.svg"');
     expect(graph).toContain('"@type":"CollectionPage"');
 
-    expect(descriptors(rootMeta({
-      data: { siteVerification: { google: "google-token", bing: "bing-token", baidu: "baidu-token" } }
-    } as never))).toEqual(expect.arrayContaining([
+    expect(descriptors(siteVerificationMeta({
+      google: "google-token", bing: "bing-token", baidu: "baidu-token"
+    }))).toEqual(expect.arrayContaining([
       { name: "google-site-verification", content: "google-token" },
       { name: "msvalidate.01", content: "bing-token" },
       { name: "baidu-site-verification", content: "baidu-token" }
