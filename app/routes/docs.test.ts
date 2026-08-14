@@ -46,24 +46,26 @@ describe("localized documentation", () => {
     expect(html).toContain('href="/zh/docs/web"');
   });
 
-  it("presents Skill, CLI, SDK, then the website as the product hierarchy", () => {
+  it("leads with the consistent CLI and SDK contract for every curated API", () => {
     const html = renderDocs("/zh/docs", "zh", "overview");
-    const skill = html.indexOf("告诉 Agent 你想做什么");
-    const cli = html.indexOf("喜欢在终端工作时");
-    const sdk = html.indexOf("准备写进应用时");
-    const web = html.indexOf("不安装任何工具");
+    const cli = html.indexOf("用 pontx-hub 的一组命令搜索、查看和预览整个目录");
+    const sdk = html.indexOf("每个 API 都使用可预测的");
+    const apiCli = html.indexOf("pontx-&lt;api&gt; 随对应 SDK 发布");
+    const skill = html.indexOf("让 Agent 沿用同一份目录");
 
-    expect(html).toContain("先从 Agent Skill 开始，再选择你习惯的方式");
+    expect(html).toContain("每个被收录的 API，都有一致的 SDK 与 CLI 调用方式");
+    expect(html).toContain("目前公开目录里的每个 API 都有已发布的 SDK 与 CLI");
     expect(html).not.toContain("TypeScript SDK");
     expect(html).toContain("<h3>统一 SDK</h3>");
     expect(html).toContain(">统一 SDK</button>");
-    expect(skill).toBeGreaterThan(-1);
-    expect(skill).toBeLessThan(cli);
+    expect(cli).toBeGreaterThan(-1);
     expect(cli).toBeLessThan(sdk);
-    expect(sdk).toBeLessThan(web);
-    expect(html).toContain('role="tab" aria-selected="true" aria-controls="panel-overview-skill"');
+    expect(sdk).toBeLessThan(apiCli);
+    expect(apiCli).toBeLessThan(skill);
+    expect(html).toContain('role="tab" aria-selected="true" aria-controls="panel-overview-cli"');
 
     const englishHtml = renderDocs("/en/docs", "en", "overview");
+    expect(englishHtml).toContain("Every curated API comes with a consistent SDK and CLI call model");
     expect(englishHtml).toContain("<h3>Unified SDK</h3>");
     expect(englishHtml).toContain(">Unified SDK</button>");
   });

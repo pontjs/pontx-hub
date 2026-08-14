@@ -3,9 +3,9 @@ import type { Locale } from "~/lib/catalog/types";
 export const DOC_SLUGS = [
   "overview",
   "quick-start",
-  "agent-skill",
   "cli",
   "sdk",
+  "agent-skill",
   "web",
   "safety"
 ] as const;
@@ -35,20 +35,20 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     slug: "overview",
     navTitle: text("文档首页", "Documentation home"),
     metaTitle: text(
-      "API 文档、Agent Skill、统一 CLI 与统一 SDK",
-      "API Documentation, Agent Skill, Universal CLI & Unified SDK"
+      "API 文档、统一 SDK、统一 CLI 与 Agent Skill",
+      "API Documentation, Unified SDK, Universal CLI & Agent Skill"
     ),
-    title: text("先从 Agent Skill 开始，再选择你习惯的方式。", "Start with the Agent Skill, then work the way you prefer."),
+    title: text("每个被收录的 API，都有一致的 SDK 与 CLI 调用方式。", "Every curated API comes with a consistent SDK and CLI call model."),
     description: text(
-      "Pontx Hub 文档从 Agent Skill 开始，提供统一 CLI、统一 SDK 与网站指南，涵盖 API 搜索、接口参数、请求预览和代码集成。",
-      "Pontx Hub documentation for the Agent Skill, Universal CLI, Unified SDK, and website, covering API discovery, Endpoint details, request preview, and code integration."
+      "pontx-hub 统一搜索、查看和预览整个目录，并执行获准的在线调用；应用集成使用 @pontx/<api> SDK，单 API 脚本使用同包发布的 pontx-<api> CLI。",
+      "pontx-hub searches, inspects, and previews the entire catalog and runs approved online calls; applications use @pontx/<api> SDKs, while API-specific scripts use the bundled pontx-<api> CLI."
     ),
-    eyebrow: text("Pontx Hub 文档", "Pontx Hub documentation"),
-    keywords: text("首页 概览 API 接口 数据结构 工作流", "home overview API endpoint schema workflow"),
+    eyebrow: text("统一调用 / SDK + CLI", "Consistent calls / SDK + CLI"),
+    keywords: text("首页 概览 API 统一 SDK CLI pontx-hub 接口 数据结构", "home overview API unified SDK CLI pontx-hub endpoint schema"),
     sections: [
-      { id: "choose-interface", title: text("从 Agent Skill 开始", "Start with the Agent Skill") },
+      { id: "consistent-access", title: text("先认识统一 SDK 与 CLI", "Start with the Unified SDK and CLI") },
       { id: "shared-model", title: text("不同入口，同一份 API 资料", "One source, whichever way you work") },
-      { id: "one-workflow", title: text("从找到接口到写进项目", "From finding an API to using it") }
+      { id: "one-workflow", title: text("一份 API 定义，三种调用入口", "One API definition, three call surfaces") }
     ]
   },
   "quick-start": {
@@ -102,8 +102,8 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     ),
     title: text("一个 CLI，覆盖整个 API 目录。", "One CLI for the entire API catalog."),
     description: text(
-      "安装 @pontx/hub-cli，使用 pontx-hub 搜索、查看、预演和调用已收录 API，并通过 JSON 输出编写脚本。",
-      "Install @pontx/hub-cli to search, inspect, preview, and call curated APIs with pontx-hub, including JSON output for scripts."
+      "安装 @pontx/hub-cli，搜索、查看和预演全部已收录 API，并调用允许在线执行的接口；编写脚本时可直接读取 JSON 输出。",
+      "Install @pontx/hub-cli to search, inspect, and preview every curated API and call Endpoints enabled for online execution, with JSON output for automation."
     ),
     eyebrow: text("CLI / @pontx/hub-cli", "CLI / @pontx/hub-cli"),
     keywords: text("CLI 命令行 list search show preview call sdk json 参数", "CLI command list search show preview call sdk json parameters"),
@@ -187,7 +187,7 @@ export const DOC_GROUPS = [
   },
   {
     label: text("使用方式", "Interfaces"),
-    slugs: ["agent-skill", "cli", "sdk", "web"] as DocSlug[]
+    slugs: ["cli", "sdk", "agent-skill", "web"] as DocSlug[]
   },
   {
     label: text("使用须知", "Before you send"),

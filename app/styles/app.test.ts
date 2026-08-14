@@ -107,6 +107,20 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("keeps the homepage SDK and CLI story legible from desktop to mobile", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.catalog-access-grid\s*{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.catalog-access-grid\s*{[\s\S]*?grid-template-columns:\s*1fr;/,
+    );
+    expect(css).toMatch(
+      /\.catalog-access-card > strong\s*{[\s\S]*?text-overflow:\s*ellipsis;[\s\S]*?white-space:\s*nowrap;/,
+    );
+  });
+
   it("uses the shared cool-neutral palette for non-semantic surfaces", async () => {
     const [css, accountCss, root] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),
