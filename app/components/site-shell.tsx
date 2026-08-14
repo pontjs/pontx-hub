@@ -10,6 +10,7 @@ import { AccountNavigation } from "~/components/account-navigation";
 const copy = {
   zh: {
     catalog: "API 目录",
+    docs: "文档",
     skill: "Agent Skill",
     github: "GitHub",
     language: "English",
@@ -25,6 +26,7 @@ const copy = {
   },
   en: {
     catalog: "API Catalog",
+    docs: "Docs",
     skill: "Agent Skill",
     github: "GitHub",
     language: "中文",
@@ -84,6 +86,7 @@ export function SiteShell({
         </Link>
         <nav aria-label={text.primaryNavigation}>
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
+          <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
           <NavLink to={`/${locale}/skills/pontx-hub`}>{text.skill}</NavLink>
           <a
             className="github-link"
@@ -124,6 +127,9 @@ export function SiteShell({
           >
             <NavLink to={`/${locale}`} end onClick={() => setMobileNavOpen(false)}>
               {text.catalog}
+            </NavLink>
+            <NavLink to={`/${locale}/docs`} onClick={() => setMobileNavOpen(false)}>
+              {text.docs}
             </NavLink>
             <NavLink to={`/${locale}/skills/pontx-hub`} onClick={() => setMobileNavOpen(false)}>
               {text.skill}

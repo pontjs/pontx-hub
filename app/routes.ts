@@ -8,6 +8,8 @@ export default [
   route("openapi.json", "routes/openapi.ts"),
   route("badges/sdk/*", "routes/sdk-quality-badge.ts"),
   route(".well-known/skills/*", "routes/skill-discovery.ts"),
+  route("docs", "routes/docs-redirect.tsx"),
+  route("docs/:docSlug", "routes/docs-detail-redirect.tsx"),
   route("api/v1/*", "routes/api.ts"),
   route("api/v2/*", "routes/api-v2.ts"),
   route("api/internal/*", "routes/internal-api.ts"),
@@ -18,6 +20,8 @@ export default [
   route(":locale/account/saved", "routes/saved-apis.tsx"),
   route(":locale/account/history", "routes/playground-history.tsx"),
   route(":locale", "routes/catalog.tsx"),
+  route(":locale/docs", "routes/docs-index.tsx"),
+  route(":locale/docs/:docSlug", "routes/docs-detail.tsx"),
   route(":locale/apis", "routes/catalog-redirect.tsx"),
   route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),
   route(

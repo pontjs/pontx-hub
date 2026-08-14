@@ -1,4 +1,5 @@
 import { listCatalog } from "~/lib/catalog/catalog.server";
+import { DOC_SLUGS } from "~/lib/docs";
 import { siteUrl } from "~/lib/http";
 
 function escapeXml(value: string): string {
@@ -13,6 +14,9 @@ function escapeXml(value: string): string {
 export function loader() {
   const urls: Array<{ path: string; lastmod?: string }> = [
     { path: "" },
+    ...DOC_SLUGS.map((slug) => ({
+      path: slug === "overview" ? "/docs" : `/docs/${slug}`
+    })),
     { path: "/skills/pontx-hub" }
   ];
   for (const api of listCatalog()) {
