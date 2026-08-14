@@ -69,7 +69,7 @@ describe("ApiOverviewFacts", () => {
     expect(html).toContain(`v${api.sdkVersion}`);
   });
 
-  it("keeps English endpoint, schema, live-call, and planned SDK facts navigable", () => {
+  it("keeps English endpoint, schema, live-call, and published SDK facts navigable", () => {
     const { api, operationSlug, html } = renderOverviewFacts("frankfurter-v2", "en");
 
     expect(html).toContain(`href="/en/apis/frankfurter-v2/${operationSlug}"`);
@@ -79,7 +79,7 @@ describe("ApiOverviewFacts", () => {
     expect(html).toContain(`aria-label="Jump to ${localize(api.title, "en")} live calls"`);
     expect(html).toContain('href="/en/sdks/frankfurter-v2"');
     expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} SDK page"`);
-    expect(html).toContain("Planned");
+    expect(html).toContain(`v${api.sdkVersion}`);
     expect(html.match(/class="api-overview-fact-link"/g)).toHaveLength(4);
   });
 });

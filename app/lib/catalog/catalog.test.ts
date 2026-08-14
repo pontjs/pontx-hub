@@ -11,18 +11,12 @@ import { catalogApiSchema } from "./schema";
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect(catalog.map((api) => api.slug)).toEqual(expect.arrayContaining([
-      "cnbc-market-data",
+    expect(catalog.map((api) => api.slug)).toEqual([
       "dida365",
-      "eastmoney-funds",
       "frankfurter",
-      "i3investor-sgx",
-      "massive",
-      "sina-finance",
-      "stooq",
-      "tencent-finance",
-      "yahoo-finance"
-    ]));
+      "frankfurter-v2",
+      "massive"
+    ]);
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
@@ -41,7 +35,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect(operations).toHaveLength(75);
+    expect(operations).toHaveLength(53);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(
@@ -68,9 +62,9 @@ describe("curated catalog", () => {
     expect(summary).not.toHaveProperty("operations");
     expect(summary).not.toHaveProperty("servers");
     expect(
-      summaries.find((candidate) => candidate.slug === "stooq")
+      summaries.find((candidate) => candidate.slug === "massive")
         ?.defaultOperationSlug
-    ).toBe("download-historical-quotes");
+    ).toBe("get-previous-close");
   });
 
   it("finds operations by stable slug", () => {
@@ -161,16 +155,13 @@ describe("curated catalog", () => {
     expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
   });
 
-  it("preserves documentation provenance and read-only proxy configuration", () => {
+  it("preserves official provenance and disables market-data redistribution", () => {
     const catalog = listCatalog();
-    const marketApis = catalog.filter((api) =>
-      ["massive", "yahoo-finance", "stooq", "sina-finance", "tencent-finance", "eastmoney-funds", "cnbc-market-data", "i3investor-sgx"].includes(api.slug)
-    );
-    expect(marketApis).toHaveLength(8);
-    expect(marketApis.every((api) => api.proxyEnabled === true)).toBe(true);
-    expect(marketApis.flatMap((api) => api.operations).every((operation) => operation.serverIds.length > 0)).toBe(true);
-    expect(marketApis.find((api) => api.slug === "massive")?.documentationStatus).toBe("official");
-    expect(marketApis.find((api) => api.slug === "i3investor-sgx")?.documentationStatus).toBe("inferred");
-    expect(marketApis.every((api) => api.evidenceUrls.length > 0)).toBe(true);
+    const massive = catalog.find((api) => api.slug === "massive");
+    expect(massive).toBeDefined();
+    expect(massive?.proxyEnabled).toBe(false);
+    expect(massive?.operations.every((operation) => operation.serverIds.length > 0)).toBe(true);
+    expect(massive?.documentationStatus).toBe("official");
+    expect(massive?.evidenceUrls.length).toBeGreaterThan(0);
   });
 });

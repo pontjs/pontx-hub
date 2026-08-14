@@ -8,18 +8,12 @@ describe("Hub API", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
-    expect(payload.data.map((api: { slug: string }) => api.slug)).toEqual(expect.arrayContaining([
-      "cnbc-market-data",
+    expect(payload.data.map((api: { slug: string }) => api.slug)).toEqual([
       "dida365",
-      "eastmoney-funds",
       "frankfurter",
-      "i3investor-sgx",
-      "massive",
-      "sina-finance",
-      "stooq",
-      "tencent-finance",
-      "yahoo-finance"
-    ]));
+      "frankfurter-v2",
+      "massive"
+    ]);
   });
 
   it("returns a machine-readable 404", async () => {
@@ -121,21 +115,21 @@ describe("Hub API", () => {
     expect(text).toContain("Bearer ••••••••");
   });
 
-  it("uses endpoint-specific servers and disables unavailable upstream endpoints", async () => {
+  it("previews Massive without proxying or redistributing market data", async () => {
     const response = await hubApi.request("/api/v1/playground/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiSlug: "eastmoney-funds",
-        operationSlug: "get-fund-estimate",
-        serverId: "fundgz-1234567-com-cn",
-        path: { fundCode: "001072" }
+        apiSlug: "massive",
+        operationSlug: "get-previous-close",
+        serverId: "massive",
+        path: { stocksTicker: "AAPL" },
+        query: { adjusted: true }
       })
     });
     const payload = await response.json();
     expect(response.status).toBe(200);
-    expect(payload.data.url).toBe("https://fundgz.1234567.com.cn/js/001072.js");
-    expect(payload.data.headers.Referer).toBe("https://fund.eastmoney.com/");
+    expect(payload.data.url).toBe("https://api.massive.com/v2/aggs/ticker/AAPL/prev?adjusted=true");
     expect(payload.data.proxyEnabled).toBe(false);
   });
 
@@ -144,10 +138,11 @@ describe("Hub API", () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiSlug: "stooq",
-        operationSlug: "download-latest-quotes",
-        serverId: "default",
-        query: { s: "aapl.us" }
+        apiSlug: "massive",
+        operationSlug: "get-previous-close",
+        serverId: "massive",
+        path: { stocksTicker: "AAPL" },
+        query: { adjusted: true }
       })
     });
     const payload = await response.json();
@@ -157,28 +152,6 @@ describe("Hub API", () => {
     expect(payload.error.message).toBe(
       "This API is configured for preview-only mode"
     );
-  });
-
-  it("adds all curated headers for an executable endpoint", async () => {
-    const response = await hubApi.request("/api/v1/playground/preview", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        apiSlug: "cnbc-market-data",
-        operationSlug: "get-quote-chart-data",
-        serverId: "webql-redesign-cnbcfm-com",
-        query: {
-          operationName: "getQuoteChartData",
-          variables: '{"symbol":"AAPL","timeRange":"1D"}',
-          extensions: '{"persistedQuery":{"version":1,"sha256Hash":"9e1670c29a10707c417a1efd327d4b2b1d456b77f1426e7e84fb7d399416bb6b"}}'
-        }
-      })
-    });
-    const payload = await response.json();
-    expect(response.status).toBe(200);
-    expect(payload.data.headers.Referer).toBe("https://www.cnbc.com/");
-    expect(payload.data.headers.partner).toBe("cnbc01");
-    expect(payload.data.proxyEnabled).toBe(true);
   });
 
   it("generates public SDK code from non-empty request parameters", async () => {
