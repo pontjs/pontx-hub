@@ -29,6 +29,13 @@
       "when": 1786421761600,
       "tag": "0003_spooky_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786700700667,
+      "tag": "0004_soft_stature",
+      "breakpoints": true
     }
   ]
 }

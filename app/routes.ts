@@ -15,6 +15,7 @@ export default [
   route("api/internal/*", "routes/internal-api.ts"),
   route("api/auth/*", "routes/auth-api.ts"),
   route("api/account/v1/*", "routes/account-api.ts"),
+  route("api/ai/v1/*", "routes/ai-api.ts"),
   route("oauth/callback", "routes/oauth-callback.tsx"),
   route(":locale/sign-in/*", "routes/sign-in.tsx"),
   route(":locale/account/saved", "routes/saved-apis.tsx"),

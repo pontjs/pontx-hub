@@ -36,7 +36,8 @@ const matchFieldOrder: GlobalSearchMatchField[] = [
   "schema",
   "description",
   "product",
-  "path"
+  "path",
+  "pricing"
 ];
 
 // Small, deterministic bilingual ontology for API intent/entity retrieval. It
@@ -366,7 +367,13 @@ function productFields(api: CatalogApi, weight = 4): WeightedField[] {
     { value: api.provider, weight: weight + 1, field: "product" },
     { value: api.category, weight, field: "product" },
     ...localizedFields(api.title.zh, api.title.en, weight + 2, "product"),
-    ...localizedFields(api.summary.zh, api.summary.en, weight, "product")
+    ...localizedFields(api.summary.zh, api.summary.en, weight, "product"),
+    ...(api.pricing ? [
+      { value: api.pricing.status, weight: weight + 1, field: "pricing" as const },
+      ...localizedFields(api.pricing.summary.zh, api.pricing.summary.en, weight + 1, "pricing"),
+      ...localizedFields(api.pricing.freeTier?.zh, api.pricing.freeTier?.en, weight + 1, "pricing"),
+      ...localizedFields(api.pricing.billingUnit?.zh, api.pricing.billingUnit?.en, weight, "pricing")
+    ] : [])
   ];
 }
 
@@ -455,7 +462,12 @@ export function buildSearchResponse(
         { value: api.provider, weight: 10, field: "product" },
         { value: api.category, weight: 5, field: "product" },
         ...localizedFields(api.title.zh, api.title.en, 12, "title"),
-        ...localizedFields(api.summary.zh, api.summary.en, 6, "description")
+        ...localizedFields(api.summary.zh, api.summary.en, 6, "description"),
+        ...(api.pricing ? [
+          { value: api.pricing.status, weight: 7, field: "pricing" as const },
+          ...localizedFields(api.pricing.summary.zh, api.pricing.summary.en, 7, "pricing"),
+          ...localizedFields(api.pricing.freeTier?.zh, api.pricing.freeTier?.en, 7, "pricing")
+        ] : [])
       ]);
       apiMatch.score += exactIdentityBoost(normalizedQuery, [
         api.slug,

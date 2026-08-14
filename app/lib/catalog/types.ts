@@ -141,6 +141,21 @@ export type CatalogServer = {
   description: LocalizedText;
 };
 
+export type CatalogPricing = {
+  status: "free" | "freemium" | "paid" | "contact" | "unknown";
+  summary: LocalizedText;
+  officialUrl: string;
+  verifiedAt: string;
+  currency?: string;
+  freeTier?: LocalizedText;
+  billingUnit?: LocalizedText;
+  startingPrice?: {
+    amount: number;
+    currency: string;
+    unit: LocalizedText;
+  };
+};
+
 export type CatalogAuthScheme =
   | {
       id: string;
@@ -264,6 +279,7 @@ export type CatalogApi = {
   };
   servers: CatalogServer[];
   auth: CatalogAuthScheme[];
+  pricing?: CatalogPricing;
   operations: CatalogOperation[];
   schemas: CatalogSchema[];
 };
@@ -289,7 +305,8 @@ export type GlobalSearchMatchField =
   | "request"
   | "response"
   | "schema"
-  | "property";
+  | "property"
+  | "pricing";
 
 export type GlobalSearchMatch = {
   mode: "lexical" | "semantic" | "hybrid";

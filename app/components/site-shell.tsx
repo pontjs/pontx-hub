@@ -6,6 +6,7 @@ import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 import { alternateLocaleHref, alternateLocaleUrl } from "~/lib/i18n";
 import { AccountNavigation } from "~/components/account-navigation";
+import { AiAssistant } from "~/components/ai-assistant";
 
 const copy = {
   zh: {
@@ -109,6 +110,7 @@ export function SiteShell({
           </a>
           <AccountNavigation locale={locale} />
         </nav>
+        <AiAssistant locale={locale} />
         <div className="mobile-nav">
           <button
             type="button"

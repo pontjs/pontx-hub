@@ -16,12 +16,16 @@
     "test": "pnpm metadata:sync && vitest run",
     "test:watch": "vitest",
     "search:eval": "pnpm metadata:sync && tsx scripts/evaluate-search.ts",
+    "ai:eval": "pnpm metadata:sync && vitest run app/lib/ai/agent-evaluation.test.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "metadata:sync": "tsx scripts/sync-metadata.ts",
     "sdk:verify": "pnpm metadata:sync && tsx scripts/verify-sdk-releases.ts"
   },
   "dependencies": {
+    "@ag-ui/client": "0.0.57",
+    "@ag-ui/core": "0.0.57",
+    "@anthropic-ai/sdk": "0.117.1",
     "@neondatabase/serverless": "^1.1.0",
     "@pontx/nodejs-sdk": "^0.1.0",
     "@pontx/shadcn-ui": "^1.2.9",

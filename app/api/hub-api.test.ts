@@ -24,6 +24,15 @@ describe("Hub API", () => {
     expect(payload.error.requestId).toBeTruthy();
   });
 
+  it("serves reviewed pricing through a stable CLI-facing contract", async () => {
+    const response = await hubApi.request("/api/v1/specs/frankfurter/pricing");
+    const payload = await response.json();
+    expect(response.status).toBe(200);
+    expect(payload.version).toBe("v1");
+    expect(["free", "unknown"]).toContain(payload.data.status);
+    expect(payload.data.summary).toMatchObject({ zh: expect.any(String), en: expect.any(String) });
+  });
+
   it("globally searches APIs, endpoints, and schemas through v2", async () => {
     const response = await hubApi.request(
       "/api/v2/search?q=%E4%BB%BB%E5%8A%A1&locale=zh&limit=50"

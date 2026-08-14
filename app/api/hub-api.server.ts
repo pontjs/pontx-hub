@@ -359,6 +359,21 @@ hubApi.get("/api/v1/specs/:slug/sdk", (context) => {
   });
 });
 
+hubApi.get("/api/v1/specs/:slug/pricing", (context) => {
+  const api = getCatalogApi(context.req.param("slug"));
+  if (!api) return jsonError("not_found", "API not found", 404);
+  return cacheableJson(context.req.raw, {
+    version: "v1",
+    data: api.pricing ?? {
+      status: "unknown",
+      summary: {
+        zh: "尚无经审核的费用资料",
+        en: "No reviewed pricing data is available"
+      }
+    }
+  });
+});
+
 hubApi.post("/api/v1/playground/preview", async (context) => {
   const input = playgroundRequestSchema.safeParse(await context.req.json());
   if (!input.success) {

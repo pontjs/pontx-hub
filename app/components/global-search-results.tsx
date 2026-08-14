@@ -61,6 +61,7 @@ function matchFieldLabel(field: GlobalSearchMatchField, locale: Locale): string 
     parameter: { zh: "参数", en: "parameter" },
     request: { zh: "入参", en: "request" },
     response: { zh: "出参", en: "response" },
+    pricing: { zh: "费用", en: "pricing" },
     schema: { zh: "结构", en: "schema" },
     property: { zh: "字段", en: "property" }
   };

@@ -1,0 +1,60 @@
+[
+  {
+    "id": "discover-currency-api-zh",
+    "tool": "search_resources",
+    "input": { "query": "把欧元换成人民币", "locale": "zh", "types": ["endpoint"] },
+    "expectResource": "endpoint:frankfurter/get-latest-rates"
+  },
+  {
+    "id": "inspect-task-auth-en",
+    "tool": "get_resource",
+    "input": { "resourceId": "endpoint:dida365/create-task", "locale": "en" },
+    "expectPath": "/open/v1/task",
+    "expectAuthType": "oauth2"
+  },
+  {
+    "id": "generate-sdk-cli-en",
+    "tool": "get_sdk_and_cli",
+    "input": { "apiSlug": "frankfurter", "locale": "en" },
+    "expectText": "@pontx/hub-cli"
+  },
+  {
+    "id": "prepare-safe-call-no-credentials",
+    "tool": "prepare_api_call",
+    "input": {
+      "apiSlug": "frankfurter",
+      "operationSlug": "get-latest-rates",
+      "serverId": "default",
+      "path": {},
+      "query": { "base": "EUR", "symbols": "CNY" },
+      "headers": {},
+      "locale": "zh"
+    },
+    "expectMethod": "GET",
+    "expectConfirmation": false,
+    "expectUiEvent": "pontx.request_prepared"
+  },
+  {
+    "id": "prepare-mutation-requires-confirmation",
+    "tool": "prepare_api_call",
+    "input": {
+      "apiSlug": "dida365",
+      "operationSlug": "update-task",
+      "serverId": "default",
+      "path": { "taskId": "task-1" },
+      "query": {},
+      "headers": {},
+      "body": { "title": "Review agent implementation" },
+      "locale": "en"
+    },
+    "expectMethod": "POST",
+    "expectConfirmation": true,
+    "expectUiEvent": "pontx.request_prepared"
+  },
+  {
+    "id": "pricing-does-not-guess",
+    "tool": "get_pricing",
+    "input": { "apiSlug": "frankfurter", "locale": "en" },
+    "expectPricingStatusOneOf": ["free", "unknown"]
+  }
+]
