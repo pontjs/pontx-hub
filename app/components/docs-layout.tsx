@@ -121,26 +121,26 @@ function DocsHero({ locale, slug }: { locale: Locale; slug: DocSlug }) {
         <p className="docs-lede">{page.description[locale]}</p>
         {slug === "overview" ? (
           <div className="docs-hero-actions">
-            <Link className="button button-dark" to={docHref(locale, "agent-skill")}>
-              {zh ? "了解 Agent Skill" : "Explore the Agent Skill"}
+            <Link className="button button-dark" to={docHref(locale, "cli")}>
+              {zh ? "查看统一 CLI" : "View the Universal CLI"}
             </Link>
-            <Link className="button" to={docHref(locale, "cli")}>
-              {zh ? "查看统一 CLI" : "View the universal CLI"}
+            <Link className="button" to={docHref(locale, "sdk")}>
+              {zh ? "查看统一 SDK" : "View the Unified SDK"}
             </Link>
           </div>
         ) : null}
       </div>
       <div className="docs-hero-route" aria-label={zh ? "Pontx 集成流程" : "Pontx integration flow"}>
         {[
-          ["01", zh ? "发现" : "Discover", "search"],
-          ["02", zh ? "理解" : "Inspect", "show"],
-          ["03", zh ? "验证" : "Preview", "preview"],
-          ["04", zh ? "集成" : "Integrate", "sdk"]
+          ["01", zh ? "搜索目录" : "Search the catalog", "pontx-hub search"],
+          ["02", zh ? "预览请求" : "Preview a request", "pontx-hub preview"],
+          ["03", zh ? "通用调用" : "Universal call", "pontx-hub call"],
+          ["04", zh ? "类型集成" : "Typed integration", "@pontx/<api>"]
         ].map(([number, label, command], index) => (
           <div key={number} className={index === 3 ? "is-current" : undefined}>
             <span>{number}</span>
             <strong>{label}</strong>
-            <code>pontx-hub {command}</code>
+            <code>{command}</code>
           </div>
         ))}
       </div>

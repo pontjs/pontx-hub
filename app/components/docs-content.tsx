@@ -168,41 +168,41 @@ function Overview({ locale }: { locale: Locale }) {
   const interfaces = [
     {
       number: "01",
-      title: "Agent Skill",
-      description: zh ? "告诉 Agent 你想做什么，它会按固定步骤帮你找接口、检查请求并准备代码。" : "Tell an agent what you need; it follows a clear process to find the Endpoint, check the request, and prepare code.",
-      href: docHref(locale, "agent-skill"),
+      title: zh ? "统一 CLI" : "Universal CLI",
+      description: zh ? "用 pontx-hub 的一组命令搜索、查看和预览整个目录，并执行获准的在线调用。" : "Use one pontx-hub command set to search, inspect, and preview the catalog, then run approved online calls.",
+      href: docHref(locale, "cli"),
       tag: "pontx-hub"
     },
     {
       number: "02",
-      title: zh ? "统一 CLI" : "Universal CLI",
-      description: zh ? "喜欢在终端工作时，用一组命令搜索目录、查看文档、预览和调用接口。" : "If you prefer the terminal, use one command set to search, read docs, preview, and call Endpoints.",
-      href: docHref(locale, "cli"),
-      tag: "@pontx/hub-cli"
-    },
-    {
-      number: "03",
       title: zh ? "统一 SDK" : "Unified SDK",
-      description: zh ? "准备写进应用时，使用类型安全的客户端和准确的包版本。" : "When you are ready to build, use a type-safe client and the exact published package version.",
+      description: zh ? "每个 API 都使用可预测的 @pontx/<api> 包名，以及从已审核定义生成的类型与方法。" : "Every API uses a predictable @pontx/<api> package with types and methods generated from its reviewed definition.",
       href: docHref(locale, "sdk"),
       tag: "@pontx/<api>"
     },
     {
+      number: "03",
+      title: zh ? "专属 API CLI" : "Dedicated API CLI",
+      description: zh ? "pontx-<api> 随对应 SDK 发布，适合本地开发、CI 与只面向一个 API 的脚本。" : "pontx-<api> ships with its SDK for local development, CI, and scripts focused on one API.",
+      href: docHref(locale, "sdk"),
+      tag: "pontx-<api>"
+    },
+    {
       number: "04",
-      title: zh ? "网站" : "Website",
-      description: zh ? "不安装任何工具，直接搜索 API、阅读接口文档并预览请求。" : "Search APIs, read Endpoint docs, and preview requests without installing anything.",
-      href: docHref(locale, "web"),
-      tag: zh ? "打开即用" : "No setup"
+      title: "Agent Skill",
+      description: zh ? "让 Agent 沿用同一份目录、接口与 Schema，再按预览优先的步骤准备调用。" : "Let an agent use the same catalog, Endpoints, and Schemas while following a preview-first workflow.",
+      href: docHref(locale, "agent-skill"),
+      tag: "pontx-hub"
     }
   ];
 
   return (
     <>
       <DocSection
-        id="choose-interface"
+        id="consistent-access"
         marker="01"
-        title={zh ? "从 Agent Skill 开始" : "Start with the Agent Skill"}
-        lead={zh ? "先了解 Skill 能替你完成什么，再按自己的习惯选择命令行、SDK 或网站。" : "See what the Skill can handle, then choose the terminal, SDK, or website when you want to work directly."}
+        title={zh ? "先认识统一 SDK 与 CLI" : "Start with the Unified SDK and CLI"}
+        lead={zh ? "公开目录里的 API 不只提供文档：你可以用通用 CLI 跨目录调用，也可以用统一 SDK 或随包发布的专属 CLI 集成。" : "Catalog APIs are more than documentation: call across the catalog with the Universal CLI, or integrate with the Unified SDK and its bundled dedicated CLI."}
       >
         <div className="docs-interface-grid">
           {interfaces.map((item) => (
@@ -223,7 +223,7 @@ function Overview({ locale }: { locale: Locale }) {
         id="shared-model"
         marker="02"
         title={zh ? "不同入口，同一份 API 资料" : "One source, whichever way you work"}
-        lead={zh ? "无论使用 Skill、CLI、统一 SDK 还是网站，看到的 API 名称、接口和字段都保持一致。" : "The Skill, CLI, Unified SDK, and website use the same API names, Endpoints, and fields."}
+        lead={zh ? "pontx-hub、统一 SDK、专属 CLI、Agent Skill 与网站都读取同一份已审核 API 定义。" : "pontx-hub, the Unified SDK, dedicated CLIs, the Agent Skill, and the website all use the same reviewed API definition."}
       >
         <div className="docs-model-flow" aria-label={zh ? "Pontx 资源层级" : "Pontx resource hierarchy"}>
           <div><span>API</span><strong>{zh ? "产品与认证边界" : "Product and auth boundary"}</strong><code>api:frankfurter</code></div>
@@ -232,35 +232,23 @@ function Overview({ locale }: { locale: Locale }) {
           <i aria-hidden="true">→</i>
           <div><span>Schema</span><strong>{zh ? "输入与输出结构" : "Input and output structure"}</strong><code>schema:frankfurter/ExchangeRateResponse</code></div>
         </div>
-        <Callout title={zh ? "术语约定" : "Terminology"}>
+        <Callout tone="safe" title={zh ? "当前公开目录的承诺" : "The public catalog promise"}>
           {zh
-            ? "API 指产品或规范集合；其中的单个 HTTP 能力称为“接口”。Schema 是被接口复用的数据结构。"
-            : "API means a product or specification collection; each HTTP capability is an Endpoint. Schemas are reusable input and output structures."}
+            ? "目前公开目录里的每个 API 都有已发布的 SDK 与 CLI。准确包名、版本和调用示例以对应 API 的 SDK 页面为准。"
+            : "Every API in the public catalog currently has a published SDK and CLI. Use that API's SDK page for the exact package, version, and call examples."}
         </Callout>
       </DocSection>
 
       <DocSection
         id="one-workflow"
         marker="03"
-        title={zh ? "从找到接口到写进项目" : "From finding an API to using it"}
-        lead={zh ? "找到合适的接口后，先看清参数和请求，再决定是否发送，最后复制成项目里的代码。" : "Find the right Endpoint, check its parameters and request, decide whether to send it, then copy the result into your project."}
+        title={zh ? "一份 API 定义，三种调用入口" : "One API definition, three call surfaces"}
+        lead={zh ? "pontx-hub 负责跨目录工作；@pontx/<api> SDK 与 pontx-<api> CLI 面向具体 API，并沿用相同的接口与字段来源。" : "pontx-hub works across the catalog; @pontx/<api> SDKs and pontx-<api> CLIs focus on one API while preserving the same Endpoint and field source."}
       >
         <CodeTabs
           locale={locale}
           label={zh ? "不同使用方式的快速示例" : "Quick examples by interface"}
           examples={[
-            {
-              id: "overview-skill",
-              label: "Agent Skill",
-              language: "shell",
-              code: zh
-                ? `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
-
-# 安装后，直接告诉 Agent 你想用 API 做什么。`
-                : `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
-
-# Then tell your agent what you want to do with an API.`
-            },
             {
               id: "overview-cli",
               label: zh ? "统一 CLI" : "Universal CLI",
@@ -280,6 +268,17 @@ const result = await currencyExchangeClient.exchangeRates.getLatestRates({
   base: "USD",
   symbols: "JPY,CNY"
 });`
+            },
+            {
+              id: "overview-api-cli",
+              label: zh ? "专属 API CLI" : "Dedicated API CLI",
+              language: "shell",
+              code: `pnpm add --global @pontx/frankfurter
+
+pontx-frankfurter call exchangeRates.getLatestRates \\
+  --base USD \\
+  --symbols JPY,CNY \\
+  --dry-run`
             }
           ]}
         />
@@ -504,9 +503,9 @@ await client.authenticate();`
       <DocSection id="dedicated-cli" marker="03" title={zh ? "独立 API CLI" : "Dedicated API CLIs"} lead={zh ? "已发布的 SDK 可以同时暴露 pontx-<api-slug> 命令，直接使用同一份生成类型。" : "A published SDK may also expose pontx-<api-slug>, backed by the same generated contract."}>
         <CopyableCode locale={locale} language="shell" label="Frankfurter dedicated CLI" code={`pnpm add --global @pontx/frankfurter
 
-pontx-frankfurter call exchangeRates.getLatestRates \
-  --base USD \
-  --symbols JPY,CNY \
+pontx-frankfurter call exchangeRates.getLatestRates \\
+  --base USD \\
+  --symbols JPY,CNY \\
   --dry-run`} />
         <div className="docs-comparison">
           <div><span>pontx-hub</span><strong>{zh ? "跨 API 目录" : "Catalog-wide"}</strong><p>{zh ? "搜索、资源检查、Hub 预演与受控代理调用。" : "Search, resource inspection, Hub preview, and controlled proxy calls."}</p></div>
