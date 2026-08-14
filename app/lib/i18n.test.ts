@@ -11,10 +11,10 @@ import {
 describe("internationalized routing", () => {
   it("describes the Agent Skill capability directly in both locales", () => {
     expect(agentSkillHeroCopy("zh")).toEqual({
-      heading: "让 Agent 搜索、集成并调用 Pontx Hub 中的任意 API。"
+      heading: "让 Agent 用统一工作流发现、验证、调用并集成 API。"
     });
     expect(agentSkillHeroCopy("en")).toEqual({
-      heading: "Let agents search, integrate, and call any API in Pontx Hub."
+      heading: "Give agents one workflow to discover, verify, call, and integrate APIs."
     });
   });
 

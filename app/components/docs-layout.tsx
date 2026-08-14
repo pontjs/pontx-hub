@@ -121,11 +121,11 @@ function DocsHero({ locale, slug }: { locale: Locale; slug: DocSlug }) {
         <p className="docs-lede">{page.description[locale]}</p>
         {slug === "overview" ? (
           <div className="docs-hero-actions">
-            <Link className="button button-dark" to={docHref(locale, "quick-start")}>
-              {zh ? "开始 5 分钟教程" : "Start the 5-minute guide"}
+            <Link className="button button-dark" to={docHref(locale, "agent-skill")}>
+              {zh ? "了解 Agent Skill" : "Explore the Agent Skill"}
             </Link>
-            <Link className="button" to={`/${locale}`}>
-              {zh ? "浏览 API 目录" : "Browse the API catalog"}
+            <Link className="button" to={docHref(locale, "cli")}>
+              {zh ? "查看统一 CLI" : "View the universal CLI"}
             </Link>
           </div>
         ) : null}
