@@ -168,31 +168,31 @@ function Overview({ locale }: { locale: Locale }) {
   const interfaces = [
     {
       number: "01",
-      title: zh ? "网站" : "Website",
-      description: zh ? "搜索、阅读、预演；最适合第一次了解 API。" : "Search, read, and preview—the best place to understand an API first.",
-      href: docHref(locale, "web"),
-      tag: zh ? "无需安装" : "No install"
+      title: "Agent Skill",
+      description: zh ? "把用户意图转为可审查的 API 发现、请求预演、授权调用与 SDK 集成工作流。" : "Turn user intent into a reviewable workflow for API discovery, request preview, authorized calls, and SDK integration.",
+      href: docHref(locale, "agent-skill"),
+      tag: "pontx-hub"
     },
     {
       number: "02",
       title: zh ? "统一 CLI" : "Universal CLI",
-      description: zh ? "跨整个目录搜索与调用，适合终端、脚本和 Agent。" : "Search and call across the catalog from terminals, scripts, and agents.",
+      description: zh ? "为 Skill、终端和自动化提供统一的搜索、检查、预演与调用命令。" : "Give the Skill, terminals, and automation one command surface for search, inspection, preview, and calls.",
       href: docHref(locale, "cli"),
       tag: "@pontx/hub-cli"
     },
     {
       number: "03",
-      title: "TypeScript SDK",
+      title: zh ? "统一 SDK" : "Unified SDKs",
       description: zh ? "把验证过的请求变成类型安全的生产代码。" : "Turn a verified request into type-safe production code.",
       href: docHref(locale, "sdk"),
       tag: "@pontx/<api>"
     },
     {
       number: "04",
-      title: "Agent Skill",
-      description: zh ? "让 Agent 按需检索实时目录，并遵循同一安全边界。" : "Let agents retrieve the live catalog on demand under the same safety rules.",
-      href: docHref(locale, "agent-skill"),
-      tag: "pontx-hub"
+      title: zh ? "网站" : "Website",
+      description: zh ? "用可视化界面浏览同一份 API、接口、数据结构与 Playground。" : "Explore the same APIs, Endpoints, Schemas, and Playground through a visual interface.",
+      href: docHref(locale, "web"),
+      tag: zh ? "可视化入口" : "Visual interface"
     }
   ];
 
@@ -201,8 +201,8 @@ function Overview({ locale }: { locale: Locale }) {
       <DocSection
         id="choose-interface"
         marker="01"
-        title={zh ? "选择你的使用方式" : "Choose your interface"}
-        lead={zh ? "它们不是四套产品，而是同一份目录的四种入口。" : "These are four interfaces to the same catalog—not four separate products."}
+        title={zh ? "从 Agent Skill 开始" : "Start with the Agent Skill"}
+        lead={zh ? "Skill 定义工作流，CLI 负责执行，SDK 承接生产集成，网站提供可视化入口。" : "The Skill defines the workflow, the CLI executes it, SDKs carry it into production, and the website provides a visual interface."}
       >
         <div className="docs-interface-grid">
           {interfaces.map((item) => (
@@ -223,7 +223,7 @@ function Overview({ locale }: { locale: Locale }) {
         id="shared-model"
         marker="02"
         title={zh ? "一套共享模型" : "One shared model"}
-        lead={zh ? "稳定资源 ID、链接与代码命名让 Web、CLI、SDK 与 Agent 互相衔接。" : "Stable resource IDs, links, and code names connect Web, CLI, SDK, and agents."}
+        lead={zh ? "稳定资源 ID、链接与代码命名让 Agent、CLI、SDK 与网站互相衔接。" : "Stable resource IDs, links, and code names connect agents, the CLI, SDKs, and the website."}
       >
         <div className="docs-model-flow" aria-label={zh ? "Pontx 资源层级" : "Pontx resource hierarchy"}>
           <div><span>API</span><strong>{zh ? "产品与认证边界" : "Product and auth boundary"}</strong><code>api:frankfurter</code></div>
@@ -250,6 +250,14 @@ function Overview({ locale }: { locale: Locale }) {
           label={zh ? "不同使用方式的快速示例" : "Quick examples by interface"}
           examples={[
             {
+              id: "overview-skill",
+              label: "Agent Skill",
+              language: "shell",
+              code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
+
+# The agent follows search → show → preview → confirm → call → sdk.`
+            },
+            {
               id: "overview-cli",
               label: zh ? "统一 CLI" : "Universal CLI",
               language: "shell",
@@ -268,14 +276,6 @@ const result = await currencyExchangeClient.exchangeRates.getLatestRates({
   base: "USD",
   symbols: "JPY,CNY"
 });`
-            },
-            {
-              id: "overview-skill",
-              label: "Agent Skill",
-              language: "shell",
-              code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
-
-# The agent now follows search → show → preview → call → sdk.`
             }
           ]}
         />
@@ -529,7 +529,7 @@ function SkillGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="install" marker="01" title={zh ? "安装 Skill" : "Install the Skill"} lead={zh ? "Skill 只安装一次；API 数据始终通过 CLI 按需读取。" : "Install once; API data is always retrieved on demand through the CLI."}>
+      <DocSection id="install" marker="01" title={zh ? "安装 Skill" : "Install the Skill"} lead={zh ? "Skill 只安装一次；它为 Agent 提供可执行的 API 操作规范，并使用 CLI 完成每一步。" : "Install once; the Skill gives agents an executable API operating protocol and uses the CLI to carry out each step."}>
         <CodeTabs locale={locale} label={zh ? "Skill 安装方式" : "Skill installation methods"} examples={[
           { id: "skill-standard", label: "Agent Skills", language: "shell", code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub` },
           { id: "skill-cli", label: "Pontx Hub CLI", language: "shell", code: `pnpm add --global @pontx/hub-cli
@@ -558,7 +558,7 @@ pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
 pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
       </DocSection>
 
-      <DocSection id="context" marker="03" title={zh ? "保持上下文轻量" : "Keep context lean"} lead={zh ? "Skill 本身不复制整个 OpenAPI 目录，而是教 Agent 何时加载哪一种资源。" : "The Skill does not copy the whole OpenAPI catalog; it teaches the agent which resource to load and when."}>
+      <DocSection id="context" marker="03" title={zh ? "按需加载是工作流收益" : "On-demand loading is a workflow benefit"} lead={zh ? "Skill 的核心是操作规范；按任务加载 API、接口与数据结构，让这套规范保持准确而高效。" : "The Skill is fundamentally an operating protocol; loading APIs, Endpoints, and Schemas per task keeps that protocol accurate and efficient."}>
         <div className="docs-context-meter">
           <div><span>{zh ? "常驻上下文" : "Long-lived context"}</span><strong>Skill workflow</strong><i /></div>
           <div><span>{zh ? "按需加载" : "On demand"}</span><strong>API → Endpoint → Schema</strong><i /></div>

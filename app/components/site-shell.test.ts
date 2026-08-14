@@ -33,6 +33,19 @@ describe("site language switcher", () => {
     expect(html.match(/class="language-icon"/g)).toHaveLength(2);
     expect(html).toContain('<span>English</span>');
     expect(html).toContain('href="/zh/docs"');
+
+    const desktopNav = html.slice(
+      html.indexOf('<nav aria-label="主导航">'),
+      html.indexOf('</nav>', html.indexOf('<nav aria-label="主导航">'))
+    );
+    const primaryHrefs = [...desktopNav.matchAll(/<a[^>]+href="([^"]+)"/g)]
+      .map((match) => match[1]);
+    expect(primaryHrefs.slice(0, 4)).toEqual([
+      "/zh",
+      "/zh/skills/pontx-hub",
+      "/zh/docs",
+      "https://github.com/pontjs/pontx-hub"
+    ]);
   });
 
   it("keeps the inverse language target localized", () => {

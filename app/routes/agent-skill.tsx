@@ -12,12 +12,12 @@ export function loader({ params }: Route.LoaderArgs) {
 export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
   const title = locale === "zh"
-    ? "Pontx Hub Agent Skill — API 智能体技能"
-    : "Pontx Hub Agent Skill — API Discovery and Execution";
+    ? "Pontx Hub Agent Skill — Agent API 工作流"
+    : "Pontx Hub Agent Skill — Agent API Workflow";
   const description =
     locale === "zh"
-      ? "让 Agent 使用独立的 pontx-hub CLI 语义搜索产品、接口、入参与出参，并安全预演与调用 API。"
-      : "Teach agents to semantically search products, endpoints, inputs, outputs, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI.";
+      ? "Pontx Hub Skill 为 Agent 定义 API 发现、契约检查、请求预演、授权调用与类型化集成的统一工作流。"
+      : "Pontx Hub Skill defines one agent workflow for API discovery, contract inspection, request preview, authorized calls, and type-safe integration.";
   const canonical = siteUrl(`/${locale}/skills/pontx-hub`);
   return [
     { title },
@@ -77,8 +77,8 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
           <h1>{heroCopy.heading}</h1>
           <p>
             {zh
-              ? "Skill 不把所有文档塞进上下文，而是教 Agent 通过 CLI 语义检索产品、入参、出参与数据结构，再按需阅读、预演与调用。"
-              : "The Skill does not stuff every API into context. It teaches the agent to semantically retrieve product, input, output, and schema metadata before inspecting, previewing, and calling on demand."}
+              ? "Skill 是 Agent 的 API 操作规范：它规定何时搜索并检查契约、如何预演真实请求、何时必须取得用户授权，以及如何把验证结果转成生产集成。统一 CLI 是执行这套规范的工具。"
+              : "The Skill is an API operating protocol for agents: it defines when to search and inspect contracts, how to preview the resolved request, when user authorization is mandatory, and how to turn verified results into production integration. The universal CLI executes that protocol."}
           </p>
         </header>
         <section className="section">

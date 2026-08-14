@@ -3,10 +3,10 @@ import type { Locale } from "~/lib/catalog/types";
 export const DOC_SLUGS = [
   "overview",
   "quick-start",
-  "web",
+  "agent-skill",
   "cli",
   "sdk",
-  "agent-skill",
+  "web",
   "safety"
 ] as const;
 
@@ -33,15 +33,15 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   overview: {
     slug: "overview",
     navTitle: text("文档首页", "Documentation home"),
-    title: text("从一次搜索，到可靠的 API 集成。", "From first search to a reliable API integration."),
+    title: text("一套 Skill，把 API 意图变成可靠集成。", "One Skill turns API intent into a reliable integration."),
     description: text(
-      "用同一套 Pontx 心智模型理解网站、统一 CLI、TypeScript SDK 与 Agent Skill。",
-      "Use one Pontx mental model across the website, universal CLI, TypeScript SDKs, and Agent Skill."
+      "从 Agent Skill 开始，以统一 CLI 执行可审查的工作流，用统一 TypeScript SDK 进入生产代码；网站提供同一模型的可视化入口。",
+      "Start with the Agent Skill, execute its reviewable workflow through the universal CLI, move into production with unified TypeScript SDKs, and use the website as a visual interface to the same model."
     ),
     eyebrow: text("Pontx Hub 文档", "Pontx Hub documentation"),
     keywords: text("首页 概览 API 接口 数据结构 工作流", "home overview API endpoint schema workflow"),
     sections: [
-      { id: "choose-interface", title: text("选择你的使用方式", "Choose your interface") },
+      { id: "choose-interface", title: text("从 Agent Skill 开始", "Start with the Agent Skill") },
       { id: "shared-model", title: text("一套共享模型", "One shared model") },
       { id: "one-workflow", title: text("同一条集成路径", "One integration path") }
     ]
@@ -100,7 +100,7 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   },
   sdk: {
     slug: "sdk",
-    navTitle: text("TypeScript SDK", "TypeScript SDKs"),
+    navTitle: text("统一 SDK", "Unified SDKs"),
     title: text("统一的 SDK 命名、类型与调用方式。", "Consistent SDK naming, types, and calls."),
     description: text(
       "每个 API 使用 @pontx/<api-slug> 包名、生成类型与独立 CLI，让发现、验证和生产集成保持一致。",
@@ -118,17 +118,17 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   "agent-skill": {
     slug: "agent-skill",
     navTitle: text("Agent Skill", "Agent Skill"),
-    title: text("让 Agent 按需查找，而不是背下全部 API。", "Let agents retrieve APIs on demand, not memorize the catalog."),
+    title: text("让 Agent 遵循可执行、可审查的 API 工作流。", "Give agents an executable, reviewable API workflow."),
     description: text(
-      "安装通用 Pontx Hub Skill，让 Agent 通过统一 CLI 搜索、检查、预演并在获得授权后调用 API。",
-      "Install the universal Pontx Hub Skill so agents search, inspect, preview, and call APIs through the universal CLI after authorization."
+      "Pontx Hub Skill 规定 Agent 如何发现 API、检查契约、预演请求、获得授权、执行调用并生成类型安全的集成代码。",
+      "Pontx Hub Skill defines how agents discover APIs, inspect contracts, preview requests, obtain authorization, execute calls, and generate type-safe integration code."
     ),
     eyebrow: text("Agent / 通用 Skill", "Agent / universal Skill"),
     keywords: text("Agent Skill Codex 安装 工作流 安全", "Agent Skill Codex install workflow safety"),
     sections: [
       { id: "install", title: text("安装 Skill", "Install the Skill") },
       { id: "workflow", title: text("Agent 工作流", "Agent workflow") },
-      { id: "context", title: text("保持上下文轻量", "Keep context lean") },
+      { id: "context", title: text("按需加载是工作流收益", "On-demand loading is a workflow benefit") },
       { id: "boundaries", title: text("不可绕过的边界", "Boundaries that cannot be bypassed") }
     ]
   },
@@ -158,7 +158,7 @@ export const DOC_GROUPS = [
   },
   {
     label: text("使用方式", "Interfaces"),
-    slugs: ["web", "cli", "sdk", "agent-skill"] as DocSlug[]
+    slugs: ["agent-skill", "cli", "sdk", "web"] as DocSlug[]
   },
   {
     label: text("原则", "Principles"),

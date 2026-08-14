@@ -13,7 +13,7 @@ type Descriptor = Record<string, unknown>;
 function renderDocs(
   path: string,
   locale: "zh" | "en" = "zh",
-  slug: "sdk" | "cli" = "sdk"
+  slug: "overview" | "sdk" | "cli" | "agent-skill" = "sdk"
 ) {
   const router = createMemoryRouter([
     {
@@ -42,7 +42,31 @@ describe("localized documentation", () => {
     expect(html).toContain("@pontx/frankfurter");
     expect(html).toContain("createMassiveClient");
     expect(html).toContain('aria-label="本页目录"');
-    expect(html).toContain('href="/zh/docs/agent-skill"');
+    expect(html).toContain('href="/zh/docs/web"');
+  });
+
+  it("presents Skill, CLI, SDK, then the website as the product hierarchy", () => {
+    const html = renderDocs("/zh/docs", "zh", "overview");
+    const skill = html.indexOf("把用户意图转为可审查的 API 发现");
+    const cli = html.indexOf("为 Skill、终端和自动化提供统一的搜索");
+    const sdk = html.indexOf("把验证过的请求变成类型安全的生产代码");
+    const web = html.indexOf("用可视化界面浏览同一份 API");
+
+    expect(html).toContain("一套 Skill，把 API 意图变成可靠集成");
+    expect(skill).toBeGreaterThan(-1);
+    expect(skill).toBeLessThan(cli);
+    expect(cli).toBeLessThan(sdk);
+    expect(sdk).toBeLessThan(web);
+    expect(html).toContain('role="tab" aria-selected="true" aria-controls="panel-overview-skill"');
+  });
+
+  it("describes the Skill as an operating workflow, with on-demand loading as a benefit", () => {
+    const html = renderDocs("/zh/docs/agent-skill", "zh", "agent-skill");
+
+    expect(html).toContain("让 Agent 遵循可执行、可审查的 API 工作流");
+    expect(html).toContain("Skill 的核心是操作规范");
+    expect(html).toContain("按需加载是工作流收益");
+    expect(html).not.toContain("让 Agent 按需查找，而不是背下全部 API");
   });
 
   it("publishes canonical, reciprocal, and structured metadata for every docs page", () => {

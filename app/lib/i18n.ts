@@ -38,10 +38,10 @@ const API_WORKSPACE_NAVIGATION_COPY = {
 
 const AGENT_SKILL_HERO_COPY = {
   zh: {
-    heading: "让 Agent 搜索、集成并调用 Pontx Hub 中的任意 API。"
+    heading: "让 Agent 用统一工作流发现、验证、调用并集成 API。"
   },
   en: {
-    heading: "Let agents search, integrate, and call any API in Pontx Hub."
+    heading: "Give agents one workflow to discover, verify, call, and integrate APIs."
   }
 } as const satisfies Record<Locale, Record<string, string>>;
 
