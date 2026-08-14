@@ -131,17 +131,17 @@ describe("OperationSeoContent", () => {
     [
       "zh" as const,
       "仅预览：",
-      "该地址当前返回 Stooq 404 页面，已停止代理执行。"
+      "此接口仅支持预览，Hub 不会向供应商发送请求。"
     ],
     [
       "en" as const,
       "Preview only:",
-      "This URL currently returns Stooq&#x27;s 404 page, so proxy execution is disabled."
+      "This endpoint is preview-only; Hub will not send the request to the provider."
     ]
   ])(
     "renders the localized preview-only reason in %s",
     (locale, label, reason) => {
-      const match = getCatalogOperation("stooq", "download-latest-quotes");
+      const match = getCatalogOperation("massive", "get-previous-close");
       expect(match).toBeDefined();
 
       const html = renderToStaticMarkup(

@@ -121,56 +121,11 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     tags: ["en", "currency", "temporal"]
   },
   {
-    id: "zh-a-share-kline",
-    query: "获取 A 股 K 线",
-    locale: "zh",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:sina-finance/get-kline-data", relevance: 3 }],
-    tags: ["zh", "finance", "disambiguation"]
-  },
-  {
-    id: "zh-adjusted-kline",
-    query: "前复权 K 线数据",
-    locale: "zh",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:tencent-finance/get-forward-adjusted-kline", relevance: 3 }],
-    requiredTopK: 1,
-    tags: ["zh", "finance", "disambiguation"]
-  },
-  {
-    id: "en-historical-csv",
-    query: "download historical stock prices",
-    locale: "en",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:stooq/download-historical-quotes", relevance: 3 }],
-    tags: ["en", "finance", "download"]
-  },
-  {
-    id: "zh-fund-nav",
-    query: "基金历史净值列表",
-    locale: "zh",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:eastmoney-funds/list-historical-nav", relevance: 3 }],
-    requiredTopK: 1,
-    tags: ["zh", "finance", "fund"]
-  },
-  {
-    id: "zh-fund-estimate",
-    query: "查看基金实时估值",
-    locale: "zh",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:eastmoney-funds/get-fund-estimate", relevance: 3 }],
-    tags: ["zh", "finance", "fund"]
-  },
-  {
     id: "en-symbol-search",
     query: "find a security by ticker symbol",
     locale: "en",
     kinds: ["endpoint"],
-    judgments: [
-      { id: "endpoint:yahoo-finance/search-symbols", relevance: 3 },
-      { id: "endpoint:massive/list-tickers", relevance: 2 }
-    ],
+    judgments: [{ id: "endpoint:massive/list-tickers", relevance: 3 }],
     tags: ["en", "finance", "ambiguous"]
   },
   {
@@ -182,21 +137,12 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     tags: ["en", "finance", "trade"]
   },
   {
-    id: "zh-sgx-overview",
-    query: "新加坡股票概览页",
-    locale: "zh",
-    kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:i3investor-sgx/get-sgx-stock-overview-page", relevance: 3 }],
-    tags: ["zh", "finance", "sgx"]
-  },
-  {
-    id: "en-cnbc-chart",
-    query: "CNBC quote chart",
+    id: "en-previous-stock-close",
+    query: "yesterday's closing stock price",
     locale: "en",
     kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:cnbc-market-data/get-quote-chart-data", relevance: 3 }],
-    requiredTopK: 1,
-    tags: ["en", "finance", "provider"]
+    judgments: [{ id: "endpoint:massive/get-previous-close", relevance: 3 }],
+    tags: ["en", "finance", "aggregate"]
   },
   {
     id: "api-product",
@@ -206,14 +152,5 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     judgments: [{ id: "api:dida365", relevance: 3 }],
     requiredTopK: 1,
     tags: ["en", "api", "product"]
-  },
-  {
-    id: "zh-api-provider",
-    query: "新浪财经服务",
-    locale: "zh",
-    kinds: ["api"],
-    judgments: [{ id: "api:sina-finance", relevance: 3 }],
-    requiredTopK: 1,
-    tags: ["zh", "api", "provider"]
   }
 ];

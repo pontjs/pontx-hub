@@ -32,13 +32,13 @@ describe("ApiCard navigation", () => {
     expect(html).not.toContain('<a class="api-card"');
   });
 
-  it("localizes the label and links planned SDKs to their detail page", () => {
-    const api = listCatalogSummaries().find((item) => item.sdkStatus === "planned");
-    if (!api) throw new Error("Expected a planned SDK in the catalog");
+  it("localizes the label and links published SDKs to their detail page", () => {
+    const api = listCatalogSummaries().find((item) => item.slug === "massive");
+    if (!api) throw new Error("Expected the Massive SDK in the catalog");
     const html = renderCard(api, "en");
 
     expect(html).toContain(`href="/en/sdks/${api.slug}"`);
     expect(html).toContain(`aria-label="Open the ${localize(api.title, "en")} SDK page"`);
-    expect(html).toContain("Planned");
+    expect(html).toContain(`v${api.sdkVersion}`);
   });
 });
