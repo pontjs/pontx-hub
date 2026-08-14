@@ -84,7 +84,7 @@ describe("public route SEO metadata", () => {
     const skillDescriptors = descriptors(agentSkillMeta({ data: { locale: "en" } } as never));
     expectLocalizedPublicMeta(
       skillDescriptors,
-      "https://pontx.dev/en/agent-skill"
+      "https://pontx.dev/en/skills/pontx-hub"
     );
     expect(JSON.stringify(skillDescriptors)).toContain("SoftwareApplication");
 

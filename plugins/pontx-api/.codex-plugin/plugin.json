@@ -1,0 +1,25 @@
+{
+  "name": "pontx-api",
+  "version": "0.1.0",
+  "description": "Discover curated public APIs, inspect OpenAPI Endpoints and Schemas, preview requests safely, and generate type-safe SDK integrations.",
+  "author": {
+    "name": "Pontx",
+    "url": "https://github.com/pontjs"
+  },
+  "homepage": "https://pontx.dev/en/skills/pontx-hub",
+  "repository": "https://github.com/pontjs/pontx-hub",
+  "license": "MIT",
+  "keywords": ["api-discovery", "openapi", "agent-skill", "schema", "typescript-sdk"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Pontx API",
+    "shortDescription": "Discover and integrate curated public APIs.",
+    "longDescription": "Search curated API products, OpenAPI Endpoints, request and response Schemas, preview calls safely, and generate published TypeScript and Node.js SDK integrations.",
+    "developerName": "Pontx",
+    "category": "Developer Tools",
+    "capabilities": ["API discovery", "OpenAPI inspection", "Safe request preview", "SDK generation"],
+    "websiteURL": "https://pontx.dev",
+    "brandColor": "#2563EB",
+    "defaultPrompt": "Find a public API for my task and show me the safest integration path."
+  }
+}

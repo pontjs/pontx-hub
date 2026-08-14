@@ -1,6 +1,6 @@
 ---
 name: pontx-hub
-description: Search, inspect, preview, call, and integrate curated OpenAPI resources through the standalone Pontx Hub CLI. Use when an agent needs to discover an API product, endpoint, or data schema; understand request or response metadata; generate TypeScript/Node.js SDK code; or safely perform an API call with preview and explicit mutation confirmation.
+description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, OpenAPI Endpoint or Schema search, safe request preview, explicit mutation confirmation, or TypeScript/Node.js SDK generation.
 ---
 
 # Pontx Hub
