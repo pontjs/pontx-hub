@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
-import { sdkUsageExamples } from "./sdk-detail";
+import { sdkOperationCoverage, sdkUsageExamples } from "./sdk-detail";
 
 describe("SDK usage examples", () => {
   it("renders the published Frankfurter v2 client and dedicated CLI contract", () => {
@@ -21,5 +21,25 @@ describe("SDK usage examples", () => {
     expect(examples.typescript).toContain("createMassiveClient");
     expect(examples.typescript).toContain("process.env.MASSIVE_API_KEY");
     expect(examples.cli).toContain("pontx-massive call common.getPreviousClose");
+  });
+
+  it("reports exact published Endpoint coverage", () => {
+    const dida365 = getCatalogApi("dida365");
+    const massive = getCatalogApi("massive");
+    expect(dida365).toBeDefined();
+    expect(massive).toBeDefined();
+
+    expect(sdkOperationCoverage(dida365!)).toEqual({
+      supported: 11,
+      total: 37,
+      complete: false,
+      verified: true
+    });
+    expect(sdkOperationCoverage(massive!)).toEqual({
+      supported: 6,
+      total: 6,
+      complete: true,
+      verified: true
+    });
   });
 });

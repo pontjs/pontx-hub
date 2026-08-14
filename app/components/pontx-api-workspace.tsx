@@ -50,6 +50,7 @@ import {
   type OAuthTokenSet
 } from "~/lib/oauth/client";
 import { hubCliSnippet } from "~/lib/hub-cli-command";
+import { supportsSdkOperation } from "~/lib/sdk-codegen";
 import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 import {
   defaultRequestExample,
@@ -1063,7 +1064,14 @@ export function PontxApiWorkspace({
     ]
   );
 
-  const getCodeGenScenarios = useCallback(() => codeGenScenarios, []);
+  const getCodeGenScenarios = useCallback(
+    () => codeGenScenarios.filter(
+      (scenario) =>
+        scenario.id !== "typescript-sdk" ||
+        supportsSdkOperation(api, activeOperation)
+    ),
+    [activeOperation, api]
+  );
   const zh = locale === "zh";
   const quickCallAction = playgroundAvailability.executionEnabled
     ? zh ? "立即试用" : "Try it now"

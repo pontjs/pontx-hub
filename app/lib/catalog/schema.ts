@@ -247,6 +247,38 @@ const authSchema = z.discriminatedUnion("type", [
   })
 ]);
 
+const javascriptIdentifierSchema = z
+  .string()
+  .regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/);
+
+const sdkContractSchema = z.object({
+  client: z.discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("default"),
+      identifier: javascriptIdentifierSchema
+    }),
+    z.object({
+      kind: z.literal("named"),
+      identifier: javascriptIdentifierSchema
+    }),
+    z.object({
+      kind: z.literal("factory"),
+      factory: javascriptIdentifierSchema,
+      identifier: javascriptIdentifierSchema,
+      options: z.record(
+        javascriptIdentifierSchema,
+        z.string().regex(/^[A-Z][A-Z0-9_]*$/)
+      ).default({})
+    })
+  ]),
+  auth: z.object({
+    kind: z.literal("bearer-request-init"),
+    envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/)
+  }).optional(),
+  controllers: z.record(z.string().min(1), javascriptIdentifierSchema),
+  operations: z.array(z.string().min(1)).min(1)
+});
+
 export const catalogApiSchema = z
   .object({
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -282,6 +314,7 @@ export const catalogApiSchema = z
         workflowRunUrl: httpsUrlSchema
       })
       .optional(),
+    sdkContract: sdkContractSchema.optional(),
     contentUpdatedAt: z.string().date().optional(),
     cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),
     sdkExamples: z
@@ -339,6 +372,65 @@ export const catalogApiSchema = z
           path: ["sdkQuality", "workflowRunUrl"],
           message: "SDK quality workflow must belong to its GitHub repository"
         });
+      }
+    }
+
+    if (api.sdkContract) {
+      const contractOperations = new Set<string>();
+      const authEnvVars = new Set(
+        api.auth.flatMap((auth) =>
+          auth.type === "basic"
+            ? [auth.usernameEnvVar, auth.passwordEnvVar]
+            : [auth.envVar]
+        )
+      );
+      if (
+        api.sdkContract.client.kind === "factory" &&
+        Object.values(api.sdkContract.client.options).some(
+          (envVar) => !authEnvVars.has(envVar)
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["sdkContract", "client", "options"],
+          message: "SDK factory environment variables must be declared by API auth"
+        });
+      }
+      if (
+        api.sdkContract.auth &&
+        !authEnvVars.has(api.sdkContract.auth.envVar)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["sdkContract", "auth", "envVar"],
+          message: "SDK request auth environment variable must be declared by API auth"
+        });
+      }
+      for (const [index, operationId] of api.sdkContract.operations.entries()) {
+        if (contractOperations.has(operationId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "operations", index],
+            message: `Duplicate SDK contract operation: ${operationId}`
+          });
+        }
+        contractOperations.add(operationId);
+        const operation = api.operations.find(
+          (candidate) => candidate.operationId === operationId
+        );
+        if (!operation) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "operations", index],
+            message: `Unknown SDK contract operation: ${operationId}`
+          });
+        } else if (!api.sdkContract.controllers[operation.tag]) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "controllers"],
+            message: `Missing SDK controller for tag: ${operation.tag}`
+          });
+        }
       }
     }
 

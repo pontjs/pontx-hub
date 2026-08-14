@@ -76,6 +76,17 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
   };
 }
 
+export function sdkOperationCoverage(api: CatalogApi) {
+  const supported = api.sdkContract?.operations.length;
+  const total = api.operations.length;
+  return {
+    supported,
+    total,
+    complete: supported === total,
+    verified: supported !== undefined
+  };
+}
+
 export function headers() {
   return cacheHeaders();
 }
@@ -94,6 +105,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const codeBlockCopied = zh ? "已复制" : "Copied";
   const codeBlockCopyFailed = zh ? "复制失败" : "Copy failed";
   const quality = api.sdkQuality;
+  const coverage = sdkOperationCoverage(api);
   const unitPassRate = quality
     ? Math.round((quality.unitTests.passed / quality.unitTests.total) * 100)
     : 0;
@@ -115,10 +127,18 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
           <p>
             {zh
               ? published
-                ? `${localize(api.title, locale)} 的运营方发布 SDK。文档与包版本共同绑定到批准的 OAS。`
+                ? !coverage.verified
+                  ? `${localize(api.title, locale)} 的运营方发布 SDK。接口覆盖契约正在同步。`
+                  : coverage.complete
+                  ? `${localize(api.title, locale)} 的运营方发布 SDK，覆盖当前批准 OAS 的全部接口。`
+                  : `${localize(api.title, locale)} 的运营方发布 SDK，当前覆盖批准 OAS 中的 ${coverage.supported}/${coverage.total} 个接口。`
                 : `${localize(api.title, locale)} 的 SDK 正在由 Pontx 生成器构建，文档已绑定到批准的 OAS。`
               : published
-                ? `The operator-published SDK for ${localize(api.title, locale)}. Documentation and package releases share the same approved OAS.`
+                ? !coverage.verified
+                  ? `The operator-published SDK for ${localize(api.title, locale)} is waiting for its Endpoint coverage contract to synchronize.`
+                  : coverage.complete
+                  ? `The operator-published SDK for ${localize(api.title, locale)} covers every Endpoint in the current approved OAS.`
+                  : `The operator-published SDK for ${localize(api.title, locale)} currently covers ${coverage.supported} of ${coverage.total} Endpoints in the approved OAS.`
                 : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the approved OAS.`}
           </p>
           {published ? (
@@ -139,6 +159,11 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
             <span>Node.js ≥ 18</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
+            {published && coverage.verified ? (
+              <span>
+                {zh ? "SDK 接口覆盖" : "SDK Endpoint coverage"} {coverage.supported}/{coverage.total}
+              </span>
+            ) : null}
           </div>
         </header>
         {quality ? (
@@ -197,10 +222,18 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
             <p>
               {zh
                 ? published
-                  ? "SDK 由 Pontx 生成器产生，并在发布前完成类型检查与构建验证。"
+                  ? !coverage.verified
+                    ? "SDK 包已发布；接口覆盖契约正在同步，暂不生成 SDK 调用代码。"
+                    : coverage.complete
+                    ? "SDK 由 Pontx 生成器产生，并在发布前完成类型检查与构建验证。"
+                    : `已发布包中的 ${coverage.supported} 个接口已通过验证；其余接口仍可查看文档并预演请求。`
                   : "该 API 的 SDK 尚未发布到 npm；你仍可使用文档和在线调试。"
                 : published
-                  ? "The SDK is produced by Pontx and typechecked and built before publication."
+                  ? !coverage.verified
+                    ? "The SDK package is published, but SDK snippets stay disabled until its Endpoint coverage contract synchronizes."
+                    : coverage.complete
+                    ? "The SDK is produced by Pontx and typechecked and built before publication."
+                    : `The published package is verified for ${coverage.supported} supported Endpoints. Unsupported Endpoints remain available through documentation and request preview.`
                   : "This SDK is not yet published to npm; the documentation and playground are available now."}
             </p>
           </div>

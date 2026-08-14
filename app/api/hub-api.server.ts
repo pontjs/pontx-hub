@@ -10,10 +10,13 @@ import {
   searchCatalogOperations
 } from "~/lib/catalog/catalog.server";
 import {
-  credentialEnvVar,
   isLocale,
   type GlobalSearchKind
 } from "~/lib/catalog/types";
+import {
+  generateSdkSnippet,
+  SdkCodegenUnavailableError
+} from "~/lib/sdk-codegen";
 import { assertPublicHost } from "~/lib/playground/network.server";
 import { createPreview, prepareRequest } from "~/lib/playground/request.server";
 import {
@@ -432,31 +435,15 @@ hubApi.post("/api/v1/codegen/snippet", async (context) => {
   }
   const match = getCatalogOperation(input.data.apiSlug, input.data.operationSlug);
   if (!match) return jsonError("not_found", "Operation not found", 404);
-  const methodName = match.operation.operationId
-    .split(/[/-]/g)
-    .map((part, index) =>
-      index === 0
-        ? part
-        : `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`
-    )
-    .join("");
-  const params: Record<string, unknown> = Object.fromEntries(
-    Object.entries({
-      ...input.data.path,
-      ...input.data.query
-    }).filter(([, value]) => value !== "")
-  );
-  if (input.data.body !== undefined) {
-    params.body = input.data.body;
+  let code: string;
+  try {
+    code = generateSdkSnippet(match.api, match.operation, input.data);
+  } catch (error) {
+    if (error instanceof SdkCodegenUnavailableError) {
+      return jsonError("sdk_operation_unavailable", error.message, 409);
+    }
+    throw error;
   }
-  const clientSetup = match.api.auth.length
-    ? `createClient({\n  token: process.env.${credentialEnvVar(match.api.auth[0])}\n})`
-    : "createClient()";
-  const code = `import { createClient } from "${match.api.packageName}";
-
-const client = ${clientSetup};
-
-const result = await client.${methodName}(${JSON.stringify(params, null, 2)});`;
   return context.json({
     version: "v1",
     data: { language: "typescript", code }

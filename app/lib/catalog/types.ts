@@ -205,6 +205,30 @@ export type SdkQualityEvidence = {
   workflowRunUrl: string;
 };
 
+export type SdkContract = {
+  client:
+    | {
+        kind: "default";
+        identifier: string;
+      }
+    | {
+        kind: "named";
+        identifier: string;
+      }
+    | {
+        kind: "factory";
+        factory: string;
+        identifier: string;
+        options: Record<string, string>;
+      };
+  auth?: {
+    kind: "bearer-request-init";
+    envVar: string;
+  };
+  controllers: Record<string, string>;
+  operations: string[];
+};
+
 export type CatalogApi = {
   slug: string;
   name: string;
@@ -222,6 +246,7 @@ export type CatalogApi = {
   sdkVersion: string;
   sdkStatus: "planned" | "published";
   sdkQuality?: SdkQualityEvidence;
+  sdkContract?: SdkContract;
   contentUpdatedAt?: string;
   cliName?: string;
   sdkExamples?: {

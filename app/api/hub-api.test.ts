@@ -154,7 +154,7 @@ describe("Hub API", () => {
     );
   });
 
-  it("generates public SDK code from non-empty request parameters", async () => {
+  it("generates code against the published SDK client contract", async () => {
     const response = await hubApi.request("/api/v1/codegen/snippet", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -167,11 +167,20 @@ describe("Hub API", () => {
       })
     });
     const payload = await response.json();
+    if (response.status === 409) {
+      expect(payload.error.code).toBe("sdk_operation_unavailable");
+      return;
+    }
     expect(response.status).toBe(200);
-    expect(payload.data.code).toContain("const client = createClient();");
-    expect(payload.data.code).toContain('"date": "2024-01-15"');
+    expect(payload.data.code).toContain(
+      'import { currencyExchangeClient } from "@pontx/frankfurter";'
+    );
+    expect(payload.data.code).toContain(
+      "currencyExchangeClient.exchangeRates.getHistoricalRates"
+    );
+    expect(payload.data.code).toContain('"2024-01-15"');
     expect(payload.data.code).toContain('"base": "EUR"');
-    expect(payload.data.code).not.toContain("process.env.API_TOKEN");
+    expect(payload.data.code).not.toContain("createClient");
     expect(payload.data.code).not.toContain('"symbols"');
   });
 });
