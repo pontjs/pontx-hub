@@ -48,6 +48,17 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps the AI entry in the right-side header actions and floats it on mobile", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.site-header > nav > \.ai-assistant-trigger\s*{[\s\S]*?width:\s*36px;/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?body > \.ai-assistant-trigger\s*{[\s\S]*?position:\s*fixed;[\s\S]*?right:\s*16px;[\s\S]*?bottom:\s*calc\(18px \+ env\(safe-area-inset-bottom\)\);/,
+    );
+  });
+
   it("uses one responsive geometry system across every public resource layout", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 

@@ -190,6 +190,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [floatingTrigger, setFloatingTrigger] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [threadId, setThreadId] = useState("");
   const [input, setInput] = useState("");
@@ -213,6 +214,14 @@ export function AiAssistant({ locale }: { locale: Locale }) {
       initialMessages: session.messages
     });
     setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 740px)");
+    const updatePlacement = () => setFloatingTrigger(query.matches);
+    updatePlacement();
+    query.addEventListener("change", updatePlacement);
+    return () => query.removeEventListener("change", updatePlacement);
   }, []);
 
   useEffect(() => {
@@ -415,23 +424,27 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const visibleMessages = messages.filter(
     (message) => message.role === "user" || message.role === "assistant"
   );
+  const trigger = (
+    <Button
+      ref={triggerRef}
+      type="button"
+      variant="outline"
+      size="sm"
+      className="ai-assistant-trigger"
+      aria-label={text.label as string}
+      title={text.label as string}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      onClick={() => setOpen(true)}
+    >
+      <AgentIcon className="ai-assistant-trigger-icon" />
+      <span className="ai-assistant-trigger-label">{text.label as string}</span>
+    </Button>
+  );
 
   return (
     <>
-      <Button
-        ref={triggerRef}
-        type="button"
-        variant="outline"
-        size="sm"
-        className="ai-assistant-trigger"
-        aria-label={text.label as string}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        onClick={() => setOpen(true)}
-      >
-        <AgentIcon className="ai-assistant-trigger-icon" />
-        <span className="ai-assistant-trigger-label">{text.label as string}</span>
-      </Button>
+      {hydrated && floatingTrigger ? createPortal(trigger, document.body) : trigger}
 
       {open && hydrated ? createPortal((
         <div className="ai-assistant-layer">

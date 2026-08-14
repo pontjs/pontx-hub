@@ -108,9 +108,9 @@ export function SiteShell({
           >
             <LanguageIcon className="language-icon" />
           </a>
+          <AiAssistant locale={locale} />
           <AccountNavigation locale={locale} />
         </nav>
-        <AiAssistant locale={locale} />
         <div className="mobile-nav">
           <button
             type="button"
