@@ -1322,8 +1322,7 @@ textarea {
 .resource-page-workspace .pontx-workspace-body > .oauth-execution-prerequisite,
 .resource-page-workspace .pontx-workspace-body > .oauth-result-notice,
 .resource-page-workspace .pontx-workspace-body > .documentation-evidence,
-.resource-page-workspace .pontx-workspace-body > .request-example-notice,
-.resource-page-workspace .pontx-workspace-body > .endpoint-playground-history {
+.resource-page-workspace .pontx-workspace-body > .request-example-notice {
   margin: 0;
 }
 
@@ -1581,6 +1580,58 @@ textarea {
   border-color: #e7bdb9;
   color: #9f3030;
   background: var(--danger-soft);
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"] {
+  min-width: 0;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history {
+  box-shadow: none;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history > header {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history-header-actions {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history li {
+  grid-template:
+    "status time action"
+    "inputs inputs action" / auto minmax(0, 1fr) auto;
+  gap: 7px 10px;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-history-status {
+  grid-area: status;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history li > time {
+  grid-area: time;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-history-inputs {
+  grid-area: inputs;
+}
+
+.pontx-documentation [data-pontx-ui="playground-top-content"]
+  .endpoint-playground-history li > button {
+  grid-area: action;
 }
 
 .request-example-notice.ready {

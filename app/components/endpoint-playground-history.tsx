@@ -87,6 +87,7 @@ export function EndpointPlaygroundHistory({
   availableServerIds,
   initialEntries,
   refreshVersion,
+  loadedEntryId,
   onReplay
 }: {
   locale: Locale;
@@ -95,6 +96,7 @@ export function EndpointPlaygroundHistory({
   availableServerIds: string[];
   initialEntries: EndpointPlaygroundHistoryEntry[];
   refreshVersion: number;
+  loadedEntryId?: string;
   onReplay: (entry: EndpointPlaygroundHistoryEntry) => void;
 }) {
   const zh = locale === "zh";
@@ -156,6 +158,7 @@ export function EndpointPlaygroundHistory({
       setReplayFailed(true);
     }
   };
+  const displayedLoadedId = loadedEntryId ?? loadedId;
 
   return (
     <section
@@ -185,7 +188,7 @@ export function EndpointPlaygroundHistory({
               entry.responseStatus >= 200 && entry.responseStatus < 300;
             const time = formatHistoryTime(entry.createdAt, locale);
             return (
-              <li key={entry.id} data-loaded={loadedId === entry.id || undefined}>
+              <li key={entry.id} data-loaded={displayedLoadedId === entry.id || undefined}>
                 <span
                   className={
                     `endpoint-history-status${successful ? " is-success" : " is-error"}`
@@ -219,7 +222,7 @@ export function EndpointPlaygroundHistory({
                       : `Retry with inputs from ${time}`
                   }
                 >
-                  {loadedId === entry.id
+                  {displayedLoadedId === entry.id
                     ? (zh ? "已载入" : "Loaded")
                     : (zh ? "重试" : "Retry")}
                   <span aria-hidden="true">→</span>
@@ -236,7 +239,7 @@ export function EndpointPlaygroundHistory({
         </p>
       )}
 
-      {loadedId ? (
+      {displayedLoadedId ? (
         <p className="endpoint-playground-history-feedback" role="status">
           {zh
             ? "历史参数已载入；Playground、统一 SDK 与 CLI 代码已同步，确认后可重新发送。"
