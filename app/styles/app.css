@@ -2142,7 +2142,7 @@ samp,
   min-height: 0;
   flex-direction: column;
   overflow: hidden auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
 }
 
 .pontx-workspace-body > .pontx-hydrated-title,
@@ -2483,7 +2483,7 @@ samp,
   min-height: 0;
   align-content: start;
   overflow: hidden auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
 }
 
 .schema-directory-list a {
@@ -2527,7 +2527,7 @@ samp,
   min-width: 0;
   min-height: 0;
   overflow: hidden auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
 }
 
 .hub-schema-viewer {

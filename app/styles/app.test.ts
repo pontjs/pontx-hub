@@ -188,12 +188,23 @@ describe("API directory integration styles", () => {
     expect(lightThemeCss).toMatch(/outline-color:\s*var\(--blue\);/);
   });
 
-  it("scrolls the whole endpoint workspace and keeps the request example compact", async () => {
+  it("lets nested reference panes hand boundary scrolling back to the page", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.pontx-workspace-body\s*{[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior:\s*contain;/,
+      /\.pontx-workspace-body\s*{[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
     );
+    expect(css).toMatch(
+      /\.schema-directory-list\s*{[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
+    );
+    expect(css).toMatch(
+      /\.schema-reference-content\s*{[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
+    );
+  });
+
+  it("scrolls the whole endpoint workspace and keeps the request example compact", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
     expect(css).toMatch(
       /\.pontx-workspace-body > \.pontx-documentation\s*{[\s\S]*?flex:\s*0 0 auto;[\s\S]*?height:\s*auto;[\s\S]*?overflow:\s*visible;/,
     );
