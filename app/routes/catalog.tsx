@@ -47,8 +47,8 @@ export function meta({ data }: Route.MetaArgs) {
       : "Pontx API Hub — OpenAPI Catalog";
   const description =
     locale === "zh"
-      ? "通过 pontx-hub 搜索、阅读和预览已收录 API，再用对应的统一 SDK 与专属 CLI 调用。"
-      : "Discover, inspect, and preview curated APIs through pontx-hub, then call them with the matching Unified SDK and dedicated CLI.";
+      ? "在一个目录里找到 API、查看接口，并复制 SDK 或 CLI 代码接入项目。"
+      : "Find an API, inspect its endpoints, and copy SDK or CLI code to add it to your project.";
   const canonical = siteUrl(`/${locale}`);
   return [
     { title },
@@ -117,21 +117,12 @@ export function CatalogAccessSummary({ locale }: { locale: "zh" | "en" }) {
   const zh = locale === "zh";
   return (
     <p className="registry-description">
-      {zh ? (
-        <>
-          每个收录的 API 都提供统一 SDK 与 CLI：<code>pontx-hub</code> 覆盖全目录检索、预览和获准调用；
-          <code>@pontx/&lt;api&gt;</code> 与 <code>pontx-&lt;api&gt;</code> 用于单个 API 集成。
-        </>
-      ) : (
-        <>
-          Every curated API has a Unified SDK and CLI: <code>pontx-hub</code> covers catalog-wide search,
-          previews, and approved calls; <code>@pontx/&lt;api&gt;</code> and <code>pontx-&lt;api&gt;</code> handle
-          single-API integration.
-        </>
-      )}{" "}
+      <strong>{zh ? "选好 API 后，直接复制代码接入项目。" : "Choose an API, then copy the code straight into your project."}</strong>{" "}
+      {zh
+        ? "每个收录 API 都有一致的 SDK 和 CLI；Pontx Hub CLI 用于在目录中搜索、查看接口和预览请求。"
+        : "Every catalog API has a consistent SDK and CLI; use the Pontx Hub CLI to search, inspect endpoints, and preview requests."}{" "}
       <Link className="registry-description-link" to={`/${locale}/docs`}>
-        {zh ? "查看文档" : "View docs"}
-        <span aria-hidden="true">↗</span>
+        {zh ? "了解使用方式" : "See how it works"}
       </Link>
     </p>
   );
