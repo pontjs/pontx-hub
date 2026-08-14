@@ -46,7 +46,7 @@ export function RequestExampleNotice({
   selectedId,
   previewOnly = false,
   onSelect,
-  onReset
+  onPreview
 }: {
   locale: Locale;
   api: CatalogApi;
@@ -55,7 +55,7 @@ export function RequestExampleNotice({
   selectedId?: string;
   previewOnly?: boolean;
   onSelect?: (id: string) => void;
-  onReset?: () => void;
+  onPreview?: () => void;
 }) {
   const zh = locale === "zh";
   const requiresInput = example.completeness === "requires-input";
@@ -133,7 +133,7 @@ export function RequestExampleNotice({
           })}
         </ul>
       ) : null}
-      {onSelect || onReset ? (
+      {onSelect || onPreview ? (
         <div className="request-example-actions">
           {onSelect && operation.requestExamples.length > 1 ? (
             <div className="request-example-selector">
@@ -155,9 +155,9 @@ export function RequestExampleNotice({
               </Select>
             </div>
           ) : null}
-          {onReset ? (
-            <button type="button" onClick={onReset}>
-              {zh ? "一键填入成功示例" : "Prefill successful example"}
+          {onPreview ? (
+            <button type="button" onClick={onPreview}>
+              {zh ? "在 Playground 中预览" : "Preview successful example"}
             </button>
           ) : null}
         </div>

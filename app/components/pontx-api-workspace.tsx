@@ -623,7 +623,8 @@ export function PontxApiWorkspace({
   );
   const [playgroundRevision, setPlaygroundRevision] = useState(0);
   const [historyRefreshVersion, setHistoryRefreshVersion] = useState(0);
-  const [historyReplayVersion, setHistoryReplayVersion] = useState(0);
+  const [playgroundRevealVersion, setPlaygroundRevealVersion] = useState(0);
+  const [loadedHistoryEntryId, setLoadedHistoryEntryId] = useState<string>();
   const [preparedRequestExampleKey, setPreparedRequestExampleKey] = useState<string>();
   useEffect(() => {
     setSelectedRequestExampleId(preferredRequestExample?.id);
@@ -764,9 +765,16 @@ export function PontxApiWorkspace({
       );
     }
     setSelectedRequestExampleId(example.id);
+    setLoadedHistoryEntryId(undefined);
     setExecutionResult(undefined);
     setPlaygroundRevision((revision) => revision + 1);
   }, [activeOperation, api.servers, api.slug, operationServers]);
+
+  const previewRequestExample = useCallback((exampleId: string) => {
+    applyRequestExample(exampleId);
+    setIsPlaygroundOpen(true);
+    setPlaygroundRevealVersion((version) => version + 1);
+  }, [applyRequestExample]);
 
   const replayPlaygroundHistory = useCallback(
     (entry: EndpointPlaygroundHistoryEntry) => {
@@ -807,21 +815,22 @@ export function PontxApiWorkspace({
       );
       setExecutionResult(undefined);
       setIsPlaygroundOpen(true);
+      setLoadedHistoryEntryId(entry.id);
       setPlaygroundRevision((revision) => revision + 1);
-      setHistoryReplayVersion((version) => version + 1);
+      setPlaygroundRevealVersion((version) => version + 1);
     },
     [activeOperation.method, activeOperation.path, api.slug, operationServers]
   );
 
   useEffect(() => {
-    if (!historyReplayVersion) return;
+    if (!playgroundRevealVersion) return;
     const frame = window.requestAnimationFrame(() => {
       document
         .querySelector('[data-testid="playground-panel"]')
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [historyReplayVersion, playgroundRevision]);
+  }, [playgroundRevealVersion, playgroundRevision]);
 
   const saveOAuthToken = useCallback((token: OAuthTokenSet) => {
     setOAuthToken(token);
@@ -1220,17 +1229,6 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
-              {!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
-                <EndpointPlaygroundHistory
-                  locale={locale}
-                  apiSlug={api.slug}
-                  operationSlug={activeOperation.slug}
-                  availableServerIds={operationServers.map((server) => server.id)}
-                  initialEntries={initialPlaygroundHistory}
-                  refreshVersion={historyRefreshVersion}
-                  onReplay={replayPlaygroundHistory}
-                />
-              ) : null}
               {!guided || !playgroundAvailability.executionEnabled ? (
                 <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
               ) : null}
@@ -1243,7 +1241,7 @@ export function PontxApiWorkspace({
                   selectedId={requestExample.id}
                   previewOnly={!playgroundAvailability.executionEnabled}
                   onSelect={applyRequestExample}
-                  onReset={() => applyRequestExample(requestExample.id)}
+                  onPreview={() => previewRequestExample(requestExample.id)}
                 />
               ) : null}
               <ApiDocumentation
@@ -1253,6 +1251,20 @@ export function PontxApiWorkspace({
               enablePlayground={playgroundAvailable}
               defaultPlaygroundVisible={
                 playgroundAvailable && (guided || isPlaygroundOpen)
+              }
+              playgroundTopContent={
+                !guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
+                  <EndpointPlaygroundHistory
+                    locale={locale}
+                    apiSlug={api.slug}
+                    operationSlug={activeOperation.slug}
+                    availableServerIds={operationServers.map((server) => server.id)}
+                    initialEntries={initialPlaygroundHistory}
+                    refreshVersion={historyRefreshVersion}
+                    loadedEntryId={loadedHistoryEntryId}
+                    onReplay={replayPlaygroundHistory}
+                  />
+                ) : undefined
               }
               specName={api.slug}
               servers={operationServers.map((server) => ({

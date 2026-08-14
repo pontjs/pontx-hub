@@ -136,7 +136,7 @@ describe("Pontx Hub visual system", () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.endpoint-playground-history\s*{\s*margin:\s*0;/,
+      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice\s*{\s*margin:\s*0;/,
     );
     expect(css).toMatch(
       /\.resource-page-workspace \.pontx-documentation\s*{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?box-shadow:\s*none;/,
@@ -213,20 +213,29 @@ describe("Pontx Hub visual system", () => {
     expect(catalog).toContain('"Pontx API Hub · API Catalog"');
   });
 
-  it("keeps current-Endpoint history inline, responsive, and replay-only", async () => {
-    const [workspace, history, css] = await Promise.all([
+  it("keeps current-Endpoint history inside the Playground and replay-only", async () => {
+    const [workspace, history, css, patch] = await Promise.all([
       readFile(new URL("../components/pontx-api-workspace.tsx", import.meta.url), "utf8"),
       readFile(new URL("../components/endpoint-playground-history.tsx", import.meta.url), "utf8"),
       readFile(new URL("./system.css", import.meta.url), "utf8"),
+      readFile(new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url), "utf8"),
     ]);
 
     expect(workspace).toMatch(
-      /<EndpointPlaygroundHistory[\s\S]*?<DocumentationEvidence/,
+      /playgroundTopContent=\{[\s\S]*?<EndpointPlaygroundHistory/,
+    );
+    expect(workspace).not.toMatch(
+      /<>\s*\{!guided[^}]*\?\s*\(\s*<EndpointPlaygroundHistory/,
+    );
+    expect(workspace).toMatch(
+      /const previewRequestExample[\s\S]*?applyRequestExample\(exampleId\);[\s\S]*?setIsPlaygroundOpen\(true\);[\s\S]*?setPlaygroundRevealVersion/,
     );
     expect(history).toContain("Load inputs without sending the request");
     expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
+    expect(patch).toContain("playgroundTopContent");
+    expect(patch).toContain('"data-pontx-ui": "playground-top-content"');
     expect(css).toMatch(
-      /\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,
+      /\[data-pontx-ui="playground-top-content"\][\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template:/,
     );
     expect(css).toMatch(
       /@media \(max-width: 740px\)[\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,

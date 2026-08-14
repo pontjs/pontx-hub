@@ -24,7 +24,8 @@ const entry: EndpointPlaygroundHistoryEntry = {
 
 function render(
   locale: "zh" | "en",
-  entries: EndpointPlaygroundHistoryEntry[]
+  entries: EndpointPlaygroundHistoryEntry[],
+  loadedEntryId?: string
 ) {
   return renderToStaticMarkup(createElement(
     MemoryRouter,
@@ -36,6 +37,7 @@ function render(
       availableServerIds: ["production"],
       initialEntries: entries,
       refreshVersion: 0,
+      loadedEntryId,
       onReplay: vi.fn()
     })
   ));
@@ -70,5 +72,13 @@ describe("EndpointPlaygroundHistory", () => {
       hasRequestBody: false
     }, "en")).toBe("No inputs");
     expect(historyInputSummary(entry, "en")).toBe("2 params + Body");
+  });
+
+  it("preserves loaded feedback when the Playground remounts after replay", () => {
+    const html = render("zh", [entry], entry.id);
+
+    expect(html).toContain('data-loaded="true"');
+    expect(html).toContain("已载入");
+    expect(html).toContain("历史参数已载入");
   });
 });

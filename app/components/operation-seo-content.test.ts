@@ -11,12 +11,12 @@ describe("OperationSeoContent", () => {
     [
       "zh" as const,
       "已填入一组可成功调用的示例值；检查并确认后即可发送。",
-      "一键填入成功示例"
+      "在 Playground 中预览"
     ],
     [
       "en" as const,
       "A successful request example is prefilled and ready to review before sending.",
-      "Prefill successful example"
+      "Preview successful example"
     ]
   ])("describes the successful example as a quick prefill in %s", (locale, description, action) => {
     const match = getCatalogOperation("dida365", "create-project");
@@ -31,7 +31,7 @@ describe("OperationSeoContent", () => {
           api: match!.api,
           operation: match!.operation,
           example: match!.operation.requestExamples[0],
-          onReset: () => undefined
+          onPreview: () => undefined
         })
       )
     );
