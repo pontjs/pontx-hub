@@ -25,7 +25,7 @@ describe("shared Playground output navigation", () => {
         isExecuting: false,
         getCodeGenScenarios: () => [
           { id: "curl", label: "cURL", language: "shell" },
-          { id: "sdk", label: "SDK", language: "typescript" },
+          { id: "sdk", label: "统一 SDK", language: "typescript" },
           { id: "cli", label: "Pontx Hub CLI", language: "shell" },
         ],
         onGenerateCode: () => "generated code",
@@ -35,7 +35,7 @@ describe("shared Playground output navigation", () => {
     expect(html).toContain('aria-label="查看代码或响应结果"');
     expect(html).toContain("grid-cols-2");
     expect(html).toContain(">cURL</button>");
-    expect(html).toContain(">SDK</button>");
+    expect(html).toContain(">统一 SDK</button>");
     expect(html).toContain(">Pontx Hub CLI</button>");
     expect(html).toContain(">响应</button>");
     expect(html).not.toContain(">代码</button>");

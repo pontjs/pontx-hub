@@ -239,8 +239,8 @@ export function EndpointPlaygroundHistory({
       {loadedId ? (
         <p className="endpoint-playground-history-feedback" role="status">
           {zh
-            ? "历史参数已载入；Playground、SDK 与 CLI 代码已同步，确认后可重新发送。"
-            : "History loaded. Playground, SDK, and CLI code are in sync; review before sending."}
+            ? "历史参数已载入；Playground、统一 SDK 与 CLI 代码已同步，确认后可重新发送。"
+            : "History loaded. Playground, Unified SDK, and CLI code are in sync; review before sending."}
         </p>
       ) : replayFailed ? (
         <p className="endpoint-playground-history-feedback is-error" role="alert">

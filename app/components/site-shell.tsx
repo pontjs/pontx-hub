@@ -23,7 +23,8 @@ const copy = {
     source: "源码",
     metadata: "元数据",
     contribute: "参与贡献",
-    openSource: "开源"
+    openSource: "开源",
+    integrationFlow: "OpenAPI → 统一 SDK → Agent"
   },
   en: {
     catalog: "API Catalog",
@@ -39,7 +40,8 @@ const copy = {
     source: "Source",
     metadata: "Metadata",
     contribute: "Contribute",
-    openSource: "Open source"
+    openSource: "Open source",
+    integrationFlow: "OpenAPI → Unified SDK → Agent"
   }
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -181,7 +183,7 @@ export function SiteShell({
             {text.contribute}
           </a>
         </p>
-        <span>{text.openSource} · OpenAPI → SDK → Agent</span>
+        <span>{text.openSource} · {text.integrationFlow}</span>
       </footer>
     </div>
   );

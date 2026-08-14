@@ -1,6 +1,6 @@
 ---
 name: pontx-hub
-description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, OpenAPI Endpoint or Schema search, safe request preview, explicit mutation confirmation, or SDK generation.
+description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, OpenAPI Endpoint or Schema search, safe request preview, explicit mutation confirmation, or unified SDK generation.
 ---
 
 # Pontx Hub

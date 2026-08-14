@@ -516,11 +516,13 @@ type Execution = {
   durationMs: number;
 };
 
-const codeGenScenarios: CodeGenScenario[] = [
-  { id: "curl", label: "cURL", language: "shell" },
-  { id: "typescript-sdk", label: "SDK", language: "typescript" },
-  { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
-];
+export function codeGenScenariosForLocale(locale: Locale): CodeGenScenario[] {
+  return [
+    { id: "curl", label: "cURL", language: "shell" },
+    { id: "typescript-sdk", label: locale === "zh" ? "统一 SDK" : "Unified SDK", language: "typescript" },
+    { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
+  ];
+}
 
 function payloadError<T>(payload: ApiEnvelope<T>): string | undefined {
   return "error" in payload ? payload.error.message : undefined;
@@ -1065,12 +1067,12 @@ export function PontxApiWorkspace({
   );
 
   const getCodeGenScenarios = useCallback(
-    () => codeGenScenarios.filter(
+    () => codeGenScenariosForLocale(locale).filter(
       (scenario) =>
         scenario.id !== "typescript-sdk" ||
         supportsSdkOperation(api, activeOperation)
     ),
-    [activeOperation, api]
+    [activeOperation, api, locale]
   );
   const zh = locale === "zh";
   const quickCallAction = playgroundAvailability.executionEnabled
