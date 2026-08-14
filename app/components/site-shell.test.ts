@@ -38,6 +38,8 @@ describe("site language switcher", () => {
       html.indexOf('<nav aria-label="主导航">'),
       html.indexOf('</nav>', html.indexOf('<nav aria-label="主导航">'))
     );
+    expect(desktopNav).toMatch(/class="[^"]*ai-assistant-trigger[^"]*"/);
+    expect(desktopNav).toContain('title="AI 助手"');
     const primaryHrefs = [...desktopNav.matchAll(/<a[^>]+href="([^"]+)"/g)]
       .map((match) => match[1]);
     expect(primaryHrefs.slice(0, 4)).toEqual([

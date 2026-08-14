@@ -170,10 +170,11 @@ textarea {
 
 /* AI assistant */
 
-.site-header > .ai-assistant-trigger {
+.site-header > nav > .ai-assistant-trigger {
+  width: 36px;
   min-height: 36px;
-  margin-left: 6px;
-  gap: 8px;
+  flex: 0 0 36px;
+  padding: 0;
   border-color: #bfcef9;
   border-radius: var(--radius-md);
   color: var(--blue-deep);
@@ -186,11 +187,20 @@ textarea {
   text-transform: none;
 }
 
-.site-header > .ai-assistant-trigger:hover {
+.site-header > nav > .ai-assistant-trigger:hover {
   border-color: #93aaf3;
   color: #fff;
   background: var(--blue);
   box-shadow: 0 6px 16px rgb(37 99 235 / 18%);
+}
+
+.site-header > nav > .ai-assistant-trigger .ai-assistant-trigger-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .ai-assistant-trigger-icon {
@@ -695,13 +705,32 @@ textarea {
 }
 
 @media (max-width: 740px) {
-  .site-header > .ai-assistant-trigger {
-    min-width: 36px;
-    margin-left: auto;
-    padding-inline: 9px;
+  body > .ai-assistant-trigger {
+    position: fixed;
+    z-index: 60;
+    right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 52px;
+    min-height: 52px;
+    flex-basis: 52px;
+    border-color: var(--blue);
+    border-radius: 16px;
+    color: #fff;
+    background: var(--blue);
+    box-shadow: 0 14px 30px rgb(37 99 235 / 28%);
   }
 
-  .site-header > .ai-assistant-trigger .ai-assistant-trigger-label {
+  body > .ai-assistant-trigger:hover {
+    border-color: var(--blue-deep);
+    background: var(--blue-deep);
+  }
+
+  body > .ai-assistant-trigger .ai-assistant-trigger-icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  body > .ai-assistant-trigger .ai-assistant-trigger-label {
     position: absolute;
     width: 1px;
     height: 1px;
