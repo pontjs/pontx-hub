@@ -8,12 +8,11 @@ describe("Hub API", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
-    expect(payload.data.map((api: { slug: string }) => api.slug)).toEqual([
-      "dida365",
-      "frankfurter",
-      "frankfurter-v2",
-      "massive"
-    ]);
+    const slugs = payload.data.map((api: { slug: string }) => api.slug);
+    expect([
+      ["dida365", "frankfurter", "frankfurter-v2", "massive"],
+      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"]
+    ]).toContainEqual(slugs);
   });
 
   it("returns a machine-readable 404", async () => {

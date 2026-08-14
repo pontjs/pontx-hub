@@ -147,6 +147,56 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain("process.env.DIDA365_ACCESS_TOKEN!");
   });
 
+  it("contextually types mutable body arrays and uses declared enum values", () => {
+    const bodyOperation = {
+      operationId: "createDraft",
+      tag: "draft",
+      parameters: [
+        { name: "teamId", in: "path", type: "string" },
+        { name: "body", in: "body", type: "object", schemaName: "DraftCreate" }
+      ],
+      requestBody: { schemaName: "DraftCreate" }
+    } as CatalogOperation;
+    const dropbox = api({ kind: "named", identifier: "dropboxSignClient" });
+    dropbox.schemas = [{
+      name: "DraftCreate",
+      title: { zh: "创建草稿", en: "Create draft" },
+      description: { zh: "创建草稿", en: "Create a draft" },
+      type: "object",
+      required: ["type", "signers"],
+      properties: [
+        { name: "type", type: "string" },
+        { name: "signers", type: "array" }
+      ],
+      schema: {
+        type: "object",
+        properties: {
+          type: { type: "string", enum: ["send_document", "request_signature"] },
+          signers: { type: "array", items: { type: "object" } }
+        }
+      }
+    }] as CatalogApi["schemas"];
+    dropbox.sdkContract = {
+      ...dropbox.sdkContract!,
+      controllers: { draft: "unclaimedDraft" },
+      operations: ["createDraft"]
+    };
+
+    const code = generateSdkSnippet(dropbox, bodyOperation, {
+      path: { teamId: "team-1" },
+      query: {},
+      headers: {},
+      body: {}
+    });
+
+    expect(code).toContain('"type": "send_document"');
+    expect(code).toContain('"signers": []');
+    expect(code).toContain(
+      "satisfies Parameters<typeof dropboxSignClient.unclaimedDraft.createDraft>[1] & Record<string, unknown>"
+    );
+    expect(code).not.toContain("as const");
+  });
+
   it("uses visible type-safe placeholders for missing required inputs", () => {
     const missingInputs = {
       ...operation,
