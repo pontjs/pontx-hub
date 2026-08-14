@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
+import { Link } from "react-router";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
   Select,
@@ -16,12 +15,7 @@ import type {
   PlaygroundExecutionResult,
   PlaygroundRequest
 } from "@pontx/shadcn-ui";
-import type { PontxAPI } from "@pontx/spec";
-import {
-  pontxOperationName,
-  toPontxApi,
-  toPontxSpec
-} from "~/lib/catalog/pontx-adapter";
+import { toPontxApi } from "~/lib/catalog/pontx-adapter";
 import type {
   CatalogApi,
   CatalogOperation,
@@ -617,7 +611,6 @@ export function PontxApiWorkspace({
   installPlaygroundSessionStorageBridge();
   const accounts = useAccount();
 
-  const navigate = useNavigate();
   const guided = variant === "guided";
   const [selectedOperation, setSelectedOperation] = useState(operation);
   const activeOperation = guided ? selectedOperation : operation;
@@ -640,7 +633,6 @@ export function PontxApiWorkspace({
       (example) => example.id === selectedRequestExampleId
     ) ?? preferredRequestExample;
   const requestExamplePreparationKey = `${activeOperation.method}:${activeOperation.path}:${requestExample?.id ?? "none"}`;
-  const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
   const pontxApi = useMemo(
     () =>
       toPontxApi(api, activeOperation, locale, {
@@ -666,7 +658,6 @@ export function PontxApiWorkspace({
             : 0
       )
     : approvedOperationServers;
-  const selectedApiName = pontxOperationName(activeOperation);
   const [isHydrated, setIsHydrated] = useState(false);
   const [executionResult, setExecutionResult] =
     useState<PlaygroundExecutionResult>();
@@ -945,20 +936,6 @@ export function PontxApiWorkspace({
     return () => window.clearTimeout(timer);
   }, [api.slug, clearOAuth, oauthCredentials, oauthScheme, oauthToken, saveOAuthToken]);
 
-  const handleApiSelect = useCallback(
-    (_apiName: string, selectedApi: PontxAPI) => {
-      const operationSlug = (
-        selectedApi as PontxAPI & {
-          ext?: { operationSlug?: string };
-        }
-      ).ext?.operationSlug;
-      if (operationSlug) {
-        navigate(`/${locale}/apis/${api.slug}/${operationSlug}`);
-      }
-    },
-    [api.slug, locale, navigate]
-  );
-
   const execute = useCallback(
     async (request: PlaygroundRequest) => {
       setIsExecuting(true);
@@ -1156,16 +1133,14 @@ export function PontxApiWorkspace({
         </header>
       ) : null}
       <div className="pontx-workspace" id={guided ? "quick-call" : undefined}>
-      {!guided ? <aside className="pontx-workspace-directory">
-        <ResourceDirectoryNavigation locale={locale} api={api} active="endpoints" />
-        <ApiDirectory
-          locale={locale === "zh" ? "zh-CN" : "en"}
-          spec={spec}
-          selectedApiName={selectedApiName}
-          onApiSelect={handleApiSelect}
-          defaultExpandedTags={[activeOperation.tag]}
-          searchPlaceholder={locale === "zh" ? "搜索接口…" : "Search endpoints…"}
-          className="pontx-directory"
+      {!guided ? <aside
+        className="pontx-workspace-directory"
+        aria-label={locale === "zh" ? "API 参考目录" : "API reference directory"}
+      >
+        <ResourceDirectoryNavigation
+          locale={locale}
+          api={api}
+          activeOperation={activeOperation}
         />
       </aside> : null}
 

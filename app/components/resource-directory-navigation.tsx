@@ -1,62 +1,117 @@
-import { Link } from "react-router";
-import type { CatalogApi, Locale } from "~/lib/catalog/types";
+import { useCallback, useMemo } from "react";
+import { Link, useNavigate } from "react-router";
+import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
+import type { PontxAPI } from "@pontx/spec";
+import type {
+  CatalogApi,
+  CatalogOperation,
+  Locale
+} from "~/lib/catalog/types";
+import { localize } from "~/lib/catalog/types";
+import {
+  pontxOperationName,
+  toPontxSpec
+} from "~/lib/catalog/pontx-adapter";
 import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 
 export function ResourceDirectoryNavigation({
   locale,
   api,
-  active
+  activeOperation,
+  activeSchemaName
 }: {
   locale: Locale;
   api: CatalogApi;
-  active: "endpoints" | "schemas";
+  activeOperation?: CatalogOperation;
+  activeSchemaName?: string;
 }) {
+  const navigate = useNavigate();
   const zh = locale === "zh";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
-  const defaultOperation = api.operations[0];
-  const defaultSchema = api.schemas[0];
-  const endpointContent = (
-    <>
-      <span>{workspaceCopy.endpointTab}</span>
-      <strong>{api.operations.length}</strong>
-    </>
-  );
-  const schemaContent = (
-    <>
-      <span>{zh ? "数据结构" : "Schemas"}</span>
-      <strong>{api.schemas.length}</strong>
-    </>
+  const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
+  const activeGroup = activeSchemaName ? "schemas" : "endpoints";
+  const selectedApiName = activeOperation
+    ? pontxOperationName(activeOperation)
+    : undefined;
+
+  const handleApiSelect = useCallback(
+    (_apiName: string, selectedApi: PontxAPI) => {
+      const operationSlug = (
+        selectedApi as PontxAPI & {
+          ext?: { operationSlug?: string };
+        }
+      ).ext?.operationSlug;
+      if (operationSlug) {
+        navigate(`/${locale}/apis/${api.slug}/${operationSlug}`);
+      }
+    },
+    [api.slug, locale, navigate]
   );
 
   return (
-    <nav
+    <div
       className="resource-directory-navigation"
-      aria-label={zh ? "API 参考分组" : "API reference sections"}
+      role="group"
+      aria-label={zh ? "API 参考目录" : "API reference directory"}
     >
-      {active === "endpoints" ? (
-        <span className="is-active" aria-current="page">
-          {endpointContent}
-        </span>
-      ) : defaultOperation ? (
-        <Link
-          to={`/${locale}/apis/${api.slug}/${defaultOperation.slug}`}
-          reloadDocument
+      <details
+        className="resource-directory-group"
+        open={activeGroup === "endpoints"}
+      >
+        <summary aria-current={activeGroup === "endpoints" ? "page" : undefined}>
+          <span>{workspaceCopy.endpointTab}</span>
+          <strong aria-label={zh ? `${api.operations.length} 个接口` : `${api.operations.length} endpoints`}>
+            {api.operations.length}
+          </strong>
+        </summary>
+        <div className="resource-directory-group-content">
+          <ApiDirectory
+            locale={locale === "zh" ? "zh-CN" : "en"}
+            spec={spec}
+            selectedApiName={selectedApiName}
+            onApiSelect={handleApiSelect}
+            defaultExpandedTags={activeOperation ? [activeOperation.tag] : []}
+            searchPlaceholder={zh ? "搜索接口…" : "Search endpoints…"}
+            className="pontx-directory"
+          />
+        </div>
+      </details>
+
+      {api.schemas.length > 0 ? (
+        <details
+          className="resource-directory-group"
+          open={activeGroup === "schemas"}
         >
-          {endpointContent}
-        </Link>
+          <summary aria-current={activeGroup === "schemas" ? "page" : undefined}>
+            <span>{zh ? "数据结构" : "Schemas"}</span>
+            <strong aria-label={zh ? `${api.schemas.length} 个数据结构` : `${api.schemas.length} schemas`}>
+              {api.schemas.length}
+            </strong>
+          </summary>
+          <div className="resource-directory-group-content">
+            <nav
+              className="schema-directory-list"
+              aria-label={zh ? "数据结构目录" : "Schema directory"}
+            >
+              {api.schemas.map((schema) => {
+                const active = schema.name === activeSchemaName;
+                return (
+                  <Link
+                    className={active ? "is-active" : undefined}
+                    key={schema.name}
+                    to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`}
+                    aria-current={active ? "page" : undefined}
+                    reloadDocument
+                  >
+                    <strong>{localize(schema.title, locale)}</strong>
+                    <code>{schema.name}</code>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+        </details>
       ) : null}
-      {defaultSchema ? active === "schemas" ? (
-        <span className="is-active" aria-current="page">
-          {schemaContent}
-        </span>
-      ) : (
-        <Link
-          to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchema.name)}`}
-          reloadDocument
-        >
-          {schemaContent}
-        </Link>
-      ) : null}
-    </nav>
+    </div>
   );
 }

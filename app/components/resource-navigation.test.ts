@@ -16,7 +16,7 @@ function render(component: ReturnType<typeof createElement>) {
 describe("API resource navigation", () => {
   const api = getCatalogApi("dida365")!;
 
-  it("moves desktop Endpoint and Schema navigation into the directory groups", () => {
+  it("renders Endpoint and Schema as vertical first-level directory groups", () => {
     const contextNavigation = render(createElement(ResourceNavigation, {
       locale: "zh",
       api,
@@ -25,28 +25,32 @@ describe("API resource navigation", () => {
     const directoryNavigation = render(createElement(ResourceDirectoryNavigation, {
       locale: "zh",
       api,
-      active: "endpoints"
+      activeOperation: api.operations[0]
     }));
 
     expect(contextNavigation).toContain("resource-navigation-mobile-link is-active");
     expect(contextNavigation).toContain(`href="/zh/sdks/${api.slug}"`);
-    expect(directoryNavigation).toContain('aria-label="API 参考分组"');
-    expect(directoryNavigation).toContain('<span class="is-active" aria-current="page"><span>接口</span>');
+    expect(directoryNavigation).toContain('role="group" aria-label="API 参考目录"');
+    expect(directoryNavigation).toContain('<details class="resource-directory-group" open=""><summary aria-current="page"><span>接口</span>');
+    expect(directoryNavigation).toContain('<details class="resource-directory-group"><summary><span>数据结构</span>');
+    expect(directoryNavigation).toContain('placeholder="搜索接口…"');
     expect(directoryNavigation).toContain(`href="/zh/apis/${api.slug}/schemas/`);
-    expect(directoryNavigation).toContain(`<strong>${api.schemas.length}</strong>`);
+    expect(directoryNavigation).toContain(`aria-label="${api.schemas.length} 个数据结构">${api.schemas.length}</strong>`);
   });
 
-  it("keeps an English Endpoint return path when Schemas are active", () => {
+  it("opens the English Schema group and marks the current Schema link", () => {
+    const schema = api.schemas[0];
     const html = render(createElement(ResourceDirectoryNavigation, {
       locale: "en",
       api,
-      active: "schemas"
+      activeSchemaName: schema.name
     }));
 
-    expect(html).toContain('aria-label="API reference sections"');
-    expect(html).toContain(`<span class="is-active" aria-current="page"><span>Schemas</span>`);
-    expect(html).toContain(`href="/en/apis/${api.slug}/${api.operations[0].slug}"`);
-    expect(html).toContain(`<strong>${api.operations.length}</strong>`);
+    expect(html).toContain('aria-label="API reference directory"');
+    expect(html).toContain('<details class="resource-directory-group"><summary><span>Endpoints</span>');
+    expect(html).toContain('<details class="resource-directory-group" open=""><summary aria-current="page"><span>Schemas</span>');
+    expect(html).toContain(`aria-current="page" href="/en/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}"`);
+    expect(html).toContain(`aria-label="${api.operations.length} endpoints">${api.operations.length}</strong>`);
   });
 
   it("renders a Schema as one documentation surface without Playground facts", () => {

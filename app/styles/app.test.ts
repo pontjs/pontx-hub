@@ -219,12 +219,19 @@ describe("API directory integration styles", () => {
     );
   });
 
-  it("keeps Endpoint and Schema groups in the desktop directory with a mobile fallback", async () => {
+  it("stacks Endpoint and Schema as expandable desktop directory groups with a mobile fallback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.resource-directory-navigation\s*{[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/,
+      /\.resource-directory-navigation\s*{[\s\S]*?flex-direction:\s*column;[\s\S]*?overflow:\s*hidden;/,
     );
+    expect(css).toMatch(
+      /\.resource-directory-group\[open\]\s*{[\s\S]*?flex-direction:\s*column;/,
+    );
+    expect(css).toMatch(
+      /\.resource-directory-group > summary\s*{[\s\S]*?grid-template-columns:\s*14px minmax\(0, 1fr\) auto;[\s\S]*?list-style:\s*none;/,
+    );
+    expect(css).not.toMatch(/\.resource-directory-group[^{}]*::after/);
     expect(css).toMatch(
       /\.resource-navigation-tabs a\.resource-navigation-mobile-link\s*{\s*display:\s*none;/,
     );
