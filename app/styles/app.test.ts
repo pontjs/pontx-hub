@@ -114,12 +114,13 @@ describe("API directory integration styles", () => {
       /\.registry-description\s*{[\s\S]*?max-width:\s*820px;[\s\S]*?color:\s*var\(--ink-soft\);/,
     );
     expect(css).toMatch(
-      /\.registry-description code\s*{[\s\S]*?color:\s*var\(--ink\);[\s\S]*?white-space:\s*nowrap;/,
+      /\.registry-description strong\s*{[\s\S]*?color:\s*var\(--ink\);[\s\S]*?font-weight:\s*600;/,
     );
     expect(css).toMatch(
       /\.registry-description-link\s*{[\s\S]*?color:\s*var\(--blue\);[\s\S]*?white-space:\s*nowrap;/,
     );
     expect(css).not.toContain(".catalog-access-card");
+    expect(css).not.toContain(".registry-description-link span");
   });
 
   it("uses the shared cool-neutral palette for non-semantic surfaces", async () => {

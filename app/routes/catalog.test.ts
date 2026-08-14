@@ -13,24 +13,28 @@ function renderSummary(locale: "zh" | "en") {
 }
 
 describe("catalog SDK and CLI summary", () => {
-  it("explains the call model once in compact Chinese copy", () => {
+  it("leads with the human benefit before explaining the catalog tools in Chinese", () => {
     const html = renderSummary("zh");
 
-    expect(html).toContain("每个收录的 API 都提供统一 SDK 与 CLI");
-    expect(html).toContain("覆盖全目录检索、预览和获准调用");
-    expect(html).toContain("@pontx/&lt;api&gt;");
-    expect(html).toContain("pontx-&lt;api&gt;");
+    expect(html).toContain("选好 API 后，直接复制代码接入项目。");
+    expect(html).toContain("每个收录 API 都有一致的 SDK 和 CLI");
+    expect(html).toContain("Pontx Hub CLI 用于在目录中搜索、查看接口和预览请求");
+    expect(html).toContain("了解使用方式");
+    expect(html).not.toContain("@pontx/");
+    expect(html).not.toContain("获准调用");
     expect(html).toContain('href="/zh/docs"');
     expect(html.match(/<a /g)).toHaveLength(1);
   });
 
-  it("publishes the same compact promise in English", () => {
+  it("keeps the same human-first structure in English", () => {
     const html = renderSummary("en");
 
-    expect(html).toContain("Every curated API has a Unified SDK and CLI");
-    expect(html).toContain("approved calls");
-    expect(html).toContain("@pontx/&lt;api&gt;");
-    expect(html).toContain("pontx-&lt;api&gt;");
+    expect(html).toContain("Choose an API, then copy the code straight into your project.");
+    expect(html).toContain("Every catalog API has a consistent SDK and CLI");
+    expect(html).toContain("Pontx Hub CLI to search, inspect endpoints, and preview requests");
+    expect(html).toContain("See how it works");
+    expect(html).not.toContain("@pontx/");
+    expect(html).not.toContain("approved calls");
     expect(html).toContain('href="/en/docs"');
     expect(html.match(/<a /g)).toHaveLength(1);
   });
