@@ -648,7 +648,20 @@ textarea {
 }
 
 .ai-assistant-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 8px 0 16px;
+}
+
+.ai-assistant-error > :first-child {
+  min-width: 0;
+}
+
+.ai-assistant-error button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .ai-assistant-composer {

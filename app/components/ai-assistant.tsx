@@ -43,6 +43,12 @@ type ExecutionState = {
   error?: string;
 };
 
+type AgentStatus = {
+  kind: "runtime" | "limit" | "error";
+  message: string;
+  tone: "warning" | "danger";
+};
+
 const copy = {
   zh: {
     label: "Pontx Agent",
@@ -65,7 +71,10 @@ const copy = {
     signIn: "登录后使用 Pontx Agent",
     limit: "今日额度已用完，请明天再试。",
     unavailable: "Pontx Agent 暂时不可用。",
-    usageUnavailable: "Pontx Agent 的运行服务尚未就绪。",
+    usageUnavailable: "Pontx Agent 暂时无法连接运行服务。",
+    globalLimit: "当前全局 Agent 预算已用完，请稍后再试。",
+    checkRuntime: "重新检测",
+    checkingRuntime: "正在检测…",
     prepared: "请求预览",
     previewRun: "预览并调用",
     confirm: "确认执行写操作",
@@ -103,7 +112,10 @@ const copy = {
     signIn: "Sign in to use Pontx Agent",
     limit: "Today's message allowance is exhausted. Try again tomorrow.",
     unavailable: "Pontx Agent is currently unavailable.",
-    usageUnavailable: "Pontx Agent's runtime service is not ready.",
+    usageUnavailable: "Pontx Agent cannot reach its runtime service right now.",
+    globalLimit: "The shared Agent budget is currently exhausted. Try again later.",
+    checkRuntime: "Check again",
+    checkingRuntime: "Checking…",
     prepared: "Request preview",
     previewRun: "Preview and call",
     confirm: "Confirm mutation",
@@ -126,9 +138,18 @@ const SESSION_KEY = "pontx:ai:session:v1";
 
 function AgentIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3.75" y="4.5" width="16.5" height="15" rx="2.5" />
-      <path d="M3.75 8h16.5M7 6.25h.01M9.5 6.25h.01M7.5 11l2.25 2-2.25 2M12.5 15h3.5" />
+    <svg
+      className={className}
+      data-agent-icon="copilot-compass"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="8.15" />
+      <path
+        d="m15.95 8.05-2.65 5.25-5.25 2.65 2.65-5.25 5.25-2.65Z"
+        fill="currentColor"
+        stroke="none"
+      />
     </svg>
   );
 }
@@ -197,7 +218,8 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const [threadId, setThreadId] = useState("");
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<AgentStatus | null>(null);
+  const [checkingRuntime, setCheckingRuntime] = useState(false);
   const [prepared, setPrepared] = useState<PreparedCall[]>([]);
   const [executions, setExecutions] = useState<Record<number, ExecutionState>>({});
   const agentRef = useRef<HttpAgent | null>(null);
@@ -269,13 +291,38 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     }
   ], [locale, location.pathname, location.search]);
 
+  const checkRuntime = async () => {
+    setCheckingRuntime(true);
+    try {
+      const response = await fetch("/api/ai/v1/usage", {
+        headers: { Accept: "application/json" }
+      });
+      if (response.ok) {
+        setStatus((current) => current?.kind === "runtime" ? null : current);
+      }
+    } catch {
+      // Keep the recoverable runtime notice visible until a later retry succeeds.
+    } finally {
+      setCheckingRuntime(false);
+    }
+  };
+
+  const showRuntimeStatus = () => {
+    setStatus({
+      kind: "runtime",
+      message: text.usageUnavailable as string,
+      tone: "warning"
+    });
+    void checkRuntime();
+  };
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     const value = input.trim();
     const agent = agentRef.current;
     if (!value || !agent || running) return;
     setInput("");
-    setStatus("");
+    setStatus(null);
     agent.addMessage({ id: crypto.randomUUID(), role: "user", content: value });
     setMessages([...agent.messages]);
     setRunning(true);
@@ -290,24 +337,42 @@ export function AiAssistant({ locale }: { locale: Locale }) {
           }
         },
         onRunErrorEvent({ event }) {
-          setStatus(
-            event.code === "user_daily_limit"
+          if (event.code === "ai_usage_unavailable") {
+            showRuntimeStatus();
+            return;
+          }
+          setStatus({
+            kind: event.code === "user_daily_limit" || event.code === "global_daily_budget"
+              ? "limit"
+              : "error",
+            message: event.code === "user_daily_limit"
               ? text.limit as string
-              : event.message || text.unavailable as string
-          );
+              : event.code === "global_daily_budget"
+                ? text.globalLimit as string
+                : event.message || text.unavailable as string,
+            tone: event.code === "user_daily_limit" || event.code === "global_daily_budget"
+              ? "warning"
+              : "danger"
+          });
         }
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
-      setStatus(
-        message.includes("401")
-          ? text.signIn as string
-          : message.includes("429")
-            ? text.limit as string
-            : message.includes("ai_usage_unavailable")
-              ? text.usageUnavailable as string
-              : text.unavailable as string
-      );
+      if (message.includes("ai_usage_unavailable")) {
+        showRuntimeStatus();
+      } else {
+        setStatus({
+          kind: message.includes("429") ? "limit" : "error",
+          message: message.includes("401")
+            ? text.signIn as string
+            : message.includes("global_daily_budget")
+              ? text.globalLimit as string
+              : message.includes("429")
+                ? text.limit as string
+                : text.unavailable as string,
+          tone: message.includes("429") ? "warning" : "danger"
+        });
+      }
     } finally {
       setMessages([...(agentRef.current?.messages ?? [])]);
       setRunning(false);
@@ -402,7 +467,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     setMessages([]);
     setPrepared([]);
     setExecutions({});
-    setStatus("");
+    setStatus(null);
     window.sessionStorage.removeItem(SESSION_KEY);
     window.requestAnimationFrame(() => textareaRef.current?.focus());
   };
@@ -629,8 +694,21 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                 </div>
               ) : null}
               {status ? (
-                <Alert tone="danger" className="ai-assistant-error">
-                  <AlertDescription>{status}</AlertDescription>
+                <Alert tone={status.tone} className="ai-assistant-error">
+                  <AlertDescription>{status.message}</AlertDescription>
+                  {status.kind === "runtime" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void checkRuntime()}
+                      disabled={checkingRuntime}
+                    >
+                      {checkingRuntime
+                        ? text.checkingRuntime as string
+                        : text.checkRuntime as string}
+                    </Button>
+                  ) : null}
                 </Alert>
               ) : null}
             </div>
