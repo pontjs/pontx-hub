@@ -28,6 +28,8 @@ describe("SEO resource routes", () => {
 
     expect(response.headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
     expect(body).toContain("# Pontx API");
+    expect(body).toContain("https://pontx.dev/en/docs");
+    expect(body).toContain("https://pontx.dev/zh/docs");
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
     expect(body).toContain("https://pontx.dev/.well-known/skills/index.json");
     expect(body).toContain("https://pontx.dev/openapi.json");
@@ -105,7 +107,9 @@ describe("SEO resource routes", () => {
     expect(body).toContain('hreflang="en"');
     expect(body).toContain('hreflang="x-default"');
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
-    expect(body).not.toContain("/agent-skill</loc>");
+    expect(body).toContain("https://pontx.dev/zh/docs</loc>");
+    expect(body).toContain("https://pontx.dev/en/docs/cli</loc>");
+    expect(body).not.toMatch(/https:\/\/pontx\.dev\/(?:zh|en)\/agent-skill<\/loc>/);
     const catalog = listCatalog();
     const datedApi = catalog.find((api) => api.contentUpdatedAt);
     if (datedApi?.contentUpdatedAt) {
@@ -120,7 +124,7 @@ describe("SEO resource routes", () => {
     expect(body).not.toContain("/account/");
     expect(body).not.toContain("/sign-in");
     expect(body).not.toContain("<!DOCTYPE html>");
-    const expectedPerLocale = 2 + catalog.reduce(
+    const expectedPerLocale = 9 + catalog.reduce(
       (count, api) => count + 1 + api.operations.length + api.schemas.length + (api.sdkStatus === "published" ? 1 : 0),
       0
     );

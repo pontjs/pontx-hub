@@ -3,6 +3,7 @@
 Curated, agent-ready OpenAPI documentation and TypeScript/Node.js SDK portal.
 
 - Production: [pontx.dev](https://pontx.dev)
+- Documentation: [English](https://pontx.dev/en/docs) · [中文](https://pontx.dev/zh/docs)
 - Source: [pontjs/pontx-hub](https://github.com/pontjs/pontx-hub)
 - API metadata: [pontjs/pontx-api-metadata](https://github.com/pontjs/pontx-api-metadata)
 - Hub CLI: [pontjs/pontx-hub-cli](https://github.com/pontjs/pontx-hub-cli)

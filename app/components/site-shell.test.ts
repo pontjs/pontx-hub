@@ -32,6 +32,7 @@ describe("site language switcher", () => {
     expect(html).toContain('title="切换到英文"');
     expect(html.match(/class="language-icon"/g)).toHaveLength(2);
     expect(html).toContain('<span>English</span>');
+    expect(html).toContain('href="/zh/docs"');
   });
 
   it("keeps the inverse language target localized", () => {
@@ -40,5 +41,6 @@ describe("site language switcher", () => {
     expect(html).toContain('href="/zh/skills/pontx-hub"');
     expect(html).toContain('aria-label="Switch to Chinese"');
     expect(html).toContain('<span>中文</span>');
+    expect(html).toContain('href="/en/docs"');
   });
 });

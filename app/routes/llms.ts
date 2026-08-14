@@ -19,6 +19,8 @@ export function loader() {
 
 - [English API catalog](${siteUrl("/en")})
 - [中文 API 目录](${siteUrl("/zh")})
+- [English Pontx Hub documentation](${siteUrl("/en/docs")})
+- [中文 Pontx Hub 文档](${siteUrl("/zh/docs")})
 - [Pontx Hub Agent Skill](${siteUrl("/en/skills/pontx-hub")})
 - [Agent Skills discovery index](${siteUrl("/.well-known/skills/index.json")})
 - [Pontx Hub OpenAPI description](${siteUrl("/openapi.json")})
