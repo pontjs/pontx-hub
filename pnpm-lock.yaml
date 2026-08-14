@@ -10,7 +10,7 @@ overrides:
 
 patchedDependencies:
   '@pontx/shadcn-ui@1.2.9':
-    hash: 829d6570486f8f3d3b8a910adffd9e308ea6f6444b522202a9dbd408825756a9
+    hash: 3a795c234e63187a6b5d379647d191f2cd4e1fbf256f4c89664f41e165db55e8
     path: patches/@pontx__shadcn-ui@1.2.9.patch
 
 importers:
@@ -34,7 +34,7 @@ importers:
         version: 0.1.0(zod@3.25.76)
       '@pontx/shadcn-ui':
         specifier: ^1.2.9
-        version: 1.2.9(patch_hash=829d6570486f8f3d3b8a910adffd9e308ea6f6444b522202a9dbd408825756a9)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 1.2.9(patch_hash=3a795c234e63187a6b5d379647d191f2cd4e1fbf256f4c89664f41e165db55e8)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec':
         specifier: ^0.1.16-alpha.2
         version: 0.1.16-alpha.2
@@ -4361,7 +4361,7 @@ snapshots:
     optionalDependencies:
       zod: 3.25.76
 
-  '@pontx/shadcn-ui@1.2.9(patch_hash=829d6570486f8f3d3b8a910adffd9e308ea6f6444b522202a9dbd408825756a9)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@pontx/shadcn-ui@1.2.9(patch_hash=3a795c234e63187a6b5d379647d191f2cd4e1fbf256f4c89664f41e165db55e8)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@monaco-editor/react': 4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec': 0.1.15
