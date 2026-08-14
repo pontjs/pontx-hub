@@ -423,7 +423,6 @@ pontx-hub frankfurter-v2 preview getRates --base USD`} />
           <div><dt><InlineCode>--projectId 123</InlineCode></dt><dd>{zh ? "推荐：直接使用 OAS 参数名。" : "Preferred: use the OAS parameter name directly."}</dd></div>
           <div><dt><InlineCode>--body '&lt;json&gt;'</InlineCode></dt><dd>{zh ? "传入 JSON 请求体。" : "Pass a JSON request body."}</dd></div>
           <div><dt><InlineCode>-H 'Header: value'</InlineCode></dt><dd>{zh ? "补充声明的原始请求头；不要在参数中暴露密钥。" : "Add a declared raw header; never expose secrets in arguments."}</dd></div>
-          <div><dt><InlineCode>-p key=value</InlineCode></dt><dd>{zh ? "兼容旧脚本；新代码优先同名选项。" : "Compatibility fallback; prefer named options in new code."}</dd></div>
         </dl>
       </DocSection>
 

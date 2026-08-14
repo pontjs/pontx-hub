@@ -10,7 +10,11 @@ import { loader as docsDetailRedirectLoader } from "./docs-detail-redirect";
 
 type Descriptor = Record<string, unknown>;
 
-function renderDocs(path: string) {
+function renderDocs(
+  path: string,
+  locale: "zh" | "en" = "zh",
+  slug: "sdk" | "cli" = "sdk"
+) {
   const router = createMemoryRouter([
     {
       id: "root",
@@ -18,9 +22,9 @@ function renderDocs(path: string) {
       element: createElement(
         DocsLayout,
         {
-          locale: "zh",
-          slug: "sdk",
-          children: createElement(DocsContent, { locale: "zh", slug: "sdk" })
+          locale,
+          slug,
+          children: createElement(DocsContent, { locale, slug })
         }
       )
     }
@@ -59,6 +63,17 @@ describe("localized documentation", () => {
     const index = docsMeta("zh", "overview") as Descriptor[];
     expect(JSON.stringify(index)).toContain("CollectionPage");
     expect(JSON.stringify(index)).toContain("/zh/docs/quick-start");
+  });
+
+  it("documents named request options without advertising removed -p compatibility", () => {
+    for (const locale of ["zh", "en"] as const) {
+      const html = renderDocs(`/${locale}/docs/cli`, locale, "cli");
+
+      expect(html).toContain("--projectId 123");
+      expect(html).not.toContain("-p key=value");
+      expect(html).not.toContain("兼容旧脚本");
+      expect(html).not.toContain("Compatibility fallback");
+    }
   });
 
   it("negotiates /docs language while preserving safe query state", async () => {
