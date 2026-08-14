@@ -189,6 +189,21 @@ const serverSchema = z.object({
   description: localizedTextSchema
 });
 
+const pricingSchema = z.object({
+  status: z.enum(["free", "freemium", "paid", "contact", "unknown"]),
+  summary: localizedTextSchema,
+  officialUrl: httpsUrlSchema,
+  verifiedAt: z.string().date(),
+  currency: z.string().regex(/^[A-Z]{3}$/).optional(),
+  freeTier: localizedTextSchema.optional(),
+  billingUnit: localizedTextSchema.optional(),
+  startingPrice: z.object({
+    amount: z.number().nonnegative(),
+    currency: z.string().regex(/^[A-Z]{3}$/),
+    unit: localizedTextSchema
+  }).optional()
+});
+
 const authSchema = z.discriminatedUnion("type", [
   z.object({
     id: z.string().min(1),
@@ -336,6 +351,7 @@ export const catalogApiSchema = z
       .optional(),
     servers: z.array(serverSchema).min(1),
     auth: z.array(authSchema),
+    pricing: pricingSchema.optional(),
     operations: z.array(operationSchema).min(1),
     schemas: z.array(catalogSchemaSchema).default([])
   })

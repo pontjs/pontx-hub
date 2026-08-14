@@ -159,6 +159,25 @@ export const userPlaygroundHistory = pgTable(
   ]
 );
 
+export const aiDailyUsage = pgTable(
+  "ai_daily_usage",
+  {
+    scopeKey: text("scope_key").notNull(),
+    usageDate: text("usage_date").notNull(),
+    messageCount: integer("message_count").notNull().default(0),
+    reservedCostMicros: bigint("reserved_cost_micros", { mode: "number" })
+      .notNull()
+      .default(0),
+    actualCostMicros: bigint("actual_cost_micros", { mode: "number" })
+      .notNull()
+      .default(0),
+    inputTokens: bigint("input_tokens", { mode: "number" }).notNull().default(0),
+    outputTokens: bigint("output_tokens", { mode: "number" }).notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => [primaryKey({ columns: [table.scopeKey, table.usageDate] })]
+);
+
 export const specStatus = pgEnum("spec_status", [
   "candidate",
   "approved",
