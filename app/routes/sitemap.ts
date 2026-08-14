@@ -11,27 +11,28 @@ function escapeXml(value: string): string {
 }
 
 export function loader() {
-  const urls = ["", "/agent-skill"];
+  const urls: Array<{ path: string; lastmod?: string }> = [
+    { path: "" },
+    { path: "/agent-skill" }
+  ];
   for (const api of listCatalog()) {
-    urls.push(`/apis/${api.slug}`);
-    if (api.sdkStatus === "published") urls.push(`/sdks/${api.slug}`);
+    urls.push({ path: `/apis/${api.slug}`, lastmod: api.contentUpdatedAt });
+    if (api.sdkStatus === "published") urls.push({ path: `/sdks/${api.slug}`, lastmod: api.contentUpdatedAt });
     for (const operation of api.operations) {
-      urls.push(`/apis/${api.slug}/${operation.slug}`);
+      urls.push({ path: `/apis/${api.slug}/${operation.slug}`, lastmod: api.contentUpdatedAt });
     }
     for (const schema of api.schemas) {
-      urls.push(`/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`);
+      urls.push({ path: `/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`, lastmod: api.contentUpdatedAt });
     }
   }
 
   const entries = (["zh", "en"] as const).flatMap((locale) =>
-    urls.map((path) => `  <url>
+    urls.map(({ path, lastmod }) => `  <url>
     <loc>${escapeXml(siteUrl(`/${locale}${path}`))}</loc>
     <xhtml:link rel="alternate" hreflang="zh-CN" href="${escapeXml(siteUrl(`/zh${path}`))}" />
     <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(siteUrl(`/en${path}`))}" />
     <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(siteUrl(`/en${path}`))}" />
-    <changefreq>weekly</changefreq>
-    <priority>${path === "" ? "1.0" : path.includes("/apis/") ? "0.8" : "0.7"}</priority>
-  </url>`)
+${lastmod ? `    <lastmod>${escapeXml(lastmod)}</lastmod>\n` : ""}  </url>`)
   );
 
   return new Response(

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useRouteLoaderData } from "react-router";
-import type { loader as rootLoader } from "~/root";
+import { Link, useLocation } from "react-router";
 import type { Locale } from "~/lib/catalog/types";
 import { authClient } from "~/lib/accounts/auth-client";
+import { useAccount } from "~/lib/accounts/account-context";
 
 const copy = {
   zh: {
@@ -32,14 +32,13 @@ export function AccountNavigation({
   locale: Locale;
   onNavigate?: () => void;
 }) {
-  const data = useRouteLoaderData<typeof rootLoader>("root");
   const location = useLocation();
   const [signingOut, setSigningOut] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const accountMenuRef = useRef<HTMLDetailsElement>(null);
   const accountMenuTriggerRef = useRef<HTMLElement>(null);
   const accountMenuOpenedByHoverRef = useRef(false);
-  const accounts = data?.accounts;
+  const accounts = useAccount();
 
   useEffect(() => {
     setImageFailed(false);
@@ -59,7 +58,7 @@ export function AccountNavigation({
     return () => document.removeEventListener("pointerdown", closeAccountMenu);
   }, [accounts?.viewer?.id]);
 
-  if (!accounts?.enabled || location.pathname.includes("/sign-in")) return null;
+  if (!accounts.loaded || !accounts.enabled || location.pathname.includes("/sign-in")) return null;
 
   const text = copy[locale];
   if (!accounts.viewer) {

@@ -21,7 +21,7 @@ describe("OAuth token exchange", () => {
       clientId: "client-id",
       clientSecret: "client-secret",
       code: "code",
-      redirectUri: "https://pontx-hub.vercel.app/oauth/callback",
+      redirectUri: "https://pontx.dev/oauth/callback",
       scopes: ["tasks:read"]
     });
     expect(result).toMatchObject({ accessToken: "access-value", refreshToken: "refresh-value" });
@@ -35,7 +35,7 @@ describe("OAuth token exchange", () => {
     await expect(exchangeOAuthToken({
       apiSlug: "dida365", schemeId: "OAuth2", grantType: "authorization_code",
       clientId: "id", clientSecret: "secret", code: "code",
-      redirectUri: "https://pontx-hub.vercel.app/oauth/callback", scopes: ["admin"]
+      redirectUri: "https://pontx.dev/oauth/callback", scopes: ["admin"]
     })).rejects.toThrow("not approved");
   });
 

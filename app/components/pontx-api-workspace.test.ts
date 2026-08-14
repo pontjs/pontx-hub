@@ -66,7 +66,7 @@ describe("ApiOverviewFacts", () => {
     expect(html).toContain(`aria-label="跳到 ${localize(api.title, "zh")} 在线调用"`);
     expect(html).toContain('href="/zh/sdks/dida365"');
     expect(html).toContain(`aria-label="打开 ${localize(api.title, "zh")} SDK 页面"`);
-    expect(html).toContain(`v${api.sdkVersion}`);
+    expect(html).toContain(api.sdkStatus === "published" ? `v${api.sdkVersion}` : "计划中");
   });
 
   it("keeps English endpoint, schema, live-call, and published SDK facts navigable", () => {

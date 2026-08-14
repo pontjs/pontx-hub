@@ -4,6 +4,10 @@ export function meta(): Route.MetaDescriptors {
   return [{ title: "OAuth callback · Pontx Hub" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
+export function headers() {
+  return { "Cache-Control": "private, no-store" };
+}
+
 export default function OAuthCallback() {
   return <main style={{ padding: 24 }}>
     <h1>Completing authorization…</h1>

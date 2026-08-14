@@ -2,7 +2,7 @@
 
 Curated, agent-ready OpenAPI documentation and TypeScript/Node.js SDK portal.
 
-- Production: [pontx-hub.vercel.app](https://pontx-hub.vercel.app)
+- Production: [pontx.dev](https://pontx.dev)
 - Source: [pontjs/pontx-hub](https://github.com/pontjs/pontx-hub)
 - API metadata: [pontjs/pontx-api-metadata](https://github.com/pontjs/pontx-api-metadata)
 - Hub CLI: [pontjs/pontx-hub-cli](https://github.com/pontjs/pontx-hub-cli)
@@ -18,6 +18,12 @@ pnpm dev
 Set `GOOGLE_ANALYTICS_ID` to a GA4 web data stream Measurement ID (for example,
 `G-XXXXXXXXXX`) to enable page-view analytics. When the variable is unset,
 Google Analytics is not loaded.
+
+`PONTX_PUBLIC_SITE_ORIGIN=https://pontx.dev` is the single public origin used
+for canonical URLs, hreflang, robots, sitemap, Open Graph, and structured data.
+Preview deployments intentionally point those signals at the production origin.
+Search ownership meta tags can be supplied with `GOOGLE_SITE_VERIFICATION`,
+`BING_SITE_VERIFICATION`, and `BAIDU_SITE_VERIFICATION`.
 
 ## Optional accounts
 
@@ -37,10 +43,10 @@ To enable GitHub sign-in in a configured environment, set:
 PONTX_ACCOUNTS_ENABLED=true
 DATABASE_URL=postgresql://...
 BETTER_AUTH_SECRET=<at-least-32-random-characters>
-BETTER_AUTH_URL=https://your-hub-origin.example
+BETTER_AUTH_URL=https://pontx.dev
 GITHUB_CLIENT_ID=...
 GITHUB_CLIENT_SECRET=...
-PONTX_AUTH_TRUSTED_ORIGINS=https://optional-preview-origin.example
+PONTX_AUTH_TRUSTED_ORIGINS=https://pontx.dev,https://optional-preview-origin.example
 ```
 
 Register `${BETTER_AUTH_URL}/api/auth/callback/github` as the GitHub OAuth App
@@ -51,6 +57,10 @@ persisted. Authentication requests use Better Auth's database-backed rate
 limiter, so the generated `rateLimit` table must be present before the feature
 flag is enabled. See [`docs/accounts-and-favorites.md`](./docs/accounts-and-favorites.md)
 for the product and security boundary.
+
+OAuth-capable provider applications must also register
+`https://pontx.dev/oauth/callback`. Existing Dida365 applications created for
+the former Vercel hostname need their callback updated before authorization.
 
 The curated source of truth lives in the separate
 [`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)

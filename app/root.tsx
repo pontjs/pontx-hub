@@ -11,22 +11,36 @@ import {
 import type { Route } from "./+types/root";
 import { GoogleAnalytics } from "~/components/google-analytics";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
-import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
+import { AccountProvider } from "~/lib/accounts/account-context";
+import { readAccountsConfiguration } from "~/lib/accounts/config.server";
 import "./styles/app.css";
 import "./styles/account.css";
 import "./styles/system.css";
 
 const GA_MEASUREMENT_ID_PATTERN = /^G-[A-Z0-9]+$/i;
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader() {
   const configuredId = process.env.GOOGLE_ANALYTICS_ID?.trim();
-  const accounts = await loadAccountsViewer(request);
+  const accountsEnabled = readAccountsConfiguration().status === "ready";
 
   return {
-    accounts,
+    accountsEnabled,
+    siteVerification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION?.trim(),
+      bing: process.env.BING_SITE_VERIFICATION?.trim(),
+      baidu: process.env.BAIDU_SITE_VERIFICATION?.trim()
+    },
     googleAnalyticsId:
       configuredId && GA_MEASUREMENT_ID_PATTERN.test(configuredId) ? configuredId : undefined
   };
+}
+
+export function meta({ data }: Route.MetaArgs) {
+  return [
+    ...(data?.siteVerification.google ? [{ name: "google-site-verification", content: data.siteVerification.google }] : []),
+    ...(data?.siteVerification.bing ? [{ name: "msvalidate.01", content: data.siteVerification.bing }] : []),
+    ...(data?.siteVerification.baidu ? [{ name: "baidu-site-verification", content: data.siteVerification.baidu }] : [])
+  ];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -66,11 +80,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { googleAnalyticsId } = useLoaderData<typeof loader>();
+  const { accountsEnabled, googleAnalyticsId } = useLoaderData<typeof loader>();
 
   return (
     <>
-      <Outlet />
+      <AccountProvider initialState={{
+        enabled: accountsEnabled,
+        loaded: true,
+        viewer: null,
+        favorites: []
+      }}><Outlet /></AccountProvider>
       <GoogleAnalytics measurementId={googleAnalyticsId} />
     </>
   );

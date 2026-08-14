@@ -6,6 +6,8 @@ import { meta as operationMeta } from "./operation-detail";
 import { meta as schemaMeta } from "./schema-detail";
 import { meta as sdkMeta } from "./sdk-detail";
 import { meta as savedApisMeta } from "./saved-apis";
+import { meta as catalogMeta } from "./catalog";
+import { meta as rootMeta } from "~/root";
 
 type Descriptor = Record<string, unknown>;
 
@@ -32,6 +34,27 @@ function expectLocalizedPublicMeta(meta: Descriptor[], canonical: string) {
 describe("public route SEO metadata", () => {
   const api = getCatalogApi("dida365");
   if (!api) throw new Error("Expected synchronized Dida365 metadata");
+  const plannedApi = { ...api, sdkStatus: "planned" as const };
+
+  it("publishes the Pontx brand graph and search ownership meta tags", () => {
+    const catalogDescriptors = descriptors(catalogMeta({
+      data: { locale: "en", query: "", apis: [api] }
+    } as never));
+    const graph = JSON.stringify(catalogDescriptors);
+    expect(graph).toContain('"@type":"WebSite"');
+    expect(graph).toContain('"alternateName":"Pontx API Hub"');
+    expect(graph).toContain('"@type":"Organization"');
+    expect(graph).toContain('"logo":"https://pontx.dev/pontx-logo.svg"');
+    expect(graph).toContain('"@type":"CollectionPage"');
+
+    expect(descriptors(rootMeta({
+      data: { siteVerification: { google: "google-token", bing: "bing-token", baidu: "baidu-token" } }
+    } as never))).toEqual(expect.arrayContaining([
+      { name: "google-site-verification", content: "google-token" },
+      { name: "msvalidate.01", content: "bing-token" },
+      { name: "baidu-site-verification", content: "baidu-token" }
+    ]));
+  });
 
   it("keeps Endpoint and Schema pages canonical, localized, and breadcrumbed", () => {
     const operation = api.operations[0];
@@ -40,7 +63,7 @@ describe("public route SEO metadata", () => {
     } as never));
     expectLocalizedPublicMeta(
       operationDescriptors,
-      `https://pontx-hub.vercel.app/en/apis/${api.slug}/${operation.slug}`
+      `https://pontx.dev/en/apis/${api.slug}/${operation.slug}`
     );
     expect(JSON.stringify(operationDescriptors)).toContain("BreadcrumbList");
     expect(JSON.stringify(operationDescriptors)).toContain("TechArticle");
@@ -51,26 +74,29 @@ describe("public route SEO metadata", () => {
     } as never));
     expectLocalizedPublicMeta(
       schemaDescriptors,
-      `https://pontx-hub.vercel.app/zh/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`
+      `https://pontx.dev/zh/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`
     );
     expect(JSON.stringify(schemaDescriptors)).toContain("BreadcrumbList");
     expect(JSON.stringify(schemaDescriptors)).toContain("TechArticle");
   });
 
-  it("describes the Agent Skill and published SDK as software", () => {
+  it("describes the Agent Skill as software and keeps planned SDKs out of rich results", () => {
     const skillDescriptors = descriptors(agentSkillMeta({ data: { locale: "en" } } as never));
     expectLocalizedPublicMeta(
       skillDescriptors,
-      "https://pontx-hub.vercel.app/en/agent-skill"
+      "https://pontx.dev/en/agent-skill"
     );
     expect(JSON.stringify(skillDescriptors)).toContain("SoftwareApplication");
 
-    const sdkDescriptors = descriptors(sdkMeta({ data: { locale: "en", api } } as never));
+    const sdkDescriptors = descriptors(sdkMeta({
+      data: { locale: "en", api: plannedApi }
+    } as never));
     expectLocalizedPublicMeta(
       sdkDescriptors,
-      `https://pontx-hub.vercel.app/en/sdks/${api.slug}`
+      `https://pontx.dev/en/sdks/${plannedApi.slug}`
     );
-    expect(JSON.stringify(sdkDescriptors)).toContain("SoftwareApplication");
+    expect(sdkDescriptors).toContainEqual({ name: "robots", content: "noindex,follow" });
+    expect(JSON.stringify(sdkDescriptors)).not.toContain("SoftwareApplication");
   });
 
   it("serves an indexable API overview with a ready quick-start Endpoint", async () => {
@@ -82,7 +108,7 @@ describe("public route SEO metadata", () => {
     const apiDescriptors = descriptors(apiMeta({ data: loaded } as never));
     expectLocalizedPublicMeta(
       apiDescriptors,
-      "https://pontx-hub.vercel.app/zh/apis/frankfurter"
+      "https://pontx.dev/zh/apis/frankfurter"
     );
     expect(JSON.stringify(apiDescriptors)).toContain("WebAPI");
     expect(JSON.stringify(apiDescriptors)).toContain("BreadcrumbList");

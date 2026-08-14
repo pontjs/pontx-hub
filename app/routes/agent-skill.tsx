@@ -1,6 +1,6 @@
 import type { Route } from "./+types/agent-skill";
 import { SiteShell } from "~/components/site-shell";
-import { requireLocale, siteUrl } from "~/lib/http";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { CodeBlock } from "~/components/code-block";
 import { agentSkillHeroCopy } from "~/lib/i18n";
@@ -49,6 +49,10 @@ export function meta({ data }: Route.MetaArgs) {
       }
     }
   ];
+}
+
+export function headers() {
+  return cacheHeaders();
 }
 
 export default function AgentSkill({ loaderData }: Route.ComponentProps) {

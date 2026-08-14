@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { describe, expect, it } from "vitest";
 import type { GlobalSearchResponse, Locale } from "~/lib/catalog/types";
 import { GlobalSearchResults } from "./global-search-results";
+import { AccountProvider } from "~/lib/accounts/account-context";
 
 const search: GlobalSearchResponse = {
   strategy: "hybrid-semantic",
@@ -56,18 +57,13 @@ function renderResults(locale: Locale) {
     {
       id: "root",
       path: "*",
-      element: createElement(GlobalSearchResults, {
-        search: localizedSearch,
-        locale
-      })
+      element: createElement(AccountProvider, {
+        initialState: { enabled: true, loaded: true, viewer: null, favorites: [] }
+      }, createElement(GlobalSearchResults, { search: localizedSearch, locale }))
     }
   ], {
     initialEntries: [`/${locale}?q=stock`],
-    hydrationData: {
-      loaderData: {
-        root: { accounts: { enabled: true, viewer: null } }
-      }
-    }
+    hydrationData: { loaderData: {} }
   });
 
   return renderToStaticMarkup(createElement(RouterProvider, { router }));

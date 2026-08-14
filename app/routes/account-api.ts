@@ -12,7 +12,9 @@ import {
   listPlaygroundHistoryForUser,
   removePlaygroundHistoryEntry
 } from "~/lib/accounts/playground-history.server";
+import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 
+const VIEWER_PATH = "/api/account/v1/viewer";
 const HISTORY_PATH = "/api/account/v1/playground/history";
 const FAVORITE_ENDPOINTS_PATH = "/api/account/v1/favorites/endpoints";
 const UUID_PATTERN =
@@ -72,9 +74,20 @@ function sameOrigin(request: Request): boolean {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  if (url.pathname === VIEWER_PATH) {
+    const accounts = await loadAccountsViewer(request);
+    return jsonData({
+      enabled: accounts.enabled,
+      viewer: accounts.viewer ? {
+        id: accounts.viewer.id,
+        name: accounts.viewer.name,
+        image: accounts.viewer.image
+      } : null
+    });
+  }
   const unavailable = accountsAvailable();
   if (unavailable) return unavailable;
-  const url = new URL(request.url);
   if (
     url.pathname !== FAVORITE_ENDPOINTS_PATH &&
     url.pathname !== HISTORY_PATH

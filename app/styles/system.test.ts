@@ -136,7 +136,8 @@ describe("Pontx Hub visual system", () => {
       readFile(new URL("./system.css", import.meta.url), "utf8"),
     ]);
 
-    expect(route).toMatch(/<PontxApiWorkspace[\s\S]*?initialFavorite=\{favorite\}/);
+    expect(route).not.toContain("loadAccountsViewer");
+    expect(route).toContain("return cacheHeaders()");
     expect(workspace).toMatch(
       /className="pontx-workspace-bar-actions"[\s\S]*?<FavoriteEndpointButton[\s\S]*?compact/,
     );
@@ -149,6 +150,12 @@ describe("Pontx Hub visual system", () => {
     expect(systemCss).toMatch(
       /:where\(a, button, input, select, textarea, \[tabindex\]\):focus-visible\s*{[\s\S]*?outline:/,
     );
+  });
+
+  it("keeps the localized catalog H1 branded as Pontx API Hub", async () => {
+    const catalog = await readFile(new URL("../routes/catalog.tsx", import.meta.url), "utf8");
+    expect(catalog).toContain('"Pontx API Hub · API 目录"');
+    expect(catalog).toContain('"Pontx API Hub · API Catalog"');
   });
 
   it("keeps current-Endpoint history inline, responsive, and replay-only", async () => {

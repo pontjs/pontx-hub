@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { describe, expect, it } from "vitest";
 import { AccountNavigation } from "./account-navigation";
+import { AccountProvider } from "~/lib/accounts/account-context";
 
 function renderAccountNavigation({
   locale,
@@ -15,25 +16,18 @@ function renderAccountNavigation({
     {
       id: "root",
       path: "*",
-      element: createElement(AccountNavigation, { locale })
+      element: createElement(AccountProvider, {
+        initialState: {
+          enabled: true,
+          loaded: true,
+          viewer: { id: "viewer-1", name: "Jason Huang", image },
+          favorites: []
+        }
+      }, createElement(AccountNavigation, { locale }))
     }
   ], {
     initialEntries: [`/${locale}`],
-    hydrationData: {
-      loaderData: {
-        root: {
-          accounts: {
-            enabled: true,
-            viewer: {
-              id: "viewer-1",
-              name: "Jason Huang",
-              email: "jason@example.com",
-              image
-            }
-          }
-        }
-      }
-    }
+    hydrationData: { loaderData: {} }
   });
 
   return renderToStaticMarkup(createElement(RouterProvider, { router }));

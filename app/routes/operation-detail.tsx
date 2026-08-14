@@ -1,78 +1,19 @@
 import type { Route } from "./+types/operation-detail";
-import type { EndpointPlaygroundHistoryEntry } from "~/components/endpoint-playground-history";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
-import { isFavoriteEndpoint } from "~/lib/accounts/favorites";
-import { listFavoriteEndpointsForUser } from "~/lib/accounts/favorites.server";
-import { listPlaygroundHistoryForOperationForUser } from "~/lib/accounts/playground-history.server";
-import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import { localize } from "~/lib/catalog/types";
-import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 
-export async function loader({ params, request }: Route.LoaderArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const match = getCatalogOperation(
     params.apiSlug ?? "",
     params.operationSlug ?? ""
   );
   if (!match) throw new Response("Operation not found", { status: 404 });
-  const accounts = await loadAccountsViewer(request);
-  const [favoritesResult, historyResult] = accounts.viewer
-    ? await Promise.allSettled([
-        listFavoriteEndpointsForUser(accounts.viewer.id),
-        listPlaygroundHistoryForOperationForUser(
-          accounts.viewer.id,
-          match.api.slug,
-          match.operation.slug,
-          3
-        )
-      ])
-    : [undefined, undefined];
-  const favorites = favoritesResult?.status === "fulfilled"
-    ? favoritesResult.value
-    : [];
-  const approvedServerIds = new Set(
-    match.operation.serverIds.length
-      ? match.operation.serverIds
-      : match.api.servers.map((server) => server.id)
-  );
-  const playgroundHistory: EndpointPlaygroundHistoryEntry[] =
-    historyResult?.status === "fulfilled"
-      ? historyResult.value.flatMap((entry) => {
-          const server = match.api.servers.find(
-            (candidate) =>
-              candidate.id === entry.serverId &&
-              approvedServerIds.has(candidate.id)
-          );
-          return server ? [{
-            id: entry.id,
-            serverId: entry.serverId,
-            pathValues: entry.path,
-            queryValues: entry.query,
-            headerValues: entry.headers,
-            requestBody: entry.requestBody,
-            hasRequestBody: entry.hasRequestBody,
-            omittedFields: entry.omittedFields,
-            responseStatus: entry.responseStatus,
-            durationMs: entry.durationMs,
-            createdAt: entry.createdAt.toISOString()
-          }] : [];
-        })
-      : [];
-  return {
-    locale,
-    ...match,
-    favorite: isFavoriteEndpoint(
-      favorites,
-      match.api.slug,
-      match.operation.slug
-    ),
-    playgroundHistoryEnabled:
-      Boolean(accounts.viewer) && historyResult?.status === "fulfilled",
-    playgroundHistory
-  };
+  return { locale, ...match };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -139,20 +80,13 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function headers() {
-  return accountAwareCacheHeaders();
+  return cacheHeaders();
 }
 
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const {
-    locale,
-    api,
-    operation,
-    favorite,
-    playgroundHistoryEnabled,
-    playgroundHistory
-  } = loaderData;
+  const { locale, api, operation } = loaderData;
 
   return (
     <SiteShell locale={locale}>
@@ -160,9 +94,6 @@ export default function OperationDetail({
         locale={locale}
         api={api}
         operation={operation}
-        initialFavorite={favorite}
-        playgroundHistoryEnabled={playgroundHistoryEnabled}
-        initialPlaygroundHistory={playgroundHistory}
       />
     </SiteShell>
   );

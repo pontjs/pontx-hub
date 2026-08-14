@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-08-11",
-  "baseUrl": "https://pontx-hub.vercel.app",
+  "updatedAt": "2026-08-14",
+  "baseUrl": "https://pontx.dev",
   "locale": "zh",
   "passPolicy": {
     "requireSearchResult": true,
@@ -76,11 +76,11 @@
       "allSchemas": true
     },
     "baselineInventory": {
-      "asOf": "2026-08-11",
-      "apiProducts": 11,
-      "endpoints": 75,
-      "safeLiveGet": 41,
-      "previewOnly": 11,
+      "asOf": "2026-08-14",
+      "apiProducts": 4,
+      "endpoints": 53,
+      "safeLiveGet": 24,
+      "previewOnly": 6,
       "nonGet": 23
     }
   },
@@ -150,136 +150,10 @@
         "storage": "session-only"
       },
       "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["AAPL", "results"]
-      }
-    },
-    {
-      "api": "cnbc-market-data",
-      "query": "查询 AAPL 实时行情",
-      "endpointPath": "/zh/apis/cnbc-market-data/get-rest-quotes",
-      "operationId": "getRestQuotes",
-      "parameters": {
-        "symbols": "AAPL|MSFT",
-        "requestMethod": "quick",
-        "output": "json"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["FormattedQuoteResult", "AAPL"]
-      }
-    },
-    {
-      "api": "eastmoney-funds",
-      "query": "查询基金历史净值",
-      "endpointPath": "/zh/apis/eastmoney-funds/list-historical-nav",
-      "operationId": "listHistoricalNav",
-      "parameters": {
-        "fundCode": "001072",
-        "pageIndex": 1,
-        "pageSize": 20
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["Data", "LSJZList"]
-      }
-    },
-    {
-      "api": "i3investor-sgx",
-      "query": "查询 SGX D05 股票概览",
-      "endpointPath": "/zh/apis/i3investor-sgx/get-sgx-stock-overview-page",
-      "operationId": "getSgxStockOverviewPage",
-      "parameters": {
-        "code": "D05"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["D05", "DBS"],
-        "bodyMustNotContain": ["Cloudflare", "Just a moment"]
-      }
-    },
-    {
-      "api": "sina-finance",
-      "query": "查询新浪 A 股行情快照",
-      "endpointPath": "/zh/apis/sina-finance/get-quote-snapshots",
-      "operationId": "getQuoteSnapshots",
-      "parameters": {
-        "symbols": "sh000001,sh600000"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["sh000001", "上证"]
-      }
-    },
-    {
-      "api": "stooq",
-      "query": "下载 AAPL 最新行情",
-      "endpointPath": "/zh/apis/stooq/download-latest-quotes",
-      "operationId": "downloadLatestQuotes",
-      "parameters": {
-        "s": "aapl.us",
-        "f": "sd2t2ohlcvp"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["AAPL", "aapl.us"]
-      }
-    },
-    {
-      "api": "tencent-finance",
-      "query": "查询腾讯港股行情",
-      "endpointPath": "/zh/apis/tencent-finance/get-quote-snapshots",
-      "operationId": "getQuoteSnapshots",
-      "parameters": {
-        "symbols": "hk00700,sz000001"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["00700", "腾讯"]
-      }
-    },
-    {
-      "api": "yahoo-finance",
-      "query": "查询 AAPL K 线",
-      "endpointPath": "/zh/apis/yahoo-finance/get-chart",
-      "operationId": "getChart",
-      "parameters": {
-        "symbol": "AAPL",
-        "range": "1mo",
-        "interval": "1d"
-      },
-      "auth": {
-        "type": "none"
-      },
-      "success": {
-        "statusClass": 2,
-        "nonEmptyBody": true,
-        "bodyContainsAny": ["chart", "AAPL"]
+        "previewOnly": true,
+        "proxyEnabled": false,
+        "disabledReasonVisible": true,
+        "generatedCodeNonEmpty": true
       }
     }
   ]
