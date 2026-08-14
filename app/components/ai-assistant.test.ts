@@ -18,17 +18,23 @@ describe("Pontx Agent presentation", () => {
     expect(source).toContain('label: "Pontx Agent"');
     expect(source).toContain('send: "运行任务"');
     expect(source).toContain('emptyTitle: "交给 Agent 一个 API 任务"');
-    expect(source).toContain('<rect x="3.75" y="4.5" width="16.5" height="15" rx="2.5" />');
+    expect(source).toContain('data-agent-icon="copilot-compass"');
+    expect(source).toContain('<circle cx="12" cy="12" r="8.15" />');
+    expect(source).toContain('d="m15.95 8.05-2.65 5.25-5.25 2.65 2.65-5.25 5.25-2.65Z"');
     expect(source).not.toContain("AI 助手");
     expect(source).not.toContain("API Assistant");
-    expect(source).not.toContain('d="M7 5.5h10a2.5');
+    expect(source).not.toContain('<rect x="3.75" y="4.5" width="16.5" height="15" rx="2.5" />');
   });
 
-  it("explains an unavailable usage service without collapsing it into a generic error", async () => {
+  it("makes a recoverable runtime outage actionable instead of presenting it as an unready service", async () => {
     const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
 
     expect(source).toContain('message.includes("ai_usage_unavailable")');
-    expect(source).toContain('usageUnavailable: "Pontx Agent 的运行服务尚未就绪。"');
+    expect(source).toContain('event.code === "ai_usage_unavailable"');
+    expect(source).toContain('usageUnavailable: "Pontx Agent 暂时无法连接运行服务。"');
+    expect(source).toContain('checkRuntime: "重新检测"');
+    expect(source).toContain('fetch("/api/ai/v1/usage"');
+    expect(source).toContain('tone: "warning"');
   });
 
   it("adapts the shared loading state into one compact Agent response row", async () => {

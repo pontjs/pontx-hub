@@ -41,7 +41,7 @@ describe("site language switcher", () => {
     );
     expect(desktopNav).toMatch(/class="[^"]*ai-assistant-trigger[^"]*"/);
     expect(desktopNav).toContain('title="Pontx Agent"');
-    expect(desktopNav).toContain('M3.75 8h16.5');
+    expect(desktopNav).toContain('data-agent-icon="copilot-compass"');
     const primaryHrefs = [...desktopNav.matchAll(/<a[^>]+href="([^"]+)"/g)]
       .map((match) => match[1]);
     expect(primaryHrefs.slice(0, 4)).toEqual([
