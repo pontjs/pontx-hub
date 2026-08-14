@@ -129,6 +129,16 @@ export async function aiUsageSnapshot(
   };
 }
 
-export function estimateSonnetCostMicros(inputTokens: number, outputTokens: number) {
-  return Math.ceil(inputTokens * 3 + outputTokens * 15);
+export function estimateModelCostMicros(
+  inputTokens: number,
+  outputTokens: number,
+  configuration: Pick<
+    ReadyConfiguration,
+    "inputCostPerMillionUsd" | "outputCostPerMillionUsd"
+  >
+) {
+  return Math.ceil(
+    inputTokens * configuration.inputCostPerMillionUsd +
+    outputTokens * configuration.outputCostPerMillionUsd
+  );
 }

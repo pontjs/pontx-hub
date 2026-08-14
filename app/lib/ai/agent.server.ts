@@ -4,7 +4,7 @@ import type { RunAgentInput } from "@ag-ui/core";
 import { EventType } from "@ag-ui/core";
 import type { AiConfiguration } from "./config.server";
 import { agentToolDefinitions, runAgentTool } from "./tools.server";
-import { estimateSonnetCostMicros } from "./usage.server";
+import { estimateModelCostMicros } from "./usage.server";
 
 type ReadyConfiguration = Extract<AiConfiguration, { status: "ready" }>;
 type Emit = (event: Record<string, unknown>) => void;
@@ -67,7 +67,10 @@ export async function runPontxAgent(
   emit: Emit,
   signal: AbortSignal
 ) {
-  const client = new Anthropic({ apiKey: configuration.apiKey });
+  const client = new Anthropic({
+    apiKey: configuration.apiKey,
+    baseURL: configuration.baseUrl
+  });
   const context = input.context
     .map((item) => `${item.description}: ${item.value}`)
     .join("\n")
@@ -149,7 +152,10 @@ export async function runPontxAgent(
         });
       }
     }
-    if (estimateSonnetCostMicros(inputTokens, outputTokens) >= TURN_COST_GUARD_MICROS) {
+    if (
+      estimateModelCostMicros(inputTokens, outputTokens, configuration) >=
+      TURN_COST_GUARD_MICROS
+    ) {
       const guardMessageId = crypto.randomUUID();
       emit({ type: EventType.TEXT_MESSAGE_START, messageId: guardMessageId, role: "assistant" });
       emit({
@@ -173,7 +179,11 @@ export async function runPontxAgent(
   return {
     inputTokens,
     outputTokens,
-    costMicros: estimateSonnetCostMicros(inputTokens, outputTokens)
+    costMicros: estimateModelCostMicros(
+      inputTokens,
+      outputTokens,
+      configuration
+    )
   };
   } catch (error) {
     throw new AgentRunError(
@@ -181,7 +191,11 @@ export async function runPontxAgent(
       {
         inputTokens,
         outputTokens,
-        costMicros: estimateSonnetCostMicros(inputTokens, outputTokens)
+        costMicros: estimateModelCostMicros(
+          inputTokens,
+          outputTokens,
+          configuration
+        )
       }
     );
   }
