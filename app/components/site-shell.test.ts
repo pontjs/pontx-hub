@@ -40,6 +40,7 @@ describe("site language switcher", () => {
     );
     expect(desktopNav).toMatch(/class="[^"]*ai-assistant-trigger[^"]*"/);
     expect(desktopNav).toContain('title="AI 助手"');
+    expect(desktopNav).toContain('m8.5 9 2 2-2 2M13 13h2.5');
     const primaryHrefs = [...desktopNav.matchAll(/<a[^>]+href="([^"]+)"/g)]
       .map((match) => match[1]);
     expect(primaryHrefs.slice(0, 4)).toEqual([

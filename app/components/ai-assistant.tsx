@@ -125,8 +125,8 @@ const SESSION_KEY = "pontx:ai:session:v1";
 function AgentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 7.5h14M7.5 5v5M16.5 5v5M6.5 12.5h11v6h-11z" />
-      <path d="m9 15 1.5 1.5L9 18m3.5 0h2.5" />
+      <path d="M7 5.5h10a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 17 16.5h-6l-4.5 3v-3A2.5 2.5 0 0 1 4.5 14V8A2.5 2.5 0 0 1 7 5.5Z" />
+      <path d="m8.5 9 2 2-2 2M13 13h2.5" />
     </svg>
   );
 }
