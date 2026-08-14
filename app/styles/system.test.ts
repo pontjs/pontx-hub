@@ -159,6 +159,16 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps the Endpoint Playground Try action visually primary", async () => {
+    const patch = await readFile(
+      new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url),
+      "utf8",
+    );
+
+    expect(patch).toContain('-                    variant: "outline",');
+    expect(patch).toContain('+                    variant: "default",');
+  });
+
   it("lets the workspace toolbar define its grid track height", async () => {
     const [appCss, systemCss] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),
