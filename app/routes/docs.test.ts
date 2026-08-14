@@ -13,7 +13,7 @@ type Descriptor = Record<string, unknown>;
 function renderDocs(
   path: string,
   locale: "zh" | "en" = "zh",
-  slug: "overview" | "sdk" | "cli" | "agent-skill" | "web" = "sdk"
+  slug: "overview" | "sdk" | "cli" | "agent-skill" | "web" | "safety" = "sdk"
 ) {
   const router = createMemoryRouter([
     {
@@ -94,6 +94,27 @@ describe("localized documentation", () => {
     expect(html).toContain("Skill 主要规定做事步骤");
     expect(html).toContain("需要时再读取 API 资料");
     expect(html).not.toContain("让 Agent 按需查找，而不是背下全部 API");
+  });
+
+  it("explains credentials and safety as practical guidance for people", () => {
+    const zh = renderDocs("/zh/docs/safety", "zh", "safety");
+    expect(zh).toContain("使用须知");
+    expect(zh).toContain("凭证放在哪里");
+    expect(zh).toContain("预览本身不会访问 API 供应商");
+    expect(zh).toContain("修改数据前再确认一次");
+    expect(zh).toContain("只连接目录里的 API");
+    expect(zh).not.toContain("安全模型");
+    expect(zh).not.toContain("规范化请求");
+    expect(zh).not.toContain("完全相同的副作用");
+    expect(zh).not.toContain("任意 URL 交给 Hub 代理");
+
+    const en = renderDocs("/en/docs/safety", "en", "safety");
+    expect(en).toContain("Where credentials stay");
+    expect(en).toContain("A preview never contacts the API provider");
+    expect(en).toContain("Confirm before changing data");
+    expect(en).not.toContain("normalized request");
+    expect(en).not.toContain("exact side effect");
+    expect(en).not.toContain("arbitrary URL to the Hub proxy");
   });
 
   it("publishes canonical, reciprocal, and structured metadata for every docs page", () => {
