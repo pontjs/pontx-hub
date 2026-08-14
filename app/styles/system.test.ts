@@ -104,7 +104,7 @@ describe("Pontx Hub visual system", () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice\s*{\s*margin:\s*0;/,
+      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.endpoint-playground-history\s*{\s*margin:\s*0;/,
     );
     expect(css).toMatch(
       /\.resource-page-workspace \.pontx-documentation\s*{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?box-shadow:\s*none;/,
@@ -148,6 +148,26 @@ describe("Pontx Hub visual system", () => {
     );
     expect(systemCss).toMatch(
       /:where\(a, button, input, select, textarea, \[tabindex\]\):focus-visible\s*{[\s\S]*?outline:/,
+    );
+  });
+
+  it("keeps current-Endpoint history inline, responsive, and replay-only", async () => {
+    const [workspace, history, css] = await Promise.all([
+      readFile(new URL("../components/pontx-api-workspace.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../components/endpoint-playground-history.tsx", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(workspace).toMatch(
+      /<EndpointPlaygroundHistory[\s\S]*?<DocumentationEvidence/,
+    );
+    expect(history).toContain("Load inputs without sending the request");
+    expect(history).toContain("Playground, SDK, and CLI code are in sync");
+    expect(css).toMatch(
+      /\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,
     );
   });
 

@@ -8,6 +8,7 @@ import {
 import { readAccountsConfiguration } from "~/lib/accounts/config.server";
 import { requireAccountUserId } from "~/lib/accounts/session.server";
 import {
+  listPlaygroundHistoryForOperationForUser,
   listPlaygroundHistoryForUser,
   removePlaygroundHistoryEntry
 } from "~/lib/accounts/playground-history.server";
@@ -80,11 +81,37 @@ export async function loader({ request }: Route.LoaderArgs) {
   ) {
     return jsonError("not_found", 404);
   }
+  const apiSlug = url.searchParams.get("apiSlug");
+  const operationSlug = url.searchParams.get("operationSlug");
+  if (
+    url.pathname === HISTORY_PATH &&
+    Boolean(apiSlug) !== Boolean(operationSlug)
+  ) {
+    return jsonError("invalid_history_filter", 422);
+  }
+  if (
+    url.pathname === HISTORY_PATH &&
+    apiSlug &&
+    operationSlug &&
+    !getCatalogOperation(apiSlug, operationSlug)
+  ) {
+    return jsonError("unknown_endpoint", 404);
+  }
   try {
     const userId = await requireAccountUserId(request);
     if (url.pathname === HISTORY_PATH) {
       const requestedLimit = Number(url.searchParams.get("limit") ?? 50);
       const limit = Number.isFinite(requestedLimit) ? requestedLimit : 50;
+      if (apiSlug && operationSlug) {
+        return jsonData({
+          entries: await listPlaygroundHistoryForOperationForUser(
+            userId,
+            apiSlug,
+            operationSlug,
+            limit
+          )
+        });
+      }
       return jsonData({
         entries: await listPlaygroundHistoryForUser(userId, limit)
       });

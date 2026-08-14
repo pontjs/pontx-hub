@@ -392,6 +392,33 @@ export async function listPlaygroundHistoryForUser(
     .limit(Math.max(1, Math.min(HISTORY_LIMIT, Math.floor(limit))));
 }
 
+export async function listPlaygroundHistoryForOperationForUser(
+  userId: string,
+  apiSlug: string,
+  operationSlug: string,
+  limit = 3
+): Promise<PlaygroundHistoryEntry[]> {
+  const configuration = readAccountsConfiguration();
+  if (configuration.status !== "ready") {
+    throw new Response("Not found", { status: 404 });
+  }
+  return getDatabase(configuration.databaseUrl)
+    .select()
+    .from(userPlaygroundHistory)
+    .where(
+      and(
+        eq(userPlaygroundHistory.userId, userId),
+        eq(userPlaygroundHistory.apiSlug, apiSlug),
+        eq(userPlaygroundHistory.operationSlug, operationSlug)
+      )
+    )
+    .orderBy(
+      desc(userPlaygroundHistory.createdAt),
+      desc(userPlaygroundHistory.id)
+    )
+    .limit(Math.max(1, Math.min(HISTORY_LIMIT, Math.floor(limit))));
+}
+
 export async function removePlaygroundHistoryEntry(
   userId: string,
   entryId: string
