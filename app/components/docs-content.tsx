@@ -169,30 +169,30 @@ function Overview({ locale }: { locale: Locale }) {
     {
       number: "01",
       title: "Agent Skill",
-      description: zh ? "把用户意图转为可审查的 API 发现、请求预演、授权调用与 SDK 集成工作流。" : "Turn user intent into a reviewable workflow for API discovery, request preview, authorized calls, and SDK integration.",
+      description: zh ? "告诉 Agent 你想做什么，它会按固定步骤帮你找接口、检查请求并准备代码。" : "Tell an agent what you need; it follows a clear process to find the Endpoint, check the request, and prepare code.",
       href: docHref(locale, "agent-skill"),
       tag: "pontx-hub"
     },
     {
       number: "02",
       title: zh ? "统一 CLI" : "Universal CLI",
-      description: zh ? "为 Skill、终端和自动化提供统一的搜索、检查、预演与调用命令。" : "Give the Skill, terminals, and automation one command surface for search, inspection, preview, and calls.",
+      description: zh ? "喜欢在终端工作时，用一组命令搜索目录、查看文档、预览和调用接口。" : "If you prefer the terminal, use one command set to search, read docs, preview, and call Endpoints.",
       href: docHref(locale, "cli"),
       tag: "@pontx/hub-cli"
     },
     {
       number: "03",
       title: zh ? "统一 SDK" : "Unified SDK",
-      description: zh ? "把验证过的请求变成类型安全的生产代码。" : "Turn a verified request into type-safe production code.",
+      description: zh ? "准备写进应用时，使用类型安全的客户端和准确的包版本。" : "When you are ready to build, use a type-safe client and the exact published package version.",
       href: docHref(locale, "sdk"),
       tag: "@pontx/<api>"
     },
     {
       number: "04",
       title: zh ? "网站" : "Website",
-      description: zh ? "用可视化界面浏览同一份 API、接口、数据结构与 Playground。" : "Explore the same APIs, Endpoints, Schemas, and Playground through a visual interface.",
+      description: zh ? "不安装任何工具，直接搜索 API、阅读接口文档并预览请求。" : "Search APIs, read Endpoint docs, and preview requests without installing anything.",
       href: docHref(locale, "web"),
-      tag: zh ? "可视化入口" : "Visual interface"
+      tag: zh ? "打开即用" : "No setup"
     }
   ];
 
@@ -202,7 +202,7 @@ function Overview({ locale }: { locale: Locale }) {
         id="choose-interface"
         marker="01"
         title={zh ? "从 Agent Skill 开始" : "Start with the Agent Skill"}
-        lead={zh ? "Skill 定义工作流，CLI 负责执行，SDK 承接生产集成，网站提供可视化入口。" : "The Skill defines the workflow, the CLI executes it, SDKs carry it into production, and the website provides a visual interface."}
+        lead={zh ? "先了解 Skill 能替你完成什么，再按自己的习惯选择命令行、SDK 或网站。" : "See what the Skill can handle, then choose the terminal, SDK, or website when you want to work directly."}
       >
         <div className="docs-interface-grid">
           {interfaces.map((item) => (
@@ -222,8 +222,8 @@ function Overview({ locale }: { locale: Locale }) {
       <DocSection
         id="shared-model"
         marker="02"
-        title={zh ? "一套共享模型" : "One shared model"}
-        lead={zh ? "稳定资源 ID、链接与代码命名让 Agent、CLI、SDK 与网站互相衔接。" : "Stable resource IDs, links, and code names connect agents, the CLI, SDKs, and the website."}
+        title={zh ? "不同入口，同一份 API 资料" : "One source, whichever way you work"}
+        lead={zh ? "无论使用 Skill、CLI、统一 SDK 还是网站，看到的 API 名称、接口和字段都保持一致。" : "The Skill, CLI, Unified SDK, and website use the same API names, Endpoints, and fields."}
       >
         <div className="docs-model-flow" aria-label={zh ? "Pontx 资源层级" : "Pontx resource hierarchy"}>
           <div><span>API</span><strong>{zh ? "产品与认证边界" : "Product and auth boundary"}</strong><code>api:frankfurter</code></div>
@@ -242,8 +242,8 @@ function Overview({ locale }: { locale: Locale }) {
       <DocSection
         id="one-workflow"
         marker="03"
-        title={zh ? "同一条集成路径" : "One integration path"}
-        lead={zh ? "先发现，再理解；先预演，再执行；最后把已验证的形状带进代码。" : "Discover, inspect, preview, execute, then carry the verified shape into code."}
+        title={zh ? "从找到接口到写进项目" : "From finding an API to using it"}
+        lead={zh ? "找到合适的接口后，先看清参数和请求，再决定是否发送，最后复制成项目里的代码。" : "Find the right Endpoint, check its parameters and request, decide whether to send it, then copy the result into your project."}
       >
         <CodeTabs
           locale={locale}
@@ -253,9 +253,13 @@ function Overview({ locale }: { locale: Locale }) {
               id: "overview-skill",
               label: "Agent Skill",
               language: "shell",
-              code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
+              code: zh
+                ? `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
 
-# The agent follows search → show → preview → confirm → call → sdk.`
+# 安装后，直接告诉 Agent 你想用 API 做什么。`
+                : `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub
+
+# Then tell your agent what you want to do with an API.`
             },
             {
               id: "overview-cli",
@@ -296,8 +300,8 @@ pontx-hub --version`} />
 
       <DocSection id="discover" marker="02" title={zh ? "搜索并检查" : "Search and inspect"} lead={zh ? "可以按能力、入参、出参或数据结构自然语言搜索。" : "Search by capability, input, output, or data structure in natural language."}>
         <ol className="docs-steps">
-          <li><span>1</span><div><strong>{zh ? "搜索意图" : "Search an intent"}</strong><p>{zh ? "加上 --json 可获得稳定、可编程的结果与匹配原因。" : "Add --json for stable, programmable results with match provenance."}</p></div></li>
-          <li><span>2</span><div><strong>{zh ? "复制稳定资源 ID" : "Copy the stable resource ID"}</strong><p>{zh ? "搜索结果中的 API、Endpoint 与 Schema ID 都可交给 show。" : "API, Endpoint, and Schema IDs from search can all be passed to show."}</p></div></li>
+          <li><span>1</span><div><strong>{zh ? "搜索你要做的事" : "Search for what you need"}</strong><p>{zh ? "需要把结果交给脚本时加上 --json。" : "Add --json when another command or script needs to read the result."}</p></div></li>
+          <li><span>2</span><div><strong>{zh ? "记下资源 ID" : "Keep the resource ID"}</strong><p>{zh ? "把结果中的 API、Endpoint 或 Schema ID 交给 show，就能继续查看详情。" : "Pass an API, Endpoint, or Schema ID to show when you want the full details."}</p></div></li>
         </ol>
         <CopyableCode locale={locale} language="shell" label={zh ? "发现一个汇率接口" : "Discover an exchange-rate endpoint"} code={`pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
@@ -307,7 +311,7 @@ pontx-hub show schema:frankfurter/ExchangeRateResponse`} />
       <DocSection id="preview" marker="03" title={zh ? "预演再调用" : "Preview, then call"} lead={zh ? "preview 会解析最终 URL、查询参数、脱敏请求头与请求体，但不会发送到供应商。" : "preview resolves the final URL, query, redacted headers, and body without sending anything to the provider."}>
         <CopyableCode locale={locale} language="shell" label={zh ? "安全请求流程" : "Safe request flow"} code={`pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
 
-# Only run after the preview matches your intent.
+# Only call after the preview looks right.
 pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
         <Callout tone="warning" title={zh ? "写操作不会自动执行" : "Mutations never run automatically"}>
           {zh ? "POST、PUT、PATCH 与 DELETE 必须先预演，再对完全相同的请求明确确认，并在 call 时传入 --yes。" : "POST, PUT, PATCH, and DELETE require a preview, explicit confirmation of that exact request, and --yes on call."}
@@ -331,40 +335,40 @@ function WebGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="search" marker="01" title={zh ? "从意图开始搜索" : "Start with intent"} lead={zh ? "首页搜索覆盖 API 产品、接口、参数、请求体、响应与 Schema 属性。" : "Home search covers API products, Endpoints, parameters, request bodies, responses, and Schema properties."}>
+      <DocSection id="search" marker="01" title={zh ? "先搜你想做的事" : "Search for what you need"} lead={zh ? "不用先记住 API 名称，像平时提问一样输入你要完成的事情就可以。" : "You do not need to know an API name first. Search for the task you are trying to complete."}>
         <div className="docs-query-list">
-          <code>{zh ? "创建任务的入参" : "input for creating a task"}</code>
-          <code>{zh ? "返回 dueDate 的接口" : "endpoint that returns dueDate"}</code>
-          <code>projectId</code>
+          <code>{zh ? "我想查询今天的汇率" : "check today's exchange rates"}</code>
+          <code>{zh ? "创建任务需要填写什么" : "what do I need to create a task?"}</code>
+          <code>{zh ? "projectId 在哪里用" : "where is projectId used?"}</code>
         </div>
-        <p>{zh ? "结果会说明匹配来自产品说明、参数、请求、响应还是数据结构；选择结果后，页面会重新建立所属 API 的上下文。" : "Results explain whether the match came from product copy, parameters, requests, responses, or Schemas. Every destination re-establishes its parent API context."}</p>
-        <Link className="docs-text-link" to={`/${locale}?q=${encodeURIComponent(zh ? "汇率接口" : "exchange rate")}`}>{zh ? "在目录中试一次搜索" : "Try a catalog search"} ↗</Link>
+        <p>{zh ? "每条结果都会标明它是 API、接口还是字段。先点开最接近你问题的那一条，页面顶部随时可以回到目录。" : "Each result says whether it is an API, Endpoint, or field. Open the closest match; the catalog is always one click away."}</p>
+        <Link className="docs-text-link" to={`/${locale}?q=${encodeURIComponent(zh ? "汇率接口" : "exchange rate")}`}>{zh ? "试着搜索一个汇率 API" : "Try an exchange-rate search"} ↗</Link>
       </DocSection>
 
-      <DocSection id="read" marker="02" title={zh ? "读懂资源层级" : "Read the resource hierarchy"} lead={zh ? "每一层只回答一类问题，并保留返回目录和访问同级资源的路径。" : "Each layer answers one kind of question and keeps a route back to the catalog and sibling resources."}>
+      <DocSection id="read" marker="02" title={zh ? "先看概览，再看接口" : "Start with the overview"} lead={zh ? "大多数时候先确认这个 API 是否合适，再进入具体接口查看调用细节。" : "First decide whether the API fits your needs, then open an Endpoint for the calling details."}>
         <div className="docs-feature-table" role="table" aria-label={zh ? "网站页面层级" : "Website page hierarchy"}>
-          <div role="row"><strong role="cell">API</strong><p role="cell">{zh ? "了解供应商、认证、服务地址、接口范围与 SDK 状态。" : "Understand the provider, auth, servers, Endpoint scope, and SDK status."}</p></div>
-          <div role="row"><strong role="cell">Endpoint</strong><p role="cell">{zh ? "查看方法、路径、参数、请求体、响应与可运行示例。" : "Read the method, path, parameters, body, responses, and runnable examples."}</p></div>
-          <div role="row"><strong role="cell">Schema</strong><p role="cell">{zh ? "追踪嵌套字段、类型、枚举、约束与被哪些接口复用。" : "Trace nested fields, types, enums, constraints, and referencing Endpoints."}</p></div>
-          <div role="row"><strong role="cell">SDK</strong><p role="cell">{zh ? "复制与批准 OAS 版本绑定的安装和调用代码。" : "Copy install and usage code bound to the approved OAS version."}</p></div>
+          <div role="row"><strong role="cell">API</strong><p role="cell">{zh ? "先看它解决什么问题、如何认证，以及一共提供哪些接口。" : "See what it is for, how authentication works, and which Endpoints it offers."}</p></div>
+          <div role="row"><strong role="cell">Endpoint</strong><p role="cell">{zh ? "真正准备调用时，在这里看地址、参数、请求示例和响应。" : "When you are ready to call it, check the URL, parameters, examples, and responses here."}</p></div>
+          <div role="row"><strong role="cell">Schema</strong><p role="cell">{zh ? "遇到不熟悉的字段时，用它查看类型、可选值和限制。" : "Use this when you need the type, allowed values, or limits for an unfamiliar field."}</p></div>
+          <div role="row"><strong role="cell">SDK</strong><p role="cell">{zh ? "准备写代码时，复制准确的安装命令和调用示例。" : "When you start coding, copy the exact install command and usage example."}</p></div>
         </div>
       </DocSection>
 
-      <DocSection id="playground" marker="03" title={zh ? "在 Playground 中预演" : "Preview in the Playground"} lead={zh ? "接口文档、参数表单和输出视图共用同一个请求状态。" : "Endpoint docs, parameter inputs, and output views share one request state."}>
+      <DocSection id="playground" marker="03" title={zh ? "先预览，再决定是否发送" : "Preview before you send"} lead={zh ? "Playground 会把文档里的示例填进表单。你可以先看完整请求，它不会自动发送。" : "The Playground fills the form from a documented example. You can inspect the full request before anything is sent."}>
         <ol className="docs-steps">
-          <li><span>1</span><div><strong>{zh ? "选择已验证示例" : "Select a verified example"}</strong><p>{zh ? "就绪示例会填充稳定输入；动态 ID 会明确标出来源或要求你输入。" : "Ready examples prefill stable inputs; dynamic IDs show their source or ask for input."}</p></div></li>
-          <li><span>2</span><div><strong>{zh ? "检查请求预览" : "Inspect the request preview"}</strong><p>{zh ? "切换 cURL、统一 SDK 与 CLI 视图时，请求参数保持同步。" : "cURL, Unified SDK, and CLI views stay synchronized with the same inputs."}</p></div></li>
-          <li><span>3</span><div><strong>{zh ? "按需执行" : "Execute only when needed"}</strong><p>{zh ? "供应商凭证只留在当前浏览器会话；不支持代理的 API 仍可预演和生成代码。" : "Provider credentials stay in the browser session; non-proxied APIs can still preview and generate code."}</p></div></li>
+          <li><span>1</span><div><strong>{zh ? "选一个现成示例" : "Choose an example"}</strong><p>{zh ? "常用参数会自动填好；需要真实 ID 的地方会提醒你补充。" : "Common values are filled in for you; fields that need a real ID are clearly marked."}</p></div></li>
+          <li><span>2</span><div><strong>{zh ? "改成你的参数" : "Use your own values"}</strong><p>{zh ? "表单和 cURL、统一 SDK、CLI 代码会一起更新，方便你逐项核对。" : "The form, cURL, Unified SDK, and CLI examples update together so you can check each value."}</p></div></li>
+          <li><span>3</span><div><strong>{zh ? "确认后再发送" : "Send only when ready"}</strong><p>{zh ? "需要凭证时，它只在当前浏览器会话中使用；不能在线调用的 API 仍然可以生成代码。" : "Credentials are used only in the current browser session. APIs that cannot run online can still generate code."}</p></div></li>
         </ol>
-        <Callout tone="safe" title={zh ? "凭证不会进入账户历史" : "Credentials never enter account history"}>
-          {zh ? "即使登录后保留 Playground 历史，Hub 也只保存脱敏的输入快照与状态，不保存认证对象、供应商响应或凭证字段。" : "Even with signed-in Playground history, Hub stores only sanitized input snapshots and status—never auth objects, provider responses, or credential fields."}
+        <Callout tone="safe" title={zh ? "凭证只在当前会话使用" : "Credentials stay in the current session"}>
+          {zh ? "登录后可以保留去除敏感信息的参数和调用状态，但 API Key、OAuth token、密码及供应商响应不会写入账户历史。" : "Signed-in history can keep sanitized parameters and call status, but never API keys, OAuth tokens, passwords, or provider responses."}
         </Callout>
       </DocSection>
 
-      <DocSection id="return" marker="04" title={zh ? "把验证结果带回代码" : "Bring verified inputs back to code"} lead={zh ? "网站不是终点；它负责让请求形状可见、可检查、可复制。" : "The website is not the endpoint; it makes the request shape visible, reviewable, and portable."}>
+      <DocSection id="return" marker="04" title={zh ? "把可用示例带回项目" : "Take a working example back to your project"} lead={zh ? "参数确认无误后，直接复制成终端命令或应用代码，不需要重新填写一遍。" : "Once the values look right, copy them into a terminal command or application code without entering them again."}>
         <div className="docs-split-actions">
-          <Link to={docHref(locale, "cli")}><span>CLI</span><strong>{zh ? "进入自动化与脚本" : "Move into automation"}</strong><i aria-hidden="true">→</i></Link>
-          <Link to={docHref(locale, "sdk")}><span>SDK</span><strong>{zh ? "进入类型安全集成" : "Move into typed integration"}</strong><i aria-hidden="true">→</i></Link>
+          <Link to={docHref(locale, "cli")}><span>CLI</span><strong>{zh ? "用于脚本和自动化" : "Use it in scripts"}</strong><i aria-hidden="true">→</i></Link>
+          <Link to={docHref(locale, "sdk")}><span>{zh ? "统一 SDK" : "Unified SDK"}</span><strong>{zh ? "用于应用代码" : "Use it in application code"}</strong><i aria-hidden="true">→</i></Link>
         </div>
       </DocSection>
     </>
@@ -399,7 +403,7 @@ pontx-hub --help`} />
         </div>
       </DocSection>
 
-      <DocSection id="discovery" marker="03" title={zh ? "搜索与检查" : "Search and inspect"} lead={zh ? "搜索结果使用稳定 ID；后续命令和 Agent 不必猜测 URL。" : "Search results use stable IDs, so later commands and agents never need to guess URLs."}>
+      <DocSection id="discovery" marker="03" title={zh ? "搜索与检查" : "Search and inspect"} lead={zh ? "搜索结果会带上稳定的资源 ID，后续命令和脚本可以直接继续使用。" : "Search results include stable resource IDs that later commands and scripts can use directly."}>
         <CodeTabs locale={locale} label={zh ? "CLI 搜索示例" : "CLI search examples"} examples={[
           { id: "cli-natural", label: zh ? "自然语言" : "Natural language", language: "shell", code: `pontx-hub search "返回 dueDate 的接口" --locale zh --json
 pontx-hub show endpoint:dida365/get-task-by-id` },
@@ -529,7 +533,7 @@ function SkillGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="install" marker="01" title={zh ? "安装 Skill" : "Install the Skill"} lead={zh ? "Skill 只安装一次；它为 Agent 提供可执行的 API 操作规范，并使用 CLI 完成每一步。" : "Install once; the Skill gives agents an executable API operating protocol and uses the CLI to carry out each step."}>
+      <DocSection id="install" marker="01" title={zh ? "安装 Skill" : "Install the Skill"} lead={zh ? "Skill 只需要安装一次。之后告诉 Agent 你想完成什么，它会通过 CLI 查资料、检查请求并执行必要的步骤。" : "Install the Skill once. Then tell your agent what you want to accomplish; it uses the CLI to look things up, check the request, and complete the necessary steps."}>
         <CodeTabs locale={locale} label={zh ? "Skill 安装方式" : "Skill installation methods"} examples={[
           { id: "skill-standard", label: "Agent Skills", language: "shell", code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub` },
           { id: "skill-cli", label: "Pontx Hub CLI", language: "shell", code: `pnpm add --global @pontx/hub-cli
@@ -538,46 +542,46 @@ pontx-hub skill install` }
         <p>{zh ? "CLI 默认安装到当前项目的 .agents/skills/pontx-hub；使用 --output 可选择目录，使用 --force 明确更新已有 Skill。" : "The CLI installs to .agents/skills/pontx-hub in the current project. Use --output to choose a location and --force to explicitly update an existing Skill."}</p>
       </DocSection>
 
-      <DocSection id="workflow" marker="02" title={zh ? "Agent 工作流" : "Agent workflow"} lead={zh ? "Skill 把一个开放式 API 请求收敛为可审查的六个步骤。" : "The Skill turns an open-ended API request into six reviewable steps."}>
+      <DocSection id="workflow" marker="02" title={zh ? "一次完整的使用过程" : "A complete request"} lead={zh ? "你可以看到它找到什么、准备发送什么；涉及真实调用时，仍由你决定是否继续。" : "You can see what it found and what it plans to send. You still decide whether a live call should go ahead."}>
         <div className="docs-agent-flow">
           {[
-            ["search", zh ? "搜索能力" : "Find capability"],
-            ["show", zh ? "检查资源" : "Inspect resource"],
-            ["preview", zh ? "预演请求" : "Preview request"],
-            ["confirm", zh ? "确认副作用" : "Confirm side effect"],
-            ["call", zh ? "按授权调用" : "Call when authorized"],
-            ["sdk", zh ? "生成集成" : "Generate integration"]
+            ["search", zh ? "找到合适的接口" : "Find the right Endpoint"],
+            ["show", zh ? "查看参数和说明" : "Read parameters and docs"],
+            ["preview", zh ? "核对完整请求" : "Check the full request"],
+            ["confirm", zh ? "确认是否会修改数据" : "Confirm any data changes"],
+            ["call", zh ? "确认后调用" : "Call after confirmation"],
+            ["sdk", zh ? "生成项目代码" : "Generate application code"]
           ].map(([command, label], index) => (
             <div key={command}><span>{String(index + 1).padStart(2, "0")}</span><code>{command}</code><strong>{label}</strong></div>
           ))}
         </div>
-        <CopyableCode locale={locale} language="shell" label={zh ? "Agent 执行轨迹" : "Agent execution trace"} code={`pontx-hub search "把欧元换算成美元的接口" --locale zh --json
+        <CopyableCode locale={locale} language="shell" label={zh ? "一次完整的使用示例" : "A complete example"} code={`pontx-hub search "把欧元换算成美元的接口" --locale zh --json
 pontx-hub show endpoint:frankfurter/get-latest-rates
 pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
-# The agent calls only after the user asks for execution.
+# ${zh ? "只有你确认后，才会真正调用接口。" : "The Endpoint is called only after you confirm."}
 pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
       </DocSection>
 
-      <DocSection id="context" marker="03" title={zh ? "按需加载是工作流收益" : "On-demand loading is a workflow benefit"} lead={zh ? "Skill 的核心是操作规范；按任务加载 API、接口与数据结构，让这套规范保持准确而高效。" : "The Skill is fundamentally an operating protocol; loading APIs, Endpoints, and Schemas per task keeps that protocol accurate and efficient."}>
+      <DocSection id="context" marker="03" title={zh ? "需要时再读取 API 资料" : "Load API details when needed"} lead={zh ? "Skill 主要规定做事步骤；具体的 API、接口和字段会按当前问题从目录读取，不必把整份 API 目录放进 Skill。" : "The Skill mainly defines the process. It reads the relevant API, Endpoint, and field details from the catalog for the question at hand instead of bundling the whole catalog."}>
         <div className="docs-context-meter">
-          <div><span>{zh ? "常驻上下文" : "Long-lived context"}</span><strong>Skill workflow</strong><i /></div>
-          <div><span>{zh ? "按需加载" : "On demand"}</span><strong>API → Endpoint → Schema</strong><i /></div>
-          <div><span>{zh ? "最终输出" : "Final output"}</span><strong>Preview → Call → SDK</strong><i /></div>
+          <div><span>{zh ? "Skill 自带" : "Included in the Skill"}</span><strong>{zh ? "查找与调用步骤" : "Search and call steps"}</strong><i /></div>
+          <div><span>{zh ? "需要时读取" : "Read when needed"}</span><strong>API → Endpoint → Schema</strong><i /></div>
+          <div><span>{zh ? "交付给你" : "Ready for you"}</span><strong>Preview → Call → SDK</strong><i /></div>
         </div>
-        <p>{zh ? "这样可以减少陈旧文档、错误参数和无关 Schema 对推理的干扰，同时让每次选择都能回溯到稳定资源 ID。" : "This reduces stale docs, wrong parameters, and irrelevant Schemas while keeping every choice traceable to a stable resource ID."}</p>
+        <p>{zh ? "这样更容易拿到最新参数，也不会被无关的数据结构干扰。每次选择仍会保留稳定的资源 ID，方便你继续查看和复用。" : "This makes it easier to use current parameters without unrelated data getting in the way. Stable resource IDs remain available for inspection and reuse."}</p>
       </DocSection>
 
-      <DocSection id="boundaries" marker="04" title={zh ? "不可绕过的边界" : "Boundaries that cannot be bypassed"} lead={zh ? "Skill 扩展检索和执行能力，但不会扩展用户授权。" : "The Skill extends retrieval and execution capability, not user authorization."}>
+      <DocSection id="boundaries" marker="04" title={zh ? "不可绕过的边界" : "Boundaries that cannot be bypassed"} lead={zh ? "Skill 可以帮你查资料和准备调用，但不会替你决定是否发送请求。" : "The Skill can find information and prepare a call, but it never decides to send the request for you."}>
         <ul className="docs-checklist">
           <li><span>✓</span>{zh ? "搜索、解释或生成代码不等于允许执行。" : "Search, explanation, or code generation does not imply execution permission."}</li>
-          <li><span>✓</span>{zh ? "写操作必须先展示精确预演，再获得用户确认。" : "Mutations require an exact preview before user confirmation."}</li>
+          <li><span>✓</span>{zh ? "可能修改数据的操作，必须先展示完整请求，再由你确认。" : "Any operation that may change data must show the full request before you confirm it."}</li>
           <li><span>✓</span>{zh ? "凭证来自环境变量，不写入命令参数、日志或回复。" : "Credentials come from environment variables, never arguments, logs, or responses."}</li>
           <li><span>✓</span>{zh ? "只能调用 Hub 目录中批准的 API、接口与服务地址。" : "Only catalog-approved APIs, Endpoints, and servers can be called."}</li>
         </ul>
         <div className="docs-next-action">
           <span>→</span>
-          <p>{zh ? "查看可索引的 Skill 说明页，或深入理解凭证与写操作确认。" : "Open the indexable Skill page, or read the credential and mutation model in depth."}</p>
-          <Link to={`/${locale}/skills/pontx-hub`}>{zh ? "打开 Skill 页面" : "Open the Skill page"}</Link>
+          <p>{zh ? "查看 Skill 的公开说明页，或者继续了解凭证与请求确认规则。" : "Read the public Skill overview, or continue with credentials and request confirmation."}</p>
+          <Link to={`/${locale}/skills/pontx-hub`}>{zh ? "查看 Skill 说明" : "Read the Skill overview"}</Link>
         </div>
       </DocSection>
     </>
@@ -613,8 +617,8 @@ function SafetyGuide({ locale }: { locale: Locale }) {
           <i aria-hidden="true">→</i>
           <div><span>3</span><strong>call --yes</strong><p>{zh ? "发送未改变的请求" : "Send the unchanged request"}</p></div>
         </div>
-        <Callout tone="warning" title={zh ? "读取请求也需要执行意图" : "Reads still require execution intent"}>
-          {zh ? "GET 与 HEAD 不需要 --yes，但搜索、查看文档或要求预演都不自动授权真实调用。" : "GET and HEAD do not need --yes, but search, documentation, or preview requests do not automatically authorize a live call."}
+        <Callout tone="warning" title={zh ? "查看文档不会发送请求" : "Reading docs never sends a request"}>
+          {zh ? "GET 与 HEAD 不需要 --yes，但搜索、查看文档和预演都只帮助你检查请求；只有明确调用时才会发送。" : "GET and HEAD do not need --yes, but search, documentation, and preview only help you inspect the request. It is sent only when you explicitly call it."}
         </Callout>
       </DocSection>
 
@@ -625,7 +629,7 @@ function SafetyGuide({ locale }: { locale: Locale }) {
           <li><span>✓</span>{zh ? "请求头、请求体、超时和响应大小受到服务端限制。" : "Headers, body, timeout, and captured response size are server-limited."}</li>
           <li><span>✓</span>{zh ? "禁止代理的 API 仍可阅读、预演并生成 SDK/CLI 代码。" : "Non-proxied APIs remain readable, previewable, and available for SDK/CLI code generation."}</li>
         </ul>
-        <Link className="docs-text-link" to={docHref(locale, "agent-skill")}>{zh ? "查看 Agent 如何遵守这些边界" : "See how agents follow these boundaries"} ↗</Link>
+        <Link className="docs-text-link" to={docHref(locale, "agent-skill")}>{zh ? "了解 Skill 如何处理这些边界" : "See how the Skill handles these boundaries"} ↗</Link>
       </DocSection>
     </>
   );

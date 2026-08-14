@@ -34,17 +34,17 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   overview: {
     slug: "overview",
     navTitle: text("文档首页", "Documentation home"),
-    title: text("一套 Skill，把 API 意图变成可靠集成。", "One Skill turns API intent into a reliable integration."),
+    title: text("先从 Agent Skill 开始，再选择你习惯的方式。", "Start with the Agent Skill, then work the way you prefer."),
     description: text(
-      "从 Agent Skill 开始，以统一 CLI 执行可审查的工作流，用统一 SDK 进入生产代码；网站提供同一模型的可视化入口。",
-      "Start with the Agent Skill, execute its reviewable workflow through the universal CLI, move into production with the Unified SDK, and use the website as a visual interface to the same model."
+      "让 Agent 帮忙时安装 Skill；喜欢命令行就用统一 CLI，写应用时用统一 SDK，想先看看则直接打开网站。",
+      "Install the Skill when you want an agent to help, use the Universal CLI in the terminal, choose the Unified SDK for application code, or simply browse the website."
     ),
     eyebrow: text("Pontx Hub 文档", "Pontx Hub documentation"),
     keywords: text("首页 概览 API 接口 数据结构 工作流", "home overview API endpoint schema workflow"),
     sections: [
       { id: "choose-interface", title: text("从 Agent Skill 开始", "Start with the Agent Skill") },
-      { id: "shared-model", title: text("一套共享模型", "One shared model") },
-      { id: "one-workflow", title: text("同一条集成路径", "One integration path") }
+      { id: "shared-model", title: text("不同入口，同一份 API 资料", "One source, whichever way you work") },
+      { id: "one-workflow", title: text("从找到接口到写进项目", "From finding an API to using it") }
     ]
   },
   "quick-start": {
@@ -67,18 +67,18 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   web: {
     slug: "web",
     navTitle: text("网站使用", "Use the website"),
-    title: text("在网站中发现、阅读与调试 API。", "Discover, read, and debug APIs on the web."),
+    title: text("在网站上找到需要的 API，并放心试一次。", "Find the API you need and try it with confidence."),
     description: text(
-      "从全局语义搜索进入 API、接口与数据结构页面，在同一工作区查看文档、请求预演与集成代码。",
-      "Move from semantic search into API, Endpoint, and Schema pages, then use one workspace for docs, request preview, and integration code."
+      "先搜索你要完成的事，再查看接口参数、填入示例、确认请求；试通后可以直接复制 CLI 或统一 SDK 代码。",
+      "Search for what you need, review the Endpoint, fill in an example, and inspect the request before copying CLI or Unified SDK code."
     ),
-    eyebrow: text("网站 / 无需安装", "Website / no install"),
+    eyebrow: text("网站使用 / 打开就能用", "Website guide / ready in your browser"),
     keywords: text("网站 搜索 API 目录 接口 数据结构 Playground 调试", "website search catalog endpoint schema playground debug"),
     sections: [
-      { id: "search", title: text("从意图开始搜索", "Start with intent") },
-      { id: "read", title: text("读懂资源层级", "Read the resource hierarchy") },
-      { id: "playground", title: text("在 Playground 中预演", "Preview in the Playground") },
-      { id: "return", title: text("把验证结果带回代码", "Bring verified inputs back to code") }
+      { id: "search", title: text("先搜你想做的事", "Search for what you need") },
+      { id: "read", title: text("先看概览，再看接口", "Start with the overview") },
+      { id: "playground", title: text("先预览，再决定是否发送", "Preview before you send") },
+      { id: "return", title: text("把可用示例带回项目", "Take a working example back to your project") }
     ]
   },
   cli: {
@@ -86,8 +86,8 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     navTitle: text("统一 CLI", "Universal CLI"),
     title: text("一个 CLI，覆盖整个 API 目录。", "One CLI for the entire API catalog."),
     description: text(
-      "使用 pontx-hub 搜索、查看、预演和调用已收录 API，并以稳定 JSON 输出连接脚本与 Agent。",
-      "Use pontx-hub to search, inspect, preview, and call curated APIs, with stable JSON output for scripts and agents."
+      "使用 pontx-hub 搜索、查看、预演和调用已收录 API；需要编写脚本时，可以直接读取 JSON 输出。",
+      "Use pontx-hub to search, inspect, preview, and call curated APIs, with JSON output when you need to automate a task."
     ),
     eyebrow: text("CLI / @pontx/hub-cli", "CLI / @pontx/hub-cli"),
     keywords: text("CLI 命令行 list search show preview call sdk json 参数", "CLI command list search show preview call sdk json parameters"),
@@ -120,17 +120,17 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   "agent-skill": {
     slug: "agent-skill",
     navTitle: text("Agent Skill", "Agent Skill"),
-    title: text("让 Agent 遵循可执行、可审查的 API 工作流。", "Give agents an executable, reviewable API workflow."),
+    title: text("让 Agent 用一套清楚可靠的步骤来使用 API。", "Give your agent a clear, reliable way to work with APIs."),
     description: text(
-      "Pontx Hub Skill 规定 Agent 如何发现 API、检查契约、预演请求、获得授权、执行调用并生成类型安全的集成代码。",
-      "Pontx Hub Skill defines how agents discover APIs, inspect contracts, preview requests, obtain authorization, execute calls, and generate type-safe integration code."
+      "安装 Pontx Hub Skill 后，你可以让 Agent 帮你查找 API、核对参数、预览请求，并在得到确认后调用接口或准备集成代码。",
+      "After installing the Pontx Hub Skill, your agent can find APIs, check parameters, preview requests, and—once confirmed—call an Endpoint or prepare integration code."
     ),
     eyebrow: text("Agent / 通用 Skill", "Agent / universal Skill"),
     keywords: text("Agent Skill Codex 安装 工作流 安全", "Agent Skill Codex install workflow safety"),
     sections: [
       { id: "install", title: text("安装 Skill", "Install the Skill") },
-      { id: "workflow", title: text("Agent 工作流", "Agent workflow") },
-      { id: "context", title: text("按需加载是工作流收益", "On-demand loading is a workflow benefit") },
+      { id: "workflow", title: text("一次完整的使用过程", "A complete request") },
+      { id: "context", title: text("需要时再读取 API 资料", "Load API details when needed") },
       { id: "boundaries", title: text("不可绕过的边界", "Boundaries that cannot be bypassed") }
     ]
   },
