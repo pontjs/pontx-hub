@@ -31,6 +31,20 @@ describe("Pontx Agent presentation", () => {
     expect(source).toContain('usageUnavailable: "Pontx Agent 的运行服务尚未就绪。"');
   });
 
+  it("adapts the shared loading state into one compact Agent response row", async () => {
+    const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
+    const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");
+
+    expect(source).toContain('className="ai-assistant-working-status"');
+    expect(styles).toContain(".ai-assistant-working-status > div {");
+    expect(styles).toContain("flex-direction: row;");
+    expect(styles).toContain("padding-block: 0;");
+    expect(styles).toContain("flex: 0 0 14px;");
+    expect(styles).toContain(
+      ".ai-assistant-working-status > .space-y-3 > :not([hidden])"
+    );
+  });
+
   it("renders a transcript-style conversation instead of two labeled cards", async () => {
     const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
     const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");

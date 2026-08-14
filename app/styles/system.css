@@ -616,9 +616,35 @@ textarea {
   color: var(--ink-soft);
 }
 
-.ai-assistant-working > div {
+.ai-assistant-working-status {
+  min-width: 0;
   justify-content: flex-start;
+  padding-block: 0;
   font-size: 11px;
+}
+
+.ai-assistant-working-status > div {
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-assistant-working-status > div > div {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+
+.ai-assistant-working-status > div > span {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.ai-assistant-working-status > .space-y-3 > :not([hidden]) {
+  margin-block: 0 !important;
 }
 
 .ai-assistant-error {
