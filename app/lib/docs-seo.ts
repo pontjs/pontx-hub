@@ -8,30 +8,74 @@ export function docsMeta(locale: Locale, slug: DocSlug) {
   const localizedPath = docHref(locale, slug);
   const alternatePath = localizedPath.replace(/^\/(?:zh|en)/, "");
   const canonical = siteUrl(localizedPath);
-  const metaTitle = page.metaTitle?.[locale] ?? page.navTitle[locale];
-  const title = locale === "zh"
-    ? `${metaTitle} — Pontx Hub 文档`
-    : `${metaTitle} — Pontx Hub Docs`;
+  const metaTitle = page.metaTitle[locale];
+  const title = `${metaTitle} — Pontx Hub`;
   const description = page.description[locale];
-  const breadcrumbs = breadcrumbList(locale, [
-    { name: locale === "zh" ? "API 目录" : "API Catalog", path: "" },
-    { name: locale === "zh" ? "文档" : "Docs", path: "/docs" },
-    ...(slug === "overview" ? [] : [{ name: page.navTitle[locale], path: `/docs/${slug}` }])
-  ]);
+  const language = locale === "zh" ? "zh-CN" : "en";
+  const websiteId = siteUrl("/#website");
+  const organizationId = siteUrl("/#organization");
+  const webPageId = `${canonical}#webpage`;
+  const breadcrumbId = `${canonical}#breadcrumb`;
+  const articleId = `${canonical}#article`;
+  const docsIndexId = `${siteUrl(docHref(locale, "overview"))}#webpage`;
+  const breadcrumbs = {
+    "@id": breadcrumbId,
+    ...breadcrumbList(locale, [
+      { name: locale === "zh" ? "API 目录" : "API Catalog", path: "" },
+      { name: locale === "zh" ? "文档" : "Docs", path: "/docs" },
+      ...(slug === "overview"
+        ? []
+        : [{ name: page.navTitle[locale], path: `/docs/${slug}` }])
+    ])
+  };
   const pageSchema = slug === "overview"
     ? {
+        "@id": webPageId,
         "@type": "CollectionPage",
+        name: metaTitle,
         headline: page.title[locale],
+        description,
+        url: canonical,
+        inLanguage: language,
+        isPartOf: { "@id": websiteId },
+        publisher: { "@id": organizationId },
+        breadcrumb: { "@id": breadcrumbId },
+        isAccessibleForFree: true,
         hasPart: DOC_SLUGS.filter((item) => item !== "overview").map((item) => ({
+          "@id": `${siteUrl(docHref(locale, item))}#article`,
           "@type": "TechArticle",
           name: getDocPage(item).navTitle[locale],
-          url: siteUrl(docHref(locale, item))
+          url: siteUrl(docHref(locale, item)),
+          inLanguage: language
         }))
       }
     : {
-        "@type": "TechArticle",
-        headline: page.title[locale]
+        "@id": webPageId,
+        "@type": "WebPage",
+        name: metaTitle,
+        description,
+        url: canonical,
+        inLanguage: language,
+        isPartOf: { "@id": websiteId },
+        breadcrumb: { "@id": breadcrumbId },
+        isAccessibleForFree: true,
+        mainEntity: { "@id": articleId }
       };
+  const articleSchema = slug === "overview"
+    ? []
+    : [{
+        "@id": articleId,
+        "@type": "TechArticle",
+        name: metaTitle,
+        headline: page.title[locale],
+        description,
+        url: canonical,
+        inLanguage: language,
+        isPartOf: { "@id": docsIndexId },
+        mainEntityOfPage: { "@id": webPageId },
+        publisher: { "@id": organizationId },
+        isAccessibleForFree: true
+      }];
 
   return [
     { title },
@@ -50,20 +94,24 @@ export function docsMeta(locale: Locale, slug: DocSlug) {
       "script:ld+json": {
         "@context": "https://schema.org",
         "@graph": [
-          breadcrumbs,
           {
-            ...pageSchema,
-            name: metaTitle,
-            description,
-            url: canonical,
-            inLanguage: locale === "zh" ? "zh-CN" : "en",
-            isPartOf: {
-              "@type": "WebSite",
-              name: "Pontx Hub",
-              url: siteUrl(`/${locale}`)
-            },
-            breadcrumb: breadcrumbs
-          }
+            "@id": websiteId,
+            "@type": "WebSite",
+            name: "Pontx Hub",
+            alternateName: "Pontx API Hub",
+            url: siteUrl("/")
+          },
+          {
+            "@id": organizationId,
+            "@type": "Organization",
+            name: "Pontx",
+            url: siteUrl("/"),
+            logo: siteUrl("/pontx-logo.svg"),
+            sameAs: ["https://github.com/pontjs"]
+          },
+          breadcrumbs,
+          pageSchema,
+          ...articleSchema
         ]
       }
     }
