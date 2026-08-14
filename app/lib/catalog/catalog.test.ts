@@ -11,10 +11,14 @@ import { catalogApiSchema } from "./schema";
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect([
-      ["dida365", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"]
-    ]).toContainEqual(catalog.map((api) => api.slug));
+    expect(catalog.map((api) => api.slug)).toEqual(expect.arrayContaining([
+      "dida365",
+      "dropbox-sign",
+      "ecb-data-portal",
+      "frankfurter",
+      "frankfurter-v2",
+      "massive"
+    ]));
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
@@ -78,7 +82,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect([53, 126]).toContain(operations.length);
+    expect(operations).toHaveLength(134);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(
@@ -95,6 +99,19 @@ describe("curated catalog", () => {
       );
       expect(example?.completeness, api.slug).toBe("ready");
     }
+  });
+
+  it("preserves ECB's published SDK contract and direct-only execution policy", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "ecb-data-portal");
+    expect(api?.packageName).toBe("@pontx/ecb-data-portal");
+    expect(api?.sdkVersion).toBe("0.1.0");
+    expect(api?.proxyEnabled).toBe(false);
+    expect(api?.operations).toHaveLength(8);
+    expect(api?.schemas).toHaveLength(12);
+    expect(api?.quickStart).toEqual({
+      operationSlug: "get-data-by-series-key",
+      requestExampleId: "default"
+    });
   });
 
   it("returns summaries without operation payloads", () => {

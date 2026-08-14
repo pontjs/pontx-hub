@@ -50,6 +50,13 @@ describe("hubCliCommand", () => {
       .toThrow("API parameter --url conflicts with a Pontx Hub CLI option");
   });
 
+  it("escapes an OpenAPI version parameter without consuming the CLI version flag", () => {
+    expect(hubCliParameterArguments("version", "1.0")).toEqual([
+      "--path-version",
+      "1.0"
+    ]);
+  });
+
   it("generates named options without dropping false or zero values", () => {
     expect(hubCliSnippet("rates", {
       tag: "default",
