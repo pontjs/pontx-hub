@@ -232,6 +232,12 @@ session and CSRF protection; CORS is not enabled for this surface.
 
 - A signed-in live execution is recorded automatically after the provider
   returns, including non-2xx provider responses that are useful for retrying.
+- A signed-in Endpoint page shows its three most recent runs above the current
+  documentation and Playground. The complete account history remains one click
+  away.
+- “Retry / 重试” on the Endpoint page restores the sanitized inputs in place,
+  opens Playground, and synchronizes the generated SDK/CLI examples. It never
+  sends the provider request automatically; the user must review and execute it.
 - “Try again / 重新调试” restores the sanitized server, path, query, declared
   header, and body values into Playground `sessionStorage`, then opens the
   matching Endpoint.
@@ -293,6 +299,8 @@ sessions. Publish a concise privacy notice before production rollout.
 - [x] add the sanitized account history table and migration;
 - [x] record signed-in live executions without changing the public execution contract;
 - [x] add bilingual history navigation, replay, deletion, empty, and retired-target states;
+- [x] show current-Endpoint history inline with in-place replay and synchronized
+  Playground/SDK/CLI request state;
 - [x] cap retention at 100 entries and preserve session-only credential handling; and
 - [ ] verify authenticated persistence, replay, deletion, and cross-device behavior
   against the configured production database and GitHub OAuth application.

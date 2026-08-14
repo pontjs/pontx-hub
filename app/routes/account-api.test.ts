@@ -85,6 +85,33 @@ describe("private account API", () => {
     await expect(response.json()).resolves.toEqual({ error: { code: "not_found" } });
   });
 
+  it("requires both Endpoint filters for an inline history query", async () => {
+    readyEnvironment();
+    const response = await loader({
+      request: new Request(
+        "https://pontx.example.com/api/account/v1/playground/history?apiSlug=dida365"
+      )
+    } as never);
+    expect(response.status).toBe(422);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: "invalid_history_filter" }
+    });
+  });
+
+  it("rejects an unknown Endpoint history filter before reading the session", async () => {
+    readyEnvironment();
+    const response = await loader({
+      request: new Request(
+        "https://pontx.example.com/api/account/v1/playground/history" +
+          "?apiSlug=dida365&operationSlug=not-in-catalog"
+      )
+    } as never);
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({
+      error: { code: "unknown_endpoint" }
+    });
+  });
+
   it("disables shared response caching when personalized account data is enabled", () => {
     readyEnvironment();
     expect(apiDetailHeaders()).toEqual({ "Cache-Control": "private, no-store" });

@@ -30,7 +30,12 @@ import type {
 import { localize } from "~/lib/catalog/types";
 import { installPlaygroundSessionStorageBridge } from "~/lib/playground/session-storage";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
+import { storedConfigForPlaygroundHistory } from "~/lib/playground/history-replay";
 import { DocumentationEvidence, OperationSeoContent } from "~/components/operation-seo-content";
+import {
+  EndpointPlaygroundHistory,
+  type EndpointPlaygroundHistoryEntry
+} from "~/components/endpoint-playground-history";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
 import { RequestExampleNotice } from "~/components/request-example-notice";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
@@ -593,12 +598,16 @@ export function PontxApiWorkspace({
   api,
   operation,
   initialFavorite = false,
+  playgroundHistoryEnabled = false,
+  initialPlaygroundHistory = [],
   variant = "reference"
 }: {
   locale: Locale;
   api: CatalogApi;
   operation: CatalogOperation;
   initialFavorite?: boolean;
+  playgroundHistoryEnabled?: boolean;
+  initialPlaygroundHistory?: EndpointPlaygroundHistoryEntry[];
   variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
@@ -615,6 +624,8 @@ export function PontxApiWorkspace({
     preferredRequestExample?.id
   );
   const [playgroundRevision, setPlaygroundRevision] = useState(0);
+  const [historyRefreshVersion, setHistoryRefreshVersion] = useState(0);
+  const [historyReplayVersion, setHistoryReplayVersion] = useState(0);
   const [preparedRequestExampleKey, setPreparedRequestExampleKey] = useState<string>();
   useEffect(() => {
     setSelectedRequestExampleId(preferredRequestExample?.id);
@@ -760,6 +771,61 @@ export function PontxApiWorkspace({
     setExecutionResult(undefined);
     setPlaygroundRevision((revision) => revision + 1);
   }, [activeOperation, api.servers, api.slug, operationServers]);
+
+  const replayPlaygroundHistory = useCallback(
+    (entry: EndpointPlaygroundHistoryEntry) => {
+      const server = operationServers.find(
+        (candidate) => candidate.id === entry.serverId
+      );
+      if (!server) throw new Error("history_server_unavailable");
+      const configKey =
+        `playground:${activeOperation.method}:${activeOperation.path}:params`;
+      let auth: unknown;
+      try {
+        const previous = JSON.parse(
+          window.sessionStorage.getItem(configKey) ?? "{}"
+        ) as { auth?: unknown };
+        auth = previous.auth;
+      } catch {
+        auth = undefined;
+      }
+      window.sessionStorage.setItem(
+        configKey,
+        JSON.stringify(
+          storedConfigForPlaygroundHistory(
+            {
+              serverUrl: server.url,
+              pathValues: entry.pathValues,
+              queryValues: entry.queryValues,
+              headerValues: entry.headerValues,
+              requestBody: entry.requestBody,
+              hasRequestBody: entry.hasRequestBody
+            },
+            auth ? { auth } : undefined
+          )
+        )
+      );
+      window.sessionStorage.setItem(
+        `playground:spec:${api.slug}:baseUrl`,
+        server.url
+      );
+      setExecutionResult(undefined);
+      setIsPlaygroundOpen(true);
+      setPlaygroundRevision((revision) => revision + 1);
+      setHistoryReplayVersion((version) => version + 1);
+    },
+    [activeOperation.method, activeOperation.path, api.slug, operationServers]
+  );
+
+  useEffect(() => {
+    if (!historyReplayVersion) return;
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .querySelector('[data-testid="playground-panel"]')
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [historyReplayVersion, playgroundRevision]);
 
   const saveOAuthToken = useCallback((token: OAuthTokenSet) => {
     setOAuthToken(token);
@@ -970,6 +1036,7 @@ export function PontxApiWorkspace({
           body: result.body,
           duration: result.durationMs
         });
+        setHistoryRefreshVersion((version) => version + 1);
       } catch (error) {
         setExecutionResult({
           status: 500,
@@ -1166,27 +1233,40 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
-            {!guided || !playgroundAvailability.executionEnabled ? (
-              <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
-            ) : null}
-            {requestExample ? (
-              <RequestExampleNotice
-                locale={locale}
-                api={api}
-                operation={activeOperation}
-                example={requestExample}
-                selectedId={requestExample.id}
-                previewOnly={!playgroundAvailability.executionEnabled}
-                onSelect={applyRequestExample}
-                onReset={() => applyRequestExample(requestExample.id)}
-              />
-            ) : null}
-            <ApiDocumentation
+              {!guided && playgroundHistoryEnabled ? (
+                <EndpointPlaygroundHistory
+                  locale={locale}
+                  apiSlug={api.slug}
+                  operationSlug={activeOperation.slug}
+                  availableServerIds={operationServers.map((server) => server.id)}
+                  initialEntries={initialPlaygroundHistory}
+                  refreshVersion={historyRefreshVersion}
+                  onReplay={replayPlaygroundHistory}
+                />
+              ) : null}
+              {!guided || !playgroundAvailability.executionEnabled ? (
+                <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
+              ) : null}
+              {requestExample ? (
+                <RequestExampleNotice
+                  locale={locale}
+                  api={api}
+                  operation={activeOperation}
+                  example={requestExample}
+                  selectedId={requestExample.id}
+                  previewOnly={!playgroundAvailability.executionEnabled}
+                  onSelect={applyRequestExample}
+                  onReset={() => applyRequestExample(requestExample.id)}
+                />
+              ) : null}
+              <ApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={playgroundApi}
               enablePlayground={playgroundAvailable}
-              defaultPlaygroundVisible={guided && playgroundAvailable}
+              defaultPlaygroundVisible={
+                playgroundAvailable && (guided || isPlaygroundOpen)
+              }
               specName={api.slug}
               servers={operationServers.map((server) => ({
                 url: server.url,
@@ -1214,7 +1294,7 @@ export function PontxApiWorkspace({
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
               className={`pontx-documentation${guided && playgroundAvailable ? " pontx-documentation-guided" : ""}`}
-            />
+              />
             </>
           ) : (
             guided ? (

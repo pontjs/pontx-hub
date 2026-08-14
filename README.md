@@ -26,7 +26,10 @@ search, SDK, and Playground routes do not require an account or database.
 When enabled, signed-in users can synchronize Endpoint favorites and retain their
 latest 100 Playground executions for parameter replay. History excludes auth
 objects, provider responses, and detected credential fields; API keys, OAuth
-tokens, and passwords remain browser-session-only.
+tokens, and passwords remain browser-session-only. An Endpoint page shows its
+three most recent runs; retrying restores the sanitized inputs into Playground
+and synchronizes the generated SDK/CLI examples without automatically sending
+another provider request.
 
 To enable GitHub sign-in in a configured environment, set:
 
