@@ -54,10 +54,10 @@ const copy = {
     suggestions: [
       ["查找 API", "帮我查找一个汇率 API，并说明应该使用哪个接口。"],
       ["了解鉴权", "滴答清单 API 应该如何完成 OAuth 鉴权？"],
-      ["生成 SDK", "为 Frankfurter 最新汇率接口生成 TypeScript SDK 代码。"],
+      ["生成 SDK", "为 Frankfurter 最新汇率接口生成 SDK 调用代码。"],
       ["查看费用", "Massive API 的调用费用和免费额度是什么？"]
     ],
-    placeholder: "描述目标，例如：查找汇率 API 并生成 TypeScript 调用代码",
+    placeholder: "描述目标，例如：查找汇率 API 并生成 SDK 调用代码",
     inputLabel: "给 Pontx API 助手发送消息",
     send: "发送",
     stop: "停止",
@@ -91,10 +91,10 @@ const copy = {
     suggestions: [
       ["Find an API", "Find an exchange-rate API and recommend the right endpoint."],
       ["Understand auth", "How do I complete OAuth authentication for the Dida365 API?"],
-      ["Generate SDK", "Generate TypeScript SDK code for the latest Frankfurter rates endpoint."],
+      ["Generate SDK", "Generate SDK integration code for the latest Frankfurter rates endpoint."],
       ["Check pricing", "What are the pricing and free-tier details for the Massive API?"]
     ],
-    placeholder: "Describe a goal, such as finding an exchange-rate API and generating TypeScript code",
+    placeholder: "Describe a goal, such as finding an exchange-rate API and generating SDK code",
     inputLabel: "Send a message to the Pontx API assistant",
     send: "Send",
     stop: "Stop",

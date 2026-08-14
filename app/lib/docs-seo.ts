@@ -8,9 +8,10 @@ export function docsMeta(locale: Locale, slug: DocSlug) {
   const localizedPath = docHref(locale, slug);
   const alternatePath = localizedPath.replace(/^\/(?:zh|en)/, "");
   const canonical = siteUrl(localizedPath);
+  const metaTitle = page.metaTitle?.[locale] ?? page.navTitle[locale];
   const title = locale === "zh"
-    ? `${page.navTitle.zh} — Pontx Hub 文档`
-    : `${page.navTitle.en} — Pontx Hub Docs`;
+    ? `${metaTitle} — Pontx Hub 文档`
+    : `${metaTitle} — Pontx Hub Docs`;
   const description = page.description[locale];
   const breadcrumbs = breadcrumbList(locale, [
     { name: locale === "zh" ? "API 目录" : "API Catalog", path: "" },
@@ -52,7 +53,7 @@ export function docsMeta(locale: Locale, slug: DocSlug) {
           breadcrumbs,
           {
             ...pageSchema,
-            name: page.navTitle[locale],
+            name: metaTitle,
             description,
             url: canonical,
             inLanguage: locale === "zh" ? "zh-CN" : "en",

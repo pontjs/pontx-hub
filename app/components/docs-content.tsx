@@ -182,7 +182,7 @@ function Overview({ locale }: { locale: Locale }) {
     },
     {
       number: "03",
-      title: zh ? "统一 SDK" : "Unified SDKs",
+      title: "SDK",
       description: zh ? "把验证过的请求变成类型安全的生产代码。" : "Turn a verified request into type-safe production code.",
       href: docHref(locale, "sdk"),
       tag: "@pontx/<api>"
@@ -268,7 +268,7 @@ pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD`
             },
             {
               id: "overview-sdk",
-              label: "TypeScript SDK",
+              label: "SDK",
               language: "typescript",
               code: `import currencyExchangeClient from "@pontx/frankfurter";
 
@@ -353,7 +353,7 @@ function WebGuide({ locale }: { locale: Locale }) {
       <DocSection id="playground" marker="03" title={zh ? "在 Playground 中预演" : "Preview in the Playground"} lead={zh ? "接口文档、参数表单和输出视图共用同一个请求状态。" : "Endpoint docs, parameter inputs, and output views share one request state."}>
         <ol className="docs-steps">
           <li><span>1</span><div><strong>{zh ? "选择已验证示例" : "Select a verified example"}</strong><p>{zh ? "就绪示例会填充稳定输入；动态 ID 会明确标出来源或要求你输入。" : "Ready examples prefill stable inputs; dynamic IDs show their source or ask for input."}</p></div></li>
-          <li><span>2</span><div><strong>{zh ? "检查请求预览" : "Inspect the request preview"}</strong><p>{zh ? "切换 cURL、TypeScript SDK 与 CLI 视图时，请求参数保持同步。" : "cURL, TypeScript SDK, and CLI views stay synchronized with the same inputs."}</p></div></li>
+          <li><span>2</span><div><strong>{zh ? "检查请求预览" : "Inspect the request preview"}</strong><p>{zh ? "切换 cURL、SDK 与 CLI 视图时，请求参数保持同步。" : "cURL, SDK, and CLI views stay synchronized with the same inputs."}</p></div></li>
           <li><span>3</span><div><strong>{zh ? "按需执行" : "Execute only when needed"}</strong><p>{zh ? "供应商凭证只留在当前浏览器会话；不支持代理的 API 仍可预演和生成代码。" : "Provider credentials stay in the browser session; non-proxied APIs can still preview and generate code."}</p></div></li>
         </ol>
         <Callout tone="safe" title={zh ? "凭证不会进入账户历史" : "Credentials never enter account history"}>

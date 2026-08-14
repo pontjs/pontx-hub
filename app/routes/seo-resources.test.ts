@@ -33,6 +33,8 @@ describe("SEO resource routes", () => {
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
     expect(body).toContain("https://pontx.dev/.well-known/skills/index.json");
     expect(body).toContain("https://pontx.dev/openapi.json");
+    expect(body).toContain("Published SDK for");
+    expect(body).not.toContain("Published TypeScript and Node.js SDK");
     expect(body).not.toContain("pontx-hub.vercel.app");
   });
 
