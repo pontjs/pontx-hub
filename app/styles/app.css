@@ -3034,10 +3034,15 @@ samp,
   align-items: center;
   margin-top: auto;
   border-top: 1px solid var(--line);
-  padding: 20px clamp(18px, 3vw, 40px);
+  padding: 12px clamp(18px, 3vw, 40px);
   background: #fff;
   color: var(--ink);
   gap: 20px;
+}
+
+.site-footer > div {
+  display: flex;
+  align-items: center;
 }
 
 .site-footer p,
@@ -3400,7 +3405,8 @@ samp,
 
   .site-footer {
     grid-template-columns: 1fr;
-    padding-inline: 20px;
+    gap: 8px;
+    padding: 12px 20px;
   }
 
   .site-footer > span {
