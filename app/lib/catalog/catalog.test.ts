@@ -58,6 +58,25 @@ describe("curated catalog", () => {
     }).success).toBe(false);
   });
 
+  it("accepts an explicit root-level SDK controller mapping", () => {
+    const api = listCatalog().find(
+      (candidate) => candidate.slug === "frankfurter-v2"
+    );
+    const flatContract = {
+      ...api?.sdkContract,
+      controllers: { ...api?.sdkContract?.controllers, default: null }
+    };
+
+    expect(catalogApiSchema.safeParse({
+      ...api,
+      sdkContract: flatContract
+    }).success).toBe(true);
+    expect(catalogApiSchema.safeParse({
+      ...api,
+      sdkContract: { ...flatContract, controllers: {} }
+    }).success).toBe(false);
+  });
+
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);

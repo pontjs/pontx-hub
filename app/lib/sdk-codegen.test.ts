@@ -53,6 +53,27 @@ const result = await ratesClient.common.getRate(
 );`);
   });
 
+  it("generates a root-level method when the SDK has no controller", () => {
+    const flatApi = api({
+      kind: "named",
+      identifier: "frankfurterV2Client"
+    });
+    flatApi.sdkContract = {
+      ...flatApi.sdkContract!,
+      controllers: { default: null }
+    };
+
+    const code = generateSdkSnippet(flatApi, operation, {
+      path: { base: "EUR", quote: "USD" },
+      query: {},
+      headers: {}
+    });
+
+    expect(supportsSdkOperation(flatApi, operation)).toBe(true);
+    expect(code).toContain("frankfurterV2Client.getRate(");
+    expect(code).not.toContain("frankfurterV2Client.common");
+  });
+
   it("generates named client imports for CommonJS-compatible packages", () => {
     const code = generateSdkSnippet(api({
       kind: "named",
