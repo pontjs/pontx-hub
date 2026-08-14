@@ -47,7 +47,7 @@ const copy = {
   zh: {
     label: "AI 助手",
     title: "Pontx API 助手",
-    subtitle: "基于已审核的 API 目录，检索、生成代码并安全调用",
+    subtitle: "基于 Pontx API 目录，检索、生成代码并安全调用",
     close: "关闭 AI 助手",
     emptyTitle: "从 API 目录开始",
     empty: "描述你想实现的能力，我会定位对应接口，说明鉴权与费用，并生成可执行的统一 SDK 或 CLI 代码。",
@@ -61,7 +61,7 @@ const copy = {
     inputLabel: "给 Pontx API 助手发送消息",
     send: "发送",
     stop: "停止",
-    working: "正在检索已审核的 Pontx API 资料…",
+    working: "正在检索 Pontx API 资料…",
     signIn: "登录后使用 AI 助手",
     limit: "今日额度已用完，请明天再试。",
     unavailable: "AI 助手暂时不可用。",
@@ -76,7 +76,7 @@ const copy = {
     response: "响应结果",
     clear: "新建会话",
     live: "已连接",
-    catalog: "已审核目录",
+    catalog: "Pontx API Hub",
     you: "你",
     agent: "Pontx",
     composerHint: "Enter 发送 · Shift + Enter 换行"
@@ -84,7 +84,7 @@ const copy = {
   en: {
     label: "AI Assistant",
     title: "Pontx API Assistant",
-    subtitle: "Search reviewed APIs, generate code, and execute safely",
+    subtitle: "Search the Pontx API catalog, generate code, and execute safely",
     close: "Close AI assistant",
     emptyTitle: "Start with the API catalog",
     empty: "Describe what you want to build. I’ll identify the endpoint, explain auth and pricing, and generate executable Unified SDK or CLI code.",
@@ -98,7 +98,7 @@ const copy = {
     inputLabel: "Send a message to the Pontx API assistant",
     send: "Send",
     stop: "Stop",
-    working: "Searching reviewed Pontx API resources…",
+    working: "Searching Pontx API resources…",
     signIn: "Sign in to use the AI assistant",
     limit: "Today's message allowance is exhausted. Try again tomorrow.",
     unavailable: "The AI assistant is currently unavailable.",
@@ -113,7 +113,7 @@ const copy = {
     response: "Response",
     clear: "New session",
     live: "Connected",
-    catalog: "Reviewed catalog",
+    catalog: "Pontx API Hub",
     you: "You",
     agent: "Pontx",
     composerHint: "Enter to send · Shift + Enter for a new line"
