@@ -20,8 +20,8 @@ export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "SDK not found — Pontx Hub" }];
   const title = `${data.api.packageName} — TypeScript SDK`;
   const description = data.locale === "zh"
-    ? `${localize(data.api.title, data.locale)} 的 TypeScript 与 Node.js SDK 集成说明。`
-    : `Install and use the operator-maintained TypeScript and Node.js SDK for ${data.api.name}.`;
+    ? `${localize(data.api.title, data.locale)} 的 TypeScript SDK 集成说明，支持 Node.js。`
+    : `Install and use the operator-maintained TypeScript SDK for ${data.api.name} on Node.js.`;
   const canonical = siteUrl(`/${data.locale}/sdks/${data.api.slug}`);
   return [
     { title },
@@ -122,7 +122,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
       <ResourceNavigation locale={locale} api={api} active="sdk" />
       <main className="detail-page sdk-page">
         <header className="detail-hero">
-          <p className="eyebrow">TypeScript / Node.js SDK</p>
+          <p className="eyebrow">TypeScript SDK</p>
           <h1>{api.packageName}</h1>
           <p>
             {zh

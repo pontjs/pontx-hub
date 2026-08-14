@@ -1,8 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
-import { sdkOperationCoverage, sdkUsageExamples } from "./sdk-detail";
+import { meta, sdkOperationCoverage, sdkUsageExamples } from "./sdk-detail";
 
 describe("SDK usage examples", () => {
+  it("exposes TypeScript only on the current SDK detail page", () => {
+    const api = getCatalogApi("frankfurter");
+    expect(api).toBeDefined();
+
+    const descriptors = meta({ data: { locale: "en", api } } as never);
+    expect(descriptors).toContainEqual({
+      title: `${api!.packageName} — TypeScript SDK`
+    });
+    expect(descriptors).toContainEqual({
+      name: "description",
+      content: expect.stringContaining("TypeScript SDK")
+    });
+    expect(JSON.stringify(descriptors)).not.toContain("TypeScript and Node.js SDK");
+  });
+
   it("renders the published Frankfurter v2 client and dedicated CLI contract", () => {
     const api = getCatalogApi("frankfurter-v2");
     expect(api).toBeDefined();

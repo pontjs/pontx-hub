@@ -518,7 +518,7 @@ type Execution = {
 
 const codeGenScenarios: CodeGenScenario[] = [
   { id: "curl", label: "cURL", language: "shell" },
-  { id: "typescript-sdk", label: "TypeScript SDK", language: "typescript" },
+  { id: "typescript-sdk", label: "SDK", language: "typescript" },
   { id: "hub-cli", label: "Pontx Hub CLI", language: "shell" }
 ];
 

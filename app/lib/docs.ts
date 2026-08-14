@@ -17,6 +17,7 @@ type LocalizedText = Record<Locale, string>;
 export type DocPageDefinition = {
   slug: DocSlug;
   navTitle: LocalizedText;
+  metaTitle?: LocalizedText;
   title: LocalizedText;
   description: LocalizedText;
   eyebrow: LocalizedText;
@@ -35,8 +36,8 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     navTitle: text("文档首页", "Documentation home"),
     title: text("一套 Skill，把 API 意图变成可靠集成。", "One Skill turns API intent into a reliable integration."),
     description: text(
-      "从 Agent Skill 开始，以统一 CLI 执行可审查的工作流，用统一 TypeScript SDK 进入生产代码；网站提供同一模型的可视化入口。",
-      "Start with the Agent Skill, execute its reviewable workflow through the universal CLI, move into production with unified TypeScript SDKs, and use the website as a visual interface to the same model."
+      "从 Agent Skill 开始，以统一 CLI 执行可审查的工作流，用 SDK 进入生产代码；网站提供同一模型的可视化入口。",
+      "Start with the Agent Skill, execute its reviewable workflow through the universal CLI, move into production with an SDK, and use the website as a visual interface to the same model."
     ),
     eyebrow: text("Pontx Hub 文档", "Pontx Hub documentation"),
     keywords: text("首页 概览 API 接口 数据结构 工作流", "home overview API endpoint schema workflow"),
@@ -100,13 +101,14 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   },
   sdk: {
     slug: "sdk",
-    navTitle: text("统一 SDK", "Unified SDKs"),
-    title: text("统一的 SDK 命名、类型与调用方式。", "Consistent SDK naming, types, and calls."),
+    navTitle: text("SDK", "SDK"),
+    metaTitle: text("TypeScript SDK", "TypeScript SDK"),
+    title: text("TypeScript SDK：统一的命名、类型与调用方式。", "TypeScript SDK: consistent naming, types, and calls."),
     description: text(
-      "每个 API 使用 @pontx/<api-slug> 包名、生成类型与独立 CLI，让发现、验证和生产集成保持一致。",
-      "Each API uses an @pontx/<api-slug> package, generated types, and a dedicated CLI so discovery, verification, and production integration stay aligned."
+      "当前 Pontx SDK 以 TypeScript 发布；每个 API 使用 @pontx/<api-slug> 包名、生成类型与独立 CLI。",
+      "Pontx SDKs currently ship for TypeScript; each API uses an @pontx/<api-slug> package, generated types, and a dedicated CLI."
     ),
-    eyebrow: text("SDK / TypeScript + Node.js", "SDK / TypeScript + Node.js"),
+    eyebrow: text("SDK / 当前语言：TypeScript", "SDK / Current language: TypeScript"),
     keywords: text("SDK TypeScript Node ESM CommonJS 类型 包名 独立 CLI", "SDK TypeScript Node ESM CommonJS types package dedicated CLI"),
     sections: [
       { id: "contract", title: text("统一包契约", "The shared package contract") },

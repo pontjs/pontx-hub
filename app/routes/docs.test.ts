@@ -37,7 +37,7 @@ describe("localized documentation", () => {
     const html = renderDocs("/zh/docs/sdk");
 
     expect(html.match(/<h1/g)).toHaveLength(1);
-    expect(html).toContain("统一的 SDK 命名、类型与调用方式");
+    expect(html).toContain("TypeScript SDK：统一的命名、类型与调用方式");
     expect(html).toContain('id="client-shapes"');
     expect(html).toContain("@pontx/frankfurter");
     expect(html).toContain("createMassiveClient");
@@ -53,6 +53,8 @@ describe("localized documentation", () => {
     const web = html.indexOf("用可视化界面浏览同一份 API");
 
     expect(html).toContain("一套 Skill，把 API 意图变成可靠集成");
+    expect(html).not.toContain("TypeScript SDK");
+    expect(html).not.toContain("统一 SDK");
     expect(skill).toBeGreaterThan(-1);
     expect(skill).toBeLessThan(cli);
     expect(cli).toBeLessThan(sdk);
@@ -87,6 +89,10 @@ describe("localized documentation", () => {
     const index = docsMeta("zh", "overview") as Descriptor[];
     expect(JSON.stringify(index)).toContain("CollectionPage");
     expect(JSON.stringify(index)).toContain("/zh/docs/quick-start");
+
+    const sdk = docsMeta("en", "sdk") as Descriptor[];
+    expect(sdk).toContainEqual({ title: "TypeScript SDK — Pontx Hub Docs" });
+    expect(JSON.stringify(sdk)).toContain('"name":"TypeScript SDK"');
   });
 
   it("documents named request options without advertising removed -p compatibility", () => {
