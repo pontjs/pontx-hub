@@ -34,6 +34,8 @@ function expectLocalizedPublicMeta(meta: Descriptor[], canonical: string) {
 describe("public route SEO metadata", () => {
   const api = getCatalogApi("dida365");
   if (!api) throw new Error("Expected synchronized Dida365 metadata");
+  const plannedApi = getCatalogApi("frankfurter-v2");
+  if (!plannedApi) throw new Error("Expected synchronized Frankfurter v2 metadata");
 
   it("publishes the Pontx brand graph and search ownership meta tags", () => {
     const catalogDescriptors = descriptors(catalogMeta({
@@ -87,10 +89,12 @@ describe("public route SEO metadata", () => {
     );
     expect(JSON.stringify(skillDescriptors)).toContain("SoftwareApplication");
 
-    const sdkDescriptors = descriptors(sdkMeta({ data: { locale: "en", api } } as never));
+    const sdkDescriptors = descriptors(sdkMeta({
+      data: { locale: "en", api: plannedApi }
+    } as never));
     expectLocalizedPublicMeta(
       sdkDescriptors,
-      `https://pontx.dev/en/sdks/${api.slug}`
+      `https://pontx.dev/en/sdks/${plannedApi.slug}`
     );
     expect(sdkDescriptors).toContainEqual({ name: "robots", content: "noindex,follow" });
     expect(JSON.stringify(sdkDescriptors)).not.toContain("SoftwareApplication");

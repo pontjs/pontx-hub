@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loader as robotsLoader } from "./robots";
 import { loader as sitemapLoader } from "./sitemap";
 import { readFile } from "node:fs/promises";
+import { listCatalog } from "~/lib/catalog/catalog.server";
 
 describe("SEO resource routes", () => {
   it("serves robots.txt as a plain-text resource", async () => {
@@ -28,14 +29,24 @@ describe("SEO resource routes", () => {
     expect(body).toContain('hreflang="zh-CN"');
     expect(body).toContain('hreflang="en"');
     expect(body).toContain('hreflang="x-default"');
-    expect(body).toContain("<lastmod>2026-08-10</lastmod>");
+    const catalog = listCatalog();
+    const datedApi = catalog.find((api) => api.contentUpdatedAt);
+    if (datedApi?.contentUpdatedAt) {
+      expect(body).toContain(`<lastmod>${datedApi.contentUpdatedAt}</lastmod>`);
+    }
     expect(body).not.toContain("<priority>");
     expect(body).not.toContain("<changefreq>");
-    expect(body).not.toContain("/sdks/dida365");
+    for (const api of catalog.filter((item) => item.sdkStatus === "planned")) {
+      expect(body).not.toContain(`/sdks/${api.slug}`);
+    }
     expect(body).not.toContain("/account/");
     expect(body).not.toContain("/sign-in");
     expect(body).not.toContain("<!DOCTYPE html>");
-    expect(body.match(/<url>/g)).toHaveLength(360);
+    const expectedPerLocale = 2 + catalog.reduce(
+      (count, api) => count + 1 + api.operations.length + api.schemas.length + (api.sdkStatus === "published" ? 1 : 0),
+      0
+    );
+    expect(body.match(/<url>/g)).toHaveLength(expectedPerLocale * 2);
   });
 
   it("permanently redirects alternate hosts without an intermediate hop", async () => {
