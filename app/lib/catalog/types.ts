@@ -190,6 +190,21 @@ export type OAuthFlow = {
   scopes: Record<string, string>;
 };
 
+export type SdkQualityEvidence = {
+  testedVersion: string;
+  unitTests: {
+    passed: number;
+    total: number;
+    skipped: number;
+  };
+  e2eStatus: "passed" | "failed";
+  nodeVersions: string[];
+  sourceCommit: string;
+  testedAt: string;
+  repositoryUrl: string;
+  workflowRunUrl: string;
+};
+
 export type CatalogApi = {
   slug: string;
   name: string;
@@ -206,6 +221,7 @@ export type CatalogApi = {
   packageName: string;
   sdkVersion: string;
   sdkStatus: "planned" | "published";
+  sdkQuality?: SdkQualityEvidence;
   contentUpdatedAt?: string;
   cliName?: string;
   sdkExamples?: {

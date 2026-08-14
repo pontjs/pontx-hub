@@ -1354,6 +1354,56 @@ samp,
   font-size: 10px;
 }
 
+.sdk-quality-panel {
+  display: grid;
+  align-items: start;
+  border: 1px solid var(--line);
+  padding: 18px;
+  background: #fff;
+  gap: 18px;
+}
+
+.sdk-quality-badge-link {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.sdk-quality-badge-link img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 20px;
+}
+
+.sdk-quality-evidence {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.sdk-quality-evidence div {
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
+}
+
+.sdk-quality-evidence dt {
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sdk-quality-evidence dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
 .reference-layout {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);

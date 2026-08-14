@@ -6,6 +6,7 @@ export default [
   route("sitemap.xml", "routes/sitemap.ts"),
   route("llms.txt", "routes/llms.ts"),
   route("openapi.json", "routes/openapi.ts"),
+  route("badges/sdk/*", "routes/sdk-quality-badge.ts"),
   route(".well-known/skills/*", "routes/skill-discovery.ts"),
   route("api/v1/*", "routes/api.ts"),
   route("api/v2/*", "routes/api-v2.ts"),

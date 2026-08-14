@@ -93,6 +93,17 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const codeBlockCopy = zh ? "复制" : "Copy";
   const codeBlockCopied = zh ? "已复制" : "Copied";
   const codeBlockCopyFailed = zh ? "复制失败" : "Copy failed";
+  const quality = api.sdkQuality;
+  const unitPassRate = quality
+    ? Math.round((quality.unitTests.passed / quality.unitTests.total) * 100)
+    : 0;
+  const qualityPassing = Boolean(
+    quality &&
+    unitPassRate === 100 &&
+    quality.unitTests.passed === quality.unitTests.total &&
+    quality.unitTests.skipped === 0 &&
+    quality.e2eStatus === "passed"
+  );
 
   return (
     <SiteShell locale={locale}>
@@ -130,6 +141,56 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
             <span>TypeScript declarations</span>
           </div>
         </header>
+        {quality ? (
+          <section className="section sdk-quality-section" id="quality">
+            <div className="section-heading">
+              <h2>{zh ? "SDK 质量门禁" : "SDK quality gate"}</h2>
+              <p>
+                {zh
+                  ? qualityPassing
+                    ? `v${quality.testedVersion} 对应源码已在 Node.js ${quality.nodeVersions.join(" / ")} 完成 100% UT 通过率与构建产物 E2E。`
+                    : `v${quality.testedVersion} 的最近一次质量门禁未全部通过，请查看 CI 证据。`
+                  : qualityPassing
+                    ? `The source for v${quality.testedVersion} passed its complete unit suite and built-package E2E on Node.js ${quality.nodeVersions.join(" / ")}.`
+                    : `The latest quality gate for v${quality.testedVersion} is not fully passing; inspect the CI evidence.`}
+              </p>
+            </div>
+            <div className="sdk-quality-panel">
+              <a
+                className="sdk-quality-badge-link"
+                href={quality.workflowRunUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={zh ? "查看 SDK 质量 CI 证据" : "Open SDK quality CI evidence"}
+              >
+                <img
+                  src={`/badges/sdk/${api.slug}.svg`}
+                  alt={`SDK quality: UT ${unitPassRate}%, E2E ${quality.e2eStatus}`}
+                  width="220"
+                  height="20"
+                />
+              </a>
+              <dl className="sdk-quality-evidence">
+                <div>
+                  <dt>{zh ? "单元测试" : "Unit tests"}</dt>
+                  <dd>{quality.unitTests.passed}/{quality.unitTests.total} · {unitPassRate}%</dd>
+                </div>
+                <div>
+                  <dt>E2E</dt>
+                  <dd>{quality.e2eStatus === "passed" ? (zh ? "通过" : "Passed") : (zh ? "失败" : "Failed")}</dd>
+                </div>
+                <div>
+                  <dt>{zh ? "测试提交" : "Tested commit"}</dt>
+                  <dd><code>{quality.sourceCommit.slice(0, 7)}</code></dd>
+                </div>
+                <div>
+                  <dt>{zh ? "验证日期" : "Verified"}</dt>
+                  <dd>{quality.testedAt}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+        ) : null}
         <section className="section">
           <div className="section-heading">
             <h2>{zh ? "安装并调用" : "Install and call"}</h2>

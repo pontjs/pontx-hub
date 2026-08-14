@@ -266,6 +266,22 @@ export const catalogApiSchema = z
       .regex(/^@pontx\/[a-z0-9]+(?:-[a-z0-9]+)*$/),
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
     sdkStatus: z.enum(["planned", "published"]).default("published"),
+    sdkQuality: z
+      .object({
+        testedVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+        unitTests: z.object({
+          passed: z.number().int().nonnegative(),
+          total: z.number().int().positive(),
+          skipped: z.number().int().nonnegative()
+        }),
+        e2eStatus: z.enum(["passed", "failed"]),
+        nodeVersions: z.array(z.string().regex(/^\d+$/)).min(1),
+        sourceCommit: z.string().regex(/^[a-f0-9]{40}$/),
+        testedAt: z.string().date(),
+        repositoryUrl: httpsUrlSchema,
+        workflowRunUrl: httpsUrlSchema
+      })
+      .optional(),
     contentUpdatedAt: z.string().date().optional(),
     cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),
     sdkExamples: z
@@ -291,6 +307,41 @@ export const catalogApiSchema = z
     schemas: z.array(catalogSchemaSchema).default([])
   })
   .superRefine((api, context) => {
+    if (api.sdkQuality) {
+      if (api.sdkQuality.testedVersion !== api.sdkVersion) {
+        context.addIssue({
+          code: "custom",
+          path: ["sdkQuality", "testedVersion"],
+          message: "SDK quality evidence must match sdkVersion"
+        });
+      }
+      if (
+        api.sdkQuality.unitTests.passed + api.sdkQuality.unitTests.skipped >
+        api.sdkQuality.unitTests.total
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["sdkQuality", "unitTests"],
+          message: "Passed and skipped unit tests cannot exceed the total"
+        });
+      }
+      const repositoryUrl = new URL(api.sdkQuality.repositoryUrl);
+      const workflowRunUrl = new URL(api.sdkQuality.workflowRunUrl);
+      if (
+        repositoryUrl.hostname !== "github.com" ||
+        workflowRunUrl.origin !== repositoryUrl.origin ||
+        !workflowRunUrl.pathname.startsWith(
+          `${repositoryUrl.pathname}/actions/runs/`
+        )
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["sdkQuality", "workflowRunUrl"],
+          message: "SDK quality workflow must belong to its GitHub repository"
+        });
+      }
+    }
+
     const operationSlugs = new Set<string>();
     const operationIds = new Set<string>();
     for (const operation of api.operations) {
