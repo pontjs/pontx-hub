@@ -86,6 +86,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const published = api.sdkStatus === "published";
   const install = `pnpm add ${api.packageName}`;
   const examples = sdkUsageExamples(api);
+  const hasDedicatedCliExample = Boolean(api.sdkExamples);
   const usage = examples.typescript;
   const npmUrl = `https://www.npmjs.com/package/${api.packageName}`;
   const cliUsage = examples.cli;
@@ -148,9 +149,15 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
               <CodeBlock className="code-frame-spaced" code={usage} language="typescript" label={zh ? "TypeScript 调用" : "TypeScript usage"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
               <div className="section-heading" style={{ marginTop: 32 }}>
                 <h2>{zh ? "命令行调用" : "Command-line access"}</h2>
-                <p>{zh ? "Pontx Hub CLI 先选择 API 产品，再按 controller 与接口名称调用。没有 controller 分组的 API 产品可直接写接口名称。" : "Pontx Hub CLI selects the API product first, then calls an endpoint by controller and name. API products without a controller group use the endpoint name directly."}</p>
+                <p>{hasDedicatedCliExample
+                  ? zh
+                    ? "此 npm 包同时发布面向该 API 的独立 CLI；先用 dry-run 检查参数，再按供应商要求提供自己的凭证。"
+                    : "This npm package also publishes a dedicated CLI for the API. Use dry-run to inspect parameters, then supply your own provider credentials when required."
+                  : zh
+                    ? "Pontx Hub CLI 先选择 API 产品，再按 controller 与接口名称调用。没有 controller 分组的 API 产品可直接写接口名称。"
+                    : "Pontx Hub CLI selects the API product first, then calls an endpoint by controller and name. API products without a controller group use the endpoint name directly."}</p>
               </div>
-              <CodeBlock code={cliUsage} language="shell" label="Pontx Hub CLI" copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
+              <CodeBlock code={cliUsage} language="shell" label={hasDedicatedCliExample ? (zh ? "独立 API CLI" : "Dedicated API CLI") : "Pontx Hub CLI"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
             </>
           ) : null}
         </section>
