@@ -46,6 +46,7 @@ describe("public route SEO metadata", () => {
     expect(graph).toContain('"@type":"Organization"');
     expect(graph).toContain('"logo":"https://pontx.dev/pontx-logo.svg"');
     expect(graph).toContain('"@type":"CollectionPage"');
+    expect(graph).toContain("integrate APIs with the Unified SDK");
 
     expect(descriptors(siteVerificationMeta({
       google: "google-token", bing: "bing-token", baidu: "baidu-token"

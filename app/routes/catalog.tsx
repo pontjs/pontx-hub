@@ -47,8 +47,8 @@ export function meta({ data }: Route.MetaArgs) {
       : "Pontx API Hub — OpenAPI Catalog";
   const description =
     locale === "zh"
-      ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
-      : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs.";
+      ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与统一 SDK 集成入口。"
+      : "One place for developers and agents to discover, read, debug, and integrate APIs with the Unified SDK.";
   const canonical = siteUrl(`/${locale}`);
   return [
     { title },
@@ -228,8 +228,8 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             <h1>{zh ? "Pontx API Hub · API 目录" : "Pontx API Hub · API Catalog"}</h1>
             <p className="registry-description">
               {zh
-                ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
-                : "One place for developers and agents to discover, read, debug, and integrate APIs with SDKs."}
+                ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与统一 SDK 集成入口。"
+                : "One place for developers and agents to discover, read, debug, and integrate APIs with the Unified SDK."}
             </p>
           </div>
           <dl className="registry-stats">

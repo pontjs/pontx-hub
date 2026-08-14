@@ -8,7 +8,7 @@ export function loader() {
   const sdkLinks = listCatalog()
     .filter((api) => api.sdkStatus === "published")
     .map((api) =>
-      `- [${api.packageName}](${siteUrl(`/en/sdks/${api.slug}`)}): Published SDK for ${api.title.en}.`
+      `- [${api.packageName}](${siteUrl(`/en/sdks/${api.slug}`)}): Published package in the Unified SDK for ${api.title.en}.`
     );
 
   const body = `# Pontx API
@@ -31,7 +31,7 @@ export function loader() {
 
 ${apiLinks.join("\n")}
 
-## Published SDKs
+## Unified SDK packages
 
 ${sdkLinks.join("\n")}
 

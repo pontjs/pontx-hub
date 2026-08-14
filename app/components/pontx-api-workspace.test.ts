@@ -8,12 +8,26 @@ import { localize } from "~/lib/catalog/types";
 import {
   ApiOverviewActions,
   ApiOverviewFacts,
+  codeGenScenariosForLocale,
   isOAuthAuthorizationDisabled,
   isOAuthExecutionBlocked,
   OperationTaskSelect,
   OAuthToolbar,
   withoutHostManagedOAuthScheme
 } from "./pontx-api-workspace";
+
+describe("Unified SDK code scenario naming", () => {
+  it.each([
+    ["zh" as const, "统一 SDK"],
+    ["en" as const, "Unified SDK"]
+  ])("localizes the product-level SDK label in %s", (locale, label) => {
+    expect(codeGenScenariosForLocale(locale)).toContainEqual({
+      id: "typescript-sdk",
+      label,
+      language: "typescript"
+    });
+  });
+});
 
 function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
   const api = getCatalogApi(apiSlug);

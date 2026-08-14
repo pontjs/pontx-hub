@@ -180,7 +180,7 @@ describe("Pontx Hub visual system", () => {
       /<EndpointPlaygroundHistory[\s\S]*?<DocumentationEvidence/,
     );
     expect(history).toContain("Load inputs without sending the request");
-    expect(history).toContain("Playground, SDK, and CLI code are in sync");
+    expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
     expect(css).toMatch(
       /\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,
     );

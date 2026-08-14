@@ -33,6 +33,7 @@ describe("site language switcher", () => {
     expect(html.match(/class="language-icon"/g)).toHaveLength(2);
     expect(html).toContain('<span>English</span>');
     expect(html).toContain('href="/zh/docs"');
+    expect(html).toContain("OpenAPI → 统一 SDK → Agent");
 
     const desktopNav = html.slice(
       html.indexOf('<nav aria-label="主导航">'),
@@ -57,5 +58,6 @@ describe("site language switcher", () => {
     expect(html).toContain('aria-label="Switch to Chinese"');
     expect(html).toContain('<span>中文</span>');
     expect(html).toContain('href="/en/docs"');
+    expect(html).toContain("OpenAPI → Unified SDK → Agent");
   });
 });

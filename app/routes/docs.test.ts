@@ -54,12 +54,17 @@ describe("localized documentation", () => {
 
     expect(html).toContain("一套 Skill，把 API 意图变成可靠集成");
     expect(html).not.toContain("TypeScript SDK");
-    expect(html).not.toContain("统一 SDK");
+    expect(html).toContain("<h3>统一 SDK</h3>");
+    expect(html).toContain(">统一 SDK</button>");
     expect(skill).toBeGreaterThan(-1);
     expect(skill).toBeLessThan(cli);
     expect(cli).toBeLessThan(sdk);
     expect(sdk).toBeLessThan(web);
     expect(html).toContain('role="tab" aria-selected="true" aria-controls="panel-overview-skill"');
+
+    const englishHtml = renderDocs("/en/docs", "en", "overview");
+    expect(englishHtml).toContain("<h3>Unified SDK</h3>");
+    expect(englishHtml).toContain(">Unified SDK</button>");
   });
 
   it("describes the Skill as an operating workflow, with on-demand loading as a benefit", () => {
