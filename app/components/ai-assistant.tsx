@@ -621,7 +621,11 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                   <span className="ai-message-avatar" aria-hidden="true">
                     <AgentIcon />
                   </span>
-                  <LoadingSpinner size="sm" text={text.working as string} />
+                  <LoadingSpinner
+                    className="ai-assistant-working-status"
+                    size="sm"
+                    text={text.working as string}
+                  />
                 </div>
               ) : null}
               {status ? (
