@@ -32,6 +32,32 @@ describe("curated catalog", () => {
     }).success).toBe(false);
   });
 
+  it("accepts version-bound SDK quality evidence and rejects mismatched claims", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "dida365");
+    const sdkQuality = {
+      testedVersion: api?.sdkVersion,
+      unitTests: { passed: 4, total: 4, skipped: 0 },
+      e2eStatus: "passed" as const,
+      nodeVersions: ["18", "20", "22"],
+      sourceCommit: "a".repeat(40),
+      testedAt: "2026-08-14",
+      repositoryUrl: "https://github.com/pontjs/dida365",
+      workflowRunUrl: "https://github.com/pontjs/dida365/actions/runs/1"
+    };
+    expect(catalogApiSchema.safeParse({ ...api, sdkQuality }).success).toBe(true);
+    expect(catalogApiSchema.safeParse({
+      ...api,
+      sdkQuality: { ...sdkQuality, testedVersion: "9.9.9" }
+    }).success).toBe(false);
+    expect(catalogApiSchema.safeParse({
+      ...api,
+      sdkQuality: {
+        ...sdkQuality,
+        workflowRunUrl: "https://github.com/pontjs/other/actions/runs/1"
+      }
+    }).success).toBe(false);
+  });
+
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
