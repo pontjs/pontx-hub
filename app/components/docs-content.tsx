@@ -592,44 +592,44 @@ function SafetyGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="credentials" marker="01" title={zh ? "凭证留在调用者一侧" : "Credentials stay with the caller"} lead={zh ? "Web 与 CLI 使用不同的本地载体，但都不会把供应商凭证持久化到 Hub。" : "Web and CLI use different local carriers, but neither persists provider credentials in Hub."}>
+      <DocSection id="credentials" marker="01" title={zh ? "凭证放在哪里" : "Where credentials stay"} lead={zh ? "在网站里输入的 API Key 等只在当前浏览器会话使用；CLI 从本机环境变量读取。Pontx 不会把它们保存到账户里。" : "API keys entered on the website stay in the current browser session. The CLI reads them from your local environment. Pontx does not save them to your account."}>
         <div className="docs-safety-matrix">
-          <div><strong>{zh ? "网站" : "Website"}</strong><span>sessionStorage</span><p>{zh ? "API Key、OAuth token 与密码只留在当前浏览器会话。" : "API keys, OAuth tokens, and passwords stay in the current browser session."}</p></div>
-          <div><strong>CLI / Skill</strong><span>environment</span><p>{zh ? "从目录声明的环境变量读取；不放进命令参数。" : "Read from catalog-declared environment variables, never command arguments."}</p></div>
-          <div><strong>{zh ? "账户数据" : "Account data"}</strong><span>never</span><p>{zh ? "收藏与脱敏历史不包含认证对象或供应商响应。" : "Favorites and sanitized history exclude auth objects and provider responses."}</p></div>
+          <div><strong>{zh ? "网站" : "Website"}</strong><span>{zh ? "当前会话" : "Current session"}</span><p>{zh ? "API Key、OAuth token 和密码只在这个浏览器会话中使用。" : "API keys, OAuth tokens, and passwords are used only in this browser session."}</p></div>
+          <div><strong>CLI / Skill</strong><span>{zh ? "环境变量" : "Environment variables"}</span><p>{zh ? "凭证放在本机环境变量里，不需要写进命令。" : "Keep credentials in local environment variables instead of command arguments."}</p></div>
+          <div><strong>{zh ? "账户" : "Account"}</strong><span>{zh ? "不保存" : "Not saved"}</span><p>{zh ? "收藏和使用记录不会包含凭证或供应商响应。" : "Favorites and usage history never include credentials or provider responses."}</p></div>
         </div>
       </DocSection>
 
-      <DocSection id="preview" marker="02" title={zh ? "预演是固定步骤" : "Preview is a fixed step"} lead={zh ? "预演解析真实请求，并在发送前把所有影响范围展示出来。" : "Preview resolves the real request and exposes its complete scope before sending."}>
-        <CopyableCode locale={locale} language="shell" label={zh ? "预演请求" : "Preview a request"} code={`pontx-hub <api-product> preview [controller] <endpoint-name> --parameter value
+      <DocSection id="preview" marker="02" title={zh ? "先预览完整请求" : "Review the request first"} lead={zh ? "点发送之前，你会先看到最终地址、参数、隐藏敏感值后的请求头和请求体。预览本身不会访问 API 供应商。" : "Before sending, you can see the final URL, parameters, redacted headers, and body. A preview never contacts the API provider."}>
+        <CopyableCode locale={locale} language="shell" label={zh ? "只查看，不发送" : "Review without sending"} code={`pontx-hub <api-product> preview [controller] <endpoint-name> --parameter value
 
-# Review: method · host · path · query · redacted headers · body`} />
+# ${zh ? "核对：请求方法 · 地址 · 路径 · 查询参数 · 隐藏敏感值的请求头 · 请求体" : "Check: method · host · path · query · redacted headers · body"}`} />
         <div className="docs-preview-list">
-          <span>HTTP method</span><span>approved host</span><span>resolved path</span><span>query</span><span>redacted headers</span><span>body</span>
+          <span>{zh ? "请求方法" : "HTTP method"}</span><span>{zh ? "目标地址" : "Host"}</span><span>{zh ? "完整路径" : "Resolved path"}</span><span>{zh ? "查询参数" : "Query"}</span><span>{zh ? "脱敏请求头" : "Redacted headers"}</span><span>{zh ? "请求体" : "Body"}</span>
         </div>
       </DocSection>
 
-      <DocSection id="mutations" marker="03" title={zh ? "写操作需要精确确认" : "Mutations require exact confirmation"} lead={zh ? "确认绑定到规范化请求；任何参数、请求体、服务地址或接口变化都会使确认失效。" : "Confirmation is bound to the normalized request; changing parameters, body, server, or Endpoint invalidates it."}>
+      <DocSection id="mutations" marker="03" title={zh ? "修改数据前再确认一次" : "Confirm before changing data"} lead={zh ? "创建、更新或删除数据时，Pontx 会要求你确认刚才看到的那份请求。改了任何参数，都要重新预览和确认。" : "Before creating, updating, or deleting data, Pontx asks you to confirm the request you just reviewed. Change any value and you will need to preview and confirm again."}>
         <div className="docs-mutation-flow">
-          <div><span>1</span><strong>preview</strong><p>{zh ? "生成脱敏请求" : "Build redacted request"}</p></div>
+          <div><span>1</span><strong>preview</strong><p>{zh ? "先看完整请求" : "Review the full request"}</p></div>
           <i aria-hidden="true">→</i>
-          <div><span>2</span><strong>{zh ? "用户确认" : "user confirms"}</strong><p>{zh ? "确认完全相同的副作用" : "Approve the exact side effect"}</p></div>
+          <div><span>2</span><strong>{zh ? "你来确认" : "you confirm"}</strong><p>{zh ? "确认会修改什么" : "Confirm what will change"}</p></div>
           <i aria-hidden="true">→</i>
-          <div><span>3</span><strong>call --yes</strong><p>{zh ? "发送未改变的请求" : "Send the unchanged request"}</p></div>
+          <div><span>3</span><strong>call --yes</strong><p>{zh ? "按刚才的内容发送" : "Send what you reviewed"}</p></div>
         </div>
         <Callout tone="warning" title={zh ? "查看文档不会发送请求" : "Reading docs never sends a request"}>
-          {zh ? "GET 与 HEAD 不需要 --yes，但搜索、查看文档和预演都只帮助你检查请求；只有明确调用时才会发送。" : "GET and HEAD do not need --yes, but search, documentation, and preview only help you inspect the request. It is sent only when you explicitly call it."}
+          {zh ? "搜索、打开文档和预览都不会发出真实请求。只有你点击发送或明确执行 call，Pontx 才会联系 API 供应商。" : "Search, documentation, and preview never send a live request. Pontx contacts the API provider only when you click send or explicitly run call."}
         </Callout>
       </DocSection>
 
-      <DocSection id="network" marker="04" title={zh ? "只访问目录批准的目标" : "Only catalog-approved destinations"} lead={zh ? "调用方不能把任意 URL 交给 Hub 代理。" : "Callers cannot hand an arbitrary URL to the Hub proxy."}>
+      <DocSection id="network" marker="04" title={zh ? "只连接目录里的 API" : "Only connect to listed APIs"} lead={zh ? "为了避免请求被转到陌生地址，网站和 CLI 只接受目录里已经审核过的服务地址。" : "To keep requests from being redirected somewhere unexpected, the website and CLI accept only service addresses reviewed in the catalog."}>
         <ul className="docs-checklist">
-          <li><span>✓</span>{zh ? "API、接口和 server 组合必须来自已审核目录。" : "The API, Endpoint, and server combination must come from the reviewed catalog."}</li>
-          <li><span>✓</span>{zh ? "拒绝私有、回环、链路本地、元数据主机与不安全重定向。" : "Private, loopback, link-local, metadata hosts, and unsafe redirects are denied."}</li>
-          <li><span>✓</span>{zh ? "请求头、请求体、超时和响应大小受到服务端限制。" : "Headers, body, timeout, and captured response size are server-limited."}</li>
-          <li><span>✓</span>{zh ? "禁止代理的 API 仍可阅读、预演并生成 SDK/CLI 代码。" : "Non-proxied APIs remain readable, previewable, and available for SDK/CLI code generation."}</li>
+          <li><span>✓</span>{zh ? "API、接口和服务地址必须能在目录中找到。" : "The API, Endpoint, and service address must be listed in the catalog."}</li>
+          <li><span>✓</span>{zh ? "本机、内网和可能跳转到不安全地址的请求会被拦截。" : "Requests to local, private, or unsafe redirect destinations are blocked."}</li>
+          <li><span>✓</span>{zh ? "请求时间、请求大小和响应大小都有上限。" : "Request time, request size, and response size all have limits."}</li>
+          <li><span>✓</span>{zh ? "某些 API 不能直接在线调用，但文档、预览和代码示例仍然可用。" : "Some APIs cannot be called online, but their docs, previews, and code examples still work."}</li>
         </ul>
-        <Link className="docs-text-link" to={docHref(locale, "agent-skill")}>{zh ? "了解 Skill 如何处理这些边界" : "See how the Skill handles these boundaries"} ↗</Link>
+        <Link className="docs-text-link" to={docHref(locale, "agent-skill")}>{zh ? "回到 Agent Skill 安装与使用" : "Back to Agent Skill setup and use"} ↗</Link>
       </DocSection>
     </>
   );

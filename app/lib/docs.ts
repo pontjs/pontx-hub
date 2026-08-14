@@ -139,16 +139,16 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     navTitle: text("凭证与安全", "Credentials and safety"),
     title: text("先看清请求，再决定是否发送。", "See the exact request before deciding to send it."),
     description: text(
-      "理解 Pontx 的凭证存储、服务端目标限制、预演流程与写操作确认边界。",
-      "Understand Pontx credential storage, destination restrictions, preview flow, and mutation confirmation boundaries."
+      "网站不会替你发送请求；凭证只在当前会话或本机环境中使用，可能修改数据的操作还需要再次确认。",
+      "Pontx never sends a request for you. Credentials stay in the current session or your local environment, and changes to data require another confirmation."
     ),
-    eyebrow: text("安全模型 / Preview first", "Safety model / preview first"),
+    eyebrow: text("发送请求前 / Preview first", "Before you send / preview first"),
     keywords: text("安全 凭证 环境变量 sessionStorage 预演 写操作 确认 SSRF", "security credentials environment sessionStorage preview mutation confirmation SSRF"),
     sections: [
-      { id: "credentials", title: text("凭证留在调用者一侧", "Credentials stay with the caller") },
-      { id: "preview", title: text("预演是固定步骤", "Preview is a fixed step") },
-      { id: "mutations", title: text("写操作需要精确确认", "Mutations require exact confirmation") },
-      { id: "network", title: text("只访问目录批准的目标", "Only catalog-approved destinations") }
+      { id: "credentials", title: text("凭证放在哪里", "Where credentials stay") },
+      { id: "preview", title: text("先预览完整请求", "Review the request first") },
+      { id: "mutations", title: text("修改数据前再确认一次", "Confirm before changing data") },
+      { id: "network", title: text("只连接目录里的 API", "Only connect to listed APIs") }
     ]
   }
 };
@@ -163,7 +163,7 @@ export const DOC_GROUPS = [
     slugs: ["agent-skill", "cli", "sdk", "web"] as DocSlug[]
   },
   {
-    label: text("原则", "Principles"),
+    label: text("使用须知", "Before you send"),
     slugs: ["safety"] as DocSlug[]
   }
 ] as const;
