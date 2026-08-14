@@ -48,6 +48,24 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps the footer brand centered in a compact responsive footer", async () => {
+    const [appCss, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(appCss).toMatch(
+      /\.site-footer > div\s*{\s*display:\s*flex;\s*align-items:\s*center;/,
+    );
+    expect(systemCss).toMatch(
+      /\.site-footer\s*{\s*gap:\s*18px;\s*padding:\s*12px clamp\(20px, 3vw, 52px\);/,
+    );
+    expect(systemCss).not.toContain("min-height: 80px;");
+    expect(systemCss).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.site-footer\s*{[\s\S]*?gap:\s*8px;[\s\S]*?padding:\s*12px 16px;/,
+    );
+  });
+
   it("keeps the AI entry in the right-side header actions and floats it on mobile", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
