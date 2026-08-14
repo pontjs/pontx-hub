@@ -536,16 +536,16 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                   className="ai-message"
                   key={message.id}
                   data-role={message.role}
+                  aria-label={message.role === "user" ? text.you as string : text.agent as string}
                 >
-                  <div className="ai-message-meta">
+                  {message.role === "assistant" ? (
                     <span className="ai-message-avatar" aria-hidden="true">
-                      {message.role === "user" ? "Y" : <AgentIcon />}
+                      <AgentIcon />
                     </span>
-                    <strong>
-                      {message.role === "user" ? text.you as string : text.agent as string}
-                    </strong>
+                  ) : null}
+                  <div className="ai-message-content">
+                    <p>{messageText(message)}</p>
                   </div>
-                  <p>{messageText(message)}</p>
                 </article>
               ))}
 
@@ -614,6 +614,9 @@ export function AiAssistant({ locale }: { locale: Locale }) {
 
               {running ? (
                 <div className="ai-assistant-working" role="status">
+                  <span className="ai-message-avatar" aria-hidden="true">
+                    <AgentIcon />
+                  </span>
                   <LoadingSpinner size="sm" text={text.working as string} />
                 </div>
               ) : null}
