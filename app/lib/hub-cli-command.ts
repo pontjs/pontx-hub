@@ -41,6 +41,9 @@ export function hubCliParameterArguments(
   name: string,
   value: unknown
 ): string[] {
+  if (name === "version") {
+    return ["--path-version", shellArgument(parameterValue(value))];
+  }
   if (reservedCliOptions.has(name)) {
     throw new Error(
       `API parameter --${name} conflicts with a Pontx Hub CLI option`

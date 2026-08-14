@@ -11,7 +11,8 @@ describe("Hub API", () => {
     const slugs = payload.data.map((api: { slug: string }) => api.slug);
     expect([
       ["dida365", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"]
+      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"],
+      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"]
     ]).toContainEqual(slugs);
   });
 
