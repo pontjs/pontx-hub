@@ -107,18 +107,19 @@ describe("API directory integration styles", () => {
     );
   });
 
-  it("keeps the homepage SDK and CLI story legible from desktop to mobile", async () => {
+  it("keeps the homepage SDK and CLI summary inside the existing catalog hierarchy", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.catalog-access-grid\s*{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/,
+      /\.registry-description\s*{[\s\S]*?max-width:\s*820px;[\s\S]*?color:\s*var\(--ink-soft\);/,
     );
     expect(css).toMatch(
-      /@media \(max-width: 740px\)[\s\S]*?\.catalog-access-grid\s*{[\s\S]*?grid-template-columns:\s*1fr;/,
+      /\.registry-description code\s*{[\s\S]*?color:\s*var\(--ink\);[\s\S]*?white-space:\s*nowrap;/,
     );
     expect(css).toMatch(
-      /\.catalog-access-card > strong\s*{[\s\S]*?text-overflow:\s*ellipsis;[\s\S]*?white-space:\s*nowrap;/,
+      /\.registry-description-link\s*{[\s\S]*?color:\s*var\(--blue\);[\s\S]*?white-space:\s*nowrap;/,
     );
+    expect(css).not.toContain(".catalog-access-card");
   });
 
   it("uses the shared cool-neutral palette for non-semantic surfaces", async () => {
