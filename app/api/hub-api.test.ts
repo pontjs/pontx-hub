@@ -10,6 +10,7 @@ describe("Hub API", () => {
     expect(payload.version).toBe("v1");
     expect(payload.data.map((api: { slug: string }) => api.slug)).toEqual([
       "dida365",
+      "dropbox-sign",
       "frankfurter",
       "frankfurter-v2",
       "massive"

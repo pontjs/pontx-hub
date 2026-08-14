@@ -16,9 +16,20 @@ type WeightedField = {
   field: GlobalSearchMatchField;
 };
 
+type NormalizedWeightedField = WeightedField & { value: string };
+
 type ScoredMatch = {
   score: number;
   match: GlobalSearchMatch;
+};
+
+type SearchQueryAnalysis = {
+  normalized: string;
+  tokens: string[];
+  concepts: string[][];
+  endpointIntent: boolean;
+  schemaIntent: boolean;
+  productIntent: boolean;
 };
 
 const kindOrder: Record<GlobalSearchKind, number> = {
@@ -26,6 +37,10 @@ const kindOrder: Record<GlobalSearchKind, number> = {
   endpoint: 1,
   schema: 2
 };
+
+const apiSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
+const endpointSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
+const schemaSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
 
 const matchFieldOrder: GlobalSearchMatchField[] = [
   "title",
@@ -156,7 +171,10 @@ function normalize(value: string): string {
 }
 
 function termMatches(value: string, term: string): boolean {
-  const normalizedTerm = normalize(term);
+  return normalizedTermMatches(value, normalize(term));
+}
+
+function normalizedTermMatches(value: string, normalizedTerm: string): boolean {
   if (!normalizedTerm) return false;
   if (/\p{Script=Han}/u.test(normalizedTerm)) {
     return value.includes(normalizedTerm);
@@ -164,15 +182,38 @@ function termMatches(value: string, term: string): boolean {
   return ` ${value} `.includes(` ${normalizedTerm} `);
 }
 
-function queryMatchesAny(query: string, terms: string[]): boolean {
-  const normalizedQuery = normalize(query);
-  return terms.some((term) => termMatches(normalizedQuery, term));
+const normalizedSemanticConcepts = semanticConcepts.map((terms) =>
+  terms.map(normalize)
+);
+const normalizedEndpointIntentTerms = endpointIntentTerms.map(normalize);
+const normalizedSchemaIntentTerms = schemaIntentTerms.map(normalize);
+const normalizedProductIntentTerms = productIntentTerms.map(normalize);
+
+function matchesAnyNormalized(query: string, terms: string[]): boolean {
+  return terms.some((term) => normalizedTermMatches(query, term));
 }
 
-function resourceIntentBoost(query: string, kind: GlobalSearchKind): number {
-  if (kind === "endpoint" && queryMatchesAny(query, endpointIntentTerms)) return 100;
-  if (kind === "schema" && queryMatchesAny(query, schemaIntentTerms)) return 120;
-  if (kind === "api" && queryMatchesAny(query, productIntentTerms)) return 120;
+function analyzeSearchQuery(query: string): SearchQueryAnalysis {
+  const normalized = normalize(query);
+  return {
+    normalized,
+    tokens: queryTokens(query),
+    concepts: normalizedSemanticConcepts.filter((terms) =>
+      terms.some((term) => normalizedTermMatches(normalized, term))
+    ),
+    endpointIntent: matchesAnyNormalized(normalized, normalizedEndpointIntentTerms),
+    schemaIntent: matchesAnyNormalized(normalized, normalizedSchemaIntentTerms),
+    productIntent: matchesAnyNormalized(normalized, normalizedProductIntentTerms)
+  };
+}
+
+function resourceIntentBoost(
+  query: SearchQueryAnalysis,
+  kind: GlobalSearchKind
+): number {
+  if (kind === "endpoint" && query.endpointIntent) return 100;
+  if (kind === "schema" && query.schemaIntent) return 120;
+  if (kind === "api" && query.productIntent) return 120;
   return 0;
 }
 
@@ -204,8 +245,8 @@ function longestHanOverlap(left: string, right: string): number {
   return longest;
 }
 
-function normalizedSearchFields(fields: WeightedField[]) {
-  const unique = new Map<string, WeightedField & { value: string }>();
+function normalizedSearchFields(fields: WeightedField[]): NormalizedWeightedField[] {
+  const unique = new Map<string, NormalizedWeightedField>();
   for (const field of fields) {
     const value = normalize(field.value ?? "");
     if (!value) continue;
@@ -218,24 +259,40 @@ function normalizedSearchFields(fields: WeightedField[]) {
   return [...unique.values()];
 }
 
-function exactIdentityBoost(query: string, values: Array<string | undefined>) {
-  const normalizedQuery = normalize(query);
+function cachedSearchFields(
+  cache: WeakMap<object, NormalizedWeightedField[]>,
+  resource: object,
+  fields: () => WeightedField[]
+): NormalizedWeightedField[] {
+  const cached = cache.get(resource);
+  if (cached) return cached;
+  const normalized = normalizedSearchFields(fields());
+  cache.set(resource, normalized);
+  return normalized;
+}
+
+function exactIdentityBoost(
+  normalizedQuery: string,
+  values: Array<string | undefined>
+) {
   return values.some((value) => normalize(value ?? "") === normalizedQuery)
     ? 500
     : 0;
 }
 
-function lexicalRelevance(query: string, fields: WeightedField[]) {
-  const normalizedQuery = normalize(query);
-  const tokens = queryTokens(query);
-  const normalizedFields = normalizedSearchFields(fields);
+function lexicalRelevance(
+  query: SearchQueryAnalysis,
+  fields: NormalizedWeightedField[]
+) {
+  const normalizedQuery = query.normalized;
+  const tokens = query.tokens;
   const matchedFields = new Set<GlobalSearchMatchField>();
   const matchedTokens = new Set<string>();
   const tokenScores = new Map<string, number>();
   let phraseScore = 0;
   let phraseMatched = false;
 
-  for (const field of normalizedFields) {
+  for (const field of fields) {
     if (field.value === normalizedQuery) {
       phraseScore = Math.max(phraseScore, field.weight * 12);
       phraseMatched = true;
@@ -291,24 +348,23 @@ function lexicalRelevance(query: string, fields: WeightedField[]) {
   return { score, fields: matchedFields };
 }
 
-function semanticRelevance(query: string, fields: WeightedField[]) {
-  const normalizedQuery = normalize(query);
-  const concepts = semanticConcepts.filter((terms) =>
-    terms.some((term) => termMatches(normalizedQuery, term))
-  );
+function semanticRelevance(
+  query: SearchQueryAnalysis,
+  fields: NormalizedWeightedField[]
+) {
+  const concepts = query.concepts;
   if (!concepts.length) {
     return { score: 0, fields: new Set<GlobalSearchMatchField>() };
   }
 
-  const normalizedFields = normalizedSearchFields(fields);
   const matchedFields = new Set<GlobalSearchMatchField>();
   let score = 0;
   let matchedConcepts = 0;
 
   for (const concept of concepts) {
     let best: (WeightedField & { value: string }) | undefined;
-    for (const field of normalizedFields) {
-      if (!concept.some((term) => termMatches(field.value, term))) continue;
+    for (const field of fields) {
+      if (!concept.some((term) => normalizedTermMatches(field.value, term))) continue;
       matchedFields.add(field.field);
       if (!best || field.weight > best.weight) best = field;
     }
@@ -326,7 +382,10 @@ function semanticRelevance(query: string, fields: WeightedField[]) {
   return { score, fields: matchedFields };
 }
 
-function relevance(query: string, fields: WeightedField[]): ScoredMatch {
+function relevance(
+  query: SearchQueryAnalysis,
+  fields: NormalizedWeightedField[]
+): ScoredMatch {
   const lexical = lexicalRelevance(query, fields);
   const semantic = semanticRelevance(query, fields);
   const score =
@@ -453,9 +512,13 @@ export function buildSearchResponse(
   const results: GlobalSearchResult[] = [];
 
   if (normalizedQuery) {
+    const queryAnalysis = analyzeSearchQuery(normalizedQuery);
     for (const api of catalog) {
       const apiTitle = localize(api.title, locale);
-      const apiMatch = relevance(normalizedQuery, [
+      const apiMatch = relevance(queryAnalysis, cachedSearchFields(
+        apiSearchFieldCache,
+        api,
+        () => [
         { value: "product provider service platform 产品 服务商 服务 平台", weight: 2, field: "product" },
         { value: api.slug, weight: 12, field: "product" },
         { value: api.name, weight: 12, field: "product" },
@@ -468,15 +531,15 @@ export function buildSearchResponse(
           ...localizedFields(api.pricing.summary.zh, api.pricing.summary.en, 7, "pricing"),
           ...localizedFields(api.pricing.freeTier?.zh, api.pricing.freeTier?.en, 7, "pricing")
         ] : [])
-      ]);
-      apiMatch.score += exactIdentityBoost(normalizedQuery, [
+      ]));
+      apiMatch.score += exactIdentityBoost(queryAnalysis.normalized, [
         api.slug,
         api.name,
         api.title.zh,
         api.title.en
       ]);
       if (apiMatch.score > 0) {
-        apiMatch.score += resourceIntentBoost(normalizedQuery, "api");
+        apiMatch.score += resourceIntentBoost(queryAnalysis, "api");
       }
       if (kinds.has("api") && apiMatch.score > 0) {
         results.push({
@@ -498,7 +561,10 @@ export function buildSearchResponse(
 
       if (kinds.has("endpoint")) {
         for (const operation of api.operations) {
-          const endpointMatch = relevance(normalizedQuery, [
+          const endpointMatch = relevance(queryAnalysis, cachedSearchFields(
+            endpointSearchFieldCache,
+            operation,
+            () => [
             ...productFields(api),
             { value: operation.operationId, weight: 14, field: "title" },
             { value: operation.slug, weight: 12, field: "title" },
@@ -532,13 +598,13 @@ export function buildSearchResponse(
               { value: response.status, weight: 2, field: "response" as const },
               ...payloadFields(api, response, "response", 6)
             ])
-          ]);
-          endpointMatch.score += exactIdentityBoost(normalizedQuery, [
+          ]));
+          endpointMatch.score += exactIdentityBoost(queryAnalysis.normalized, [
             operation.operationId,
             operation.slug
           ]);
           if (endpointMatch.score > 0) {
-            endpointMatch.score += resourceIntentBoost(normalizedQuery, "endpoint");
+            endpointMatch.score += resourceIntentBoost(queryAnalysis, "endpoint");
           }
           if (endpointMatch.score === 0) continue;
           results.push({
@@ -563,7 +629,10 @@ export function buildSearchResponse(
 
       if (kinds.has("schema")) {
         for (const schema of api.schemas) {
-          const schemaMatch = relevance(normalizedQuery, [
+          const schemaMatch = relevance(queryAnalysis, cachedSearchFields(
+            schemaSearchFieldCache,
+            schema,
+            () => [
             ...productFields(api, 3),
             { value: schema.name, weight: 15, field: "schema" },
             ...localizedFields(schema.title.zh, schema.title.en, 14, "title"),
@@ -580,14 +649,14 @@ export function buildSearchResponse(
                 "property"
               )
             ])
-          ]);
-          schemaMatch.score += exactIdentityBoost(normalizedQuery, [
+          ]));
+          schemaMatch.score += exactIdentityBoost(queryAnalysis.normalized, [
             schema.name,
             schema.title.zh,
             schema.title.en
           ]);
           if (schemaMatch.score > 0) {
-            schemaMatch.score += resourceIntentBoost(normalizedQuery, "schema");
+            schemaMatch.score += resourceIntentBoost(queryAnalysis, "schema");
           }
           if (schemaMatch.score === 0) continue;
           results.push({

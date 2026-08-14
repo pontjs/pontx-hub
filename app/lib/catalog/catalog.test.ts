@@ -13,6 +13,7 @@ describe("curated catalog", () => {
     const catalog = listCatalog();
     expect(catalog.map((api) => api.slug)).toEqual([
       "dida365",
+      "dropbox-sign",
       "frankfurter",
       "frankfurter-v2",
       "massive"
@@ -80,7 +81,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect(operations).toHaveLength(53);
+    expect(operations).toHaveLength(126);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(

@@ -37,7 +37,16 @@ function indent(value: string, spaces: number): string {
     .join("\n");
 }
 
-function placeholder(name: string, type: string): unknown {
+function placeholder(
+  name: string,
+  type: string,
+  evidence?: Record<string, unknown>
+): unknown {
+  if (evidence?.const !== undefined) return evidence.const;
+  if (evidence?.default !== undefined) return evidence.default;
+  if (Array.isArray(evidence?.enum) && evidence.enum.length) {
+    return evidence.enum[0];
+  }
   if (type === "number" || type === "integer") return 0;
   if (type === "boolean") return false;
   if (type === "array") return [];
@@ -55,7 +64,21 @@ function parameterValue(
 ): unknown {
   const value = values[parameter.name];
   if (value !== undefined && value !== "") return value;
-  return placeholder(parameter.name, parameter.type);
+  return placeholder(parameter.name, parameter.type, parameter);
+}
+
+function schemaPropertyEvidence(
+  schema: CatalogApi["schemas"][number],
+  name: string
+): Record<string, unknown> | undefined {
+  const properties = schema.schema?.properties;
+  if (!properties || typeof properties !== "object" || Array.isArray(properties)) {
+    return undefined;
+  }
+  const property = (properties as Record<string, unknown>)[name];
+  return property && typeof property === "object" && !Array.isArray(property)
+    ? property as Record<string, unknown>
+    : undefined;
 }
 
 function requestBody(
@@ -82,7 +105,11 @@ function requestBody(
     const property = schema.properties.find(
       (candidate) => candidate.name === name
     );
-    hydrated[name] = placeholder(name, property?.type ?? "string");
+    hydrated[name] = placeholder(
+      name,
+      property?.type ?? "string",
+      schemaPropertyEvidence(schema, name)
+    );
   }
   return hydrated;
 }
@@ -121,7 +148,7 @@ function requestArguments(
               [
                 parameter.name,
                 value === undefined || value === ""
-                  ? placeholder(parameter.name, parameter.type)
+                  ? placeholder(parameter.name, parameter.type, parameter)
                   : value
               ]
             ];
@@ -153,6 +180,9 @@ export function generateSdkSnippet(
   }
 
   const controller = contract.controllers[operation.tag];
+  const method = `${contract.client.identifier}.${
+    controller ? `${controller}.` : ""
+  }${operation.operationId}`;
   const lines: string[] = [];
   if (contract.client.kind === "default") {
     lines.push(
@@ -180,11 +210,14 @@ export function generateSdkSnippet(
     operation.parameters.some((parameter) => parameter.in === "body")
   );
   if (hasBody) {
+    const bodyParameterIndex = operation.parameters.filter(
+      (parameter) => parameter.in === "path"
+    ).length;
     lines.push(
       "",
       `const sdkRequestBody = ${typescriptValue(
         requestBody(api, operation, request.body)
-      )} as const;`
+      )} satisfies Parameters<typeof ${method}>[${bodyParameterIndex}] & Record<string, unknown>;`
     );
   }
   const args = requestArguments(
@@ -198,9 +231,7 @@ export function generateSdkSnippet(
     : "()";
   lines.push(
     "",
-    `const result = await ${contract.client.identifier}.${
-      controller ? `${controller}.` : ""
-    }${operation.operationId}${call};`
+    `const result = await ${method}${call};`
   );
   return lines.join("\n");
 }
