@@ -18,7 +18,7 @@ export function meta({ data }: Route.MetaArgs) {
     locale === "zh"
       ? "让 Agent 使用独立的 pontx-hub CLI 语义搜索产品、接口、入参与出参，并安全预演与调用 API。"
       : "Teach agents to semantically search products, endpoints, inputs, outputs, and schemas, then safely preview and call APIs with the standalone pontx-hub CLI.";
-  const canonical = siteUrl(`/${locale}/agent-skill`);
+  const canonical = siteUrl(`/${locale}/skills/pontx-hub`);
   return [
     { title },
     { name: "description", content: description },
@@ -31,7 +31,7 @@ export function meta({ data }: Route.MetaArgs) {
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
     { tagName: "link", rel: "canonical", href: canonical },
-    ...localizedAlternates("/agent-skill"),
+    ...localizedAlternates("/skills/pontx-hub"),
     {
       "script:ld+json": {
         "@context": "https://schema.org",
@@ -91,6 +91,7 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
             </p>
           </div>
           <CodeBlock code={`pnpm add -g @pontx/hub-cli\npontx-hub skill install`} language="shell" label={zh ? "安装" : "Install"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
+          <CodeBlock className="code-frame-spaced" code={`npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub`} language="shell" label={zh ? "通过 Agent Skills 安装" : "Install with Agent Skills"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
           <CodeBlock className="code-frame-spaced" code={workflow} language="shell" label={zh ? "安全调用流程" : "Safe call workflow"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
         </section>
       </main>

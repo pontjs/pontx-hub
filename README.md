@@ -91,6 +91,14 @@ hybrid semantic search across API products, HTTP endpoints, request parameters,
 request/response schemas, and OpenAPI data structures, and
 installs the universal Agent Skill without coupling Hub releases to Pontx.
 
+The source Skill is packaged in the skills-only
+[`Pontx API plugin`](./plugins/pontx-api), and is also discoverable from
+[`/.well-known/skills/index.json`](https://pontx.dev/.well-known/skills/index.json),
+while [`/llms.txt`](https://pontx.dev/llms.txt) provides a compact Agent-readable
+map of the canonical documentation and
+[`/openapi.json`](https://pontx.dev/openapi.json) describes the read-only Hub
+discovery API.
+
 ```bash
 pontx-hub search "exchange rate" --json
 pontx-hub search "创建任务的入参" --locale zh --json

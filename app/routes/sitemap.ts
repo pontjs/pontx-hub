@@ -13,7 +13,7 @@ function escapeXml(value: string): string {
 export function loader() {
   const urls: Array<{ path: string; lastmod?: string }> = [
     { path: "" },
-    { path: "/agent-skill" }
+    { path: "/skills/pontx-hub" }
   ];
   for (const api of listCatalog()) {
     urls.push({ path: `/apis/${api.slug}`, lastmod: api.contentUpdatedAt });

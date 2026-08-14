@@ -84,7 +84,7 @@ export function SiteShell({
         </Link>
         <nav aria-label={text.primaryNavigation}>
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
-          <NavLink to={`/${locale}/agent-skill`}>{text.skill}</NavLink>
+          <NavLink to={`/${locale}/skills/pontx-hub`}>{text.skill}</NavLink>
           <a
             className="github-link"
             href="https://github.com/pontjs/pontx-hub"
@@ -125,7 +125,7 @@ export function SiteShell({
             <NavLink to={`/${locale}`} end onClick={() => setMobileNavOpen(false)}>
               {text.catalog}
             </NavLink>
-            <NavLink to={`/${locale}/agent-skill`} onClick={() => setMobileNavOpen(false)}>
+            <NavLink to={`/${locale}/skills/pontx-hub`} onClick={() => setMobileNavOpen(false)}>
               {text.skill}
             </NavLink>
             <a

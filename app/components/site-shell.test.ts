@@ -35,9 +35,9 @@ describe("site language switcher", () => {
   });
 
   it("keeps the inverse language target localized", () => {
-    const html = renderShell("en", "/en/agent-skill");
+    const html = renderShell("en", "/en/skills/pontx-hub");
 
-    expect(html).toContain('href="/zh/agent-skill"');
+    expect(html).toContain('href="/zh/skills/pontx-hub"');
     expect(html).toContain('aria-label="Switch to Chinese"');
     expect(html).toContain('<span>中文</span>');
   });
