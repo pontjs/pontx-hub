@@ -4,6 +4,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { describe, expect, it } from "vitest";
 import { DocsContent } from "~/components/docs-content";
 import { DocsLayout } from "~/components/docs-layout";
+import { DOC_SLUGS, type DocSlug } from "~/lib/docs";
 import { docsMeta } from "~/lib/docs-seo";
 import { loader as docsRedirectLoader } from "./docs-redirect";
 import { loader as docsDetailRedirectLoader } from "./docs-detail-redirect";
@@ -13,7 +14,7 @@ type Descriptor = Record<string, unknown>;
 function renderDocs(
   path: string,
   locale: "zh" | "en" = "zh",
-  slug: "overview" | "sdk" | "cli" | "agent-skill" | "web" | "safety" = "sdk"
+  slug: DocSlug = "sdk"
 ) {
   const router = createMemoryRouter([
     {
@@ -129,16 +130,50 @@ describe("localized documentation", () => {
       expect.objectContaining({ hrefLang: "en", href: "https://pontx.dev/en/docs/cli" }),
       expect.objectContaining({ hrefLang: "x-default", href: "https://pontx.dev/en/docs/cli" })
     ]);
-    expect(JSON.stringify(detail)).toContain("TechArticle");
-    expect(JSON.stringify(detail)).toContain("BreadcrumbList");
+    const detailJson = JSON.stringify(detail);
+    expect(detailJson).toContain("WebSite");
+    expect(detailJson).toContain("Organization");
+    expect(detailJson).toContain("WebPage");
+    expect(detailJson).toContain("TechArticle");
+    expect(detailJson).toContain("BreadcrumbList");
+    expect(detailJson).toContain("mainEntityOfPage");
+    expect(detailJson).toContain('"isAccessibleForFree":true');
 
     const index = docsMeta("zh", "overview") as Descriptor[];
     expect(JSON.stringify(index)).toContain("CollectionPage");
     expect(JSON.stringify(index)).toContain("/zh/docs/quick-start");
 
     const sdk = docsMeta("en", "sdk") as Descriptor[];
-    expect(sdk).toContainEqual({ title: "TypeScript SDK — Pontx Hub Docs" });
-    expect(JSON.stringify(sdk)).toContain('"name":"TypeScript SDK"');
+    expect(sdk).toContainEqual({ title: "TypeScript SDK: Type-Safe API Clients — Pontx Hub" });
+    expect(JSON.stringify(sdk)).toContain('"name":"TypeScript SDK: Type-Safe API Clients"');
+  });
+
+  it("gives every docs page a unique, descriptive search title and snippet", () => {
+    for (const locale of ["zh", "en"] as const) {
+      const titles: string[] = [];
+      const descriptions: string[] = [];
+
+      for (const slug of DOC_SLUGS) {
+        const metadata = docsMeta(locale, slug) as Descriptor[];
+        const title = metadata.find((item) => "title" in item)?.title;
+        const description = metadata.find((item) => item.name === "description")?.content;
+        const openGraphTitle = metadata.find((item) => item.property === "og:title")?.content;
+        const openGraphDescription = metadata.find((item) => item.property === "og:description")?.content;
+
+        expect(title).toEqual(expect.any(String));
+        expect(description).toEqual(expect.any(String));
+        expect(title).toContain("Pontx Hub");
+        expect(title).not.toMatch(/文档首页|Documentation home|网站使用|Use the website/);
+        expect(openGraphTitle).toBe(title);
+        expect(openGraphDescription).toBe(description);
+
+        titles.push(title as string);
+        descriptions.push(description as string);
+      }
+
+      expect(new Set(titles).size).toBe(DOC_SLUGS.length);
+      expect(new Set(descriptions).size).toBe(DOC_SLUGS.length);
+    }
   });
 
   it("documents named request options without advertising removed -p compatibility", () => {
