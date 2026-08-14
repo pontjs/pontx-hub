@@ -35,11 +35,11 @@ export async function loader() {
   };
 }
 
-export function meta({ data }: Route.MetaArgs) {
+export function siteVerificationMeta(data: Awaited<ReturnType<typeof loader>>["siteVerification"] | undefined) {
   return [
-    ...(data?.siteVerification.google ? [{ name: "google-site-verification", content: data.siteVerification.google }] : []),
-    ...(data?.siteVerification.bing ? [{ name: "msvalidate.01", content: data.siteVerification.bing }] : []),
-    ...(data?.siteVerification.baidu ? [{ name: "baidu-site-verification", content: data.siteVerification.baidu }] : [])
+    ...(data?.google ? [{ name: "google-site-verification", content: data.google }] : []),
+    ...(data?.bing ? [{ name: "msvalidate.01", content: data.bing }] : []),
+    ...(data?.baidu ? [{ name: "baidu-site-verification", content: data.baidu }] : [])
   ];
 }
 
@@ -59,6 +59,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
+  const { siteVerification } = useLoaderData<typeof loader>();
   const language = pathname === "/en" || pathname.startsWith("/en/") ? "en" : "zh-CN";
 
   return (
@@ -67,6 +68,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#f4f7fb" />
+        {siteVerificationMeta(siteVerification).map(({ name, content }) => (
+          <meta key={name} name={name} content={content} />
+        ))}
         <Meta />
         <Links />
       </head>
