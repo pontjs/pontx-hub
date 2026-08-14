@@ -113,79 +113,27 @@ function searchHref(locale: "zh" | "en", query: string): string {
   return query ? `/${locale}?q=${encodeURIComponent(query)}` : `/${locale}`;
 }
 
-export function CatalogAccessStory({ locale }: { locale: "zh" | "en" }) {
+export function CatalogAccessSummary({ locale }: { locale: "zh" | "en" }) {
   const zh = locale === "zh";
-  const callSurfaces = [
-    {
-      number: "01",
-      eyebrow: zh ? "通用 CLI" : "Universal CLI",
-      name: "pontx-hub",
-      description: zh
-        ? "一组命令搜索、查看和预览整个目录，并执行目录允许的在线调用。"
-        : "One command set searches, inspects, and previews the catalog, then runs approved online calls.",
-      example: "pontx-hub <api> call …",
-      href: `/${locale}/docs/cli`
-    },
-    {
-      number: "02",
-      eyebrow: zh ? "统一 SDK" : "Unified SDK",
-      name: "@pontx/<api>",
-      description: zh
-        ? "每个 API 一个可预测包名，类型与方法来自同一份已审核 API 定义。"
-        : "One predictable package per API, with types and methods from the same reviewed definition.",
-      example: "client.<group>.<endpoint>(…)",
-      href: `/${locale}/docs/sdk`
-    },
-    {
-      number: "03",
-      eyebrow: zh ? "专属 API CLI" : "Dedicated API CLI",
-      name: "pontx-<api>",
-      description: zh
-        ? "随对应 SDK 发布，适合本地开发、CI 与只面向一个 API 的脚本。"
-        : "Bundled with its SDK for local development, CI, and scripts focused on one API.",
-      example: "pontx-<api> call …",
-      href: `/${locale}/docs/sdk#dedicated-cli`
-    }
-  ];
-
   return (
-    <section className="catalog-access-story" aria-labelledby="catalog-access-title">
-      <div className="catalog-access-intro">
-        <div>
-          <p className="catalog-access-label">PONTX / CALL SURFACES</p>
-          <h2 id="catalog-access-title">
-            {zh
-              ? "每个收录的 API，都有一致的 SDK 与 CLI 调用方式。"
-              : "Every curated API comes with a consistent SDK and CLI call model."}
-          </h2>
-        </div>
-        <div className="catalog-access-summary">
-          <p>
-            {zh
-              ? "pontx-hub 负责全目录发现、预览与获准的在线调用；@pontx/<api> SDK 和 pontx-<api> CLI 负责具体 API 的本地集成。"
-              : "pontx-hub handles catalog-wide discovery, previews, and approved online calls; @pontx/<api> SDKs and pontx-<api> CLIs handle local integration for one API."}
-          </p>
-          <Link to={`/${locale}/docs`}>
-            {zh ? "了解统一调用方式" : "Explore the consistent call model"}
-            <span aria-hidden="true">↗</span>
-          </Link>
-        </div>
-      </div>
-
-      <div className="catalog-access-grid">
-        {callSurfaces.map((surface) => (
-          <Link key={surface.number} className="catalog-access-card" to={surface.href}>
-            <div>
-              <span>{surface.number} / {surface.eyebrow}</span>
-              <i aria-hidden="true">↗</i>
-            </div>
-            <strong>{surface.name}</strong>
-            <p>{surface.description}</p>
-            <code>{surface.example}</code>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <p className="registry-description">
+      {zh ? (
+        <>
+          每个收录的 API 都提供统一 SDK 与 CLI：<code>pontx-hub</code> 覆盖全目录检索、预览和获准调用；
+          <code>@pontx/&lt;api&gt;</code> 与 <code>pontx-&lt;api&gt;</code> 用于单个 API 集成。
+        </>
+      ) : (
+        <>
+          Every curated API has a Unified SDK and CLI: <code>pontx-hub</code> covers catalog-wide search,
+          previews, and approved calls; <code>@pontx/&lt;api&gt;</code> and <code>pontx-&lt;api&gt;</code> handle
+          single-API integration.
+        </>
+      )}{" "}
+      <Link className="registry-description-link" to={`/${locale}/docs`}>
+        {zh ? "查看文档" : "View docs"}
+        <span aria-hidden="true">↗</span>
+      </Link>
+    </p>
   );
 }
 
@@ -302,11 +250,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           <div className="registry-intro">
             <p className="registry-label">PONTX / OPENAPI REGISTRY</p>
             <h1>{zh ? "Pontx API Hub · API 目录" : "Pontx API Hub · API Catalog"}</h1>
-            <p className="registry-description">
-              {zh
-                ? "搜索、阅读和预览已收录 API，再用对应的统一 SDK 与 CLI 调用。"
-                : "Discover, inspect, and preview curated APIs, then call them with the matching Unified SDK and CLI."}
-            </p>
+            <CatalogAccessSummary locale={locale} />
           </div>
           <dl className="registry-stats">
             <div>
@@ -323,8 +267,6 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             </div>
           </dl>
         </header>
-
-        {!query ? <CatalogAccessStory locale={locale} /> : null}
 
         <section className="registry-section">
           <div className="registry-taskline">
