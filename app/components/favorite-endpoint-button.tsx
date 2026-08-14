@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link, useLocation, useRouteLoaderData } from "react-router";
-import type { loader as rootLoader } from "~/root";
+import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router";
 import type { Locale } from "~/lib/catalog/types";
+import { useAccount } from "~/lib/accounts/account-context";
+import { isFavoriteEndpoint } from "~/lib/accounts/favorites";
 
 const copy = {
   zh: {
@@ -39,15 +40,19 @@ export function FavoriteEndpointButton({
   compact?: boolean;
   onChange?: (saved: boolean) => void;
 }) {
-  const root = useRouteLoaderData<typeof rootLoader>("root");
   const location = useLocation();
   const [saved, setSaved] = useState(initialFavorite);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
-  const accounts = root?.accounts;
+  const accounts = useAccount();
   const text = copy[locale];
 
-  if (!accounts?.enabled) return null;
+  useEffect(() => {
+    if (!accounts.viewer) return;
+    setSaved(isFavoriteEndpoint(accounts.favorites, apiSlug, operationSlug));
+  }, [accounts.favorites, accounts.viewer, apiSlug, operationSlug]);
+
+  if (!accounts.loaded || !accounts.enabled) return null;
 
   const className = `favorite-api-control${compact ? " favorite-api-control-compact" : ""}`;
   if (!accounts.viewer) {
@@ -80,6 +85,7 @@ export function FavoriteEndpointButton({
       if (!response.ok) throw new Error("favorite_failed");
       const next = !saved;
       setSaved(next);
+      accounts.setFavorite({ apiSlug, operationSlug }, next);
       onChange?.(next);
     } catch {
       setError(text.error);

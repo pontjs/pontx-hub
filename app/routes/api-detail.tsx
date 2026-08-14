@@ -4,7 +4,7 @@ import { SiteShell } from "~/components/site-shell";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import type { CatalogOperation } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 
 function quickStartScore(operation: CatalogOperation): number {
@@ -86,7 +86,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function headers() {
-  return accountAwareCacheHeaders();
+  return cacheHeaders();
 }
 
 export default function ApiDetail({ loaderData }: Route.ComponentProps) {

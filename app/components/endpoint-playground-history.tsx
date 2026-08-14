@@ -116,7 +116,6 @@ export function EndpointPlaygroundHistory({
   }, [availableServers, initialEntries]);
 
   useEffect(() => {
-    if (!refreshVersion) return;
     const controller = new AbortController();
     const parameters = new URLSearchParams({
       apiSlug,

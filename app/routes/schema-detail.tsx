@@ -3,7 +3,7 @@ import { SchemaReference } from "~/components/schema-reference";
 import { SiteShell } from "~/components/site-shell";
 import { getCatalogSchema } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
-import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -65,7 +65,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export function headers() {
-  return accountAwareCacheHeaders();
+  return cacheHeaders();
 }
 
 export default function SchemaDetail({ loaderData }: Route.ComponentProps) {

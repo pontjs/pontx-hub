@@ -2,7 +2,7 @@ import type { Route } from "./+types/sdk-detail";
 import { SiteShell } from "~/components/site-shell";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
-import { requireLocale, siteUrl } from "~/lib/http";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
@@ -74,6 +74,10 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
       ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
       : "pnpm add --global @pontx/hub-cli"
   };
+}
+
+export function headers() {
+  return cacheHeaders();
 }
 
 export default function SdkDetail({ loaderData }: Route.ComponentProps) {

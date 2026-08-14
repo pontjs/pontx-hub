@@ -43,6 +43,10 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
+export function headers() {
+  return { "Cache-Control": "private, no-store" };
+}
+
 export default function SavedApis({ loaderData }: Route.ComponentProps) {
   const { locale, available, unavailable } = loaderData;
   const zh = locale === "zh";

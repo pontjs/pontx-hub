@@ -206,6 +206,7 @@ export type CatalogApi = {
   packageName: string;
   sdkVersion: string;
   sdkStatus: "planned" | "published";
+  contentUpdatedAt?: string;
   cliName?: string;
   sdkExamples?: {
     typescript: string;

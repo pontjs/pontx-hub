@@ -37,6 +37,7 @@ import {
   type EndpointPlaygroundHistoryEntry
 } from "~/components/endpoint-playground-history";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
+import { useAccount } from "~/lib/accounts/account-context";
 import { RequestExampleNotice } from "~/components/request-example-notice";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
@@ -611,6 +612,7 @@ export function PontxApiWorkspace({
   variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
+  const accounts = useAccount();
 
   const navigate = useNavigate();
   const guided = variant === "guided";
@@ -1233,7 +1235,7 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
-              {!guided && playgroundHistoryEnabled ? (
+              {!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
                 <EndpointPlaygroundHistory
                   locale={locale}
                   apiSlug={api.slug}

@@ -266,6 +266,7 @@ export const catalogApiSchema = z
       .regex(/^@pontx\/[a-z0-9]+(?:-[a-z0-9]+)*$/),
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
     sdkStatus: z.enum(["planned", "published"]).default("published"),
+    contentUpdatedAt: z.string().date().optional(),
     cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),
     sdkExamples: z
       .object({

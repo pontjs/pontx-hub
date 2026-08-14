@@ -25,6 +25,18 @@ describe("private account API", () => {
     await expect(response.json()).resolves.toEqual({ error: { code: "not_found" } });
   });
 
+  it("reports viewer availability without exposing an email address", async () => {
+    vi.stubEnv("PONTX_ACCOUNTS_ENABLED", "false");
+    const response = await loader({
+      request: new Request("https://pontx.dev/api/account/v1/viewer")
+    } as never);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    await expect(response.json()).resolves.toEqual({
+      data: { enabled: false, viewer: null }
+    });
+  });
+
   it("fails closed when account configuration is incomplete", async () => {
     vi.stubEnv("PONTX_ACCOUNTS_ENABLED", "true");
     const response = await action({
@@ -112,9 +124,12 @@ describe("private account API", () => {
     });
   });
 
-  it("disables shared response caching when personalized account data is enabled", () => {
+  it("keeps public HTML share-cacheable when personalized accounts are enabled", () => {
     readyEnvironment();
-    expect(apiDetailHeaders()).toEqual({ "Cache-Control": "private, no-store" });
-    expect(catalogHeaders()).toEqual({ "Cache-Control": "private, no-store" });
+    const expected = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1500" };
+    expect(apiDetailHeaders()).toEqual(expected);
+    expect(new Headers(catalogHeaders({
+      loaderHeaders: new Headers(expected)
+    } as never)).get("Cache-Control")).toBe(expected["Cache-Control"]);
   });
 });

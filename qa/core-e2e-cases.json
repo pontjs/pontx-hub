@@ -1,7 +1,7 @@
 {
   "version": 2,
   "updatedAt": "2026-08-11",
-  "baseUrl": "https://pontx-hub.vercel.app",
+  "baseUrl": "https://pontx.dev",
   "locale": "zh",
   "passPolicy": {
     "requireSearchResult": true,

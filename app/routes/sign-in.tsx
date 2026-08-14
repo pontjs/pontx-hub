@@ -45,6 +45,10 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
+export function headers() {
+  return { "Cache-Control": "private, no-store" };
+}
+
 export default function SignIn({ loaderData }: Route.ComponentProps) {
   const { locale, returnTo } = loaderData;
   const zh = locale === "zh";

@@ -1,5 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.pontx.dev" }],
+      "destination": "https://pontx.dev/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "pontx-hub.vercel.app" }],
+      "destination": "https://pontx.dev/:path*",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/internal/cron/check-specs",

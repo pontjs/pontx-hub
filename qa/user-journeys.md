@@ -1,6 +1,6 @@
 # Pontx Hub 生产站每日巡检用户旅程
 
-本文件是生产站 `https://pontx-hub.vercel.app` 的巡检来源。定时任务每天 03:00（Asia/Shanghai）读取本文件与 `qa/core-e2e-cases.json`，执行结果追加到仓库根目录 `issues.md`。日常巡检只允许维护这三个巡检资产，不修复源码、不提交、不推送，也不执行写入型 API。
+本文件是生产站 `https://pontx.dev` 的巡检来源。定时任务每天 03:00（Asia/Shanghai）读取本文件与 `qa/core-e2e-cases.json`，执行结果追加到仓库根目录 `issues.md`。日常巡检只允许维护这三个巡检资产，不修复源码、不提交、不推送，也不执行写入型 API。
 
 ## 维护规则
 
@@ -69,7 +69,7 @@
 | tencent-finance | 3 | 3 | 0 | 0 | `getQuoteSnapshots` |
 | yahoo-finance | 7 | 0 | 7 | 0 | `getChart`（当前不可执行，必须报 FAIL） |
 
-当前基线：11 个 API、75 个 Endpoint、92 个 Schema；sitemap 共 364 个双语规范 URL（中文 182、英文 182）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
+当前基线：11 个 API、75 个 Endpoint、92 个 Schema；sitemap 共 360 个双语规范 URL（中文 180、英文 180）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
 
 ## 每日必跑旅程
 

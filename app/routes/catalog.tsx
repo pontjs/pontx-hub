@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Form, useNavigate } from "react-router";
+import { data, Form, useNavigate } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
 import {
@@ -13,8 +13,7 @@ import {
   listCatalogSummaries,
   searchCatalog
 } from "~/lib/catalog/catalog.server";
-import { accountAwareCacheHeaders, requireLocale, siteUrl } from "~/lib/http";
-import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
+import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { createDebouncedTask } from "~/lib/debounce";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -23,27 +22,29 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
   const catalog = listCatalogSummaries();
-  const favoriteEndpoints = query ? await listFavoriteEndpoints(request) : [];
-  return {
+  return data({
     locale,
     query,
     apis: catalog,
-    favoriteEndpoints,
     search: query ? searchCatalog(query, locale, { limit: 60 }) : null,
     totals: {
       apis: catalog.length,
       operations: catalog.reduce((count, api) => count + api.operationCount, 0),
       categories: new Set(catalog.map((api) => api.category)).size
     }
-  };
+  }, {
+    headers: query
+      ? { "Cache-Control": "private, no-store" }
+      : cacheHeaders()
+  });
 }
 
 export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
   const title =
     locale === "zh"
-      ? "Pontx Hub — OpenAPI 目录"
-      : "Pontx Hub — OpenAPI Catalog";
+      ? "Pontx API Hub — OpenAPI 目录"
+      : "Pontx API Hub — OpenAPI Catalog";
   const description =
     locale === "zh"
       ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
@@ -68,27 +69,44 @@ export function meta({ data }: Route.MetaArgs) {
     ...(!data?.query && data ? [{
       "script:ld+json": {
         "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: title,
-        description,
-        url: canonical,
-        mainEntity: {
-          "@type": "ItemList",
-          numberOfItems: data.apis.length,
-          itemListElement: data.apis.map((api, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            name: api.title[locale],
-            url: siteUrl(`/${locale}/apis/${api.slug}`)
-          }))
-        }
+        "@graph": [{
+          "@id": siteUrl("/#website"),
+          "@type": "WebSite",
+          name: "Pontx Hub",
+          alternateName: "Pontx API Hub",
+          url: siteUrl("/")
+        }, {
+          "@id": siteUrl("/#organization"),
+          "@type": "Organization",
+          name: "Pontx",
+          url: siteUrl("/"),
+          logo: siteUrl("/pontx-logo.svg"),
+          sameAs: ["https://github.com/pontjs"]
+        }, {
+          "@type": "CollectionPage",
+          name: title,
+          description,
+          url: canonical,
+          isPartOf: { "@id": siteUrl("/#website") },
+          publisher: { "@id": siteUrl("/#organization") },
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: data.apis.length,
+            itemListElement: data.apis.map((api, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: api.title[locale],
+              url: siteUrl(`/${locale}/apis/${api.slug}`)
+            }))
+          }
+        }]
       }
     }] : [])
   ];
 }
 
-export function headers() {
-  return accountAwareCacheHeaders();
+export function headers({ loaderHeaders }: Route.HeadersArgs) {
+  return loaderHeaders;
 }
 
 function searchHref(locale: "zh" | "en", query: string): string {
@@ -191,7 +209,7 @@ function CatalogSearch({
 }
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
-  const { locale, query, apis, search, totals, favoriteEndpoints } = loaderData;
+  const { locale, query, apis, search, totals } = loaderData;
   const zh = locale === "zh";
   const terminology = publicResourceTerminologyCopy(locale);
   const [searchPending, setSearchPending] = useState(false);
@@ -207,7 +225,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
         <header className="registry-header">
           <div className="registry-intro">
             <p className="registry-label">PONTX / OPENAPI REGISTRY</p>
-            <h1>{zh ? "API 目录" : "API Catalog"}</h1>
+            <h1>{zh ? "Pontx API Hub · API 目录" : "Pontx API Hub · API Catalog"}</h1>
             <p className="registry-description">
               {zh
                 ? "面向开发者与 Agent 的一站式 API 搜索、阅读、调试与 SDK 集成入口。"
@@ -253,7 +271,6 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
               <GlobalSearchResults
                 search={search}
                 locale={locale}
-                favoriteEndpoints={favoriteEndpoints}
               />
             ) : (
               <div className="api-grid">
