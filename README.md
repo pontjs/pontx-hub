@@ -63,6 +63,26 @@ OAuth-capable provider applications must also register
 `https://pontx.dev/oauth/callback`. Existing Dida365 applications created for
 the former Vercel hostname need their callback updated before authorization.
 
+## AI assistant
+
+The signed-in AI assistant is disabled unless its model and database backing
+services are configured explicitly. It accepts Anthropic's Messages API or an
+Anthropic-compatible provider without storing the model credential in Git or
+the account database. For DeepSeek V4 Flash, use:
+
+```dotenv
+PONTX_AI_ENABLED=true
+PONTX_AI_API_KEY=<server-side-secret>
+PONTX_AI_BASE_URL=https://api.deepseek.com/anthropic
+PONTX_AI_MODEL=deepseek-v4-flash
+PONTX_AI_INPUT_USD_PER_MTOK=0.14
+PONTX_AI_OUTPUT_USD_PER_MTOK=0.28
+```
+
+The input rate intentionally uses the cache-miss price so the global daily
+budget remains conservative. Direct Anthropic deployments may continue using
+`ANTHROPIC_API_KEY`; when `PONTX_AI_API_KEY` is present it takes precedence.
+
 The curated source of truth lives in the separate
 [`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)
 repository. The Hub synchronizes its compiled catalog before development,
