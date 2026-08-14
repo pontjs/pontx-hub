@@ -34,15 +34,20 @@ describe("hubCliCommand", () => {
     ]);
   });
 
-  it("uses -p only when an API parameter collides with CLI syntax", () => {
-    expect(hubCliParameterArguments("body", "summary")).toEqual([
-      "-p",
-      "body=summary"
+  it("uses named options for every non-reserved API parameter", () => {
+    expect(hubCliParameterArguments("param", "summary")).toEqual([
+      "--param",
+      "summary"
     ]);
     expect(hubCliParameterArguments("filter[status]", "open")).toEqual([
-      "-p",
-      `'filter[status]=open'`
+      "'--filter[status]'",
+      "open"
     ]);
+  });
+
+  it("rejects parameters that collide with Hub CLI options", () => {
+    expect(() => hubCliParameterArguments("url", "https://example.com"))
+      .toThrow("API parameter --url conflicts with a Pontx Hub CLI option");
   });
 
   it("generates named options without dropping false or zero values", () => {

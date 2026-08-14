@@ -23,7 +23,6 @@ const reservedCliOptions = new Set([
   "body",
   "header",
   "help",
-  "param",
   "url",
   "version",
   "yes"
@@ -42,11 +41,13 @@ export function hubCliParameterArguments(
   name: string,
   value: unknown
 ): string[] {
-  const serialized = parameterValue(value);
-  if (/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) && !reservedCliOptions.has(name)) {
-    return [`--${name}`, shellArgument(serialized)];
+  if (reservedCliOptions.has(name)) {
+    throw new Error(
+      `API parameter --${name} conflicts with a Pontx Hub CLI option`
+    );
   }
-  return ["-p", shellArgument(`${name}=${serialized}`)];
+  const serialized = parameterValue(value);
+  return [shellArgument(`--${name}`), shellArgument(serialized)];
 }
 
 export function hubCliCommand(
