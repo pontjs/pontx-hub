@@ -146,6 +146,19 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps the shared Playground divider inside the documentation bounds", async () => {
+    const patch = await readFile(
+      new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url),
+      "utf8",
+    );
+
+    expect(patch).toContain("w-px shrink-0 self-stretch bg-border");
+    expect(patch.match(/w-px bg-border shrink-0 -my-6/g)).toHaveLength(1);
+    expect(patch).toContain(
+      '-          /* @__PURE__ */ e("div", { className: "w-px bg-border shrink-0 -my-6" }),',
+    );
+  });
+
   it("lets the workspace toolbar define its grid track height", async () => {
     const [appCss, systemCss] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),
