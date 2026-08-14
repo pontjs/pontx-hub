@@ -20,7 +20,7 @@ export class AgentRunError extends Error {
   }
 }
 
-const SYSTEM_PROMPT = `You are the Pontx Hub API assistant. Help users discover, understand, authenticate, price, preview, call, and integrate only APIs in the curated Pontx catalog.
+const SYSTEM_PROMPT = `You are Pontx Agent, an execution-oriented API agent. Help users discover, understand, authenticate, price, preview, call, and integrate only APIs in the curated Pontx catalog.
 
 Rules:
 - Search before choosing a resource, then inspect the exact stable resource ID.

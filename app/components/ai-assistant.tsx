@@ -45,26 +45,27 @@ type ExecutionState = {
 
 const copy = {
   zh: {
-    label: "AI 助手",
-    title: "Pontx API 助手",
-    subtitle: "基于 Pontx API 目录，检索、生成代码并安全调用",
-    close: "关闭 AI 助手",
-    emptyTitle: "从 API 目录开始",
-    empty: "描述你想实现的能力，我会定位对应接口，说明鉴权与费用，并生成可执行的统一 SDK 或 CLI 代码。",
+    label: "Pontx Agent",
+    title: "Pontx Agent",
+    subtitle: "搜索 API、生成代码并安全执行任务",
+    close: "关闭 Pontx Agent",
+    emptyTitle: "交给 Agent 一个 API 任务",
+    empty: "描述你要完成的任务。Pontx Agent 会查找并理解接口、说明鉴权与费用、生成统一 SDK 或 CLI 代码，并将可执行调用交给你预览和确认。",
     suggestions: [
       ["查找 API", "帮我查找一个汇率 API，并说明应该使用哪个接口。"],
       ["了解鉴权", "滴答清单 API 应该如何完成 OAuth 鉴权？"],
       ["生成统一 SDK", "为 Frankfurter 最新汇率接口生成统一 SDK 调用代码。"],
       ["查看费用", "Massive API 的调用费用和免费额度是什么？"]
     ],
-    placeholder: "描述目标，例如：查找汇率 API 并生成统一 SDK 调用代码",
-    inputLabel: "给 Pontx API 助手发送消息",
-    send: "发送",
+    placeholder: "描述任务，例如：查找汇率 API 并生成统一 SDK 调用代码",
+    inputLabel: "给 Pontx Agent 分配任务",
+    send: "运行任务",
     stop: "停止",
-    working: "正在检索 Pontx API 资料…",
-    signIn: "登录后使用 AI 助手",
+    working: "正在查找 API 并规划执行步骤…",
+    signIn: "登录后使用 Pontx Agent",
     limit: "今日额度已用完，请明天再试。",
-    unavailable: "AI 助手暂时不可用。",
+    unavailable: "Pontx Agent 暂时不可用。",
+    usageUnavailable: "Pontx Agent 的运行服务尚未就绪。",
     prepared: "请求预览",
     previewRun: "预览并调用",
     confirm: "确认执行写操作",
@@ -74,34 +75,35 @@ const copy = {
     openEndpoint: "查看接口",
     cli: "CLI 调用",
     response: "响应结果",
-    clear: "新建会话",
+    clear: "新建任务",
     live: "已连接",
     catalog: "Pontx API Hub",
     you: "你",
-    agent: "Pontx",
-    composerHint: "Enter 发送 · Shift + Enter 换行"
+    agent: "Pontx Agent",
+    composerHint: "Enter 运行任务 · Shift + Enter 换行"
   },
   en: {
-    label: "AI Assistant",
-    title: "Pontx API Assistant",
-    subtitle: "Search the Pontx API catalog, generate code, and execute safely",
-    close: "Close AI assistant",
-    emptyTitle: "Start with the API catalog",
-    empty: "Describe what you want to build. I’ll identify the endpoint, explain auth and pricing, and generate executable Unified SDK or CLI code.",
+    label: "Pontx Agent",
+    title: "Pontx Agent",
+    subtitle: "Find APIs, generate code, and execute tasks safely",
+    close: "Close Pontx Agent",
+    emptyTitle: "Delegate an API task",
+    empty: "Describe the task you want completed. Pontx Agent will find and understand the endpoint, explain auth and pricing, generate Unified SDK or CLI code, and present executable calls for your review and confirmation.",
     suggestions: [
       ["Find an API", "Find an exchange-rate API and recommend the right endpoint."],
       ["Understand auth", "How do I complete OAuth authentication for the Dida365 API?"],
       ["Generate Unified SDK", "Generate Unified SDK integration code for the latest Frankfurter rates endpoint."],
       ["Check pricing", "What are the pricing and free-tier details for the Massive API?"]
     ],
-    placeholder: "Describe a goal, such as finding an exchange-rate API and generating Unified SDK code",
-    inputLabel: "Send a message to the Pontx API assistant",
-    send: "Send",
+    placeholder: "Describe a task, such as finding an exchange-rate API and generating Unified SDK code",
+    inputLabel: "Assign a task to Pontx Agent",
+    send: "Run task",
     stop: "Stop",
-    working: "Searching Pontx API resources…",
-    signIn: "Sign in to use the AI assistant",
+    working: "Finding APIs and planning the next steps…",
+    signIn: "Sign in to use Pontx Agent",
     limit: "Today's message allowance is exhausted. Try again tomorrow.",
-    unavailable: "The AI assistant is currently unavailable.",
+    unavailable: "Pontx Agent is currently unavailable.",
+    usageUnavailable: "Pontx Agent's runtime service is not ready.",
     prepared: "Request preview",
     previewRun: "Preview and call",
     confirm: "Confirm mutation",
@@ -111,12 +113,12 @@ const copy = {
     openEndpoint: "View endpoint",
     cli: "CLI command",
     response: "Response",
-    clear: "New session",
+    clear: "New task",
     live: "Connected",
     catalog: "Pontx API Hub",
     you: "You",
-    agent: "Pontx",
-    composerHint: "Enter to send · Shift + Enter for a new line"
+    agent: "Pontx Agent",
+    composerHint: "Enter to run · Shift + Enter for a new line"
   }
 } satisfies Record<Locale, Record<string, string | string[][]>>;
 
@@ -125,8 +127,8 @@ const SESSION_KEY = "pontx:ai:session:v1";
 function AgentIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M7 5.5h10a2.5 2.5 0 0 1 2.5 2.5v6A2.5 2.5 0 0 1 17 16.5h-6l-4.5 3v-3A2.5 2.5 0 0 1 4.5 14V8A2.5 2.5 0 0 1 7 5.5Z" />
-      <path d="m8.5 9 2 2-2 2M13 13h2.5" />
+      <rect x="3.75" y="4.5" width="16.5" height="15" rx="2.5" />
+      <path d="M3.75 8h16.5M7 6.25h.01M9.5 6.25h.01M7.5 11l2.25 2-2.25 2M12.5 15h3.5" />
     </svg>
   );
 }
@@ -139,8 +141,8 @@ function NewSessionIcon() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>;
 }
 
-function SendIcon() {
-  return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m3 10 14-6-4.5 12-2.8-4.2L3 10Z" /><path d="m9.7 11.8 3-3" /></svg>;
+function RunIcon() {
+  return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 7 5-7 5Z" /></svg>;
 }
 
 function StopIcon() {
@@ -302,7 +304,9 @@ export function AiAssistant({ locale }: { locale: Locale }) {
           ? text.signIn as string
           : message.includes("429")
             ? text.limit as string
-            : text.unavailable as string
+            : message.includes("ai_usage_unavailable")
+              ? text.usageUnavailable as string
+              : text.unavailable as string
       );
     } finally {
       setMessages([...(agentRef.current?.messages ?? [])]);
@@ -663,7 +667,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                     title={text.send as string}
                     disabled={!hydrated || !input.trim()}
                   >
-                    <SendIcon />
+                    <RunIcon />
                   </Button>
                 )}
               </div>
