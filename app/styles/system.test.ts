@@ -62,7 +62,10 @@ describe("Pontx Hub visual system", () => {
     );
     expect(systemCss).not.toContain("min-height: 80px;");
     expect(systemCss).toMatch(
-      /@media \(max-width: 740px\)[\s\S]*?\.site-footer\s*{[\s\S]*?gap:\s*8px;[\s\S]*?padding:\s*12px 16px;/,
+      /@media \(max-width: 740px\)[\s\S]*?\.site-footer\s*{[\s\S]*?gap:\s*6px;[\s\S]*?padding:\s*10px 16px;/,
+    );
+    expect(systemCss).toMatch(
+      /@media \(max-width: 740px\)[\s\S]*?\.site-footer > span\s*{\s*padding-right:\s*72px;/,
     );
   });
 

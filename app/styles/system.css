@@ -1953,8 +1953,12 @@ textarea {
 
   .site-footer {
     align-items: flex-start;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 6px;
+    padding: 10px 16px;
+  }
+
+  .site-footer > span {
+    padding-right: 72px;
   }
 
   .catalog-page,
