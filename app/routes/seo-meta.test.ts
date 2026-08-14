@@ -34,8 +34,7 @@ function expectLocalizedPublicMeta(meta: Descriptor[], canonical: string) {
 describe("public route SEO metadata", () => {
   const api = getCatalogApi("dida365");
   if (!api) throw new Error("Expected synchronized Dida365 metadata");
-  const plannedApi = getCatalogApi("frankfurter-v2");
-  if (!plannedApi) throw new Error("Expected synchronized Frankfurter v2 metadata");
+  const plannedApi = { ...api, sdkStatus: "planned" as const };
 
   it("publishes the Pontx brand graph and search ownership meta tags", () => {
     const catalogDescriptors = descriptors(catalogMeta({

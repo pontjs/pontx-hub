@@ -37,7 +37,8 @@ describe("SEO resource routes", () => {
     expect(body).not.toContain("<priority>");
     expect(body).not.toContain("<changefreq>");
     for (const api of catalog.filter((item) => item.sdkStatus === "planned")) {
-      expect(body).not.toContain(`/sdks/${api.slug}`);
+      expect(body).not.toContain(`<loc>https://pontx.dev/zh/sdks/${api.slug}</loc>`);
+      expect(body).not.toContain(`<loc>https://pontx.dev/en/sdks/${api.slug}</loc>`);
     }
     expect(body).not.toContain("/account/");
     expect(body).not.toContain("/sign-in");

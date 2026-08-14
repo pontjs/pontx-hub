@@ -29,47 +29,40 @@
 - `FLAKY`：首次失败、同一参数的一次诊断性重试成功；必须登记问题并保留首次失败证据。
 - `BLOCKED`：安全凭据或受控测试数据缺失，无法执行；这不是自动判定的代码缺陷，但全站巡检仍不得通过。
 
-当天全局结果必须同时满足 API 产品核心闭环 11/11、Endpoint 搜索与文档 75/75、SAFE-LIVE 41/41、PREVIEW-ONLY 11/11 和 NON-GET 23/23，才能标记 PASS。任何 `FAIL`、`FLAKY`、`BLOCKED` 或覆盖未完成都使核心巡检总结果为 FAIL，并在 `issues.md` 建立稳定 signature；不得用少数简单 Endpoint 的成功率代替全量分母。
+当天全局结果必须同时满足 API 产品核心闭环 4/4、Endpoint 搜索与文档 53/53、SAFE-LIVE 24/24、PREVIEW-ONLY 6/6 和 NON-GET 23/23，才能标记 PASS。任何 `FAIL`、`FLAKY`、`BLOCKED` 或覆盖未完成都使核心巡检总结果为 FAIL，并在 `issues.md` 建立稳定 signature；不得用少数简单 Endpoint 的成功率代替全量分母。
 
 ## 每日 Endpoint 全覆盖策略
 
-当前 75 个 Endpoint 每天全部进入“搜索 → 文档”链路，并按风险分层继续：
+当前 53 个 Endpoint 每天全部进入“搜索 → 文档”链路，并按风险分层继续：
 
-1. `SAFE-LIVE`：API 与 Endpoint 均允许代理、方法为 GET 的 41 个 Endpoint，全部从 Playground 真实执行并断言首次 2xx。包含 Dida365 的 14 个 OAuth GET 与 Massive 的 6 个 API Key GET；缺少凭据时逐项 BLOCKED，不能只测一个鉴权示例。
-2. `PREVIEW-ONLY`：11 个 `proxyEnabled=false` Endpoint（Yahoo Finance 7、Stooq 2、Eastmoney 2）全部检查搜索、文档、完整参数预览、代码生成、禁用原因和同 API 的可执行替代路径。它们仍不能满足真实调试，所属 API 没有可执行金丝雀时为 FAIL。
+1. `SAFE-LIVE`：API 与 Endpoint 均允许代理、方法为 GET 的 24 个 Endpoint，全部从 Playground 真实执行并断言首次 2xx。包含 Dida365 的 14 个 OAuth GET；缺少凭据时逐项 BLOCKED，不能只测一个鉴权示例。
+2. `PREVIEW-ONLY`：Massive 的 6 个 `proxyEnabled=false` Endpoint 全部检查搜索、文档、完整参数预览、代码生成和禁用原因。Massive 要求调用者直接使用自己的账户和 SDK/CLI，不经过 Hub 代理，因此不以 Hub 真实执行作为 PASS 条件。
 3. `NON-GET`：Dida365 的 23 个 POST/DELETE Endpoint 全部检查搜索、文档、请求体、代码生成和明确的变更确认边界，但禁止对生产账户执行。只有元数据明确标记为只读且具备受控测试数据/sandbox 时，才可升级到真实调用。
 
-执行顺序必须按 API 轮询：先 11 个产品各一个高价值 Endpoint，再运行带必填路径参数、多参数、日期区间、鉴权、嵌套响应、HTML/CSV/文本响应和已知不稳定性的 Endpoint，最后才运行无参数列表类接口。不得连续耗尽一个 API 后因时间不足遗漏其他产品，也不得长期固定选择最简单的 Endpoint。
+执行顺序必须按 API 轮询：先 4 个产品各一个高价值 Endpoint，再运行带必填路径参数、多参数、日期区间、鉴权、嵌套响应和已知不稳定性的 Endpoint，最后才运行无参数列表类接口。不得连续耗尽一个 API 后因时间不足遗漏其他产品，也不得长期固定选择最简单的 Endpoint。
 
-每天报告以下动态分母，不能只写“11 个 API 已覆盖”：
+每天报告以下动态分母，不能只写“4 个 API 已覆盖”：
 
 - API 产品闭环覆盖率：通过核心金丝雀的产品数 / catalog API 总数。
-- Endpoint 搜索与文档覆盖率：完成真实搜索和文档核对的 Endpoint 数 / catalog Endpoint 总数，目标 75/75。
-- 安全真实调试覆盖率：首次 2xx 且响应断言通过数 / `SAFE-LIVE` 总数，当前目标 41/41。
-- 仅预览合同覆盖率：完成预览/禁用原因/替代路径检查数 / `PREVIEW-ONLY` 总数，当前目标 11/11。
+- Endpoint 搜索与文档覆盖率：完成真实搜索和文档核对的 Endpoint 数 / catalog Endpoint 总数，目标 53/53。
+- 安全真实调试覆盖率：首次 2xx 且响应断言通过数 / `SAFE-LIVE` 总数，当前目标 24/24。
+- 仅预览合同覆盖率：完成预览/禁用原因检查数 / `PREVIEW-ONLY` 总数，当前目标 6/6。
 - 非 GET 安全覆盖率：完成文档、请求体、代码和变更边界检查数 / `NON-GET` 总数，当前目标 23/23。
 
-新增或变更 Endpoint 时以 catalog 实时重算分母，并在当天加入相应层级；固定数字只是 2026-08-11 的基线。
+新增或变更 Endpoint 时以 catalog 实时重算分母，并在当天加入相应层级；固定数字只是 2026-08-14 的基线。
 
 ## 当前站点清单
 
-最后维护：2026-08-11，Asia/Shanghai。
+最后维护：2026-08-14，Asia/Shanghai。
 
 | API | Endpoint | SAFE-LIVE | PREVIEW-ONLY | NON-GET | 每日首个金丝雀 |
 | --- | ---: | ---: | ---: | ---: | --- |
 | dida365 | 37 | 14 | 0 | 23 | `getUserProjects`（需要安全 canary token） |
 | frankfurter | 5 | 5 | 0 | 0 | `getLatestRates` |
 | frankfurter-v2 | 5 | 5 | 0 | 0 | `getProviders` |
-| massive | 6 | 6 | 0 | 0 | `getPreviousClose`（需要安全 canary key） |
-| cnbc-market-data | 2 | 2 | 0 | 0 | `getRestQuotes` |
-| eastmoney-funds | 4 | 2 | 2 | 0 | `listHistoricalNav` |
-| i3investor-sgx | 2 | 2 | 0 | 0 | `getSgxStockOverviewPage` |
-| sina-finance | 2 | 2 | 0 | 0 | `getQuoteSnapshots` |
-| stooq | 2 | 0 | 2 | 0 | `downloadLatestQuotes`（当前不可执行，必须报 FAIL） |
-| tencent-finance | 3 | 3 | 0 | 0 | `getQuoteSnapshots` |
-| yahoo-finance | 7 | 0 | 7 | 0 | `getChart`（当前不可执行，必须报 FAIL） |
+| massive | 6 | 0 | 6 | 0 | `getPreviousClose`（Hub 只预览，使用 SDK/CLI 直连） |
 
-当前基线：11 个 API、75 个 Endpoint、92 个 Schema；sitemap 共 360 个双语规范 URL（中文 180、英文 180）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
+当前基线：4 个 API、53 个 Endpoint、58 个 Schema；sitemap 共 238 个双语规范 URL（中文 119、英文 119）。数量变化不一定是错误，但必须同步本表并确认 sitemap、导航和 SEO 合同仍成立。
 
 ## 每日必跑旅程
 
@@ -80,7 +73,7 @@
 - `NAV-003`：在 390px 移动端打开深层 Endpoint/Schema，展开菜单，确认当前位置、菜单可用且没有遮挡。
 - `SEARCH-001`：中文语义词“创建任务的入参”，结果应包含滴答清单创建任务相关接口。
 - `SEARCH-002`：英文语义词“exchange rate”，结果应包含 Frankfurter；结果卡片的长接口路径必须换行或裁剪。
-- `SEARCH-003`：精确接口 ID `getChart`，验证接口可发现且链接正确。
+- `SEARCH-003`：精确接口 ID `getProviders`，验证接口可发现且链接正确。
 - `SEARCH-004`：Schema 属性 `projectId`，验证跨 API/Schema 结果和高亮。
 - `SEARCH-005`：不存在的词，验证空结果说明、清除搜索与返回目录入口。
 - `SEARCH-006`：验证搜索框键盘提交、Tab 焦点顺序、Enter 提交、深链刷新，以及切换语言后保留安全查询参数。
@@ -88,8 +81,8 @@
 ### API 概览、Endpoint、Schema 与 Playground
 
 - `E2E-CORE-001`：严格按 `qa/core-e2e-cases.json` 对每个 API 执行“搜索 → Endpoint 文档 → 试用 → 首次 2xx → 响应断言”；这是每日最高优先级硬门槛。
-- `E2E-EXPAND-001`：金丝雀完成后，对 catalog 中全部 41 个 `SAFE-LIVE` Endpoint 重复真实浏览器闭环；不得只运行无参数列表接口。
-- `E2E-EXPAND-002`：对全部 11 个 `PREVIEW-ONLY` Endpoint 完成搜索、文档、参数预览、代码、禁用原因和可执行替代路径检查。
+- `E2E-EXPAND-001`：金丝雀完成后，对 catalog 中全部 24 个 `SAFE-LIVE` Endpoint 重复真实浏览器闭环；不得只运行无参数列表接口。
+- `E2E-EXPAND-002`：对全部 6 个 `PREVIEW-ONLY` Endpoint 完成搜索、文档、参数预览、代码和禁用原因检查。
 - `E2E-EXPAND-003`：对全部 23 个 `NON-GET` Endpoint 完成搜索、文档、请求体、代码和变更确认边界检查，禁止生产写入。
 - `API-001`：对清单中的每个 API 检查本地化标题、说明、鉴权、接口数、在线调用数、SDK 状态和当前 API 上下文。
 - `API-002`：切换“调用目标”，确认方法/路径、参数表单、完整接口文档链接和代码片段同步更新。
@@ -125,11 +118,8 @@
 ## 已确认问题的固定回归旅程
 
 - `REG-FRANKFURTER-V2-001`：打开 `/zh/apis/frankfurter-v2`，默认快速调用不得同时提交互斥的 `date` 与 `from/to/group` 参数；主 CTA 应直接成功或要求用户选择合法模式。
-- `REG-PREVIEW-ONLY-001`：打开 Stooq 与 Yahoo Finance 概览，在线调用标记为“仅预览”时不应出现可用的“执行请求”，也不应返回通用 500。
-- `REG-SCHEMA-LONG-REF-001`：在 390px 打开 CNBC `FormattedQuoteResponse`，`ExtendedMarketQuote` 等长引用必须在容器内换行或收缩，页面宽度不得超过视口。
+- `REG-PREVIEW-ONLY-001`：打开 Massive 概览，在线调用标记为“仅预览”时不应出现可用的“执行请求”，也不应返回通用 500。
 - `REG-SEARCH-LONG-PATH-001`：在 768px 和 1440px 搜索 `exchange rate`，Massive 的长 Endpoint 路径必须在结果卡片内换行或裁剪，不得扩大文档宽度。
-- `REG-API-EXECUTABLE-CANARY-001`：Stooq 与 Yahoo Finance 必须分别至少有一个金丝雀 Endpoint 从搜索进入文档后真实返回 2xx；“仅预览”不再满足核心体验。
-- `REG-I3-DEBUG-STABILITY-001`：i3Investor `getSgxStockOverviewPage` 必须首次调试即返回 2xx，不能依赖重试。
 
 ## 七天滚动覆盖
 
