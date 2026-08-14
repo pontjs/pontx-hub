@@ -207,6 +207,10 @@ export type CatalogApi = {
   sdkVersion: string;
   sdkStatus: "planned" | "published";
   cliName?: string;
+  sdkExamples?: {
+    typescript: string;
+    cli: string;
+  };
   proxyEnabled: boolean;
   documentationStatus: DocumentationStatus;
   evidenceUrls: string[];
