@@ -261,7 +261,9 @@ export const catalogApiSchema = z
     title: localizedTextSchema,
     summary: localizedTextSchema,
     accent: z.string().regex(/^#[a-fA-F0-9]{6}$/),
-    packageName: z.string().regex(/^@pontx\/api-[a-z0-9-]+$/),
+    packageName: z
+      .string()
+      .regex(/^@pontx\/[a-z0-9]+(?:-[a-z0-9]+)*$/),
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
     sdkStatus: z.enum(["planned", "published"]).default("published"),
     cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),

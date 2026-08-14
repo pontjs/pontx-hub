@@ -26,6 +26,18 @@ describe("curated catalog", () => {
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
+  it("accepts canonical scoped SDK package names", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "dida365");
+    expect(catalogApiSchema.parse({
+      ...api,
+      packageName: "@pontx/dida365"
+    }).packageName).toBe("@pontx/dida365");
+    expect(catalogApiSchema.safeParse({
+      ...api,
+      packageName: "@other/dida365"
+    }).success).toBe(false);
+  });
+
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
