@@ -267,6 +267,12 @@ export const catalogApiSchema = z
     sdkVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
     sdkStatus: z.enum(["planned", "published"]).default("published"),
     cliName: z.string().regex(/^[a-z0-9][a-z0-9-]*$/).optional(),
+    sdkExamples: z
+      .object({
+        typescript: z.string().min(1),
+        cli: z.string().min(1)
+      })
+      .optional(),
     proxyEnabled: z.boolean().default(false),
     documentationStatus: documentationStatusSchema,
     evidenceUrls: z.array(z.string().url()).default([]),

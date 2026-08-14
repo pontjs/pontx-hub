@@ -7,6 +7,7 @@ import { localizedAlternates } from "~/lib/seo";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
 import { hubCliCommand } from "~/lib/hub-cli-command";
+import type { CatalogApi } from "~/lib/catalog/types";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -57,23 +58,33 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
+export function sdkUsageExamples(api: CatalogApi) {
+  if (api.sdkExamples) return api.sdkExamples;
+
+  const moduleName = api.operations[0]?.tag
+    .toLowerCase()
+    .replace(/[^a-z0-9]+(.)/g, (_, character: string) => character.toUpperCase());
+  const cliOperation = api.operations[0];
+  return {
+    typescript: `import client from "${api.packageName}";
+
+// Generated methods are typed from the approved OAS version.
+const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`,
+    cli: cliOperation
+      ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
+      : "pnpm add --global @pontx/hub-cli"
+  };
+}
+
 export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const { locale, api } = loaderData;
   const zh = locale === "zh";
   const published = api.sdkStatus === "published";
   const install = `pnpm add ${api.packageName}`;
-  const moduleName = api.operations[0]?.tag
-    .toLowerCase()
-    .replace(/[^a-z0-9]+(.)/g, (_, character: string) => character.toUpperCase());
-  const usage = `import client from "${api.packageName}";
-
-// Generated methods are typed from the approved OAS version.
-const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`;
+  const examples = sdkUsageExamples(api);
+  const usage = examples.typescript;
   const npmUrl = `https://www.npmjs.com/package/${api.packageName}`;
-  const cliOperation = api.operations[0];
-  const cliUsage = cliOperation
-    ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
-    : "pnpm add --global @pontx/hub-cli";
+  const cliUsage = examples.cli;
   const codeBlockCopy = zh ? "复制" : "Copy";
   const codeBlockCopied = zh ? "已复制" : "Copied";
   const codeBlockCopyFailed = zh ? "复制失败" : "Copy failed";
