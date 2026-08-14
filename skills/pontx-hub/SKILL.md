@@ -79,4 +79,5 @@ Prefer `--json` when consuming CLI output programmatically. Preserve the CLI
 exit code and machine-readable error code when reporting failures. Use the
 result's `match.mode` and `match.fields` to explain whether product, parameter,
 request, response, schema, or property metadata produced the match. Use the
-operation's published `@pontx/api-*` package when generating application code.
+operation's published `@pontx/<api-slug>` package when generating application
+code.
