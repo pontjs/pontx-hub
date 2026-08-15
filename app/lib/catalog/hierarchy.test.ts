@@ -225,4 +225,67 @@ describe("Pontx hierarchy consumer", () => {
       ]
     });
   });
+
+  it("bounds inferred response examples for recursive Schemas", () => {
+    const recursiveSpec = loadPontxSpec({
+      pontx: "2.1",
+      style: "RESTFul",
+      name: "recursive-fixture",
+      info: { title: "Recursive fixture", version: "1.0.0" },
+      servers: [{ id: "api", url: "https://api.example.test" }],
+      apis: {
+        "nodes/get": {
+          operationId: "getNode",
+          method: "GET",
+          path: "/nodes/{id}",
+          parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+          responses: {
+            "200": {
+              description: "A recursive node.",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/Node" } } }
+            }
+          },
+          requestExamples: {
+            default: { request: { path: { id: "root" } }, expectedStatus: "200" }
+          }
+        }
+      },
+      components: {
+        schemas: {
+          Node: {
+            type: "object",
+            properties: {
+              id: { type: "string", example: "root" },
+              child: { $ref: "#/components/schemas/Node" }
+            }
+          }
+        }
+      }
+    });
+    const catalog = buildCatalogApi({
+      metadataCommit: "e".repeat(40),
+      product: {
+        slug: "recursive-fixture",
+        name: "Recursive fixture",
+        provider: "Pontx",
+        category: "Fixture",
+        featured: false,
+        display: { title: "Recursive fixture API", summary: "Bounds inferred examples.", accent: "#334155" },
+        legal: { license: "MIT", attributionUrl: "https://pontx.dev/" },
+        credentials: [],
+        quickStart: { operationId: "getNode", requestExampleId: "default" }
+      },
+      localizedProduct: {
+        display: { title: "Recursive fixture API", summary: "Bounds inferred examples." }
+      },
+      spec: recursiveSpec,
+      localizedSpec: recursiveSpec,
+      sdk: {
+        package: { name: "@pontx/recursive-fixture", version: "0.0.0", status: "planned" },
+        spec: { path: "products/recursive-fixture/spec.pontx.json", sha256: "f".repeat(64) }
+      }
+    });
+
+    expect(catalog.operations[0].responseExample).toEqual({ id: "root" });
+  });
 });

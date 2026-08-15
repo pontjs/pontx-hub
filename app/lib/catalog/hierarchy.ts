@@ -76,23 +76,45 @@ function firstMedia(content: JsonRecord | undefined): JsonRecord | undefined {
   return content["application/json"] ?? Object.values(content)[0];
 }
 
-function exampleFor(spec: PontxSpec, schema: JsonRecord | undefined): unknown {
-  const resolved = dereference(spec, schema);
-  if (!Object.keys(resolved).length) return undefined;
-  if (resolved.example !== undefined) return resolved.example;
-  if (Array.isArray(resolved.examples) && resolved.examples.length) return resolved.examples[0];
-  if (resolved.default !== undefined) return resolved.default;
-  if (Array.isArray(resolved.enum) && resolved.enum.length) return resolved.enum[0];
-  if (resolved.type === "array") return [exampleFor(spec, resolved.items) ?? {}];
-  if (resolved.type === "object" || resolved.properties) {
-    return Object.fromEntries(
-      Object.entries<JsonRecord>(resolved.properties ?? {}).slice(0, 8)
-        .map(([name, value]) => [name, exampleFor(spec, value)])
-    );
+const maxInferredExampleDepth = 4;
+
+function exampleFor(
+  spec: PontxSpec,
+  schema: JsonRecord | undefined,
+  references = new Set<string>(),
+  depth = 0
+): unknown {
+  if (depth >= maxInferredExampleDepth) return undefined;
+  const reference = refName(schema);
+  if (reference && references.has(reference)) return undefined;
+  if (reference) references.add(reference);
+
+  try {
+    const resolved = dereference(spec, schema);
+    if (!Object.keys(resolved).length) return undefined;
+    if (resolved.example !== undefined) return resolved.example;
+    if (Array.isArray(resolved.examples) && resolved.examples.length) return resolved.examples[0];
+    if (resolved.default !== undefined) return resolved.default;
+    if (Array.isArray(resolved.enum) && resolved.enum.length) return resolved.enum[0];
+    if (resolved.type === "array") {
+      const item = exampleFor(spec, resolved.items, references, depth + 1);
+      return item === undefined ? [] : [item];
+    }
+    if (resolved.type === "object" || resolved.properties) {
+      return Object.fromEntries(
+        Object.entries<JsonRecord>(resolved.properties ?? {}).slice(0, 8)
+          .flatMap(([name, value]) => {
+            const valueExample = exampleFor(spec, value, references, depth + 1);
+            return valueExample === undefined ? [] : [[name, valueExample]];
+          })
+      );
+    }
+    if (resolved.type === "integer" || resolved.type === "number") return 0;
+    if (resolved.type === "boolean") return false;
+    return undefined;
+  } finally {
+    if (reference) references.delete(reference);
   }
-  if (resolved.type === "integer" || resolved.type === "number") return 0;
-  if (resolved.type === "boolean") return false;
-  return undefined;
 }
 
 function payloadMetadata(
@@ -220,6 +242,9 @@ function makeOperation(
   const localeResponses = translated.responses ?? {};
   const successfulResponse = responseEntries.find(([status]) => status.startsWith("2"))?.[1];
   const successfulMedia = firstMedia(successfulResponse?.content);
+  const responseExample = successfulMedia?.example !== undefined
+    ? successfulMedia.example
+    : exampleFor(spec, successfulMedia?.schema ?? successfulResponse?.schema);
   const sourceSse = source.sse as JsonRecord | undefined;
   const localeSse = translated.sse as JsonRecord | undefined;
   const documentation = source.metadata?.documentation ?? {};
@@ -326,11 +351,7 @@ function makeOperation(
       : {}),
     ...(security.length ? { security } : {}),
     requestExamples: makeRequestExamples(source, translated, title),
-    ...(successfulMedia?.example !== undefined
-      ? { responseExample: successfulMedia.example }
-      : exampleFor(spec, successfulMedia?.schema ?? successfulResponse?.schema) !== undefined
-        ? { responseExample: exampleFor(spec, successfulMedia?.schema ?? successfulResponse?.schema) }
-        : {}),
+    ...(responseExample !== undefined ? { responseExample } : {}),
     ...(source.deprecated ? { deprecated: true } : {})
   };
 }
@@ -426,6 +447,7 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
         id: credential.schemeId,
         type: "oauth2",
         envVar: credential.envVar,
+        ...(credential.secretEnvVar ? { secretEnvVar: credential.secretEnvVar } : {}),
         description,
         ...(credential.tokenEndpointAuthMethod ? { tokenEndpointAuthMethod: credential.tokenEndpointAuthMethod } : {}),
         ...(credential.pkce ? { pkce: credential.pkce } : {}),

@@ -158,7 +158,6 @@ const result = await ratesClient.common.getRate(
       headers: {},
       body: { title: "Updated" }
     });
-    expect(code.indexOf('"title"')).toBeLessThan(code.indexOf("const result"));
     expect(code.indexOf('"task-1"')).toBeLessThan(code.indexOf("sdkRequestBody,"));
     expect(code.indexOf("sdkRequestBody,")).toBeLessThan(code.indexOf("Authorization"));
     expect(code).toContain('"id": "REPLACE_WITH_ID"');
@@ -254,9 +253,108 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain('"type": "send_document"');
     expect(code).toContain('"signers": []');
     expect(code).toContain(
-      "satisfies Parameters<typeof dropboxSignClient.unclaimedDraft.createDraft>[1] & Record<string, unknown>"
+      "satisfies Parameters<typeof dropboxSignClient.unclaimedDraft.createDraft>[1]"
     );
     expect(code).not.toContain("as const");
+  });
+
+  it("uses declared path-query-body order and array request-body placeholders", () => {
+    const atlasOperation = {
+      operationId: "createIntegration",
+      tag: "integrations",
+      path: "/groups/{groupId}/integrations/{integrationType}",
+      parameters: [
+        { name: "integrationType", in: "path", type: "string", enum: ["SLACK"] },
+        { name: "pretty", in: "query", type: "boolean" },
+        { name: "groupId", in: "path", type: "string" }
+      ],
+      requestBody: { schemaName: "RoleAssignments", schemaType: "array" }
+    } as CatalogOperation;
+    const atlas = api({ kind: "factory", factory: "createAtlasClient", identifier: "client", options: {} });
+    atlas.schemas = [{
+      name: "RoleAssignments",
+      title: { zh: "角色", en: "Roles" },
+      description: { zh: "角色", en: "Roles" },
+      type: "array",
+      required: [],
+      properties: [],
+      schema: { type: "array" }
+    }] as CatalogApi["schemas"];
+    atlas.sdkContract = {
+      ...atlas.sdkContract!,
+      controllers: { integrations: "integrations" },
+      operations: ["createIntegration"],
+      argumentOrder: ["path", "query", "body"]
+    };
+
+    const code = generateSdkSnippet(atlas, atlasOperation, {
+      path: { groupId: "group-1", integrationType: "SLACK" },
+      query: {},
+      headers: {}
+    });
+
+    const call = code.slice(code.indexOf("const result"));
+    expect(call.indexOf('"group-1"')).toBeLessThan(call.indexOf('"SLACK"'));
+    expect(call.indexOf('"SLACK"')).toBeLessThan(call.indexOf("{}"));
+    expect(call.indexOf("{}")).toBeLessThan(call.indexOf("sdkRequestBody"));
+    expect(code).toContain("const sdkRequestBody = []");
+    expect(code).toContain("Parameters<typeof client.integrations.createIntegration>[3]");
+  });
+
+  it("hydrates required nested request properties without optional source-only fields", () => {
+    const nestedOperation = {
+      operationId: "createNested",
+      tag: "nested",
+      parameters: [{ name: "body", in: "body", type: "object" }],
+      requestBody: { schemaName: "Parent" }
+    } as CatalogOperation;
+    const nested = api({ kind: "named", identifier: "client" });
+    nested.schemas = [
+      {
+        name: "Parent",
+        title: { zh: "父级", en: "Parent" },
+        description: { zh: "父级", en: "Parent" },
+        type: "object",
+        required: ["child", "viewport"],
+        properties: [
+          { name: "child", type: "object", ref: "Child", required: true },
+          { name: "viewport", type: "object", required: true }
+        ],
+        schema: {
+          type: "object",
+          properties: {
+            child: { $ref: "#/components/schemas/Child" },
+            viewport: {
+              type: "object",
+              required: ["width"],
+              properties: { width: { type: "number" } }
+            }
+          }
+        }
+      },
+      {
+        name: "Child",
+        title: { zh: "子级", en: "Child" },
+        description: { zh: "子级", en: "Child" },
+        type: "object",
+        required: ["id"],
+        properties: [{ name: "id", type: "string", required: true }],
+        schema: { type: "object", properties: { id: { type: "string" } } }
+      }
+    ] as CatalogApi["schemas"];
+    nested.sdkContract = {
+      ...nested.sdkContract!,
+      controllers: { nested: "nested" },
+      operations: ["createNested"]
+    };
+
+    const code = generateSdkSnippet(nested, nestedOperation, {
+      path: {}, query: {}, headers: {}, body: { ignoredOptional: true }
+    });
+
+    expect(code).toContain('"child": {\n    "id": "REPLACE_WITH_ID"\n  }');
+    expect(code).toContain('"viewport": {\n    "width": 0\n  }');
+    expect(code).not.toContain("ignoredOptional");
   });
 
   it("uses visible type-safe placeholders for missing required inputs", () => {

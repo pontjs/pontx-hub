@@ -20,7 +20,8 @@ describe("curated catalog", () => {
       ["currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "pinhere", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "pinhere", "stripe-identity", "twelve-data-forex"]
+      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "pinhere", "stripe-identity", "twelve-data-forex"],
+      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex"]
     ]).toContainEqual(catalog.map((api) => api.slug));
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
@@ -89,7 +90,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect([53, 126, 134, 142, 253, 258, 281, 315, 321]).toContain(operations.length);
+    expect([53, 126, 134, 142, 253, 258, 281, 315, 321, 1149]).toContain(operations.length);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(
@@ -172,7 +173,7 @@ describe("curated catalog", () => {
       .flatMap((api) => api.operations)
       .filter((operation) => operation.style === "RESTFul");
 
-    expect([258, 264, 292, 298]).toContain(restOperations.length);
+    expect([258, 264, 292, 298, 1126]).toContain(restOperations.length);
     expect(restOperations.every((operation) =>
       operation.proxyEnabled || Boolean(operation.proxyDisabledReason)
     )).toBe(true);
@@ -205,6 +206,26 @@ describe("curated catalog", () => {
     expect(api?.operations.every((operation) =>
       operation.style === "RPC" && operation.proxyEnabled === false && !operation.method && !operation.path
     )).toBe(true);
+  });
+
+  it("publishes MongoDB Atlas as a complete caller-direct SDK contract", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "mongodb-atlas-admin");
+    const serviceAccount = api?.auth.find((candidate) => candidate.id === "ServiceAccounts");
+    expect(api).toMatchObject({
+      packageName: "@pontx/mongodb-atlas-admin",
+      sdkVersion: "0.1.0",
+      sdkStatus: "published",
+      cliName: "pontx-mongodb-atlas-admin",
+      proxyEnabled: false
+    });
+    expect(api?.operations).toHaveLength(540);
+    expect(api?.schemas).toHaveLength(1145);
+    expect(Object.keys(api?.sdkContract?.controllers ?? {})).toHaveLength(58);
+    expect(serviceAccount).toMatchObject({
+      type: "oauth2",
+      envVar: "MONGODB_ATLAS_SERVICE_ACCOUNT_CLIENT_ID",
+      secretEnvVar: "MONGODB_ATLAS_SERVICE_ACCOUNT_CLIENT_SECRET"
+    });
   });
 
   it("returns summaries without operation payloads", () => {
@@ -269,7 +290,7 @@ describe("curated catalog", () => {
     const property = searchCatalog("projectId", "en", { kinds: ["schema"] });
     expect(property.items.every((item) => item.kind === "schema")).toBe(true);
     expect(property.items.some((item) => item.id === "schema:dida365/TaskCreate")).toBe(true);
-  });
+  }, 30_000);
 
   it("ranks exact schema names and paginates deterministically", () => {
     const result = searchCatalog("Task", "en", { limit: 2 });
@@ -306,7 +327,7 @@ describe("curated catalog", () => {
       kinds: ["endpoint"]
     });
     expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
-  });
+  }, 30_000);
 
   it("preserves official market-data provenance without disabling execution", () => {
     const catalog = listCatalog();

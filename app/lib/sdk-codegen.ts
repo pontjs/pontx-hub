@@ -81,6 +81,94 @@ function schemaPropertyEvidence(
     : undefined;
 }
 
+function referencedSchema(
+  api: CatalogApi,
+  property: CatalogApi["schemas"][number]["properties"][number] | undefined,
+  evidence: Record<string, unknown> | undefined
+): CatalogApi["schemas"][number] | undefined {
+  const reference = property?.ref ?? (
+    typeof evidence?.$ref === "string"
+      ? evidence.$ref.replace("#/components/schemas/", "")
+      : undefined
+  );
+  return reference
+    ? api.schemas.find((candidate) => candidate.name === reference)
+    : undefined;
+}
+
+function requiredSchemaValue(
+  api: CatalogApi,
+  property: CatalogApi["schemas"][number]["properties"][number] | undefined,
+  evidence: Record<string, unknown> | undefined,
+  references: Set<string>,
+  depth: number
+): unknown {
+  const declaredType = property?.type ??
+    (typeof evidence?.type === "string" ? evidence.type : undefined);
+  // Array schemas commonly reference an item Schema. Check the property shape
+  // before following that reference, otherwise an item object would be emitted
+  // where the generated SDK correctly expects an array.
+  if (declaredType === "array") return [];
+  const target = referencedSchema(api, property, evidence);
+  if (target?.type === "array") return [];
+  if (target?.type === "object") {
+    return requiredSchemaObject(api, target, references, depth + 1);
+  }
+  const inlineProperties = evidence?.properties;
+  const inlineRequired = evidence?.required;
+  if (
+    declaredType === "object" &&
+    inlineProperties && typeof inlineProperties === "object" && !Array.isArray(inlineProperties)
+  ) {
+    const required = Array.isArray(inlineRequired)
+      ? inlineRequired.filter((name): name is string => typeof name === "string")
+      : [];
+    return Object.fromEntries(required.map((name) => {
+      const child = (inlineProperties as Record<string, unknown>)[name];
+      return [
+        name,
+        requiredSchemaValue(
+          api,
+          undefined,
+          child && typeof child === "object" && !Array.isArray(child)
+            ? child as Record<string, unknown>
+            : undefined,
+          references,
+          depth + 1
+        )
+      ];
+    }));
+  }
+  return placeholder(
+    property?.name ?? "value",
+    property?.type ?? (typeof evidence?.type === "string" ? evidence.type : "string"),
+    evidence
+  );
+}
+
+function requiredSchemaObject(
+  api: CatalogApi,
+  schema: CatalogApi["schemas"][number],
+  references: Set<string>,
+  depth: number
+): Record<string, unknown> {
+  if (depth >= 4 || references.has(schema.name)) return {};
+  const nestedReferences = new Set(references).add(schema.name);
+  return Object.fromEntries(schema.required.map((name) => {
+    const property = schema.properties.find((candidate) => candidate.name === name);
+    return [
+      name,
+      requiredSchemaValue(
+        api,
+        property,
+        schemaPropertyEvidence(schema, name),
+        nestedReferences,
+        depth
+      )
+    ];
+  }));
+}
+
 function requestBody(
   api: CatalogApi,
   operation: CatalogOperation,
@@ -90,8 +178,14 @@ function requestBody(
     operation.requestBody?.schemaName ??
     operation.parameters.find((parameter) => parameter.in === "body")
       ?.schemaName;
+  const declaredType = operation.requestBody?.schemaType ??
+    operation.parameters.find((parameter) => parameter.in === "body")?.type;
+  if (declaredType === "array") {
+    return Array.isArray(body) ? body : [];
+  }
   const schema = api.schemas.find((candidate) => candidate.name === schemaName);
   if (!schema) return body;
+  if (schema.type === "array") return Array.isArray(body) ? body : [];
   if (
     body !== undefined &&
     (!body || typeof body !== "object" || Array.isArray(body))
@@ -99,19 +193,37 @@ function requestBody(
     return body;
   }
 
-  const hydrated = { ...(body ?? {}) } as Record<string, unknown>;
-  for (const name of schema.required) {
-    if (hydrated[name] !== undefined && hydrated[name] !== "") continue;
-    const property = schema.properties.find(
-      (candidate) => candidate.name === name
-    );
-    hydrated[name] = placeholder(
-      name,
-      property?.type ?? "string",
-      schemaPropertyEvidence(schema, name)
-    );
-  }
-  return hydrated;
+  // Static snippets must remain valid against the published package even when
+  // an upstream request example includes optional vendor fields that its SDK
+  // intentionally does not model. Keep the required body skeleton only; the
+  // caller supplies optional, account-specific values using the exposed type.
+  return requiredSchemaObject(api, schema, new Set(), 0);
+}
+
+type SdkArgumentKind = "path" | "body" | "query";
+
+function sdkArgumentOrder(api: CatalogApi): SdkArgumentKind[] {
+  return api.sdkContract?.argumentOrder ?? ["path", "body", "query"];
+}
+
+function pathParameters(operation: CatalogOperation): CatalogOperation["parameters"] {
+  const parameters = operation.parameters.filter(
+    (parameter) => parameter.in === "path"
+  );
+  if (!operation.path) return parameters;
+  const byName = new Map(parameters.map((parameter) => [parameter.name, parameter]));
+  const ordered = Array.from(operation.path.matchAll(/\{([^}]+)\}/g))
+    .map((match) => byName.get(match[1]))
+    .filter((parameter): parameter is CatalogOperation["parameters"][number] => Boolean(parameter));
+  const usedNames = new Set(ordered.map((parameter) => parameter.name));
+  return [...ordered, ...parameters.filter((parameter) => !usedNames.has(parameter.name))];
+}
+
+function hasRequestBody(operation: CatalogOperation): boolean {
+  return Boolean(
+    operation.requestBody ||
+    operation.parameters.some((parameter) => parameter.in === "body")
+  );
 }
 
 function requestArguments(
@@ -120,39 +232,37 @@ function requestArguments(
   request: SdkSnippetRequest,
   bodyIdentifier?: string
 ): string[] {
-  const args = operation.parameters
-    .filter((parameter) => parameter.in === "path")
-    .map((parameter) => typescriptValue(parameterValue(parameter, request.path)));
-
-  if (
-    operation.requestBody ||
-    operation.parameters.some((parameter) => parameter.in === "body")
-  ) {
-    args.push(
-      bodyIdentifier ?? typescriptValue(requestBody(api, operation, request.body))
-    );
-  }
-
+  const args: string[] = [];
+  const pathArguments = pathParameters(operation).map((parameter) =>
+    typescriptValue(parameterValue(parameter, request.path))
+  );
   const queryParameters = operation.parameters.filter(
     (parameter) => parameter.in === "query"
   );
-  if (queryParameters.length) {
-    const values = Object.fromEntries(
-      queryParameters.flatMap((parameter) => {
-        const value = request.query[parameter.name];
-        return (value === undefined || value === "") && !parameter.required
-          ? []
-          : [
-              [
-                parameter.name,
-                value === undefined || value === ""
-                  ? placeholder(parameter.name, parameter.type, parameter)
-                  : value
-              ]
-            ];
-      })
-    );
-    args.push(typescriptValue(values));
+  const queryArgument = queryParameters.length
+    ? typescriptValue(Object.fromEntries(
+        queryParameters.flatMap((parameter) => {
+          const value = request.query[parameter.name];
+          return (value === undefined || value === "") && !parameter.required
+            ? []
+            : [
+                [
+                  parameter.name,
+                  value === undefined || value === ""
+                    ? placeholder(parameter.name, parameter.type, parameter)
+                    : value
+                ]
+              ];
+        })
+      ))
+    : undefined;
+  const bodyArgument = hasRequestBody(operation)
+    ? bodyIdentifier ?? typescriptValue(requestBody(api, operation, request.body))
+    : undefined;
+  for (const kind of sdkArgumentOrder(api)) {
+    if (kind === "path") args.push(...pathArguments);
+    if (kind === "body" && bodyArgument !== undefined) args.push(bodyArgument);
+    if (kind === "query" && queryArgument !== undefined) args.push(queryArgument);
   }
 
   const headerParameters = operation.parameters.filter(
@@ -224,19 +334,18 @@ export function generateSdkSnippet(
     );
   }
 
-  const hasBody = Boolean(
-    operation.requestBody ||
-    operation.parameters.some((parameter) => parameter.in === "body")
-  );
+  const hasBody = hasRequestBody(operation);
   if (hasBody) {
-    const bodyParameterIndex = operation.parameters.filter(
-      (parameter) => parameter.in === "path"
-    ).length;
+    const bodyParameterIndex = sdkArgumentOrder(api)
+      .slice(0, sdkArgumentOrder(api).indexOf("body"))
+      .reduce((index, kind) => index + (kind === "path"
+        ? pathParameters(operation).length
+        : operation.parameters.some((parameter) => parameter.in === "query") ? 1 : 0), 0);
     lines.push(
       "",
       `const sdkRequestBody = ${typescriptValue(
         requestBody(api, operation, request.body)
-      )} satisfies Parameters<typeof ${method}>[${bodyParameterIndex}] & Record<string, unknown>;`
+      )} satisfies Parameters<typeof ${method}>[${bodyParameterIndex}];`
     );
   }
   const args = requestArguments(
