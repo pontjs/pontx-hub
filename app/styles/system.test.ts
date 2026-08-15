@@ -292,5 +292,6 @@ describe("Pontx Hub visual system", () => {
 
     expect(css).toMatch(/:where\(a, button, input, select, textarea, \[tabindex\]\):focus-visible\s*{[\s\S]*?outline:/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?transition-duration:\s*0\.01ms !important;/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.feedback-dialog::backdrop\s*{\s*animation:\s*none;/);
   });
 });
