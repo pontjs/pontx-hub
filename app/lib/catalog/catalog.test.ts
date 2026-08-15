@@ -152,7 +152,7 @@ describe("curated catalog", () => {
       return;
     }
     expect(api?.packageName).toBe("@pontx/amazon-sqs");
-    expect(api?.sdkVersion).toBe("0.1.2");
+    expect(api?.sdkVersion).toBe("0.1.3");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.sdkContract?.client).toMatchObject({
@@ -161,6 +161,8 @@ describe("curated catalog", () => {
       identifier: "client",
       options: {}
     });
+    expect(api?.operations.find((operation) => operation.operationId === "ListQueues")
+      ?.sdkMethod).toBe("listQueues");
     expect(api?.operations).toHaveLength(23);
     expect(api?.schemas).toHaveLength(114);
     expect(api?.quickStart).toEqual({
