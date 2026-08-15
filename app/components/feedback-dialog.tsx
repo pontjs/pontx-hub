@@ -1,4 +1,3 @@
-import { Button } from "@pontx/shadcn-ui";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import type { Locale } from "~/lib/catalog/types";
@@ -83,10 +82,6 @@ export function feedbackAnalyticsParameters(
     surface: "site_header",
     ...(channel ? { channel } : {})
   } as const;
-}
-
-export function trackFeedbackOpen(locale: Locale) {
-  trackAnalyticsEvent("feedback_open", feedbackAnalyticsParameters(locale));
 }
 
 export function trackFeedbackChannel(locale: Locale, channel: FeedbackChannel) {
@@ -187,18 +182,16 @@ export function FeedbackDialogPanel({
             <h2 id="site-feedback-title">{text.title}</h2>
             <p id="site-feedback-description">{text.description}</p>
           </div>
-          <Button
+          <button
             ref={closeRef}
             type="button"
-            variant="ghost"
-            size="iconSm"
-            className="feedback-dialog-close"
+            className="site-control feedback-dialog-close"
             aria-label={text.close}
             title={text.close}
             onClick={onClose}
           >
             <CloseIcon />
-          </Button>
+          </button>
         </header>
 
         <div className="feedback-dialog-options">

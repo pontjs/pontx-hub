@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { Locale } from "~/lib/catalog/types";
-import { authClient } from "~/lib/accounts/auth-client";
 import { useAccount } from "~/lib/accounts/account-context";
 
 const copy = {
@@ -76,6 +75,7 @@ export function AccountNavigation({
 
   const signOut = async () => {
     setSigningOut(true);
+    const { authClient } = await import("~/lib/accounts/auth-client");
     const result = await authClient.signOut();
     if (result.error) {
       setSigningOut(false);

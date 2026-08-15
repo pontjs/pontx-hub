@@ -80,6 +80,26 @@ body {
     var(--paper);
 }
 
+.site-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 0;
+  font: inherit;
+  transition: border-color 150ms ease, background-color 150ms ease,
+    color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.site-control:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.site-control:active {
+  transform: translateY(1px);
+}
+
 .navigation-progress {
   position: fixed;
   z-index: 100;

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent
+} from "react";
 import { data, Form, Link, useNavigate } from "react-router";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
@@ -6,7 +13,6 @@ import {
   CatalogSearchStatus,
   isCatalogSearchPending,
 } from "~/components/catalog-search-status";
-import { GlobalSearchResults } from "~/components/global-search-results";
 import { SiteShell } from "~/components/site-shell";
 import { publicResourceTerminologyCopy } from "~/lib/i18n";
 import {
@@ -17,6 +23,10 @@ import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { createDebouncedTask } from "~/lib/debounce";
 
 const SEARCH_DEBOUNCE_MS = 350;
+const GlobalSearchResults = lazy(async () => {
+  const module = await import("~/components/global-search-results");
+  return { default: module.GlobalSearchResults };
+});
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -279,10 +289,18 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             aria-busy={searchPending}
           >
             {search ? (
-              <GlobalSearchResults
-                search={search}
-                locale={locale}
-              />
+              <Suspense
+                fallback={(
+                  <div className="catalog-empty" role="status">
+                    {zh ? "正在载入搜索结果…" : "Loading search results…"}
+                  </div>
+                )}
+              >
+                <GlobalSearchResults
+                  search={search}
+                  locale={locale}
+                />
+              </Suspense>
             ) : (
               <div className="api-grid">
                 {apis.map((api, index) => (

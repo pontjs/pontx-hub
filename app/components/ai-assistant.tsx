@@ -11,7 +11,14 @@ import {
 import { HttpAgent, type Message } from "@ag-ui/client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject
+} from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
 import { MethodBadge } from "~/components/method-badge";
@@ -266,12 +273,20 @@ function sessionAuth(call: PreparedAgentCall): Record<string, unknown> | undefin
   return { ...auth, schemeId: scheme.id };
 }
 
-export function AiAssistant({ locale }: { locale: Locale }) {
+export function AiAssistantPanel({
+  locale,
+  open,
+  onClose,
+  triggerRef
+}: {
+  locale: Locale;
+  open: boolean;
+  onClose: () => void;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+}) {
   const text = copy[locale];
   const location = useLocation();
-  const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const [floatingTrigger, setFloatingTrigger] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [threadId, setThreadId] = useState("");
@@ -285,7 +300,6 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const session = readAgentSession(
@@ -302,14 +316,6 @@ export function AiAssistant({ locale }: { locale: Locale }) {
       initialMessages: session.messages
     });
     setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 740px)");
-    const updatePlacement = () => setFloatingTrigger(query.matches);
-    updatePlacement();
-    query.addEventListener("change", updatePlacement);
-    return () => query.removeEventListener("change", updatePlacement);
   }, []);
 
   useEffect(() => {
@@ -340,7 +346,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     if (!siteFrameWasInert) siteFrame?.setAttribute("inert", "");
     window.requestAnimationFrame(() => textareaRef.current?.focus());
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => {
@@ -349,7 +355,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
       window.removeEventListener("keydown", closeOnEscape);
       triggerRef.current?.focus();
     };
-  }, [open]);
+  }, [onClose, open, triggerRef]);
 
   const context = useMemo(() => [
     { description: "locale", value: locale },
@@ -584,34 +590,12 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const visibleMessages = messages.filter(isRenderableConversationMessage);
   const messageIds = new Set(messages.map((message) => message.id));
   const hasTranscript = Boolean(visibleMessages.length || activities.length);
-  const trigger = (
-    <Button
-      ref={triggerRef}
-      type="button"
-      variant="outline"
-      size="sm"
-      className="ai-assistant-trigger"
-      aria-label={text.label as string}
-      title={text.label as string}
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      onClick={() => setOpen(true)}
-    >
-      <AgentIcon className="ai-assistant-trigger-icon" />
-      <span className="ai-assistant-trigger-label">{text.label as string}</span>
-    </Button>
-  );
-
-  return (
-    <>
-      {hydrated && floatingTrigger ? createPortal(trigger, document.body) : trigger}
-
-      {open && hydrated ? createPortal((
+  return open && hydrated ? createPortal((
         <div className="ai-assistant-layer">
           <div
             className="ai-assistant-backdrop"
             aria-hidden="true"
-            onMouseDown={() => setOpen(false)}
+            onMouseDown={onClose}
           />
           <Card
             ref={panelRef}
@@ -653,7 +637,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                   size="iconSm"
                   aria-label={text.close as string}
                   title={text.close as string}
-                  onClick={() => setOpen(false)}
+                  onClick={onClose}
                 >
                   <CloseIcon />
                 </Button>
@@ -771,7 +755,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                     ) : null}
                     <div className="ai-prepared-actions">
                       <Button asChild variant="outline" size="sm">
-                        <Link to={call.operation.href} onClick={() => setOpen(false)}>
+                        <Link to={call.operation.href} onClick={onClose}>
                           {text.openEndpoint as string}
                         </Link>
                       </Button>
@@ -874,7 +858,5 @@ export function AiAssistant({ locale }: { locale: Locale }) {
             </form>
           </Card>
         </div>
-      ), document.body) : null}
-    </>
-  );
+      ), document.body) : null;
 }
