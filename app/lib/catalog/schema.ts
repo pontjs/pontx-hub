@@ -266,6 +266,7 @@ const authSchema = z.discriminatedUnion("type", [
     id: z.string().min(1),
     type: z.literal("oauth2"),
     envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
+    secretEnvVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/).optional(),
     description: localizedTextSchema,
     tokenEndpointAuthMethod: z
       .enum(["client_secret_basic", "client_secret_post", "none"])
@@ -340,6 +341,12 @@ const sdkContractSchema = z.object({
     z.string().min(1),
     javascriptIdentifierSchema
   ).optional(),
+  argumentOrder: z.array(z.enum(["path", "body", "query"])).length(3)
+    .refine(
+      (order) => new Set(order).size === 3,
+      "SDK argument order must contain path, body, and query exactly once"
+    )
+    .optional(),
   operations: z.array(z.string().min(1)).min(1)
 });
 
@@ -454,7 +461,9 @@ export const catalogApiSchema = z
         api.auth.flatMap((auth) =>
           auth.type === "basic"
             ? [auth.usernameEnvVar, auth.passwordEnvVar]
-            : [auth.envVar]
+            : auth.type === "oauth2" && auth.secretEnvVar
+              ? [auth.envVar, auth.secretEnvVar]
+              : [auth.envVar]
         )
       );
       if (

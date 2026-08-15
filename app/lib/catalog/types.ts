@@ -199,6 +199,7 @@ export type CatalogAuthScheme = (
       id: string;
       type: "oauth2";
       envVar: string;
+      secretEnvVar?: string;
       description: LocalizedText;
       tokenEndpointAuthMethod?:
         | "client_secret_basic"
@@ -268,6 +269,12 @@ export type SdkContract = {
   compatibilityAliases?: Record<string, string[]>;
   /** Stable Endpoint ID to generated SDK method mapping when the names differ. */
   methodNames?: Record<string, string>;
+  /**
+   * The generated SDK's positional request-argument convention. Hub defaults
+   * to path, body, query for older packages; packages with a separate query
+   * params object before the body must declare that explicitly.
+   */
+  argumentOrder?: Array<"path" | "body" | "query">;
   operations: string[];
 };
 

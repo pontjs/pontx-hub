@@ -101,6 +101,7 @@ function localizedAuth(api: NonNullable<ReturnType<typeof getCatalogApi>>, local
     envVar: item.type === "basic" ? item.passwordEnvVar : item.envVar,
     ...(item.type === "apiKey" ? { name: item.name, in: item.in } : {}),
     ...(item.type === "oauth2" ? {
+      ...(item.secretEnvVar ? { secretEnvVar: item.secretEnvVar } : {}),
       scopes: Object.fromEntries(Object.values(item.flows ?? {}).flatMap((flow) => Object.entries(flow?.scopes ?? {}))),
       credentialGuide: item.credentialGuide ? {
         url: item.credentialGuide.url,

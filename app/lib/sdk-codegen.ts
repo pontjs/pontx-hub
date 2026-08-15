@@ -92,6 +92,9 @@ function requestBody(
       ?.schemaName;
   const schema = api.schemas.find((candidate) => candidate.name === schemaName);
   if (!schema) return body;
+  if (schema.type === "array") {
+    return Array.isArray(body) ? body : [];
+  }
   if (
     body !== undefined &&
     (!body || typeof body !== "object" || Array.isArray(body))
@@ -114,45 +117,69 @@ function requestBody(
   return hydrated;
 }
 
+type SdkArgumentKind = "path" | "body" | "query";
+
+function sdkArgumentOrder(api: CatalogApi): SdkArgumentKind[] {
+  return api.sdkContract?.argumentOrder ?? ["path", "body", "query"];
+}
+
+function pathParameters(operation: CatalogOperation): CatalogOperation["parameters"] {
+  const parameters = operation.parameters.filter(
+    (parameter) => parameter.in === "path"
+  );
+  if (!operation.path) return parameters;
+  const byName = new Map(parameters.map((parameter) => [parameter.name, parameter]));
+  const ordered = Array.from(operation.path.matchAll(/\{([^}]+)\}/g))
+    .map((match) => byName.get(match[1]))
+    .filter((parameter): parameter is CatalogOperation["parameters"][number] => Boolean(parameter));
+  const usedNames = new Set(ordered.map((parameter) => parameter.name));
+  return [...ordered, ...parameters.filter((parameter) => !usedNames.has(parameter.name))];
+}
+
+function hasRequestBody(operation: CatalogOperation): boolean {
+  return Boolean(
+    operation.requestBody ||
+    operation.parameters.some((parameter) => parameter.in === "body")
+  );
+}
+
 function requestArguments(
   api: CatalogApi,
   operation: CatalogOperation,
   request: SdkSnippetRequest,
   bodyIdentifier?: string
 ): string[] {
-  const args = operation.parameters
-    .filter((parameter) => parameter.in === "path")
-    .map((parameter) => typescriptValue(parameterValue(parameter, request.path)));
-
-  if (
-    operation.requestBody ||
-    operation.parameters.some((parameter) => parameter.in === "body")
-  ) {
-    args.push(
-      bodyIdentifier ?? typescriptValue(requestBody(api, operation, request.body))
-    );
-  }
-
+  const args: string[] = [];
+  const pathArguments = pathParameters(operation).map((parameter) =>
+    typescriptValue(parameterValue(parameter, request.path))
+  );
   const queryParameters = operation.parameters.filter(
     (parameter) => parameter.in === "query"
   );
-  if (queryParameters.length) {
-    const values = Object.fromEntries(
-      queryParameters.flatMap((parameter) => {
-        const value = request.query[parameter.name];
-        return (value === undefined || value === "") && !parameter.required
-          ? []
-          : [
-              [
-                parameter.name,
-                value === undefined || value === ""
-                  ? placeholder(parameter.name, parameter.type, parameter)
-                  : value
-              ]
-            ];
-      })
-    );
-    args.push(typescriptValue(values));
+  const queryArgument = queryParameters.length
+    ? typescriptValue(Object.fromEntries(
+        queryParameters.flatMap((parameter) => {
+          const value = request.query[parameter.name];
+          return (value === undefined || value === "") && !parameter.required
+            ? []
+            : [
+                [
+                  parameter.name,
+                  value === undefined || value === ""
+                    ? placeholder(parameter.name, parameter.type, parameter)
+                    : value
+                ]
+              ];
+        })
+      ))
+    : undefined;
+  const bodyArgument = hasRequestBody(operation)
+    ? bodyIdentifier ?? typescriptValue(requestBody(api, operation, request.body))
+    : undefined;
+  for (const kind of sdkArgumentOrder(api)) {
+    if (kind === "path") args.push(...pathArguments);
+    if (kind === "body" && bodyArgument !== undefined) args.push(bodyArgument);
+    if (kind === "query" && queryArgument !== undefined) args.push(queryArgument);
   }
 
   const headerParameters = operation.parameters.filter(
@@ -224,19 +251,18 @@ export function generateSdkSnippet(
     );
   }
 
-  const hasBody = Boolean(
-    operation.requestBody ||
-    operation.parameters.some((parameter) => parameter.in === "body")
-  );
+  const hasBody = hasRequestBody(operation);
   if (hasBody) {
-    const bodyParameterIndex = operation.parameters.filter(
-      (parameter) => parameter.in === "path"
-    ).length;
+    const bodyParameterIndex = sdkArgumentOrder(api)
+      .slice(0, sdkArgumentOrder(api).indexOf("body"))
+      .reduce((index, kind) => index + (kind === "path"
+        ? pathParameters(operation).length
+        : operation.parameters.some((parameter) => parameter.in === "query") ? 1 : 0), 0);
     lines.push(
       "",
       `const sdkRequestBody = ${typescriptValue(
         requestBody(api, operation, request.body)
-      )} satisfies Parameters<typeof ${method}>[${bodyParameterIndex}] & Record<string, unknown>;`
+      )} satisfies Parameters<typeof ${method}>[${bodyParameterIndex}];`
     );
   }
   const args = requestArguments(

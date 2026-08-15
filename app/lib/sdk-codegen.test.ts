@@ -254,9 +254,52 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain('"type": "send_document"');
     expect(code).toContain('"signers": []');
     expect(code).toContain(
-      "satisfies Parameters<typeof dropboxSignClient.unclaimedDraft.createDraft>[1] & Record<string, unknown>"
+      "satisfies Parameters<typeof dropboxSignClient.unclaimedDraft.createDraft>[1]"
     );
     expect(code).not.toContain("as const");
+  });
+
+  it("uses declared path-query-body order and array request-body placeholders", () => {
+    const atlasOperation = {
+      operationId: "createIntegration",
+      tag: "integrations",
+      path: "/groups/{groupId}/integrations/{integrationType}",
+      parameters: [
+        { name: "integrationType", in: "path", type: "string", enum: ["SLACK"] },
+        { name: "pretty", in: "query", type: "boolean" },
+        { name: "groupId", in: "path", type: "string" }
+      ],
+      requestBody: { schemaName: "RoleAssignments", schemaType: "array" }
+    } as CatalogOperation;
+    const atlas = api({ kind: "factory", factory: "createAtlasClient", identifier: "client", options: {} });
+    atlas.schemas = [{
+      name: "RoleAssignments",
+      title: { zh: "角色", en: "Roles" },
+      description: { zh: "角色", en: "Roles" },
+      type: "array",
+      required: [],
+      properties: [],
+      schema: { type: "array" }
+    }] as CatalogApi["schemas"];
+    atlas.sdkContract = {
+      ...atlas.sdkContract!,
+      controllers: { integrations: "integrations" },
+      operations: ["createIntegration"],
+      argumentOrder: ["path", "query", "body"]
+    };
+
+    const code = generateSdkSnippet(atlas, atlasOperation, {
+      path: { groupId: "group-1", integrationType: "SLACK" },
+      query: {},
+      headers: {}
+    });
+
+    const call = code.slice(code.indexOf("const result"));
+    expect(call.indexOf('"group-1"')).toBeLessThan(call.indexOf('"SLACK"'));
+    expect(call.indexOf('"SLACK"')).toBeLessThan(call.indexOf("{}"));
+    expect(call.indexOf("{}")).toBeLessThan(call.indexOf("sdkRequestBody"));
+    expect(code).toContain("const sdkRequestBody = []");
+    expect(code).toContain("Parameters<typeof client.integrations.createIntegration>[3]");
   });
 
   it("uses visible type-safe placeholders for missing required inputs", () => {

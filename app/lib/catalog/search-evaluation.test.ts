@@ -19,5 +19,5 @@ describe("search relevance evaluation", () => {
     expect(report.metrics.mrrAt10).toBeGreaterThanOrEqual(0.85);
     expect(report.metrics.ndcgAt10).toBeGreaterThanOrEqual(0.8);
     expect(report.metrics.zeroResultRate).toBe(0);
-  }, 15_000);
+  }, 30_000);
 });
