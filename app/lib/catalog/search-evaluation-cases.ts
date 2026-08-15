@@ -228,6 +228,36 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     requiredTopK: 1,
     requiresProducts: ["notion"],
     tags: ["zh", "mutation", "endpoint"]
+  },
+  {
+    id: "mistral-en-generate-embeddings",
+    query: "generate embeddings for a piece of text",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:mistral-ai/embeddings-v1-embeddings-post", relevance: 3 }],
+    requiredTopK: 5,
+    requiresProducts: ["mistral-ai"],
+    tags: ["en", "semantic", "endpoint"]
+  },
+  {
+    id: "mistral-zh-model-list",
+    query: "模型列表",
+    locale: "zh",
+    kinds: ["schema"],
+    judgments: [{ id: "schema:mistral-ai/ModelList", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["mistral-ai"],
+    tags: ["zh", "semantic", "schema"]
+  },
+  {
+    id: "mistral-en-chat-completion",
+    query: "what fields are in a chat completion response",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:mistral-ai/chat-completion-v1-chat-completions-post", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["mistral-ai"],
+    tags: ["en", "semantic", "endpoint"]
   }
 ];
 
