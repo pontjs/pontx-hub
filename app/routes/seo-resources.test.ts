@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { loader as robotsLoader } from "./robots";
 import { loader as sitemapLoader } from "./sitemap";
+import {
+  sitemapPageCount,
+  sitemapPageResponse
+} from "~/lib/sitemap.server";
+import { loader as sitemapPageLoader } from "./sitemap-page";
 import { loader as llmsLoader } from "./llms";
 import { loader as openApiLoader } from "./openapi";
 import {
@@ -123,12 +128,20 @@ describe("SEO resource routes", () => {
     expect(response.headers.get("Location")).toBe("/en/skills/pontx-hub?source=legacy");
   });
 
-  it("serves a bilingual XML sitemap with endpoint and Schema alternates", async () => {
-    const response = sitemapLoader();
-    const body = await response.text();
+  it("serves a sitemap index and paged bilingual URL sets with endpoint and Schema alternates", async () => {
+    const indexResponse = sitemapLoader();
+    const indexBody = await indexResponse.text();
+    const pageBodies = await Promise.all(
+      Array.from({ length: sitemapPageCount() }, (_, index) => sitemapPageResponse(index + 1).text())
+    );
+    const body = pageBodies.join("\n");
 
-    expect(response.headers.get("Content-Type")).toBe("application/xml; charset=utf-8");
-    expect(body).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(indexResponse.headers.get("Content-Type")).toBe("application/xml; charset=utf-8");
+    expect(indexBody).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(indexBody).toContain("<sitemapindex");
+    expect(indexBody).toContain("https://pontx.dev/sitemaps/1.xml");
+    expect(indexBody.match(/<sitemap>/g)).toHaveLength(sitemapPageCount());
+    expect(body).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
     expect(body).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"');
     expect(body).toContain("/zh/apis/dida365/create-project</loc>");
     expect(body).toContain("/en/apis/dida365/create-project</loc>");
@@ -169,6 +182,12 @@ describe("SEO resource routes", () => {
       0
     );
     expect(body.match(/<url>/g)).toHaveLength(expectedPerLocale * 2);
+
+    const firstPage = sitemapPageLoader({ params: { page: "1.xml" } } as never);
+    expect(firstPage.status).toBe(200);
+    expect(() => sitemapPageLoader({ params: { page: "0.xml" } } as never)).toThrow(
+      expect.objectContaining({ status: 404 })
+    );
   });
 
   it("permanently redirects alternate hosts without an intermediate hop", async () => {
