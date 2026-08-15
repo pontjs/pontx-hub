@@ -39,6 +39,23 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("switches the crowded header to the mobile menu at tablet widths", async () => {
+    const [css, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(css).toMatch(
+      /@media \(max-width: 900px\)[\s\S]*?\.brand small,[\s\S]*?\.site-header > nav\s*{\s*display:\s*none;[\s\S]*?\.mobile-nav\s*{[\s\S]*?display:\s*block;/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 900px\)[\s\S]*?\.mobile-nav nav\s*{[\s\S]*?width:\s*min\(240px, calc\(100vw - 32px\)\);/,
+    );
+    expect(systemCss).toMatch(
+      /@media \(max-width: 900px\)[\s\S]*?\.mobile-nav nav \.mobile-feedback-trigger\s*{[\s\S]*?width:\s*100%;/,
+    );
+  });
+
   it("keeps long endpoint paths inside desktop search result columns", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
