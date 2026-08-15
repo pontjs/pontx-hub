@@ -1,17 +1,25 @@
-import { Button } from "@pontx/shadcn-ui";
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import {
-  FeedbackDialog,
-  trackFeedbackOpen
-} from "~/components/feedback-dialog";
+import { trackAnalyticsEvent } from "~/components/google-analytics";
 import { GitHubIcon } from "~/components/github-icon";
 import { LanguageIcon } from "~/components/language-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import type { Locale } from "~/lib/catalog/types";
 import { alternateLocaleHref, alternateLocaleUrl } from "~/lib/i18n";
 import { AccountNavigation } from "~/components/account-navigation";
-import { AiAssistant } from "~/components/ai-assistant";
+import { AiAssistantLauncher } from "~/components/ai-assistant-launcher";
+
+let feedbackDialogModule: Promise<typeof import("./feedback-dialog")> | undefined;
+
+function loadFeedbackDialog() {
+  feedbackDialogModule ??= import("./feedback-dialog");
+  return feedbackDialogModule;
+}
+
+const LazyFeedbackDialog = lazy(async () => {
+  const module = await loadFeedbackDialog();
+  return { default: module.FeedbackDialog };
+});
 
 const copy = {
   zh: {
@@ -81,13 +89,18 @@ export function SiteShell({
     ));
   };
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [feedbackActivated, setFeedbackActivated] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const feedbackReturnFocusRef = useRef<HTMLButtonElement>(null);
   const openFeedback = (event: React.MouseEvent<HTMLButtonElement>) => {
     feedbackReturnFocusRef.current = event.currentTarget;
     setMobileNavOpen(false);
+    setFeedbackActivated(true);
     setFeedbackOpen(true);
-    trackFeedbackOpen(locale);
+    trackAnalyticsEvent("feedback_open", {
+      locale,
+      surface: "site_header"
+    });
   };
 
   return (
@@ -106,18 +119,17 @@ export function SiteShell({
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
           <NavLink to={`/${locale}/skills`}>{text.skill}</NavLink>
           <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="feedback-trigger"
+            className="site-control feedback-trigger"
             aria-haspopup="dialog"
             aria-controls="site-feedback-dialog"
             aria-expanded={feedbackOpen}
+            onPointerDown={() => void loadFeedbackDialog()}
             onClick={openFeedback}
           >
             {text.feedback}
-          </Button>
+          </button>
           <a
             className="github-link"
             href="https://github.com/pontjs/pontx-hub"
@@ -137,7 +149,7 @@ export function SiteShell({
           >
             <LanguageIcon className="language-icon" />
           </a>
-          <AiAssistant locale={locale} />
+          <AiAssistantLauncher locale={locale} />
           <AccountNavigation locale={locale} />
         </nav>
         <div className="mobile-nav">
@@ -165,17 +177,17 @@ export function SiteShell({
             <NavLink to={`/${locale}/docs`} onClick={() => setMobileNavOpen(false)}>
               {text.docs}
             </NavLink>
-            <Button
+            <button
               type="button"
-              variant="ghost"
-              className="mobile-feedback-trigger"
+              className="site-control mobile-feedback-trigger"
               aria-haspopup="dialog"
               aria-controls="site-feedback-dialog"
               aria-expanded={feedbackOpen}
+              onPointerDown={() => void loadFeedbackDialog()}
               onClick={openFeedback}
             >
               {text.feedback}
-            </Button>
+            </button>
             <a
               href="https://github.com/pontjs/pontx-hub"
               rel="noreferrer"
@@ -200,13 +212,23 @@ export function SiteShell({
           </nav>
         </div>
       </header>
-      <FeedbackDialog
-        open={feedbackOpen}
-        locale={locale}
-        pathname={location.pathname}
-        returnFocusRef={feedbackReturnFocusRef}
-        onClose={() => setFeedbackOpen(false)}
-      />
+      {feedbackActivated ? (
+        <Suspense
+          fallback={feedbackOpen ? (
+            <span className="sr-only" role="status" aria-live="polite">
+              {locale === "zh" ? "正在打开反馈窗口…" : "Opening feedback…"}
+            </span>
+          ) : null}
+        >
+          <LazyFeedbackDialog
+            open={feedbackOpen}
+            locale={locale}
+            pathname={location.pathname}
+            returnFocusRef={feedbackReturnFocusRef}
+            onClose={() => setFeedbackOpen(false)}
+          />
+        </Suspense>
+      ) : null}
       {children}
       <footer className="site-footer">
         <div>
