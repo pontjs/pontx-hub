@@ -620,8 +620,9 @@ export function buildSearchResponse(
             href: `/${locale}/apis/${api.slug}/${operation.slug}`,
             operationSlug: operation.slug,
             operationId: operation.operationId,
-            method: operation.method,
-            path: operation.path,
+            ...(operation.style === "RESTFul" ? {} : { style: operation.style }),
+            ...(operation.method ? { method: operation.method } : {}),
+            ...(operation.path ? { path: operation.path } : {}),
             tag: operation.tag
           });
         }

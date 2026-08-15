@@ -1,37 +1,40 @@
 import { useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router";
 import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
-import type { PontxAPI } from "@pontx/spec";
+import type { PontxAPI, PontxSpec } from "@pontx/spec";
 import type {
   CatalogApi,
   CatalogOperation,
   Locale
 } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import {
-  pontxOperationName,
-  toPontxSpec
-} from "~/lib/catalog/pontx-adapter";
+import { canonicalApiKey, pontxDirectorySpec } from "~/lib/catalog/pontx-view";
 import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 
 export function ResourceDirectoryNavigation({
   locale,
   api,
+  spec: canonicalSpec,
   activeOperation,
   activeSchemaName
 }: {
   locale: Locale;
   api: CatalogApi;
+  spec: PontxSpec;
   activeOperation?: CatalogOperation;
   activeSchemaName?: string;
 }) {
   const navigate = useNavigate();
   const zh = locale === "zh";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
-  const spec = useMemo(() => toPontxSpec(api, locale), [api, locale]);
+  const spec = useMemo(
+    () => pontxDirectorySpec(canonicalSpec, api.operations),
+    [api.operations, canonicalSpec]
+  );
+  const untaggedOperations = api.operations.filter((operation) => !operation.tag);
   const activeGroup = activeSchemaName ? "schemas" : "endpoints";
   const selectedApiName = activeOperation
-    ? pontxOperationName(activeOperation)
+    ? canonicalApiKey(spec, activeOperation)
     : undefined;
 
   const handleApiSelect = useCallback(
@@ -65,15 +68,31 @@ export function ResourceDirectoryNavigation({
           </strong>
         </summary>
         <div className="resource-directory-group-content">
+          {untaggedOperations.length ? (
+            <nav className="pontx-directory-flat" aria-label={zh ? "未分组接口" : "Ungrouped endpoints"}>
+              {untaggedOperations.map((operation) => (
+                <Link
+                  key={operation.operationId}
+                  to={`/${locale}/apis/${api.slug}/${operation.slug}`}
+                  aria-current={activeOperation?.slug === operation.slug ? "page" : undefined}
+                >
+                  {operation.method ? <small>{operation.method}</small> : null}
+                  <span>{localize(operation.title, locale)}</span>
+                </Link>
+              ))}
+            </nav>
+          ) : null}
+          {api.operations.some((operation) => operation.tag) ? (
           <ApiDirectory
             locale={locale === "zh" ? "zh-CN" : "en"}
             spec={spec}
             selectedApiName={selectedApiName}
             onApiSelect={handleApiSelect}
-            defaultExpandedTags={activeOperation ? [activeOperation.tag] : []}
+            defaultExpandedTags={activeOperation?.tag ? [activeOperation.tag] : []}
             searchPlaceholder={zh ? "搜索接口…" : "Search endpoints…"}
             className="pontx-directory"
           />
+          ) : null}
         </div>
       </details>
 

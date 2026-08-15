@@ -1,7 +1,7 @@
 import type { Route } from "./+types/api-detail";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogApi } from "~/lib/catalog/catalog.server";
+import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
 import type { CatalogOperation } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
@@ -28,6 +28,8 @@ export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const api = getCatalogApi(params.apiSlug ?? "");
   if (!api) throw new Response("API not found", { status: 404 });
+  const spec = getPontxSpec(api.slug, locale);
+  if (!spec) throw new Response("PontxSpec not found", { status: 500 });
   const operation =
     api.operations.find(
       (candidate) => candidate.slug === api.quickStart?.operationSlug
@@ -35,7 +37,7 @@ export async function loader({ params }: Route.LoaderArgs) {
     [...api.operations].sort(
       (left, right) => quickStartScore(right) - quickStartScore(left)
     )[0];
-  return { locale, api, operation };
+  return { locale, api, spec, operation };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -90,12 +92,13 @@ export function headers() {
 }
 
 export default function ApiDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, operation } = loaderData;
+  const { locale, api, spec, operation } = loaderData;
   return (
     <SiteShell locale={locale}>
       <PontxApiWorkspace
         locale={locale}
         api={api}
+        spec={spec}
         operation={operation}
         variant="guided"
       />

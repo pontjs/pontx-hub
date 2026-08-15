@@ -1,7 +1,7 @@
 import type { Route } from "./+types/operation-detail";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogOperation } from "~/lib/catalog/catalog.server";
+import { getCatalogOperation, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
@@ -13,7 +13,9 @@ export async function loader({ params }: Route.LoaderArgs) {
     params.operationSlug ?? ""
   );
   if (!match) throw new Response("Operation not found", { status: 404 });
-  return { locale, ...match };
+  const spec = getPontxSpec(match.api.slug, locale);
+  if (!spec) throw new Response("PontxSpec not found", { status: 500 });
+  return { locale, spec, ...match };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -86,13 +88,14 @@ export function headers() {
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const { locale, api, operation } = loaderData;
+  const { locale, api, spec, operation } = loaderData;
 
   return (
     <SiteShell locale={locale}>
       <PontxApiWorkspace
         locale={locale}
         api={api}
+        spec={spec}
         operation={operation}
       />
     </SiteShell>

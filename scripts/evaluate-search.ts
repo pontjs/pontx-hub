@@ -1,17 +1,10 @@
 import { performance } from "node:perf_hooks";
-import { readFileSync } from "node:fs";
-import type { CatalogApi } from "../app/lib/catalog/types";
 import { buildSearchResponse } from "../app/lib/catalog/search";
 import { searchEvaluationCases } from "../app/lib/catalog/search-evaluation-cases";
 import { evaluateSearch } from "../app/lib/catalog/search-evaluation";
+import { loadCatalogShards } from "./load-catalog";
 
-const payload = JSON.parse(
-  readFileSync(new URL("../.catalog-cache/catalog.json", import.meta.url), "utf8")
-) as { apis: unknown[] };
-// metadata:sync and the application test suite own catalog validation. This
-// runner reads the same artifact directly so it also works while catalog
-// schema migrations are in progress.
-const catalog = payload.apis as CatalogApi[];
+const catalog = await loadCatalogShards();
 const searchCatalog = (
   query: Parameters<typeof buildSearchResponse>[1],
   locale: Parameters<typeof buildSearchResponse>[2],

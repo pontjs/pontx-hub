@@ -33,7 +33,9 @@ function resultMeta(result: GlobalSearchResult, locale: Locale): string {
       : `${result.endpointCount} endpoints · ${result.schemaCount} schemas`;
   }
   if (result.kind === "endpoint") {
-    return `${result.method} ${result.path}`;
+    return !result.style || result.style === "RESTFul"
+      ? `${result.method} ${result.path}`
+      : `${result.style} · ${result.operationId}`;
   }
   return locale === "zh"
     ? `${result.schemaType} · ${result.propertyCount} 个字段`
@@ -42,7 +44,9 @@ function resultMeta(result: GlobalSearchResult, locale: Locale): string {
 
 function ResultBadge({ result, locale }: { result: GlobalSearchResult; locale: Locale }) {
   if (result.kind === "endpoint") {
-    return <MethodBadge method={result.method} compact />;
+    return result.method
+      ? <MethodBadge method={result.method} compact />
+      : <span className="search-kind search-kind-endpoint">{result.style ?? "API"}</span>;
   }
   const terminology = publicResourceTerminologyCopy(locale);
   return (

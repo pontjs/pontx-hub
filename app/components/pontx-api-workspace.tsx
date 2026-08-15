@@ -15,7 +15,8 @@ import type {
   PlaygroundExecutionResult,
   PlaygroundRequest
 } from "@pontx/shadcn-ui";
-import { toPontxApi } from "~/lib/catalog/pontx-adapter";
+import type { PontxSpec } from "@pontx/spec";
+import { pontxApiView } from "~/lib/catalog/pontx-view";
 import type {
   CatalogApi,
   CatalogOperation,
@@ -101,7 +102,7 @@ export function isOAuthExecutionBlocked({
   ) && !accessToken;
 }
 
-type PlaygroundApi = ReturnType<typeof toPontxApi>;
+type PlaygroundApi = ReturnType<typeof pontxApiView>;
 
 export function withoutHostManagedOAuthScheme(
   api: PlaygroundApi,
@@ -594,6 +595,7 @@ async function postHub<T>(path: string, body: unknown): Promise<T> {
 export function PontxApiWorkspace({
   locale,
   api,
+  spec,
   operation,
   initialFavorite = false,
   playgroundHistoryEnabled = false,
@@ -602,6 +604,7 @@ export function PontxApiWorkspace({
 }: {
   locale: Locale;
   api: CatalogApi;
+  spec: PontxSpec;
   operation: CatalogOperation;
   initialFavorite?: boolean;
   playgroundHistoryEnabled?: boolean;
@@ -636,11 +639,11 @@ export function PontxApiWorkspace({
   const requestExamplePreparationKey = `${activeOperation.method}:${activeOperation.path}:${requestExample?.id ?? "none"}`;
   const pontxApi = useMemo(
     () =>
-      toPontxApi(api, activeOperation, locale, {
+      pontxApiView(spec, activeOperation, {
         parameterExamples: guided || requestExample ? "required" : "all",
         requestExample
       }),
-    [activeOperation, api, guided, locale, requestExample]
+    [activeOperation, guided, requestExample, spec]
   );
   const playgroundAvailability = getPlaygroundAvailability(
     api,
@@ -1149,6 +1152,7 @@ export function PontxApiWorkspace({
         <ResourceDirectoryNavigation
           locale={locale}
           api={api}
+          spec={spec}
           activeOperation={activeOperation}
         />
       </aside> : null}

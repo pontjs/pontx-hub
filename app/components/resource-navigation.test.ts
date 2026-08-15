@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
-import { getCatalogApi } from "~/lib/catalog/catalog.server";
+import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { ResourceDirectoryNavigation } from "./resource-directory-navigation";
 import { ResourceNavigation } from "./resource-navigation";
 import { SchemaReference } from "./schema-reference";
@@ -15,6 +15,8 @@ function render(component: ReturnType<typeof createElement>) {
 
 describe("API resource navigation", () => {
   const api = getCatalogApi("dida365")!;
+  const zhSpec = getPontxSpec("dida365", "zh")!;
+  const enSpec = getPontxSpec("dida365", "en")!;
 
   it("renders Endpoint and Schema as vertical first-level directory groups", () => {
     const contextNavigation = render(createElement(ResourceNavigation, {
@@ -25,6 +27,7 @@ describe("API resource navigation", () => {
     const directoryNavigation = render(createElement(ResourceDirectoryNavigation, {
       locale: "zh",
       api,
+      spec: zhSpec,
       activeOperation: api.operations[0]
     }));
 
@@ -43,6 +46,7 @@ describe("API resource navigation", () => {
     const html = render(createElement(ResourceDirectoryNavigation, {
       locale: "en",
       api,
+      spec: enSpec,
       activeSchemaName: schema.name
     }));
 
@@ -58,6 +62,7 @@ describe("API resource navigation", () => {
     const html = render(createElement(SchemaReference, {
       locale: "zh",
       api,
+      spec: zhSpec,
       schema
     }));
 

@@ -1,3 +1,4 @@
+import { loadPontxSpec, validatePontxSpecLocale, type PontxSpec } from "@pontx/spec";
 import type {
   CatalogApi,
   CatalogSummary,
@@ -7,56 +8,115 @@ import type {
 } from "./types";
 import { catalogApiSchema } from "./schema";
 import { buildSearchResponse } from "./search";
+import { buildCatalogApi } from "./hierarchy";
 
-const rawCatalogFiles = import.meta.glob(
-  "../../../.catalog-cache/catalog.json",
-  {
-    eager: true,
-    import: "default",
-    query: "?raw"
-  }
+const rawManifestFiles = import.meta.glob(
+  "../../../.catalog-cache/manifest.json",
+  { eager: true, import: "default", query: "?raw" }
+) as Record<string, string>;
+const rawProductFiles = import.meta.glob(
+  "../../../.catalog-cache/products/*/*.json",
+  { eager: true, import: "default", query: "?raw" }
+) as Record<string, string>;
+const rawLocaleFiles = import.meta.glob(
+  "../../../.catalog-cache/products/*/locales/en-US/*.json",
+  { eager: true, import: "default", query: "?raw" }
 ) as Record<string, string>;
 
-let catalogCache: CatalogApi[] | undefined;
+type HierarchyManifest = {
+  formatVersion: 1;
+  metadataCommit: string;
+  defaultLocale: "zh-CN";
+  locales: string[];
+  products: string[];
+};
 
-function loadCatalog(): CatalogApi[] {
-  if (catalogCache) return catalogCache;
+type LoadedHierarchy = {
+  catalog: CatalogApi[];
+  specs: Map<string, { zh: PontxSpec; en: PontxSpec }>;
+};
 
-  const entry = Object.entries(rawCatalogFiles)[0];
-  if (!entry) {
-    throw new Error("Catalog cache is missing; run pnpm metadata:sync");
-  }
-  let payload: unknown;
+let hierarchyCache: LoadedHierarchy | undefined;
+
+function parse(raw: string | undefined, context: string): any {
+  if (!raw) throw new Error(`Metadata cache is missing ${context}; run pnpm metadata:sync`);
   try {
-    payload = JSON.parse(entry[1]);
+    return JSON.parse(raw);
   } catch {
-    throw new Error("Catalog cache is not valid JSON");
+    throw new Error(`Metadata cache file ${context} is not valid JSON`);
   }
-  const apis = (payload as { apis?: unknown }).apis;
-  if (!Array.isArray(apis)) throw new Error("Catalog cache has no API list");
+}
 
-  catalogCache = apis
-    .map((api, index) => {
-      const result = catalogApiSchema.safeParse(api);
-      if (!result.success) {
-        throw new Error(`Invalid metadata API at index ${index}: ${result.error.message}`);
-      }
-      return result.data as CatalogApi;
-    })
-    .sort((left, right) => {
-      if (left.featured !== right.featured) return left.featured ? -1 : 1;
-      return left.name.localeCompare(right.name);
+function rawFile(files: Record<string, string>, suffix: string): string | undefined {
+  return Object.entries(files).find(([path]) => path.endsWith(suffix))?.[1];
+}
+
+function loadHierarchy(): LoadedHierarchy {
+  if (hierarchyCache) return hierarchyCache;
+  const manifest = parse(
+    Object.values(rawManifestFiles)[0],
+    "manifest.json"
+  ) as HierarchyManifest;
+  if (
+    manifest.formatVersion !== 1 ||
+    !/^[a-f0-9]{40}$/.test(manifest.metadataCommit) ||
+    manifest.defaultLocale !== "zh-CN" ||
+    !manifest.locales.includes("en-US") ||
+    !Array.isArray(manifest.products)
+  ) {
+    throw new Error("Metadata hierarchy manifest is invalid");
+  }
+
+  const specs = new Map<string, { zh: PontxSpec; en: PontxSpec }>();
+  const catalog = manifest.products.map((slug, index) => {
+    const prefix = `/products/${slug}`;
+    const product = parse(rawFile(rawProductFiles, `${prefix}/product.json`), `${prefix}/product.json`);
+    const sdk = parse(rawFile(rawProductFiles, `${prefix}/sdk.json`), `${prefix}/sdk.json`);
+    const spec = loadPontxSpec(
+      rawFile(rawProductFiles, `${prefix}/spec.pontx.json`),
+      { expectedName: slug }
+    );
+    const localizedProduct = parse(
+      rawFile(rawLocaleFiles, `${prefix}/locales/en-US/product.json`),
+      `${prefix}/locales/en-US/product.json`
+    );
+    const localizedSpec = loadPontxSpec(
+      rawFile(rawLocaleFiles, `${prefix}/locales/en-US/spec.pontx.json`),
+      { expectedName: slug }
+    );
+    const localeResult = validatePontxSpecLocale(spec, localizedSpec);
+    if (!localeResult.valid) {
+      throw new Error(`Invalid localized PontxSpec for ${slug}: ${localeResult.issues[0]?.message}`);
+    }
+    specs.set(slug, { zh: spec, en: localizedSpec });
+    const api = buildCatalogApi({
+      metadataCommit: manifest.metadataCommit,
+      product,
+      localizedProduct,
+      spec,
+      localizedSpec,
+      sdk
     });
+    const result = catalogApiSchema.safeParse(api);
+    if (!result.success) {
+      throw new Error(`Invalid metadata product ${slug} at index ${index}: ${result.error.message}`);
+    }
+    return result.data as CatalogApi;
+  }).sort((left, right) => {
+    if (left.featured !== right.featured) return left.featured ? -1 : 1;
+    return left.name.localeCompare(right.name);
+  });
 
-  return catalogCache;
+  hierarchyCache = { catalog, specs };
+  return hierarchyCache;
 }
 
 export function listCatalog(): CatalogApi[] {
-  return loadCatalog();
+  return loadHierarchy().catalog;
 }
 
 export function listCatalogSummaries(): CatalogSummary[] {
-  return loadCatalog().map(({ operations, schemas, servers: _servers, auth, ...api }) => ({
+  return listCatalog().map(({ operations, schemas, servers: _servers, auth, ...api }) => ({
     ...api,
     operationCount: operations.length,
     schemaCount: schemas.length,
@@ -66,7 +126,11 @@ export function listCatalogSummaries(): CatalogSummary[] {
 }
 
 export function getCatalogApi(slug: string): CatalogApi | undefined {
-  return loadCatalog().find((api) => api.slug === slug);
+  return listCatalog().find((api) => api.slug === slug);
+}
+
+export function getPontxSpec(slug: string, locale: Locale): PontxSpec | undefined {
+  return loadHierarchy().specs.get(slug)?.[locale];
 }
 
 export function getCatalogOperation(apiSlug: string, operationSlug: string) {
@@ -85,32 +149,29 @@ export function searchCatalogOperations(query: string, locale: Locale) {
   const needle = query.trim().toLocaleLowerCase();
   if (!needle) return [];
 
-  return loadCatalog().flatMap((api) =>
+  return listCatalog().flatMap((api) =>
     api.operations
-      .filter((operation) => {
-        const haystack = [
-          api.name,
-          api.provider,
-          api.title[locale],
-          api.summary[locale],
-          operation.operationId,
-          operation.title[locale],
-          operation.description[locale],
-          operation.method,
-          operation.path,
-          operation.tag
-        ]
-          .join(" ")
-          .toLocaleLowerCase();
-        return haystack.includes(needle);
-      })
+      .filter((operation) => [
+        api.name,
+        api.provider,
+        api.title[locale],
+        api.summary[locale],
+        operation.operationId,
+        operation.title[locale],
+        operation.description[locale],
+        operation.style,
+        operation.method,
+        operation.path,
+        operation.tag
+      ].join(" ").toLocaleLowerCase().includes(needle))
       .map((operation) => ({
         apiSlug: api.slug,
         apiName: api.name,
         operationSlug: operation.slug,
         operationId: operation.operationId,
-        method: operation.method,
-        path: operation.path,
+        style: operation.style,
+        ...(operation.method ? { method: operation.method } : {}),
+        ...(operation.path ? { path: operation.path } : {}),
         title: operation.title[locale],
         description: operation.description[locale]
       }))
@@ -120,11 +181,7 @@ export function searchCatalogOperations(query: string, locale: Locale) {
 export function searchCatalog(
   query: string,
   locale: Locale,
-  options: {
-    kinds?: GlobalSearchKind[];
-    limit?: number;
-    offset?: number;
-  } = {}
+  options: { kinds?: GlobalSearchKind[]; limit?: number; offset?: number } = {}
 ): GlobalSearchResponse {
-  return buildSearchResponse(loadCatalog(), query, locale, options);
+  return buildSearchResponse(listCatalog(), query, locale, options);
 }

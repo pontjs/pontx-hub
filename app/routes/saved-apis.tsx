@@ -88,7 +88,11 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
                     className="search-result-row"
                     to={`/${locale}/apis/${api.slug}/${operation.slug}`}
                   >
-                    <MethodBadge method={operation.method} compact />
+                    {operation.method ? (
+                      <MethodBadge method={operation.method} compact />
+                    ) : (
+                      <span className="search-kind search-kind-endpoint">{operation.style}</span>
+                    )}
                     <div className="search-result-main">
                       <div>
                         <strong>{localize(operation.title, locale)}</strong>

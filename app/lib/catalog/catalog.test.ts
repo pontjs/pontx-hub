@@ -58,23 +58,27 @@ describe("curated catalog", () => {
     }).success).toBe(false);
   });
 
-  it("accepts an explicit root-level SDK controller mapping", () => {
+  it("keeps untagged SDK methods flat and isolates compatibility aliases", () => {
     const api = listCatalog().find(
       (candidate) => candidate.slug === "frankfurter-v2"
     );
-    const flatContract = {
+    const syntheticContract = {
       ...api?.sdkContract,
       controllers: { ...api?.sdkContract?.controllers, default: null }
     };
 
     expect(catalogApiSchema.safeParse({
       ...api,
-      sdkContract: flatContract
-    }).success).toBe(true);
+      sdkContract: syntheticContract
+    }).success).toBe(false);
     expect(catalogApiSchema.safeParse({
       ...api,
-      sdkContract: { ...flatContract, controllers: {} }
-    }).success).toBe(false);
+      sdkContract: {
+        ...api?.sdkContract,
+        controllers: {},
+        compatibilityAliases: { common: ["getRates"] }
+      }
+    }).success).toBe(true);
   });
 
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
