@@ -149,13 +149,13 @@ describe("Pontx Hub visual system", () => {
   it("keeps the shared Playground divider inside the documentation bounds", async () => {
     const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.11"');
   });
 
   it("keeps the Endpoint Playground Try action visually primary", async () => {
     const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.11"');
   });
 
   it("lets the workspace toolbar define its grid track height", async () => {
@@ -221,7 +221,7 @@ describe("Pontx Hub visual system", () => {
     );
     expect(history).toContain("Load inputs without sending the request");
     expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.11"');
     expect(css).toMatch(
       /\[data-pontx-ui="playground-top-content"\][\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template:/,
     );
