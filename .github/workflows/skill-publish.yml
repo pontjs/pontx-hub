@@ -124,7 +124,25 @@ jobs:
           skill_root="$GITHUB_WORKSPACE/$SKILL_PATH"
           remote_json="${{ runner.temp }}/remote-$SKILL_NAME.json"
 
+          fetch_remote() {
+            npx --yes "clawhub@$CLAWHUB_CLI_VERSION" inspect \
+              "@pontjs/$SKILL_NAME" --version "$SKILL_VERSION" --json > "$remote_json" 2>/dev/null
+          }
+
+          wait_for_remote() {
+            for attempt in 1 2 3 4 5 6; do
+              if fetch_remote; then
+                return 0
+              fi
+              sleep $((attempt * 2))
+            done
+            echo "ClawHub did not expose $SKILL_NAME@$SKILL_VERSION after publication."
+            return 1
+          }
+
           verify_remote() {
+            test "$(jq -r '.owner.handle' "$remote_json")" = "pontjs"
+            test "$(jq -r '.skill.slug' "$remote_json")" = "$SKILL_NAME"
             test "$(jq -r '.version.version' "$remote_json")" = "$SKILL_VERSION"
             local_paths="${{ runner.temp }}/local-paths.txt"
             remote_paths="${{ runner.temp }}/remote-paths.txt"
@@ -138,8 +156,7 @@ jobs:
             done < "$local_paths"
           }
 
-          if npx --yes "clawhub@$CLAWHUB_CLI_VERSION" inspect \
-            "@pontjs/$SKILL_NAME" --version "$SKILL_VERSION" --json > "$remote_json" 2>/dev/null; then
+          if fetch_remote; then
             verify_remote
             echo "ClawHub already has the identical immutable version."
             exit 0
@@ -157,7 +174,6 @@ jobs:
             --source-path "$SKILL_PATH"
 
           if [ "$MODE" = "publish" ]; then
-            npx --yes "clawhub@$CLAWHUB_CLI_VERSION" inspect \
-              "@pontjs/$SKILL_NAME" --version "$SKILL_VERSION" --json > "$remote_json"
+            wait_for_remote
             verify_remote
           fi
