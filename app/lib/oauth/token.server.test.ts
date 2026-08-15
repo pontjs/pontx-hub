@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { exchangeOAuthToken } from "./token.server";
 
 vi.mock("~/lib/playground/network.server", () => ({ assertPublicHost: vi.fn() }));
@@ -6,7 +7,7 @@ vi.mock("~/lib/playground/network.server", () => ({ assertPublicHost: vi.fn() })
 afterEach(() => vi.unstubAllGlobals());
 
 describe("OAuth token exchange", () => {
-  it("uses the catalog token URL and client_secret_basic without exposing the secret", async () => {
+  it("uses the token URL and client authentication method from the synchronized catalog", async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
       access_token: "access-value",
       refresh_token: "refresh-value",
@@ -27,10 +28,17 @@ describe("OAuth token exchange", () => {
     expect(result).toMatchObject({ accessToken: "access-value", refreshToken: "refresh-value" });
     expect(fetchMock.mock.calls[0][0].toString()).toBe("https://dida365.com/oauth/token");
     const request = fetchMock.mock.calls[0][1];
-    expect(request.headers.get("Authorization")).toBe(
-      "Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=",
-    );
-    expect(request.body.toString()).not.toContain("client_secret=");
+    const scheme = getCatalogApi("dida365")?.auth.find(({ id }) => id === "OAuth2");
+    expect(scheme?.type).toBe("oauth2");
+    if (scheme?.type === "oauth2" && scheme.tokenEndpointAuthMethod === "client_secret_post") {
+      expect(request.headers.get("Authorization")).toBeNull();
+      expect(request.body.toString()).toContain("client_secret=client-secret");
+    } else {
+      expect(request.headers.get("Authorization")).toBe(
+        "Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=",
+      );
+      expect(request.body.toString()).not.toContain("client_secret=");
+    }
   });
 
   it("rejects scopes that are not declared by the approved flow", async () => {
