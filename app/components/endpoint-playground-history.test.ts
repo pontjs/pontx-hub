@@ -44,11 +44,15 @@ function render(
 }
 
 describe("EndpointPlaygroundHistory", () => {
-  it("renders a compact Chinese retry row with privacy context", () => {
+  it("defaults populated Chinese history to a collapsed, accessible summary", () => {
     const html = render("zh", [entry]);
 
     expect(html).toContain("当前接口 · 最近记录");
     expect(html).toContain("调试历史");
+    expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain("展开 1 条调试历史");
+    expect(html).toMatch(/aria-controls="[^"]+"/);
+    expect(html).toMatch(/class="endpoint-playground-history-details" hidden=""/);
     expect(html).toContain("HTTP 201");
     expect(html).toContain("2 个参数 + Body");
     expect(html).toContain("已跳过 1 个敏感字段");
@@ -61,6 +65,8 @@ describe("EndpointPlaygroundHistory", () => {
 
     expect(html).toContain("This endpoint · Recent runs");
     expect(html).toContain("No runs for this endpoint yet");
+    expect(html).not.toContain("aria-expanded");
+    expect(html).not.toContain('hidden=""');
     expect(html).toContain('href="/en/account/history"');
   });
 
@@ -77,6 +83,8 @@ describe("EndpointPlaygroundHistory", () => {
   it("preserves loaded feedback when the Playground remounts after replay", () => {
     const html = render("zh", [entry], entry.id);
 
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).not.toContain('hidden=""');
     expect(html).toContain('data-loaded="true"');
     expect(html).toContain("已载入");
     expect(html).toContain("历史参数已载入");

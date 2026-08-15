@@ -1804,6 +1804,7 @@ textarea {
 .endpoint-playground-history {
   overflow: hidden;
   flex: 0 0 auto;
+  container-type: inline-size;
   border: 1px solid #b9c8e6;
   border-radius: var(--radius-md);
   background:
@@ -1815,20 +1816,21 @@ textarea {
 
 .endpoint-playground-history > header {
   display: flex;
-  min-height: 62px;
+  min-height: 52px;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 14px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--line);
   background: rgb(255 255 255 / 88%);
-  gap: 18px;
+  gap: 8px 12px;
 }
 
 .endpoint-playground-history > header p {
-  margin: 0 0 3px;
+  margin: 0 0 2px;
   color: var(--blue-deep);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1839,55 +1841,79 @@ textarea {
   align-items: center;
   margin: 0;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: -0.01em;
   gap: 8px;
 }
 
 .endpoint-playground-history h2 > span {
   display: inline-grid;
-  min-width: 21px;
-  height: 21px;
+  min-width: 19px;
+  height: 19px;
   place-items: center;
   border: 1px solid #b8c9f6;
   border-radius: 999px;
   color: var(--blue-deep);
   background: var(--blue-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .endpoint-playground-history-header-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
 }
 
 .endpoint-playground-history-header-actions > span {
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 10px;
 }
 
-.endpoint-playground-history-header-actions a {
+.endpoint-playground-history-header-actions a,
+.endpoint-playground-history-toggle {
   display: inline-flex;
-  min-height: 32px;
+  min-height: 28px;
   align-items: center;
   border: 1px solid var(--line-strong);
-  border-radius: 7px;
-  padding: 0 10px;
+  border-radius: 6px;
+  padding: 0 8px;
   color: var(--blue-deep);
   background: #fff;
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
-  gap: 8px;
+  gap: 6px;
 }
 
 .endpoint-playground-history-header-actions a:hover,
-.endpoint-playground-history-header-actions a:focus-visible {
+.endpoint-playground-history-header-actions a:focus-visible,
+.endpoint-playground-history-toggle:hover,
+.endpoint-playground-history-toggle:focus-visible {
   border-color: var(--blue);
   outline: none;
+  background: var(--blue-soft);
   box-shadow: 0 0 0 3px rgb(49 87 213 / 10%);
+}
+
+.endpoint-playground-history-toggle > span {
+  transition: transform 160ms ease;
+}
+
+.endpoint-playground-history-toggle[aria-expanded="true"] > span {
+  transform: rotate(180deg);
+}
+
+.endpoint-playground-history-details {
+  overflow-y: auto;
+  max-height: 214px;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.endpoint-playground-history-details[hidden] {
+  display: none;
 }
 
 .endpoint-playground-history ol {
@@ -1898,14 +1924,14 @@ textarea {
 
 .endpoint-playground-history li {
   display: grid;
-  min-height: 49px;
-  grid-template-columns: 84px 116px minmax(0, 1fr) auto;
+  min-height: 43px;
+  grid-template-columns: 76px 102px minmax(0, 1fr) auto;
   align-items: center;
-  padding: 7px 10px 7px 14px;
+  padding: 5px 8px 5px 10px;
   border-bottom: 1px solid var(--line);
   background: rgb(255 255 255 / 82%);
   transition: background 160ms ease;
-  gap: 12px;
+  gap: 8px;
 }
 
 .endpoint-playground-history li:last-child {
@@ -1920,11 +1946,11 @@ textarea {
   width: fit-content;
   border: 1px solid #e7bdb9;
   border-radius: 5px;
-  padding: 3px 6px;
+  padding: 2px 5px;
   color: #9f3030;
   background: var(--danger-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1936,10 +1962,12 @@ textarea {
 }
 
 .endpoint-playground-history li > time {
+  overflow: hidden;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
   font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -1949,43 +1977,43 @@ textarea {
   flex-wrap: wrap;
   align-items: center;
   color: var(--ink);
-  font-size: 11px;
-  gap: 5px 12px;
+  font-size: 10px;
+  gap: 4px 9px;
 }
 
 .endpoint-history-inputs small {
   position: relative;
   color: var(--ink-soft);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 8px;
 }
 
 .endpoint-history-inputs small::before {
-  margin-right: 8px;
+  margin-right: 6px;
   color: #a7b0bd;
   content: "·";
 }
 
 .endpoint-playground-history li > button {
   display: inline-flex;
-  min-width: 82px;
-  min-height: 34px;
+  min-width: 66px;
+  min-height: 29px;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid var(--ink);
-  border-radius: 7px;
-  padding: 0 9px;
-  color: #fff;
-  background: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 0 8px;
+  color: var(--blue-deep);
+  background: #fff;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
-  gap: 10px;
+  gap: 8px;
 }
 
 .endpoint-playground-history li > button:hover {
   border-color: var(--blue);
-  background: var(--blue);
+  background: var(--blue-soft);
 }
 
 .endpoint-playground-history li > button:focus-visible {
@@ -1993,13 +2021,19 @@ textarea {
   outline-offset: 2px;
 }
 
+.endpoint-playground-history li[data-loaded="true"] > button {
+  border-color: #9bb3ee;
+  color: var(--blue-deep);
+  background: var(--blue-soft);
+}
+
 .endpoint-playground-history-empty,
 .endpoint-playground-history-feedback {
   margin: 0;
-  padding: 11px 14px;
+  padding: 8px 10px;
   color: var(--ink-soft);
   background: rgb(255 255 255 / 82%);
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.5;
 }
 
@@ -2026,45 +2060,38 @@ textarea {
 
 .pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-playground-history > header {
-  align-items: stretch;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 8px 10px;
 }
 
 .pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-playground-history-header-actions {
-  width: 100%;
-  justify-content: space-between;
+  margin-left: auto;
 }
 
-.pontx-documentation [data-pontx-ui="playground-top-content"]
+@container (max-width: 480px) {
   .endpoint-playground-history li {
-  grid-template:
-    "status time action"
-    "inputs inputs action" / auto minmax(0, 1fr) auto;
-  gap: 7px 10px;
-}
+    grid-template:
+      "status time action"
+      "inputs inputs action" / auto minmax(0, 1fr) auto;
+    gap: 4px 8px;
+  }
 
-.pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-history-status {
-  grid-area: status;
-}
+    grid-area: status;
+  }
 
-.pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-playground-history li > time {
-  grid-area: time;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    grid-area: time;
+  }
 
-.pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-history-inputs {
-  grid-area: inputs;
-}
+    grid-area: inputs;
+  }
 
-.pontx-documentation [data-pontx-ui="playground-top-content"]
   .endpoint-playground-history li > button {
-  grid-area: action;
+    grid-area: action;
+  }
 }
 
 .request-example-notice.ready {
@@ -2696,35 +2723,14 @@ textarea {
   }
 
   .endpoint-playground-history > header {
-    align-items: flex-start;
-    padding: 11px 12px;
+    align-items: center;
+    padding: 8px 10px;
   }
 
   .endpoint-playground-history-header-actions > span {
     display: none;
   }
 
-  .endpoint-playground-history li {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    padding: 10px 10px 10px 12px;
-    gap: 7px 10px;
-  }
-
-  .endpoint-playground-history li > time {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .endpoint-history-inputs {
-    grid-column: 1 / 3;
-    grid-row: 2;
-  }
-
-  .endpoint-playground-history li > button {
-    grid-column: 3;
-    grid-row: 1 / 3;
-  }
 }
 
 @media (max-width: 420px) {

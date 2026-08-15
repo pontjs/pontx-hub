@@ -221,12 +221,20 @@ describe("Pontx Hub visual system", () => {
     );
     expect(history).toContain("Load inputs without sending the request");
     expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
+    expect(history).toContain("aria-expanded={expanded}");
+    expect(history).toContain("hidden={Boolean(entries.length) && !expanded}");
     expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.11"');
     expect(css).toMatch(
-      /\[data-pontx-ui="playground-top-content"\][\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template:/,
+      /\.endpoint-playground-history-details\s*\{[\s\S]*?max-height:\s*214px;[\s\S]*?overscroll-behavior:\s*contain;/,
     );
     expect(css).toMatch(
-      /@media \(max-width: 740px\)[\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template-columns:/,
+      /\.endpoint-playground-history li > button\s*\{[\s\S]*?color:\s*var\(--blue-deep\);[\s\S]*?background:\s*#fff;/,
+    );
+    expect(css).toMatch(
+      /@container \(max-width: 480px\)[\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template:/,
+    );
+    expect(css).toMatch(
+      /\.endpoint-playground-history\s*{[\s\S]*?container-type:\s*inline-size;/,
     );
   });
 
