@@ -166,6 +166,49 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain("process.env.DIDA365_ACCESS_TOKEN!");
   });
 
+  it("places OpenAPI header parameters in the terminal RequestInit argument", () => {
+    const headerOperation = {
+      operationId: "updateProject",
+      tag: "projects",
+      parameters: [
+        { name: "projectId", in: "path", type: "string" },
+        { name: "body", in: "body", type: "object" },
+        { name: "If-Match", in: "header", type: "string", required: true },
+        {
+          name: "Idempotency-Key",
+          in: "header",
+          type: "string",
+          required: true
+        }
+      ],
+      requestBody: {}
+    } as CatalogOperation;
+    const pinhere = api({
+      kind: "factory",
+      factory: "createPinhereClient",
+      identifier: "client",
+      options: {}
+    });
+    pinhere.schemas = [];
+    pinhere.sdkContract = {
+      ...pinhere.sdkContract!,
+      controllers: { projects: "projects" },
+      operations: ["updateProject"]
+    };
+
+    const code = generateSdkSnippet(pinhere, headerOperation, {
+      path: { projectId: "project-1" },
+      query: {},
+      headers: { "If-Match": "1", "Idempotency-Key": "update-example" },
+      body: { name: "Updated" }
+    });
+
+    expect(code.indexOf("sdkRequestBody,")).toBeLessThan(code.indexOf("headers: {"));
+    expect(code).toContain('"If-Match": "1"');
+    expect(code).toContain('"Idempotency-Key": "update-example"');
+    expect(code).not.toContain('"If-Match": "1"\n  }\n);');
+  });
+
   it("contextually types mutable body arrays and uses declared enum values", () => {
     const bodyOperation = {
       operationId: "createDraft",
