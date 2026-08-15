@@ -117,7 +117,7 @@ export function CatalogAccessSummary({ locale }: { locale: "zh" | "en" }) {
   const zh = locale === "zh";
   return (
     <p className="registry-description">
-      <strong>{zh ? "选好 API 后，直接复制代码接入项目。" : "Choose an API, then copy the code straight into your project."}</strong>{" "}
+      <strong>{zh ? "选好 API 后，直接复制代码接入项目。" : "Find the API you need. Add it to your project with ready-to-copy code."}</strong>{" "}
       {zh
         ? "每个收录 API 都有一致的 SDK 和 CLI；Pontx Hub CLI 用于在目录中搜索、查看接口和预览请求。"
         : "Every catalog API has a consistent SDK and CLI; use the Pontx Hub CLI to search, inspect endpoints, and preview requests."}{" "}

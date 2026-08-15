@@ -29,7 +29,7 @@ describe("catalog SDK and CLI summary", () => {
   it("keeps the same human-first structure in English", () => {
     const html = renderSummary("en");
 
-    expect(html).toContain("Choose an API, then copy the code straight into your project.");
+    expect(html).toContain("Find the API you need. Add it to your project with ready-to-copy code.");
     expect(html).toContain("Every catalog API has a consistent SDK and CLI");
     expect(html).toContain("Pontx Hub CLI to search, inspect endpoints, and preview requests");
     expect(html).toContain("See how it works");
