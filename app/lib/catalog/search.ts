@@ -41,6 +41,8 @@ const kindOrder: Record<GlobalSearchKind, number> = {
 const apiSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
 const endpointSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
 const schemaSearchFieldCache = new WeakMap<object, NormalizedWeightedField[]>();
+const searchResponseCache = new WeakMap<object, Map<string, GlobalSearchResponse>>();
+const maxCachedSearchResponses = 256;
 
 const matchFieldOrder: GlobalSearchMatchField[] = [
   "title",
@@ -509,6 +511,14 @@ export function buildSearchResponse(
   );
   const limit = Math.min(Math.max(options.limit ?? 30, 1), 100);
   const offset = Math.max(options.offset ?? 0, 0);
+  const cacheKey = `${locale}\u0000${normalizedQuery}\u0000${[...kinds].sort().join(",")}\u0000${limit}\u0000${offset}`;
+  let catalogCache = searchResponseCache.get(catalog);
+  if (!catalogCache) {
+    catalogCache = new Map();
+    searchResponseCache.set(catalog, catalogCache);
+  }
+  const cachedResponse = catalogCache.get(cacheKey);
+  if (cachedResponse) return cachedResponse;
   const results: GlobalSearchResult[] = [];
 
   if (normalizedQuery) {
@@ -693,7 +703,7 @@ export function buildSearchResponse(
     schema: results.filter((result) => result.kind === "schema").length
   };
 
-  return {
+  const response: GlobalSearchResponse = {
     strategy: "hybrid-semantic",
     semanticVersion: "pontx-multilingual-v1",
     query: normalizedQuery,
@@ -704,4 +714,10 @@ export function buildSearchResponse(
     counts,
     items: results.slice(offset, offset + limit)
   };
+  if (catalogCache.size >= maxCachedSearchResponses) {
+    const oldestKey = catalogCache.keys().next().value;
+    if (oldestKey) catalogCache.delete(oldestKey);
+  }
+  catalogCache.set(cacheKey, response);
+  return response;
 }
