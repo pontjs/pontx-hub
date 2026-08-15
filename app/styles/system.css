@@ -3842,6 +3842,10 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 
+  .feedback-dialog::backdrop {
+    animation: none;
+  }
+
   .api-card:hover,
   .button:hover,
   .github-sign-in:hover {
