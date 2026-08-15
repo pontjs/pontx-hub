@@ -62,6 +62,17 @@ export type CatalogResponseMetadata = CatalogPayloadMetadata & {
   status: string;
 };
 
+export type CatalogSseEvent = CatalogPayloadMetadata & {
+  name: string;
+  dataFormat: "json" | "text";
+  terminal?: boolean;
+};
+
+export type CatalogSseStream = {
+  events: CatalogSseEvent[];
+  unknownEventPolicy: "preserve";
+};
+
 export type CatalogRequestScalar = string | number | boolean;
 
 export type CatalogRequestExampleInput = {
@@ -104,6 +115,7 @@ export type CatalogOperation = {
   parameters: CatalogParameter[];
   requestBody?: CatalogPayloadMetadata;
   responses: CatalogResponseMetadata[];
+  sse?: CatalogSseStream;
   serverIds: string[];
   proxyHeaders: Record<string, string>;
   proxyEnabled?: boolean;

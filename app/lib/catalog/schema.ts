@@ -65,6 +65,17 @@ const responseMetadataSchema = payloadMetadataSchema.extend({
   status: z.string().min(1)
 });
 
+const sseEventSchema = payloadMetadataSchema.extend({
+  name: z.string().min(1),
+  dataFormat: z.enum(["json", "text"]),
+  terminal: z.boolean().optional()
+});
+
+const sseStreamSchema = z.object({
+  events: z.array(sseEventSchema).min(1),
+  unknownEventPolicy: z.literal("preserve")
+});
+
 const requestScalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 
 const requestExampleInputSchema = z.object({
@@ -114,6 +125,7 @@ const operationSchema = z.object({
   parameters: z.array(parameterSchema).default([]),
   requestBody: payloadMetadataSchema.optional(),
   responses: z.array(responseMetadataSchema).default([]),
+  sse: sseStreamSchema.optional(),
   serverIds: z.array(z.string().min(1)).default([]),
   proxyHeaders: z
     .record(

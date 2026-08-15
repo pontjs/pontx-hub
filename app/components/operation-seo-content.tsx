@@ -185,6 +185,36 @@ export function OperationSeoContent({
         </div>
         <Example value={operation.responseExample} />
       </section>
+
+      {operation.sse ? (
+        <section aria-labelledby="sse-events-heading">
+          <h2 id="sse-events-heading">{zh ? "流式事件" : "Stream events"}</h2>
+          <p>
+            <b>{zh ? "未知事件" : "Unknown events"}:</b>{" "}
+            {zh ? "按原始载荷保留，以兼容后续新增的事件类型。" : "Preserved as raw payloads for forward compatibility."}
+          </p>
+          <div className="operation-seo-list">
+            {operation.sse.events.map((event) => (
+              <section key={event.name}>
+                <h3><code>{event.name}</code></h3>
+                <p>
+                  <span>{zh ? "数据格式" : "Data format"}: {event.dataFormat === "json" ? "JSON" : (zh ? "文本" : "Text")}</span>
+                  {event.terminal ? <strong>{zh ? "结束事件" : "Terminal event"}</strong> : null}
+                  {event.schemaName ? (
+                    <Link to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(event.schemaName)}`}>
+                      {event.schemaName}
+                    </Link>
+                  ) : <span>{typeLabel(event)}</span>}
+                </p>
+                {event.description ? <p>{localize(event.description, locale)}</p> : null}
+                {event.properties?.length ? (
+                  <p><b>{zh ? "字段" : "Properties"}:</b> {event.properties.map((property) => <code key={property}>{property}</code>)}</p>
+                ) : null}
+              </section>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

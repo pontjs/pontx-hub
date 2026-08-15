@@ -9,12 +9,14 @@ import { pontxApiView } from "./pontx-view";
 const baseSpec = loadPontxSpec({
   pontx: "2.1",
   style: "RPC",
+  rpc: { protocol: "fixture-rpc" },
   name: "rpc-minimal",
   info: { title: "最小 RPC", version: "1.0.0" },
   security: [{ fixtureKey: [] }],
   apis: {
     "inventory/getItem": {
       operationId: "getItem",
+      rpc: { action: "inventory.getItem" },
       summary: "获取库存项目",
       description: "通过 RPC 标识读取一个项目。",
       tags: ["inventory"],
@@ -151,6 +153,76 @@ describe("Pontx hierarchy consumer", () => {
     expect(pontxApiView(localizedSpec, operation)).toMatchObject({
       operationId: "getItem",
       responses: { success: { description: "Item result" } }
+    });
+  });
+
+  it("keeps named SSE event contracts in the public catalog", () => {
+    const streamSpec = loadPontxSpec({
+      pontx: "2.1",
+      style: "RESTFul",
+      name: "streaming-fixture",
+      info: { title: "流式 Fixture", version: "1.0.0" },
+      servers: [{ id: "api", url: "https://api.example.test" }],
+      apis: {
+        "stream/rates": {
+          operationId: "streamRates",
+          method: "GET",
+          path: "/rates/stream",
+          summary: "流式汇率",
+          description: "返回命名事件。",
+          responses: {
+            "200": {
+              description: "事件流",
+              content: { "text/event-stream": { schema: { type: "string" } } }
+            }
+          },
+          requestExamples: {
+            default: { request: {}, expectedStatus: "200" }
+          },
+          sse: {
+            unknownEventPolicy: "preserve",
+            events: {
+              delta: { dataFormat: "json", description: "汇率变更。", schema: { $ref: "#/components/schemas/Rate" } },
+              done: { dataFormat: "text", terminal: true }
+            }
+          }
+        }
+      },
+      components: {
+        schemas: {
+          Rate: { type: "object", properties: { currency: { type: "string" } } }
+        }
+      }
+    });
+    const catalog = buildCatalogApi({
+      metadataCommit: "c".repeat(40),
+      product: {
+        slug: "streaming-fixture",
+        name: "Streaming fixture",
+        provider: "Pontx",
+        category: "Fixture",
+        featured: false,
+        display: { title: "流式 Fixture API", summary: "验证 SSE 索引。", accent: "#334155" },
+        legal: { license: "MIT", attributionUrl: "https://pontx.dev/" },
+        credentials: [],
+        quickStart: { operationId: "streamRates", requestExampleId: "default" }
+      },
+      localizedProduct: { display: { title: "Streaming fixture API", summary: "Verifies SSE indexing." } },
+      spec: streamSpec,
+      localizedSpec: streamSpec,
+      sdk: {
+        package: { name: "@pontx/streaming-fixture", version: "0.0.0", status: "planned" },
+        spec: { path: "products/streaming-fixture/spec.pontx.json", sha256: "d".repeat(64) }
+      }
+    });
+
+    const parsed = catalogApiSchema.parse(catalog);
+    expect(parsed.operations[0].sse).toEqual({
+      unknownEventPolicy: "preserve",
+      events: [
+        expect.objectContaining({ name: "delta", dataFormat: "json", schemaName: "Rate", properties: ["currency"] }),
+        expect.objectContaining({ name: "done", dataFormat: "text", terminal: true })
+      ]
     });
   });
 });
