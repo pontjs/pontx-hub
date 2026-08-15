@@ -140,16 +140,16 @@ function AgentIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      data-agent-icon="copilot-compass"
+      data-agent-icon="agent-unit"
       viewBox="0 0 24 24"
       aria-hidden="true"
     >
-      <circle cx="12" cy="12" r="8.15" />
-      <path
-        d="m15.95 8.05-2.65 5.25-5.25 2.65 2.65-5.25 5.25-2.65Z"
-        fill="currentColor"
-        stroke="none"
-      />
+      <path d="M8.15 7.15 6.35 5.35M15.85 7.15l1.8-1.8" />
+      <path d="M6.1 11.9a5.9 5.9 0 0 1 11.8 0v2.2a3.2 3.2 0 0 1-3.2 3.2H9.3a3.2 3.2 0 0 1-3.2-3.2v-2.2Z" />
+      <path d="M8.15 11.25h7.7" />
+      <circle cx="9.2" cy="11.25" r="0.82" fill="currentColor" stroke="none" />
+      <circle cx="14.8" cy="11.25" r="0.82" fill="currentColor" stroke="none" />
+      <path d="M9.25 15.3h5.5" />
     </svg>
   );
 }
