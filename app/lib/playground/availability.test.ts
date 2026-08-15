@@ -13,13 +13,13 @@ describe("Playground availability", () => {
     };
 
     expect(
-      getPlaygroundAvailability({ proxyEnabled: true }, operation, "zh")
+      getPlaygroundAvailability(operation, "zh")
     ).toEqual({
       executionEnabled: false,
       disabledReason: "供应商要求浏览器验证，Hub 不绕过该验证。"
     });
     expect(
-      getPlaygroundAvailability({ proxyEnabled: true }, operation, "en")
+      getPlaygroundAvailability(operation, "en")
     ).toEqual({
       executionEnabled: false,
       disabledReason:
@@ -27,25 +27,9 @@ describe("Playground availability", () => {
     });
   });
 
-  it("requires both API and endpoint proxy policies to allow execution", () => {
+  it("executes REST endpoints by default", () => {
     expect(
-      getPlaygroundAvailability(
-        { proxyEnabled: false },
-        { proxyEnabled: true },
-        "en"
-      )
-    ).toEqual({
-      executionEnabled: false,
-      disabledReason:
-        "This endpoint is preview-only; Hub will not send the request to the provider."
-    });
-
-    expect(
-      getPlaygroundAvailability(
-        { proxyEnabled: true },
-        { proxyEnabled: true },
-        "en"
-      )
+      getPlaygroundAvailability({ proxyEnabled: true }, "en")
     ).toEqual({ executionEnabled: true });
   });
 
@@ -59,7 +43,10 @@ describe("Playground availability", () => {
       "enablePlayground={playgroundAvailable}"
     );
     expect(workspace).toContain(
-      "onExecute={playgroundAvailable ? execute : undefined}"
+      "onExecute={playgroundAvailability.executionEnabled ? execute : undefined}"
+    );
+    expect(workspace).toContain(
+      "const playgroundAvailable = playgroundAvailability.executionEnabled;"
     );
     expect(workspace).toContain("if (!playgroundAvailability.executionEnabled)");
     expect(workspace).toContain(

@@ -165,7 +165,7 @@ export function ApiOverviewFacts({
   operationSlug: string;
 }) {
   const executableOperationCount = api.operations.filter(
-    (operation) => getPlaygroundAvailability(api, operation, locale).executionEnabled
+    (operation) => getPlaygroundAvailability(operation, locale).executionEnabled
   ).length;
   const authLabel = api.auth.length
     ? api.auth
@@ -654,11 +654,7 @@ export function PontxApiWorkspace({
       }),
     [activeOperation, guided, requestExample, spec]
   );
-  const playgroundAvailability = getPlaygroundAvailability(
-    api,
-    activeOperation,
-    locale
-  );
+  const playgroundAvailability = getPlaygroundAvailability(activeOperation, locale);
   const approvedOperationServers = activeOperation.serverIds.length
     ? api.servers.filter((server) => activeOperation.serverIds.includes(server.id))
     : api.servers;
@@ -1084,10 +1080,9 @@ export function PontxApiWorkspace({
       ? "选择目标，确认预填参数并执行"
       : "Choose a task, review the example, then run it"
     : zh
-      ? "此接口不支持由 Hub 代理执行"
-      : "Hub proxy execution is unavailable for this endpoint";
-  const playgroundAvailable =
-    playgroundAvailability.executionEnabled || Boolean(requestExample);
+      ? "此接口暂不支持在线调试"
+      : "This endpoint is not available for interactive debugging";
+  const playgroundAvailable = playgroundAvailability.executionEnabled;
   const showOAuthConfiguration = Boolean(
     oauthScheme?.flows &&
     activeOperation.security?.some((requirement) => requirement.schemeId === oauthScheme.id) &&
@@ -1290,7 +1285,7 @@ export function PontxApiWorkspace({
                 url: server.url,
                 description: localize(server.description, locale)
               }))}
-              onExecute={playgroundAvailable ? execute : undefined}
+              onExecute={playgroundAvailability.executionEnabled ? execute : undefined}
               onPlaygroundStateChange={(state) => setIsPlaygroundOpen(state.isOpen)}
               executionResult={executionResult}
               isExecuting={isExecuting}

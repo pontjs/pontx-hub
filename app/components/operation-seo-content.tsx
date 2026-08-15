@@ -15,7 +15,7 @@ export function DocumentationEvidence({
   operation: CatalogOperation;
 }) {
   const zh = locale === "zh";
-  const availability = getPlaygroundAvailability(api, operation, locale);
+  const availability = getPlaygroundAvailability(operation, locale);
   const hasEvidence =
     !availability.executionEnabled ||
     Boolean(operation.stabilityNote) ||
@@ -115,7 +115,7 @@ export function OperationSeoContent({
           api={api}
           operation={operation}
           example={requestExample}
-          previewOnly={!getPlaygroundAvailability(api, operation, locale).executionEnabled}
+          previewOnly={!getPlaygroundAvailability(operation, locale).executionEnabled}
         />
       ) : null}
 

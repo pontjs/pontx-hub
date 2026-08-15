@@ -174,7 +174,7 @@ describe("Hub API", () => {
     expect(text).toContain("Bearer ••••••••");
   });
 
-  it("previews Massive without proxying or redistributing market data", async () => {
+  it("prepares an executable Massive request without fetching during preview", async () => {
     const response = await hubApi.request("/api/v1/playground/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -189,19 +189,39 @@ describe("Hub API", () => {
     const payload = await response.json();
     expect(response.status).toBe(200);
     expect(payload.data.url).toBe("https://api.massive.com/v2/aggs/ticker/AAPL/prev?adjusted=true");
-    expect(payload.data.proxyEnabled).toBe(false);
+    expect(payload.data.proxyEnabled).toBe(true);
   });
 
-  it("rejects direct execution of preview-only endpoints without a generic 500", async () => {
+  it("keeps Twelve Data exchange-rate requests executable after preview", async () => {
+    const response = await hubApi.request("/api/v1/playground/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiSlug: "twelve-data-forex",
+        operationSlug: "get-exchange-rate",
+        serverId: "twelve-data-api",
+        path: {},
+        query: { symbol: "EUR/USD" }
+      })
+    });
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.data.url).toBe("https://api.twelvedata.com/exchange_rate?symbol=EUR%2FUSD");
+    expect(payload.data.proxyEnabled).toBe(true);
+    expect(payload.data.warnings).toEqual([]);
+  });
+
+  it("rejects an explicitly disabled endpoint without a generic 500", async () => {
     const response = await hubApi.request("/api/v1/playground/execute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiSlug: "massive",
-        operationSlug: "get-previous-close",
-        serverId: "massive",
-        path: { stocksTicker: "AAPL" },
-        query: { adjusted: true }
+        apiSlug: "stripe-identity",
+        operationSlug: "get-identity-verification-sessions",
+        serverId: "stripe-identity",
+        path: {},
+        query: {}
       })
     });
     const payload = await response.json();
@@ -209,7 +229,7 @@ describe("Hub API", () => {
     expect(response.status).toBe(403);
     expect(payload.error.code).toBe("request_rejected");
     expect(payload.error.message).toBe(
-      "This API is configured for preview-only mode"
+      "This endpoint is not enabled for Playground execution"
     );
   });
 

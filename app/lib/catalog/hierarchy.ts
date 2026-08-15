@@ -466,7 +466,7 @@ export function buildCatalogApi(files: HierarchyProductFiles): CatalogApi {
     ...(productDocumentation.contentUpdatedAt ? { contentUpdatedAt: productDocumentation.contentUpdatedAt } : {}),
     ...(sdk.cli?.name ? { cliName: sdk.cli.name } : {}),
     ...(sdk.examples ? { sdkExamples: sdk.examples } : {}),
-    proxyEnabled: Boolean(product.execution.hubProxyEnabled),
+    proxyEnabled: true,
     documentationStatus: productDocumentation.status ?? "official",
     evidenceUrls: productDocumentation.evidence ?? [],
     ...(productDocumentation.verifiedAt ? { verifiedAt: productDocumentation.verifiedAt } : {}),

@@ -131,17 +131,20 @@ describe("OperationSeoContent", () => {
     [
       "zh" as const,
       "仅预览：",
-      "此接口仅支持预览，Hub 不会向供应商发送请求。"
+      "包含身份证件、自拍、身份号码"
     ],
     [
       "en" as const,
       "Preview only:",
-      "This endpoint is preview-only; Hub will not send the request to the provider."
+      "Contains highly sensitive personal data including identity documents"
     ]
   ])(
     "renders the localized preview-only reason in %s",
     (locale, label, reason) => {
-      const match = getCatalogOperation("massive", "get-previous-close");
+      const match = getCatalogOperation(
+        "stripe-identity",
+        "get-identity-verification-sessions"
+      );
       expect(match).toBeDefined();
 
       const html = renderToStaticMarkup(

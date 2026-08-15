@@ -147,7 +147,7 @@ async function executeProviderRequest(input: PlaygroundExecuteInput) {
   const prepared = prepareRequest(input);
   if (!prepared.proxyEnabled) {
     throw new HTTPException(403, {
-      message: "This API is configured for preview-only mode"
+      message: "This endpoint is not enabled for Playground execution"
     });
   }
 

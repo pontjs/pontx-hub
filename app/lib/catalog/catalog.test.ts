@@ -116,12 +116,12 @@ describe("curated catalog", () => {
     expect(schema?.properties.find((property) => property.name === "signers")?.type).toBe("array");
   });
 
-  it("preserves ECB's published SDK contract and direct-only execution policy when provided", () => {
+  it("preserves ECB's published SDK contract without a product-wide execution gate", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "ecb-data-portal");
     if (!api) return;
     expect(api?.packageName).toBe("@pontx/ecb-data-portal");
     expect(api?.sdkVersion).toBe("0.1.0");
-    expect(api?.proxyEnabled).toBe(false);
+    expect(api?.proxyEnabled).toBe(true);
     expect(api?.operations).toHaveLength(8);
     expect(api?.schemas).toHaveLength(12);
     expect(api?.quickStart).toEqual({
@@ -130,11 +130,11 @@ describe("curated catalog", () => {
     });
   });
 
-  it("preserves CurrencyBeacon's full, flat SDK contract and direct-only execution policy", () => {
+  it("preserves CurrencyBeacon's full, flat SDK contract without a product-wide execution gate", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "currencybeacon-rest");
     expect(api?.packageName).toBe("@pontx/currencybeacon-rest");
     expect(api?.sdkVersion).toBe("0.1.1");
-    expect(api?.proxyEnabled).toBe(false);
+    expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.operations).toHaveLength(5);
     expect(api?.schemas).toHaveLength(11);
@@ -245,11 +245,11 @@ describe("curated catalog", () => {
     expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
   });
 
-  it("preserves official provenance and disables market-data redistribution", () => {
+  it("preserves official market-data provenance without disabling execution", () => {
     const catalog = listCatalog();
     const massive = catalog.find((api) => api.slug === "massive");
     expect(massive).toBeDefined();
-    expect(massive?.proxyEnabled).toBe(false);
+    expect(massive?.proxyEnabled).toBe(true);
     expect(massive?.operations.every((operation) => operation.serverIds.length > 0)).toBe(true);
     expect(massive?.documentationStatus).toBe("official");
     expect(massive?.evidenceUrls.length).toBeGreaterThan(0);

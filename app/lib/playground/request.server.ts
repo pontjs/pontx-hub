@@ -185,7 +185,7 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
     url: url.toString(),
     headers,
     body,
-    proxyEnabled: api.proxyEnabled && operation.proxyEnabled !== false
+    proxyEnabled: operation.proxyEnabled !== false
   };
 }
 

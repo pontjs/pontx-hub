@@ -1,7 +1,6 @@
-import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
+import type { CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 
-type ApiExecutionPolicy = Pick<CatalogApi, "proxyEnabled">;
 type OperationExecutionPolicy = Pick<
   CatalogOperation,
   "proxyEnabled" | "proxyDisabledReason"
@@ -13,13 +12,11 @@ export type PlaygroundAvailability = {
 };
 
 export function getPlaygroundAvailability(
-  api: ApiExecutionPolicy,
   operation: OperationExecutionPolicy,
   locale: Locale
 ): PlaygroundAvailability {
   const executionEnabled =
     (operation.style ?? "RESTFul") === "RESTFul" &&
-    api.proxyEnabled &&
     operation.proxyEnabled !== false;
 
   if (executionEnabled) return { executionEnabled: true };

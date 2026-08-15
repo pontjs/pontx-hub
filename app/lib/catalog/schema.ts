@@ -372,7 +372,7 @@ export const catalogApiSchema = z
         cli: z.string().min(1)
       })
       .optional(),
-    proxyEnabled: z.boolean().default(false),
+    proxyEnabled: z.boolean().default(true),
     documentationStatus: documentationStatusSchema,
     evidenceUrls: z.array(z.string().url()).default([]),
     verifiedAt: z.string().date().optional(),

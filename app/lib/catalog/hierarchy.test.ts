@@ -73,7 +73,6 @@ const api = buildCatalogApi({
     legal: { license: "MIT", attributionUrl: "https://pontx.dev/" },
     documentation: { status: "official", evidence: ["https://pontx.dev/"], verifiedAt: "2026-08-15" },
     credentials: [],
-    execution: { hubProxyEnabled: false },
     quickStart: { operationId: "getItem", requestExampleId: "default" }
   },
   localizedProduct: {
@@ -102,7 +101,7 @@ describe("Pontx hierarchy consumer", () => {
     expect(operation).not.toHaveProperty("path");
     expect(buildSearchResponse([api], "inventory", "en").items[0]?.id)
       .toBe("endpoint:rpc-minimal/get-item");
-    expect(getPlaygroundAvailability(api, operation, "en")).toMatchObject({
+    expect(getPlaygroundAvailability(operation, "en")).toMatchObject({
       executionEnabled: false
     });
     expect(pontxApiView(localizedSpec, operation)).toMatchObject({
