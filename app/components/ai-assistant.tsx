@@ -152,16 +152,13 @@ function AgentIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      data-agent-icon="agent-unit"
+      data-agent-icon="agent-operator"
       viewBox="0 0 24 24"
       aria-hidden="true"
     >
-      <path d="M8.15 7.15 6.35 5.35M15.85 7.15l1.8-1.8" />
-      <path d="M6.1 11.9a5.9 5.9 0 0 1 11.8 0v2.2a3.2 3.2 0 0 1-3.2 3.2H9.3a3.2 3.2 0 0 1-3.2-3.2v-2.2Z" />
-      <path d="M8.15 11.25h7.7" />
-      <circle cx="9.2" cy="11.25" r="0.82" fill="currentColor" stroke="none" />
-      <circle cx="14.8" cy="11.25" r="0.82" fill="currentColor" stroke="none" />
-      <path d="M9.25 15.3h5.5" />
+      <circle cx="10.5" cy="9" r="3.2" />
+      <path d="M4.8 19.25c.72-3.14 3.18-5.12 6.12-5.12s5.4 1.98 6.12 5.12" />
+      <path d="m17.55 2.9.64 1.96 1.96.64-1.96.64-.64 1.96-.64-1.96-1.96-.64 1.96-.64.64-1.96Z" />
     </svg>
   );
 }

@@ -18,10 +18,11 @@ describe("Pontx Agent presentation", () => {
     expect(source).toContain('label: "Pontx Agent"');
     expect(source).toContain('send: "运行任务"');
     expect(source).toContain('emptyTitle: "交给 Agent 一个 API 任务"');
-    expect(source).toContain('data-agent-icon="agent-unit"');
-    expect(source).toContain('d="M6.1 11.9a5.9 5.9 0 0 1 11.8 0v2.2a3.2 3.2 0 0 1-3.2 3.2H9.3a3.2 3.2 0 0 1-3.2-3.2v-2.2Z"');
-    expect(source).toContain('<path d="M8.15 7.15 6.35 5.35M15.85 7.15l1.8-1.8" />');
-    expect(source).toContain('<circle cx="9.2" cy="11.25" r="0.82" fill="currentColor" stroke="none" />');
+    expect(source).toContain('data-agent-icon="agent-operator"');
+    expect(source).toContain('<circle cx="10.5" cy="9" r="3.2" />');
+    expect(source).toContain('d="M4.8 19.25c.72-3.14 3.18-5.12 6.12-5.12s5.4 1.98 6.12 5.12"');
+    expect(source).toContain('d="m17.55 2.9.64 1.96 1.96.64-1.96.64-.64 1.96-.64-1.96-1.96-.64 1.96-.64.64-1.96Z"');
+    expect(source).not.toContain('data-agent-icon="agent-unit"');
     expect(source).not.toContain("AI 助手");
     expect(source).not.toContain("API Assistant");
     expect(source).not.toContain('<rect x="3.75" y="4.5" width="16.5" height="15" rx="2.5" />');
