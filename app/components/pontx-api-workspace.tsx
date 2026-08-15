@@ -124,12 +124,14 @@ export function ApiOverviewActions({
   locale,
   apiSlug,
   operationSlug,
-  quickCallAction
+  quickCallAction,
+  skillName
 }: {
   locale: Locale;
   apiSlug: string;
   operationSlug: string;
   quickCallAction: string;
+  skillName?: string;
 }) {
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
 
@@ -144,6 +146,11 @@ export function ApiOverviewActions({
       <a className="button" href="#quick-call">
         {quickCallAction}
       </a>
+      {skillName ? (
+        <a className="button" href={`/${locale}/skills/${skillName}`}>
+          {locale === "zh" ? "安装产品 Skill" : "Install product Skill"}
+        </a>
+      ) : null}
     </div>
   );
 }
@@ -600,6 +607,7 @@ export function PontxApiWorkspace({
   initialFavorite = false,
   playgroundHistoryEnabled = false,
   initialPlaygroundHistory = [],
+  skillName,
   variant = "reference"
 }: {
   locale: Locale;
@@ -609,6 +617,7 @@ export function PontxApiWorkspace({
   initialFavorite?: boolean;
   playgroundHistoryEnabled?: boolean;
   initialPlaygroundHistory?: EndpointPlaygroundHistoryEntry[];
+  skillName?: string;
   variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
@@ -1123,7 +1132,12 @@ export function PontxApiWorkspace({
 
   return (
     <main className={`resource-page resource-page-workspace${guided ? " resource-page-guided" : ""}`}>
-      <ResourceNavigation locale={locale} api={api} active={guided ? "overview" : "docs"} />
+      <ResourceNavigation
+        locale={locale}
+        api={api}
+        active={guided ? "overview" : "docs"}
+        skillName={skillName}
+      />
       {guided ? (
         <header className="api-overview-hero">
           <div className="api-overview-intro">
@@ -1135,6 +1149,7 @@ export function PontxApiWorkspace({
               apiSlug={api.slug}
               operationSlug={activeOperation.slug}
               quickCallAction={quickCallAction}
+              skillName={skillName}
             />
           </div>
           <ApiOverviewFacts

@@ -4,6 +4,7 @@ import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { CodeBlock } from "~/components/code-block";
 import { agentSkillHeroCopy } from "~/lib/i18n";
+import { Link } from "react-router";
 
 export function loader({ params }: Route.LoaderArgs) {
   return { locale: requireLocale(params.locale) };
@@ -12,12 +13,12 @@ export function loader({ params }: Route.LoaderArgs) {
 export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
   const title = locale === "zh"
-    ? "Pontx Hub Agent Skill — Agent API 工作流"
-    : "Pontx Hub Agent Skill — Agent API Workflow";
+    ? "Pontx Hub 通用 Skill — 跨 API 发现与安全集成"
+    : "Pontx Hub Universal Skill — API Discovery and Safe Integration";
   const description =
     locale === "zh"
-      ? "Pontx Hub Skill 为 Agent 定义 API 发现、契约检查、请求预演、授权调用与类型化集成的统一工作流。"
-      : "Pontx Hub Skill defines one agent workflow for API discovery, contract inspection, request preview, authorized calls, and type-safe integration.";
+      ? "Pontx Hub 通用 Skill 负责跨 API 搜索、契约检查、请求预演、安全调用，并按需引导 Agent 安装产品专属 Skill。"
+      : "The Pontx Hub universal Skill handles catalog-wide API search, contract inspection, request preview, safe calls, and product Skill discovery.";
   const canonical = siteUrl(`/${locale}/skills/pontx-hub`);
   return [
     { title },
@@ -73,13 +74,18 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
     <SiteShell locale={locale}>
       <main className="detail-page agent-skill-page">
         <header className="detail-hero">
-          <p className="eyebrow">One skill / Every curated API</p>
+          <p className="eyebrow">Universal skill / Every curated API</p>
           <h1>{heroCopy.heading}</h1>
           <p>
             {zh
-              ? "Skill 是 Agent 的 API 操作规范：它规定何时搜索并检查契约、如何预演真实请求、何时必须取得用户授权，以及如何把验证结果转成生产集成。统一 CLI 是执行这套规范的工具。"
-              : "The Skill is an API operating protocol for agents: it defines when to search and inspect contracts, how to preview the resolved request, when user authorization is mandatory, and how to turn verified results into production integration. The universal CLI executes that protocol."}
+              ? "统一 Skill 负责跨 API 搜索、契约检查、请求预演和安全调用，并帮助 Agent 找到需要的产品 Skill。产品 Skill 再补充特定 API 的集成流程、最佳实践和注意事项；两者都通过统一 CLI 使用同一份实时目录。"
+              : "The universal Skill handles catalog-wide search, contract inspection, request preview, safe calls, and product Skill discovery. Product Skills add provider-specific integration flows, best practices, and caveats; both use the universal CLI and the same live catalog."}
           </p>
+          <div className="hero-actions">
+            <Link className="button button-dark" to={`/${locale}/skills`}>
+              {zh ? "浏览全部技能" : "Browse all Skills"}
+            </Link>
+          </div>
         </header>
         <section className="section">
           <div className="section-heading">
@@ -93,6 +99,24 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
           <CodeBlock code={`pnpm add -g @pontx/hub-cli\npontx-hub skill install`} language="shell" label={zh ? "安装" : "Install"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
           <CodeBlock className="code-frame-spaced" code={`npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub`} language="shell" label={zh ? "通过 Agent Skills 安装" : "Install with Agent Skills"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
           <CodeBlock className="code-frame-spaced" code={workflow} language="shell" label={zh ? "安全调用流程" : "Safe call workflow"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
+        </section>
+        <section className="section">
+          <div className="section-heading">
+            <h2>{zh ? "按需安装产品 Skill" : "Add a product Skill when needed"}</h2>
+            <p>
+              {zh
+                ? "先用统一 Skill 找到合适的 API；需要供应商特有的集成步骤时，再安装对应产品 Skill。Endpoint、参数和 Schema 始终从当前目录读取，不会复制到 Skill 中。"
+                : "Start with the universal Skill to choose an API, then add its product Skill when provider-specific integration guidance is useful. Endpoints, parameters, and Schemas stay in the live catalog instead of being copied into a Skill."}
+            </p>
+          </div>
+          <CodeBlock
+            code={`pontx-hub skill list\npontx-hub skill install <api-slug>\npontx-hub sdk <api-slug>`}
+            language="shell"
+            label={zh ? "发现并安装" : "Discover and install"}
+            copyLabel={copyLabel}
+            copiedLabel={copiedLabel}
+            copyFailedLabel={copyFailedLabel}
+          />
         </section>
       </main>
     </SiteShell>

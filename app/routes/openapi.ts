@@ -12,8 +12,8 @@ export function loader() {
     openapi: "3.1.0",
     info: {
       title: "Pontx Hub Discovery API",
-      version: "2.0.0",
-      description: "Search curated public APIs and inspect their PontxSpec Endpoints, Schemas, and published SDK metadata. Use the Pontx Hub CLI and Agent Skill for preview-first execution workflows."
+      version: "2.1.0",
+      description: "Search curated public APIs, inspect PontxSpec Endpoints, Schemas, and SDKs, and install the universal or product-specific Agent Skills. Use the Pontx Hub CLI for preview-first execution workflows."
     },
     servers: [{ url: siteUrl("").replace(/\/$/, "") }],
     paths: {
@@ -78,6 +78,114 @@ export function loader() {
           operationId: "getPontxHubSkillBundle",
           summary: "Download the Pontx Hub Agent Skill bundle",
           responses: { "200": { description: "Versioned Skill files" } }
+        }
+      },
+      "/api/v1/skills": {
+        get: {
+          operationId: "listPontxSkills",
+          summary: "List the universal and published product Skills",
+          responses: {
+            "200": {
+              description: "Skill summaries without file contents",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["version", "data"],
+                    properties: {
+                      version: { const: "v1" },
+                      data: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/SkillSummary" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/v1/skills/{name}": {
+        get: {
+          operationId: "getPontxSkillBundle",
+          summary: "Download one verified Skill bundle",
+          parameters: [pathParameter("name")],
+          responses: {
+            "200": {
+              description: "Skill manifest and UTF-8 file contents",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["version", "data"],
+                    properties: {
+                      version: { const: "v1" },
+                      data: { $ref: "#/components/schemas/SkillBundle" }
+                    }
+                  }
+                }
+              }
+            },
+            "404": { description: "Skill not found" }
+          }
+        }
+      }
+    },
+    components: {
+      schemas: {
+        SkillFileSummary: {
+          type: "object",
+          additionalProperties: false,
+          required: ["path", "sha256"],
+          properties: {
+            path: { type: "string", examples: ["SKILL.md"] },
+            sha256: { type: "string", pattern: "^[a-f0-9]{64}$" }
+          }
+        },
+        SkillFile: {
+          type: "object",
+          additionalProperties: false,
+          required: ["path", "sha256", "content"],
+          properties: {
+            path: { type: "string", examples: ["SKILL.md"] },
+            sha256: { type: "string", pattern: "^[a-f0-9]{64}$" },
+            content: { type: "string" }
+          }
+        },
+        SkillSummary: {
+          type: "object",
+          additionalProperties: false,
+          required: ["name", "version", "description", "license", "contentHash", "files"],
+          properties: {
+            name: { type: "string" },
+            apiSlug: { type: "string", description: "Present only for a product Skill" },
+            version: { type: "string" },
+            description: { type: "string" },
+            license: { type: "string" },
+            contentHash: { type: "string", pattern: "^[a-f0-9]{64}$" },
+            files: {
+              type: "array",
+              items: { $ref: "#/components/schemas/SkillFileSummary" }
+            }
+          }
+        },
+        SkillBundle: {
+          type: "object",
+          additionalProperties: false,
+          required: ["name", "version", "description", "license", "contentHash", "files"],
+          properties: {
+            name: { type: "string" },
+            apiSlug: { type: "string", description: "Present only for a product Skill" },
+            version: { type: "string" },
+            description: { type: "string" },
+            license: { type: "string" },
+            contentHash: { type: "string", pattern: "^[a-f0-9]{64}$" },
+            files: {
+              type: "array",
+              items: { $ref: "#/components/schemas/SkillFile" }
+            }
+          }
         }
       }
     }

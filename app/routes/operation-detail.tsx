@@ -5,6 +5,7 @@ import { getCatalogOperation, getPontxSpec } from "~/lib/catalog/catalog.server"
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -15,7 +16,10 @@ export async function loader({ params }: Route.LoaderArgs) {
   if (!match) throw new Response("Operation not found", { status: 404 });
   const spec = getPontxSpec(match.api.slug, locale);
   if (!spec) throw new Response("PontxSpec not found", { status: 500 });
-  return { locale, spec, ...match };
+  const skillName = listSkillSummaries().find(
+    (skill) => skill.apiSlug === match.api.slug
+  )?.name;
+  return { locale, spec, skillName, ...match };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -88,7 +92,7 @@ export function headers() {
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const { locale, api, spec, operation } = loaderData;
+  const { locale, api, spec, operation, skillName } = loaderData;
 
   return (
     <SiteShell locale={locale}>
@@ -97,6 +101,7 @@ export default function OperationDetail({
         api={api}
         spec={spec}
         operation={operation}
+        skillName={skillName}
       />
     </SiteShell>
   );

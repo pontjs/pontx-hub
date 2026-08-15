@@ -70,6 +70,20 @@ describe("ApiOverviewActions", () => {
     );
     expect(html.indexOf(workspaceLabel)).toBeLessThan(html.indexOf(quickCallLabel));
   });
+
+  it("links a published product Skill from the API overview", () => {
+    const html = renderToStaticMarkup(createElement(ApiOverviewActions, {
+      locale: "zh",
+      apiSlug: "dida365",
+      operationSlug: "get-user-projects",
+      quickCallAction: "立即试用",
+      skillName: "pontx-dida365"
+    }));
+
+    expect(html).toContain(
+      '<a class="button" href="/zh/skills/pontx-dida365">安装产品 Skill</a>'
+    );
+  });
 });
 
 describe("ApiOverviewFacts", () => {

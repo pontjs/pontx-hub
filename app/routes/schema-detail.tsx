@@ -5,6 +5,7 @@ import { getCatalogSchema, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -12,7 +13,10 @@ export function loader({ params }: Route.LoaderArgs) {
   if (!match) throw new Response("Schema not found", { status: 404 });
   const spec = getPontxSpec(match.api.slug, locale);
   if (!spec) throw new Response("PontxSpec not found", { status: 500 });
-  return { locale, spec, ...match };
+  const skillName = listSkillSummaries().find(
+    (skill) => skill.apiSlug === match.api.slug
+  )?.name;
+  return { locale, spec, skillName, ...match };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -71,10 +75,16 @@ export function headers() {
 }
 
 export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, spec, schema } = loaderData;
+  const { locale, api, spec, schema, skillName } = loaderData;
   return (
     <SiteShell locale={locale}>
-      <SchemaReference locale={locale} api={api} spec={spec} schema={schema} />
+      <SchemaReference
+        locale={locale}
+        api={api}
+        spec={spec}
+        schema={schema}
+        skillName={skillName}
+      />
     </SiteShell>
   );
 }

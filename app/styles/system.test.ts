@@ -293,4 +293,15 @@ describe("Pontx Hub visual system", () => {
     expect(css).toMatch(/:where\(a, button, input, select, textarea, \[tabindex\]\):focus-visible\s*{[\s\S]*?outline:/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?transition-duration:\s*0\.01ms !important;/);
   });
+
+  it("keeps the Skills hierarchy responsive and keyboard-visible", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(/\.skills-hero\s*{[\s\S]*?grid-template-columns:\s*minmax\(0, 1\.55fr\)/);
+    expect(css).toMatch(/\.product-skill-grid\s*{[\s\S]*?grid-template-columns:\s*repeat\(3,/);
+    expect(css).toMatch(/\.product-skill-card:has\(a:focus-visible\)\s*{[\s\S]*?outline:\s*2px solid var\(--blue\);/);
+    expect(css).toMatch(/\.skill-markdown pre\s*{[\s\S]*?overflow-x:\s*auto;/);
+    expect(css).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.skills-hero,[\s\S]*?grid-template-columns:\s*1fr;/);
+    expect(css).toMatch(/@media \(max-width: 740px\)[\s\S]*?\.product-skill-grid\s*{\s*grid-template-columns:\s*1fr;/);
+  });
 });

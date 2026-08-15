@@ -27,6 +27,10 @@ import {
 import { verifyConfirmationToken } from "~/lib/playground/token.server";
 import { skillBundle } from "~/lib/skill-bundle.server";
 import {
+  getSkillBundle,
+  listSkillSummaries
+} from "~/lib/product-skills.server";
+import {
   consumeExecutionQuota,
   executionClientId
 } from "~/lib/playground/rate-limit.server";
@@ -237,6 +241,22 @@ hubApi.get("/api/v1/skill", (context) => {
   return cacheableJson(context.req.raw, {
     version: "v1",
     data: skillBundle
+  });
+});
+
+hubApi.get("/api/v1/skills", (context) => {
+  return cacheableJson(context.req.raw, {
+    version: "v1",
+    data: listSkillSummaries()
+  });
+});
+
+hubApi.get("/api/v1/skills/:name", (context) => {
+  const bundle = getSkillBundle(context.req.param("name"));
+  if (!bundle) return jsonError("not_found", "Skill not found", 404);
+  return cacheableJson(context.req.raw, {
+    version: "v1",
+    data: bundle
   });
 });
 

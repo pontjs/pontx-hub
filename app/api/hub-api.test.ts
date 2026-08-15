@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { hubApi } from "./hub-api.server";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 describe("Hub API", () => {
   it("returns a versioned catalog with an ETag", async () => {
@@ -101,6 +102,52 @@ describe("Hub API", () => {
     expect(payload.data.files["SKILL.md"]).toContain("pontx-hub <api-collection> preview");
     expect(payload.data.files["SKILL.md"]).toContain("--type schema");
     expect(payload.data.files["references/auth-and-safety.md"]).toBeTruthy();
+  });
+
+  it("lists the universal Skill first without embedding file contents", async () => {
+    const response = await hubApi.request("/api/v1/skills");
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("etag")).toBeTruthy();
+    expect(payload.version).toBe("v1");
+    expect(payload.data).toHaveLength(listSkillSummaries().length);
+    expect(payload.data[0]).toMatchObject({
+      name: "pontx-hub",
+      version: expect.any(String),
+      description: expect.any(String),
+      license: "MIT-0",
+      contentHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+      files: expect.arrayContaining([
+        { path: "SKILL.md", sha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
+        { path: "LICENSE", sha256: expect.stringMatching(/^[a-f0-9]{64}$/) }
+      ])
+    });
+    expect(payload.data[0]).not.toHaveProperty("apiSlug");
+    expect(payload.data[0].files[0]).not.toHaveProperty("content");
+  });
+
+  it("serves native verified Skill details while retaining the legacy bundle", async () => {
+    const detailResponse = await hubApi.request("/api/v1/skills/pontx-hub");
+    const detail = await detailResponse.json();
+    expect(detailResponse.status).toBe(200);
+    expect(detail.data.files).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        path: "SKILL.md",
+        sha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+        content: expect.stringContaining("name: pontx-hub")
+      })
+    ]));
+
+    const legacyResponse = await hubApi.request("/api/v1/skill");
+    const legacy = await legacyResponse.json();
+    expect(legacyResponse.status).toBe(200);
+    expect(legacy.data.files).not.toBeInstanceOf(Array);
+    expect(legacy.data.files["SKILL.md"]).toContain("name: pontx-hub");
+
+    const missingResponse = await hubApi.request("/api/v1/skills/pontx-missing");
+    expect(missingResponse.status).toBe(404);
+    expect((await missingResponse.json()).error.code).toBe("not_found");
   });
 
   it("previews a request without exposing its bearer token", async () => {

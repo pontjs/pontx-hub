@@ -6,15 +6,21 @@ import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 export function ResourceNavigation({
   locale,
   api,
-  active
+  active,
+  skillName
 }: {
   locale: Locale;
   api: CatalogApi;
-  active: "overview" | "docs" | "schemas" | "sdk";
+  active: "overview" | "docs" | "schemas" | "sdk" | "skill";
+  skillName?: string;
 }) {
   const zh = locale === "zh";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
   const defaultOperation = api.operations[0]?.slug;
+  const directoryLinkClass = (section: "docs" | "schemas") =>
+    active === "skill"
+      ? undefined
+      : `resource-navigation-mobile-link${active === section ? " is-active" : ""}`;
 
   return (
     <nav className="resource-navigation" aria-label={zh ? "API 上下文导航" : "API context navigation"}>
@@ -37,7 +43,7 @@ export function ResourceNavigation({
         {defaultOperation ? (
           <Link
             to={`/${locale}/apis/${api.slug}/${defaultOperation}`}
-            className={`resource-navigation-mobile-link${active === "docs" ? " is-active" : ""}`}
+            className={directoryLinkClass("docs")}
             aria-current={active === "docs" ? "page" : undefined}
             reloadDocument
           >
@@ -47,7 +53,7 @@ export function ResourceNavigation({
         {api.schemas[0] ? (
           <Link
             to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(api.schemas[0].name)}`}
-            className={`resource-navigation-mobile-link${active === "schemas" ? " is-active" : ""}`}
+            className={directoryLinkClass("schemas")}
             aria-current={active === "schemas" ? "page" : undefined}
             reloadDocument
           >
@@ -62,6 +68,15 @@ export function ResourceNavigation({
         >
           SDK
         </Link>
+        {skillName ? (
+          <Link
+            to={`/${locale}/skills/${skillName}`}
+            className={active === "skill" ? "is-active" : undefined}
+            aria-current={active === "skill" ? "page" : undefined}
+          >
+            Skill
+          </Link>
+        ) : null}
       </div>
     </nav>
   );

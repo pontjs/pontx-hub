@@ -1,8 +1,9 @@
 import type { Route } from "./+types/skill-discovery";
 import {
-  PONTX_HUB_SKILL_DESCRIPTION,
-  skillBundle
-} from "~/lib/skill-bundle.server";
+  getSkillBundle,
+  isSafeSkillPath,
+  listSkillSummaries
+} from "~/lib/product-skills.server";
 
 const BASE_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,29 +20,28 @@ function json(value: unknown) {
 export function loader({ params }: Route.LoaderArgs) {
   const path = params["*"] ?? "";
   if (path === "index.json") {
-    return json({
-      skills: [{
-        name: skillBundle.name,
-        description: PONTX_HUB_SKILL_DESCRIPTION,
-        files: Object.keys(skillBundle.files)
-      }]
-    });
+    return json({ skills: listSkillSummaries() });
   }
 
   const [skillName, ...fileParts] = path.split("/");
   const filePath = fileParts.join("/");
-  if (skillName !== skillBundle.name || !filePath) {
+  if (!skillName || !isSafeSkillPath(filePath)) {
     throw new Response("Skill resource not found", { status: 404 });
   }
-  const content = skillBundle.files[filePath as keyof typeof skillBundle.files];
-  if (content === undefined) {
+  const bundle = getSkillBundle(skillName);
+  const file = bundle?.files.find((candidate) => candidate.path === filePath);
+  if (!file) {
     throw new Response("Skill resource not found", { status: 404 });
   }
 
-  const contentType = filePath.endsWith(".yaml")
+  const contentType = filePath.endsWith(".yaml") || filePath.endsWith(".yml")
     ? "application/yaml; charset=utf-8"
-    : "text/markdown; charset=utf-8";
-  return new Response(content, {
+    : filePath.endsWith(".json")
+      ? "application/json; charset=utf-8"
+      : filePath.endsWith(".md")
+        ? "text/markdown; charset=utf-8"
+        : "text/plain; charset=utf-8";
+  return new Response(file.content, {
     headers: { ...BASE_HEADERS, "Content-Type": contentType }
   });
 }

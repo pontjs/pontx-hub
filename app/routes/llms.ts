@@ -1,5 +1,6 @@
 import { listCatalog } from "~/lib/catalog/catalog.server";
 import { cacheHeaders, siteUrl } from "~/lib/http";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export function loader() {
   const apiLinks = listCatalog().map((api) =>
@@ -10,6 +11,9 @@ export function loader() {
     .map((api) =>
       `- [${api.packageName}](${siteUrl(`/en/sdks/${api.slug}`)}): Published package in the Unified SDK for ${api.title.en}.`
     );
+  const skillLinks = listSkillSummaries().map((skill) =>
+    `- [${skill.name}](${siteUrl(`/en/skills/${skill.name}`)}): ${skill.description}`
+  );
 
   const body = `# Pontx API
 
@@ -21,6 +25,8 @@ export function loader() {
 - [中文 API 目录](${siteUrl("/zh")})
 - [English Pontx Hub documentation](${siteUrl("/en/docs")})
 - [中文 Pontx Hub 文档](${siteUrl("/zh/docs")})
+- [English Skills directory](${siteUrl("/en/skills")})
+- [中文 Skills 目录](${siteUrl("/zh/skills")})
 - [Pontx Hub Agent Skill](${siteUrl("/en/skills/pontx-hub")})
 - [Agent Skills discovery index](${siteUrl("/.well-known/skills/index.json")})
 - [Pontx Hub OpenAPI description](${siteUrl("/openapi.json")})
@@ -35,9 +41,13 @@ ${apiLinks.join("\n")}
 
 ${sdkLinks.join("\n")}
 
+## Agent Skills
+
+${skillLinks.join("\n")}
+
 ## Agent guidance
 
-Install the universal skill with \`npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub\`. Search before selecting an API, preview every request, and require explicit user confirmation before any mutation.
+Install the universal Skill first with \`pontx-hub skill install\`. Use \`pontx-hub skill list\` and \`pontx-hub skill install <api-slug>\` to add a concise product playbook when provider-specific integration guidance is useful. Search the live catalog instead of copying Endpoint, parameter, or Schema metadata into long-lived context. Preview every request, and require explicit user confirmation before any mutation.
 `;
 
   return new Response(body, {

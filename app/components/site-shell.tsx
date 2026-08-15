@@ -17,7 +17,7 @@ const copy = {
   zh: {
     catalog: "API 目录",
     docs: "文档",
-    skill: "Agent Skill",
+    skill: "技能",
     feedback: "反馈",
     github: "GitHub",
     language: "English",
@@ -35,7 +35,7 @@ const copy = {
   en: {
     catalog: "API Catalog",
     docs: "Docs",
-    skill: "Agent Skill",
+    skill: "Skills",
     feedback: "Feedback",
     github: "GitHub",
     language: "中文",
@@ -104,7 +104,7 @@ export function SiteShell({
         </Link>
         <nav aria-label={text.primaryNavigation}>
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
-          <NavLink to={`/${locale}/skills/pontx-hub`}>{text.skill}</NavLink>
+          <NavLink to={`/${locale}/skills`}>{text.skill}</NavLink>
           <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
           <Button
             type="button"
@@ -159,7 +159,7 @@ export function SiteShell({
             <NavLink to={`/${locale}`} end onClick={() => setMobileNavOpen(false)}>
               {text.catalog}
             </NavLink>
-            <NavLink to={`/${locale}/skills/pontx-hub`} onClick={() => setMobileNavOpen(false)}>
+            <NavLink to={`/${locale}/skills`} onClick={() => setMobileNavOpen(false)}>
               {text.skill}
             </NavLink>
             <NavLink to={`/${locale}/docs`} onClick={() => setMobileNavOpen(false)}>

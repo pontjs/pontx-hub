@@ -51,7 +51,7 @@ describe("localized documentation", () => {
     const cli = html.indexOf("用 pontx-hub 的一组命令搜索、查看和预览整个目录");
     const sdk = html.indexOf("每个 API 都使用可预测的");
     const apiCli = html.indexOf("pontx-&lt;api&gt; 随对应 SDK 发布");
-    const skill = html.indexOf("让 Agent 沿用同一份目录");
+    const skill = html.indexOf("统一 Skill 负责跨目录发现与安全流程");
 
     expect(html).toContain("每个被收录的 API，都有一致的 SDK 与 CLI 调用方式");
     expect(html).toContain("目前公开目录里的每个 API 都有已发布的 SDK 与 CLI");
@@ -90,13 +90,20 @@ describe("localized documentation", () => {
     expect(en).not.toContain("visible, reviewable, and portable");
   });
 
-  it("describes the Skill as an operating workflow, with on-demand loading as a benefit", () => {
+  it("explains the universal and product Skill relationship without duplicating PontxSpec metadata", () => {
     const html = renderDocs("/zh/docs/agent-skill", "zh", "agent-skill");
+    const text = html.replace(/<[^>]+>/g, "");
 
-    expect(html).toContain("让 Agent 用一套清楚可靠的步骤来使用 API");
-    expect(html).toContain("Skill 主要规定做事步骤");
-    expect(html).toContain("需要时再读取 API 资料");
-    expect(html).not.toContain("让 Agent 按需查找，而不是背下全部 API");
+    expect(html).toContain("让 Agent 结合统一 Skill 与产品 Skill 使用 API");
+    expect(text).toContain("pontx-hub skill list");
+    expect(text).toContain("pontx-hub skill install stripe-identity");
+    expect(html).toContain("两层 Skill，一份 PontxSpec");
+    expect(html).toContain("产品 Skill 不复制 Endpoint 清单、Schema 或参数表");
+    expect(html).toContain("@pontx/&lt;apiSlug&gt;");
+
+    const englishHtml = renderDocs("/en/docs/agent-skill", "en", "agent-skill");
+    expect(englishHtml).toContain("Combine universal and product Skills to work with APIs");
+    expect(englishHtml).toContain("Product Skills do not copy Endpoint inventories");
   });
 
   it("explains credentials and safety as practical guidance for people", () => {
@@ -186,6 +193,8 @@ describe("localized documentation", () => {
       expect(html).not.toContain("-p key=value");
       expect(html).not.toContain("兼容旧脚本");
       expect(html).not.toContain("Compatibility fallback");
+      expect(html).toContain("skill list");
+      expect(html).toContain("skill install &lt;apiSlug&gt;");
     }
   });
 
