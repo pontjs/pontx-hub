@@ -152,7 +152,7 @@ describe("curated catalog", () => {
       return;
     }
     expect(api?.packageName).toBe("@pontx/amazon-sqs");
-    expect(api?.sdkVersion).toBe("0.1.1");
+    expect(api?.sdkVersion).toBe("0.1.2");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.sdkContract?.client).toMatchObject({
