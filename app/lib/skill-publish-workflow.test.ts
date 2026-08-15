@@ -32,6 +32,7 @@ describe("universal Skill publishing workflow", () => {
     expect(publish).toContain("wait_for_remote");
     expect(publish).toContain(".owner.handle");
     expect(publish).toContain(".skill.slug");
+    expect(publish).toContain('select(. != "skill-card.md")');
     expect(publish).toContain("--dry-run");
     expect(publish).toContain("--source-commit");
 

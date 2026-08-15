@@ -147,7 +147,9 @@ jobs:
             local_paths="${{ runner.temp }}/local-paths.txt"
             remote_paths="${{ runner.temp }}/remote-paths.txt"
             (cd "$skill_root" && find . -type f -print | sed 's#^./##' | LC_ALL=C sort) > "$local_paths"
-            jq -r '.version.files[].path' "$remote_json" | LC_ALL=C sort > "$remote_paths"
+            # ClawHub may append its generated marketplace card after scanning.
+            jq -r '.version.files[].path | select(. != "skill-card.md")' \
+              "$remote_json" | LC_ALL=C sort > "$remote_paths"
             diff -u "$local_paths" "$remote_paths"
             while IFS= read -r relative_path; do
               local_sha=$(sha256sum "$skill_root/$relative_path" | cut -d' ' -f1)
