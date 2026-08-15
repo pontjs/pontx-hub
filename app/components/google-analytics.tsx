@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useLocation } from "react-router";
+import {
+  createPageViewParameters,
+  initializeGoogleAnalytics,
+  resolveInternalTraffic
+} from "~/lib/analytics/internal-traffic";
 
 type GoogleAnalyticsWindow = Window & {
   dataLayer?: unknown[];
@@ -21,24 +26,34 @@ export function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
       analyticsWindow.dataLayer?.push(arguments);
     };
 
+    const internal = resolveInternalTraffic({
+      href: window.location.href,
+      getStorage: () => window.localStorage,
+      replaceUrl: (url) => window.history.replaceState(window.history.state, "", url)
+    });
+
     if (!initialized.current) {
       const script = document.createElement("script");
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
       document.head.appendChild(script);
 
-      analyticsWindow.gtag("js", new Date());
-      analyticsWindow.gtag("config", measurementId, { send_page_view: false });
+      initializeGoogleAnalytics({
+        gtag: analyticsWindow.gtag,
+        measurementId,
+        internal
+      });
       initialized.current = true;
     }
 
-    analyticsWindow.gtag("event", "page_view", {
+    analyticsWindow.gtag("event", "page_view", createPageViewParameters({
       // Never send query parameters: OAuth callbacks and Playground URLs may
       // contain short-lived or user-provided values.
-      page_location: `${window.location.origin}${location.pathname}`,
-      page_path: location.pathname,
-      page_title: document.title
-    });
+      origin: window.location.origin,
+      pathname: location.pathname,
+      pageTitle: document.title,
+      internal
+    }));
   }, [location.pathname, measurementId]);
 
   return null;
