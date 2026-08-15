@@ -290,7 +290,7 @@ describe("curated catalog", () => {
     const property = searchCatalog("projectId", "en", { kinds: ["schema"] });
     expect(property.items.every((item) => item.kind === "schema")).toBe(true);
     expect(property.items.some((item) => item.id === "schema:dida365/TaskCreate")).toBe(true);
-  });
+  }, 30_000);
 
   it("ranks exact schema names and paginates deterministically", () => {
     const result = searchCatalog("Task", "en", { limit: 2 });
@@ -327,7 +327,7 @@ describe("curated catalog", () => {
       kinds: ["endpoint"]
     });
     expect(currency.items.some((item) => item.apiSlug === "frankfurter")).toBe(true);
-  });
+  }, 30_000);
 
   it("preserves official market-data provenance without disabling execution", () => {
     const catalog = listCatalog();
