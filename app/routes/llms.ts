@@ -13,7 +13,7 @@ export function loader() {
 
   const body = `# Pontx API
 
-> Pontx API helps developers and AI agents discover curated public APIs, inspect OpenAPI Endpoints and Schemas, safely preview requests, and generate type-safe SDK integrations.
+> Pontx API helps developers and AI agents discover curated public APIs, inspect canonical PontxSpec Endpoints and Schemas, safely preview supported requests, and generate type-safe SDK integrations.
 
 ## Primary documentation
 

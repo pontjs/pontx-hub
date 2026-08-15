@@ -24,7 +24,7 @@ const copy = {
     metadata: "元数据",
     contribute: "参与贡献",
     openSource: "开源",
-    integrationFlow: "OpenAPI → 统一 SDK / CLI → Agent"
+    integrationFlow: "PontxSpec → 统一 SDK / CLI → Agent"
   },
   en: {
     catalog: "API Catalog",
@@ -41,7 +41,7 @@ const copy = {
     metadata: "Metadata",
     contribute: "Contribute",
     openSource: "Open source",
-    integrationFlow: "OpenAPI → Unified SDK / CLI → Agent"
+    integrationFlow: "PontxSpec → Unified SDK / CLI → Agent"
   }
 } satisfies Record<Locale, Record<string, string>>;
 

@@ -103,6 +103,17 @@ describe("curated catalog", () => {
     }
   });
 
+  it("preserves array-valued request properties when their items use PontxSpec refs", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "dropbox-sign");
+    const operation = api?.operations.find(
+      (candidate) => candidate.operationId === "signatureRequestCreateEmbeddedWithTemplate"
+    );
+    const schema = api?.schemas.find(
+      (candidate) => candidate.name === operation?.requestBody?.schemaName
+    );
+    expect(schema?.properties.find((property) => property.name === "signers")?.type).toBe("array");
+  });
+
   it("preserves ECB's published SDK contract and direct-only execution policy when provided", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "ecb-data-portal");
     if (!api) return;

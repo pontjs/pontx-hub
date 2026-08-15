@@ -13,7 +13,7 @@ export function loader() {
     info: {
       title: "Pontx Hub Discovery API",
       version: "2.0.0",
-      description: "Search curated public APIs and inspect their OpenAPI Endpoints, Schemas, and published SDK metadata. Use the Pontx Hub CLI and Agent Skill for preview-first execution workflows."
+      description: "Search curated public APIs and inspect their PontxSpec Endpoints, Schemas, and published SDK metadata. Use the Pontx Hub CLI and Agent Skill for preview-first execution workflows."
     },
     servers: [{ url: siteUrl("").replace(/\/$/, "") }],
     paths: {

@@ -68,7 +68,7 @@ export function sdkUsageExamples(api: CatalogApi) {
   return {
     typescript: `import client from "${api.packageName}";
 
-// Generated methods are typed from the approved OAS version.
+// Generated methods are typed from the pinned canonical PontxSpec.
 const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`,
     cli: cliOperation
       ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
@@ -130,16 +130,16 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
                 ? !coverage.verified
                   ? `${localize(api.title, locale)} 的运营方发布 SDK。接口覆盖契约正在同步。`
                   : coverage.complete
-                  ? `${localize(api.title, locale)} 的运营方发布 SDK，覆盖当前批准 OAS 的全部接口。`
-                  : `${localize(api.title, locale)} 的运营方发布 SDK，当前覆盖批准 OAS 中的 ${coverage.supported}/${coverage.total} 个接口。`
-                : `${localize(api.title, locale)} 的 SDK 正在由 Pontx 生成器构建，文档已绑定到批准的 OAS。`
+                  ? `${localize(api.title, locale)} 的运营方发布 SDK，覆盖当前 PontxSpec 的全部接口。`
+                  : `${localize(api.title, locale)} 的运营方发布 SDK，当前覆盖 PontxSpec 中的 ${coverage.supported}/${coverage.total} 个接口。`
+                : `${localize(api.title, locale)} 的 SDK 正在由 Pontx 生成器构建，文档已绑定到 canonical PontxSpec。`
               : published
                 ? !coverage.verified
                   ? `The operator-published SDK for ${localize(api.title, locale)} is waiting for its Endpoint coverage contract to synchronize.`
                   : coverage.complete
-                  ? `The operator-published SDK for ${localize(api.title, locale)} covers every Endpoint in the current approved OAS.`
-                  : `The operator-published SDK for ${localize(api.title, locale)} currently covers ${coverage.supported} of ${coverage.total} Endpoints in the approved OAS.`
-                : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the approved OAS.`}
+                  ? `The operator-published SDK for ${localize(api.title, locale)} covers every Endpoint in the current PontxSpec.`
+                  : `The operator-published SDK for ${localize(api.title, locale)} currently covers ${coverage.supported} of ${coverage.total} Endpoints in the PontxSpec.`
+                : `The SDK for ${localize(api.title, locale)} is being built with Pontx; its documentation is already bound to the canonical PontxSpec.`}
           </p>
           {published ? (
             <div className="hero-actions detail-actions">

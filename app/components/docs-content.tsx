@@ -423,7 +423,7 @@ pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
 # No meaningful controller
 pontx-hub frankfurter-v2 preview getRates --base USD`} />
         <dl className="docs-definition-list">
-          <div><dt><InlineCode>--projectId 123</InlineCode></dt><dd>{zh ? "推荐：直接使用 OAS 参数名。" : "Preferred: use the OAS parameter name directly."}</dd></div>
+          <div><dt><InlineCode>--projectId 123</InlineCode></dt><dd>{zh ? "推荐：直接使用 PontxSpec 参数名。" : "Preferred: use the PontxSpec parameter name directly."}</dd></div>
           <div><dt><InlineCode>--body '&lt;json&gt;'</InlineCode></dt><dd>{zh ? "传入 JSON 请求体。" : "Pass a JSON request body."}</dd></div>
           <div><dt><InlineCode>-H 'Header: value'</InlineCode></dt><dd>{zh ? "补充声明的原始请求头；不要在参数中暴露密钥。" : "Add a declared raw header; never expose secrets in arguments."}</dd></div>
         </dl>
@@ -447,7 +447,7 @@ function SdkGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="contract" marker="01" title={zh ? "统一包契约" : "The shared package contract"} lead={zh ? "包名可预测，类型来自批准的 OAS，发布状态由 Hub 精确验证。" : "Package names are predictable, types come from the approved OAS, and Hub verifies the exact published release."}>
+      <DocSection id="contract" marker="01" title={zh ? "统一包契约" : "The shared package contract"} lead={zh ? "包名可预测，类型来自固定的 PontxSpec，发布状态由 Hub 精确验证。" : "Package names are predictable, types come from the pinned PontxSpec, and Hub verifies the exact published release."}>
         <div className="docs-contract-strip">
           <div><span>{zh ? "包名" : "Package"}</span><code>@pontx/&lt;api-slug&gt;</code></div>
           <div><span>{zh ? "运行时" : "Runtime"}</span><code>Node.js ≥ 18</code></div>
@@ -497,7 +497,7 @@ const client = new Dida365OAuthClient({
 await client.authenticate();`
           }
         ]} />
-        <p>{zh ? "接口方法按 OAS controller/tag 与 operationId 生成。以每个 API 的 SDK 页面代码为准，不要假定所有供应商拥有相同认证构造器。" : "Endpoint methods are generated from OAS controller/tag and operationId. Follow each API's SDK page instead of assuming every provider has the same auth constructor."}</p>
+        <p>{zh ? "接口方法按 PontxSpec 显式 tag 与 operationId 生成。以每个 API 的 SDK 页面代码为准，不要假定所有供应商拥有相同认证构造器。" : "Endpoint methods are generated from explicit PontxSpec tags and operationId. Follow each API's SDK page instead of assuming every provider has the same auth constructor."}</p>
       </DocSection>
 
       <DocSection id="dedicated-cli" marker="03" title={zh ? "独立 API CLI" : "Dedicated API CLIs"} lead={zh ? "已发布的 SDK 可以同时暴露 pontx-<api-slug> 命令，直接使用同一份生成类型。" : "A published SDK may also expose pontx-<api-slug>, backed by the same generated contract."}>
@@ -515,7 +515,7 @@ pontx-frankfurter call exchangeRates.getLatestRates \\
 
       <DocSection id="versions" marker="04" title={zh ? "版本与发布边界" : "Versions and release boundaries"} lead={zh ? "访客安装已发布版本；Hub 验证，但不会代表访客发布 npm 包。" : "Visitors install published releases. Hub verifies them but never publishes npm packages on a visitor's behalf."}>
         <div className="docs-version-grid">
-          <div><span>major</span><p>{zh ? "不兼容的 OAS 或生成接口变化" : "Breaking OAS or generated API changes"}</p></div>
+          <div><span>major</span><p>{zh ? "不兼容的 PontxSpec 或生成接口变化" : "Breaking PontxSpec or generated API changes"}</p></div>
           <div><span>minor</span><p>{zh ? "向后兼容的新接口或字段" : "Backward-compatible Endpoints or fields"}</p></div>
           <div><span>patch</span><p>{zh ? "文档或生成器修复" : "Documentation or generator fixes"}</p></div>
         </div>

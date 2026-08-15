@@ -72,9 +72,15 @@ async function localSource(): Promise<Source | undefined> {
     try {
       await access(resolve(root, "catalog/products.json"));
       const configuredCommit = process.env.METADATA_REPO_COMMIT;
-      const commit = configuredCommit ?? (await execFileAsync(
+      const actualCommit = (await execFileAsync(
         "git", ["rev-parse", "HEAD"], { cwd: root }
       )).stdout.trim();
+      if (configuredCommit && configuredCommit !== actualCommit) {
+        throw new Error(
+          `Local metadata is at ${actualCommit}, but METADATA_REPO_COMMIT requests ${configuredCommit}`
+        );
+      }
+      const commit = actualCommit;
       if (!commitPattern.test(commit)) {
         throw new Error(`Local metadata commit is invalid: ${commit}`);
       }

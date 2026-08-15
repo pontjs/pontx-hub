@@ -55,6 +55,9 @@ function dereference(spec: PontxSpec, schema: JsonRecord | undefined): JsonRecor
 }
 
 function schemaType(spec: PontxSpec, schema: JsonRecord | undefined): CatalogParameter["type"] {
+  if (["string", "number", "integer", "boolean", "object", "array"].includes(schema?.type)) {
+    return schema!.type;
+  }
   const resolved = dereference(spec, schema);
   if (["string", "number", "integer", "boolean", "object", "array"].includes(resolved.type)) {
     return resolved.type;

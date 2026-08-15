@@ -3,7 +3,7 @@ import agent from "../../plugins/pontx-api/skills/pontx-hub/agents/openai.yaml?r
 import safety from "../../plugins/pontx-api/skills/pontx-hub/references/auth-and-safety.md?raw";
 
 export const PONTX_HUB_SKILL_DESCRIPTION =
-  "Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, OpenAPI Endpoint or Schema search, safe request preview, explicit mutation confirmation, or unified SDK generation.";
+  "Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, PontxSpec Endpoint or Schema search, safe request preview, explicit mutation confirmation, or unified SDK generation.";
 
 export const skillBundle = {
   name: "pontx-hub",
