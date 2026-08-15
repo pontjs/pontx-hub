@@ -81,6 +81,94 @@ function schemaPropertyEvidence(
     : undefined;
 }
 
+function referencedSchema(
+  api: CatalogApi,
+  property: CatalogApi["schemas"][number]["properties"][number] | undefined,
+  evidence: Record<string, unknown> | undefined
+): CatalogApi["schemas"][number] | undefined {
+  const reference = property?.ref ?? (
+    typeof evidence?.$ref === "string"
+      ? evidence.$ref.replace("#/components/schemas/", "")
+      : undefined
+  );
+  return reference
+    ? api.schemas.find((candidate) => candidate.name === reference)
+    : undefined;
+}
+
+function requiredSchemaValue(
+  api: CatalogApi,
+  property: CatalogApi["schemas"][number]["properties"][number] | undefined,
+  evidence: Record<string, unknown> | undefined,
+  references: Set<string>,
+  depth: number
+): unknown {
+  const declaredType = property?.type ??
+    (typeof evidence?.type === "string" ? evidence.type : undefined);
+  // Array schemas commonly reference an item Schema. Check the property shape
+  // before following that reference, otherwise an item object would be emitted
+  // where the generated SDK correctly expects an array.
+  if (declaredType === "array") return [];
+  const target = referencedSchema(api, property, evidence);
+  if (target?.type === "array") return [];
+  if (target?.type === "object") {
+    return requiredSchemaObject(api, target, references, depth + 1);
+  }
+  const inlineProperties = evidence?.properties;
+  const inlineRequired = evidence?.required;
+  if (
+    declaredType === "object" &&
+    inlineProperties && typeof inlineProperties === "object" && !Array.isArray(inlineProperties)
+  ) {
+    const required = Array.isArray(inlineRequired)
+      ? inlineRequired.filter((name): name is string => typeof name === "string")
+      : [];
+    return Object.fromEntries(required.map((name) => {
+      const child = (inlineProperties as Record<string, unknown>)[name];
+      return [
+        name,
+        requiredSchemaValue(
+          api,
+          undefined,
+          child && typeof child === "object" && !Array.isArray(child)
+            ? child as Record<string, unknown>
+            : undefined,
+          references,
+          depth + 1
+        )
+      ];
+    }));
+  }
+  return placeholder(
+    property?.name ?? "value",
+    property?.type ?? (typeof evidence?.type === "string" ? evidence.type : "string"),
+    evidence
+  );
+}
+
+function requiredSchemaObject(
+  api: CatalogApi,
+  schema: CatalogApi["schemas"][number],
+  references: Set<string>,
+  depth: number
+): Record<string, unknown> {
+  if (depth >= 4 || references.has(schema.name)) return {};
+  const nestedReferences = new Set(references).add(schema.name);
+  return Object.fromEntries(schema.required.map((name) => {
+    const property = schema.properties.find((candidate) => candidate.name === name);
+    return [
+      name,
+      requiredSchemaValue(
+        api,
+        property,
+        schemaPropertyEvidence(schema, name),
+        nestedReferences,
+        depth
+      )
+    ];
+  }));
+}
+
 function requestBody(
   api: CatalogApi,
   operation: CatalogOperation,
@@ -90,11 +178,14 @@ function requestBody(
     operation.requestBody?.schemaName ??
     operation.parameters.find((parameter) => parameter.in === "body")
       ?.schemaName;
-  const schema = api.schemas.find((candidate) => candidate.name === schemaName);
-  if (!schema) return body;
-  if (schema.type === "array") {
+  const declaredType = operation.requestBody?.schemaType ??
+    operation.parameters.find((parameter) => parameter.in === "body")?.type;
+  if (declaredType === "array") {
     return Array.isArray(body) ? body : [];
   }
+  const schema = api.schemas.find((candidate) => candidate.name === schemaName);
+  if (!schema) return body;
+  if (schema.type === "array") return Array.isArray(body) ? body : [];
   if (
     body !== undefined &&
     (!body || typeof body !== "object" || Array.isArray(body))
@@ -102,19 +193,11 @@ function requestBody(
     return body;
   }
 
-  const hydrated = { ...(body ?? {}) } as Record<string, unknown>;
-  for (const name of schema.required) {
-    if (hydrated[name] !== undefined && hydrated[name] !== "") continue;
-    const property = schema.properties.find(
-      (candidate) => candidate.name === name
-    );
-    hydrated[name] = placeholder(
-      name,
-      property?.type ?? "string",
-      schemaPropertyEvidence(schema, name)
-    );
-  }
-  return hydrated;
+  // Static snippets must remain valid against the published package even when
+  // an upstream request example includes optional vendor fields that its SDK
+  // intentionally does not model. Keep the required body skeleton only; the
+  // caller supplies optional, account-specific values using the exposed type.
+  return requiredSchemaObject(api, schema, new Set(), 0);
 }
 
 type SdkArgumentKind = "path" | "body" | "query";
