@@ -256,6 +256,26 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("styles ungrouped Endpoints as a scrollable directory list", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.resource-directory-group-content > \.pontx-directory,[\s\S]*?\.resource-directory-group-content > \.pontx-directory-flat,[\s\S]*?\.resource-directory-group-content > \.schema-directory-list/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory-flat\s*{[\s\S]*?display:\s*grid;[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory-flat a\s*{[\s\S]*?grid-template-columns:\s*48px minmax\(0, 1fr\);[\s\S]*?border-radius:\s*8px;/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory-flat a\[aria-current="page"\]\s*{[\s\S]*?background:\s*var\(--blue-soft\);/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory-flat small\s*{[\s\S]*?border-radius:\s*999px;[\s\S]*?font-family:\s*var\(--mono\);/,
+    );
+  });
+
   it("makes the complete SDK metadata cell a stable keyboard-accessible link", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 

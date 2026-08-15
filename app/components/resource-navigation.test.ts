@@ -57,6 +57,23 @@ describe("API resource navigation", () => {
     expect(html).toContain(`aria-label="${api.operations.length} endpoints">${api.operations.length}</strong>`);
   });
 
+  it("renders ungrouped Endpoints as individual directory entries", () => {
+    const ungroupedApi = getCatalogApi("frankfurter-v2")!;
+    const spec = getPontxSpec("frankfurter-v2", "en")!;
+    const operation = ungroupedApi.operations[0];
+    const html = render(createElement(ResourceDirectoryNavigation, {
+      locale: "en",
+      api: ungroupedApi,
+      spec,
+      activeOperation: operation
+    }));
+
+    expect(html).toContain('class="pontx-directory-flat" aria-label="Ungrouped endpoints"');
+    expect(html).toContain(`<small>${operation.method}</small><span>${operation.title.en}</span>`);
+    expect(html).toContain(`aria-current="page" href="/en/apis/${ungroupedApi.slug}/${operation.slug}"`);
+    expect(html).not.toContain('placeholder="Search endpoints…"');
+  });
+
   it("renders a Schema as one documentation surface without Playground facts", () => {
     const schema = api.schemas[0];
     const html = render(createElement(SchemaReference, {
