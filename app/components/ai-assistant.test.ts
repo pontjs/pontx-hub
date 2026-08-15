@@ -62,4 +62,32 @@ describe("Pontx Agent presentation", () => {
     expect(styles).toContain("grid-template-columns: 28px minmax(0, 1fr);");
     expect(styles).toContain('border-radius: 18px;');
   });
+
+  it("filters non-text protocol messages and renders assistant Markdown safely", async () => {
+    const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
+    const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");
+
+    expect(source).toContain("function isRenderableConversationMessage");
+    expect(source).toContain("Boolean(messageText(message).trim())");
+    expect(source).toContain("<ReactMarkdown remarkPlugins={[remarkGfm]}>");
+    expect(source).toContain("messages: persistedMessages(messages)");
+    expect(styles).toContain('.ai-message[data-role="assistant"] .ai-message-content pre');
+    expect(styles).toContain('.ai-message[data-role="assistant"] .ai-message-content table');
+  });
+
+  it("renders AG-UI tool lifecycles as one scannable, expandable execution timeline", async () => {
+    const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
+    const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");
+
+    expect(source).toContain("onToolCallStartEvent");
+    expect(source).toContain("onToolCallArgsEvent");
+    expect(source).toContain("onToolCallEndEvent");
+    expect(source).toContain("onToolCallResultEvent");
+    expect(source).toContain('className="ai-run-timeline"');
+    expect(source).toContain('className="ai-run-step-details"');
+    expect(source).toContain("activities={messageActivities}");
+    expect(source).toContain("startAgentActivity(event)");
+    expect(styles).toContain(".ai-run-step-details[open] summary");
+    expect(styles).toContain(".ai-run-step-payload pre");
+  });
 });

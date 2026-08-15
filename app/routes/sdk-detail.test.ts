@@ -25,7 +25,9 @@ describe("SDK usage examples", () => {
 
     expect(examples.typescript).toContain("frankfurterV2Client.getRates");
     expect(examples.typescript).not.toContain("client.default");
+    expect(examples.typescript).not.toContain("frankfurterV2Client.common");
     expect(examples.cli).toContain("pontx-frankfurter-v2 call getRates");
+    expect(examples.cli).not.toContain("common.getRates");
   });
 
   it("renders Massive's credential-aware factory and dedicated CLI contract", () => {
@@ -36,7 +38,9 @@ describe("SDK usage examples", () => {
     expect(examples.typescript).toContain("createMassiveClient");
     expect(examples.typescript).toContain("process.env.MASSIVE_API_KEY");
     expect(examples.typescript).toContain("client.getPreviousClose");
+    expect(examples.typescript).not.toContain(".common.");
     expect(examples.cli).toContain("pontx-massive call getPreviousClose");
+    expect(examples.cli).not.toContain("common.getPreviousClose");
   });
 
   it("reports exact published Endpoint coverage", () => {
