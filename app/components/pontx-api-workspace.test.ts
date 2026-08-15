@@ -173,7 +173,10 @@ describe("CredentialSetupGuide", () => {
       locale
     }));
 
-    expect(html).toContain('class="credential-setup-guide" open=""');
+    expect(html).toContain("credential-setup-guide");
+    expect(html).toContain('data-state="open"');
+    expect(html).toContain('aria-expanded="true"');
+    expect(html).toContain("lucide-chevron-down");
     expect(html).toContain(title);
     expect(html).toContain(action);
     expect(html).toContain(safety);

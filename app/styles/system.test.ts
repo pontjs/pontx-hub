@@ -132,6 +132,23 @@ describe("Pontx Hub visual system", () => {
     }
   });
 
+  it("keeps the credential disclosure on shared components and a neutral card edge", async () => {
+    const [workspace, css] = await Promise.all([
+      readFile(new URL("../components/pontx-api-workspace.tsx", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+    const guideRule = css.match(/\.credential-setup-guide\s*\{([^}]*)\}/)?.[1] ?? "";
+
+    expect(workspace).toContain("<Collapsible");
+    expect(workspace).toContain("<CollapsibleTrigger");
+    expect(workspace).toContain("<Card");
+    expect(workspace).toContain("<Button asChild");
+    expect(guideRule).toContain("border: 1px solid var(--line);");
+    expect(guideRule).toContain("background: var(--surface);");
+    expect(guideRule).not.toMatch(/border-(?:left|inline-start)\s*:/);
+    expect(guideRule).not.toContain("linear-gradient");
+  });
+
   it("keeps endpoint workspace surfaces on one content edge", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 

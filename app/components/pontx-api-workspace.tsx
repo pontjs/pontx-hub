@@ -2,6 +2,11 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "reac
 import { Link } from "react-router";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
+  Button,
+  Card,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -381,46 +386,43 @@ export function CredentialSetupGuide({
   }, [apiSlug, preferenceKey, scheme.id]);
 
   return (
-    <details
-      className="credential-setup-guide"
+    <Collapsible
+      asChild
       open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        persistBrowserCredentialGuideCollapsed(apiSlug, scheme.id, !nextOpen);
+      }}
     >
-      <summary
-        onClick={(event) => {
-          event.preventDefault();
-          const nextOpen = !open;
-          setOpen(nextOpen);
-          persistBrowserCredentialGuideCollapsed(
-            apiSlug,
-            scheme.id,
-            !nextOpen
-          );
-        }}
-      >
-        <span className="credential-setup-guide-mark" aria-hidden="true">{badge}</span>
-        <span className="credential-setup-guide-heading">
-          <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
-          <small>{guideCopy.label}</small>
-        </span>
-        <span className="credential-setup-guide-count">{guideCopy.steps}</span>
-      </summary>
-      <div className="credential-setup-guide-body">
-        <ol>
-          {scheme.credentialGuide.steps.map((step, index) => (
-            <li key={index}>
-              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-              <p>{localize(step, locale)}</p>
-            </li>
-          ))}
-        </ol>
-        <footer>
-          <a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">
-            {guideCopy.action}
-          </a>
-          <p>{guideCopy.safety}</p>
-        </footer>
-      </div>
-    </details>
+      <Card className="credential-setup-guide" variant="flat">
+        <CollapsibleTrigger className="credential-setup-guide-trigger">
+          <span className="credential-setup-guide-mark" aria-hidden="true">{badge}</span>
+          <span className="credential-setup-guide-heading">
+            <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
+            <small>{guideCopy.label}</small>
+          </span>
+          <span className="credential-setup-guide-count">{guideCopy.steps}</span>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="credential-setup-guide-body">
+          <ol>
+            {scheme.credentialGuide.steps.map((step, index) => (
+              <li key={index}>
+                <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                <p>{localize(step, locale)}</p>
+              </li>
+            ))}
+          </ol>
+          <footer>
+            <Button asChild size="sm" variant="outline">
+              <a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">
+                {guideCopy.action}
+              </a>
+            </Button>
+            <p>{guideCopy.safety}</p>
+          </footer>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 }
 
