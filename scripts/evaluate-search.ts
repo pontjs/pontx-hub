@@ -1,10 +1,11 @@
 import { performance } from "node:perf_hooks";
 import { buildSearchResponse } from "../app/lib/catalog/search";
-import { searchEvaluationCases } from "../app/lib/catalog/search-evaluation-cases";
+import { selectSearchEvaluationCases } from "../app/lib/catalog/search-evaluation-cases";
 import { evaluateSearch } from "../app/lib/catalog/search-evaluation";
 import { loadCatalogShards } from "./load-catalog";
 
 const catalog = await loadCatalogShards();
+const searchEvaluationCases = selectSearchEvaluationCases(catalog.map((api) => api.slug));
 const searchCatalog = (
   query: Parameters<typeof buildSearchResponse>[1],
   locale: Parameters<typeof buildSearchResponse>[2],

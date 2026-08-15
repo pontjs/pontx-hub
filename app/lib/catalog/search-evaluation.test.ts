@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { searchCatalog } from "./catalog.server";
-import { searchEvaluationCases } from "./search-evaluation-cases";
+import { listCatalog, searchCatalog } from "./catalog.server";
+import { selectSearchEvaluationCases } from "./search-evaluation-cases";
 import { evaluateSearch } from "./search-evaluation";
 
 describe("search relevance evaluation", () => {
   it("meets the checked-in relevance baseline", () => {
-    const report = evaluateSearch(searchEvaluationCases, searchCatalog);
+    const report = evaluateSearch(
+      selectSearchEvaluationCases(listCatalog().map((api) => api.slug)),
+      searchCatalog
+    );
     const failures = report.cases
       .filter((result) => !result.requiredTopKPassed)
       .map((result) => `${result.id}: ${result.topIds.slice(0, 5).join(", ")}`);

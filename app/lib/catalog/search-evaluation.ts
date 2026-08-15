@@ -12,6 +12,12 @@ export type SearchEvaluationCase = {
   kinds?: GlobalSearchKind[];
   judgments: SearchJudgment[];
   requiredTopK?: number;
+  /**
+   * Keep a consumer branch compatible with metadata revisions that predate an
+   * additive product rollout. Once the product appears in the loaded catalog,
+   * its relevance cases become mandatory automatically.
+   */
+  requiresProducts?: string[];
   tags: string[];
 };
 

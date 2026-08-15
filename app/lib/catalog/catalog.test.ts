@@ -19,7 +19,8 @@ describe("curated catalog", () => {
       ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
       ["currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "pinhere", "stripe-identity", "twelve-data-forex"]
+      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "pinhere", "stripe-identity", "twelve-data-forex"],
+      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "stripe-identity", "twelve-data-forex"]
     ]).toContainEqual(catalog.map((api) => api.slug));
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
@@ -88,7 +89,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect([53, 126, 134, 142, 253, 258, 281, 315]).toContain(operations.length);
+    expect([53, 126, 134, 142, 253, 258, 281, 287, 315]).toContain(operations.length);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(
@@ -132,6 +133,26 @@ describe("curated catalog", () => {
     });
   });
 
+  it("preserves Nager.Date's full caller-direct Community API v4 SDK contract", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "nager-date");
+    if (!api) return;
+    expect(api?.packageName).toBe("@pontx/nager-date");
+    expect(api?.sdkVersion).toBe("0.1.0");
+    expect(api?.proxyEnabled).toBe(false);
+    expect(api?.operations).toHaveLength(6);
+    expect(api?.schemas).toHaveLength(8);
+    expect(api?.sdkContract?.controllers).toEqual({
+      countries: "countries",
+      holidays: "holidays",
+      iotHolidays: "iotHolidays",
+      versions: "versions"
+    });
+    expect(api?.quickStart).toEqual({
+      operationSlug: "list-holidays-by-year",
+      requestExampleId: "default"
+    });
+  });
+
   it("preserves CurrencyBeacon's full, flat SDK contract without a product-wide execution gate", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "currencybeacon-rest");
     expect(api?.packageName).toBe("@pontx/currencybeacon-rest");
@@ -146,16 +167,18 @@ describe("curated catalog", () => {
     });
   });
 
-  it("keeps every REST Endpoint eligible for the shared Playground executor", () => {
+  it("keeps REST Endpoints executable unless metadata records a proxy-risk decision", () => {
     const restOperations = listCatalog()
       .flatMap((api) => api.operations)
       .filter((operation) => operation.style === "RESTFul");
 
-    expect(restOperations).toHaveLength(258);
-    expect(restOperations.every((operation) => operation.proxyEnabled)).toBe(true);
+    expect([258, 264]).toContain(restOperations.length);
+    expect(restOperations.every((operation) =>
+      operation.proxyEnabled || Boolean(operation.proxyDisabledReason)
+    )).toBe(true);
   });
 
-  it("preserves Amazon SQS's complete RPC contract without fabricating an HTTP executor", () => {
+  it("preserves Amazon SQS's complete RPC contract with Hub execution disabled", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "amazon-sqs");
     if (!api) {
       expect(listCatalog()).toHaveLength(9);
@@ -163,7 +186,7 @@ describe("curated catalog", () => {
     }
     expect(api?.packageName).toBe("@pontx/amazon-sqs");
     expect(api?.sdkVersion).toBe("0.1.4");
-    expect(api?.proxyEnabled).toBe(true);
+    expect(api?.proxyEnabled).toBe(false);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.sdkContract?.client).toMatchObject({
       kind: "factory",

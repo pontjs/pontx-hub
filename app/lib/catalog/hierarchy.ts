@@ -470,7 +470,12 @@ export function buildCatalogApi(files: HierarchyProductFiles): CatalogApi {
     ...(productDocumentation.contentUpdatedAt ? { contentUpdatedAt: productDocumentation.contentUpdatedAt } : {}),
     ...(sdk.cli?.name ? { cliName: sdk.cli.name } : {}),
     ...(sdk.examples ? { sdkExamples: sdk.examples } : {}),
-    proxyEnabled: true,
+    // A product is executable through Hub only when at least one of its
+    // declared Endpoints is executable.  Metadata may intentionally disable
+    // every Endpoint (for example, caller-direct SDKs whose upstream terms
+    // forbid Hub proxying); advertising those APIs as proxy-enabled would be
+    // inaccurate even though their docs and SDK remain available.
+    proxyEnabled: operations.some((operation) => operation.proxyEnabled),
     documentationStatus: productDocumentation.status ?? "official",
     evidenceUrls: productDocumentation.evidence ?? [],
     ...(productDocumentation.verifiedAt ? { verifiedAt: productDocumentation.verifiedAt } : {}),
