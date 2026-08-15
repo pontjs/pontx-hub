@@ -157,6 +157,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     kinds: ["endpoint"],
     judgments: [{ id: "endpoint:pinhere/create-issue", relevance: 3 }],
     requiredTopK: 1,
+    requiresProducts: ["pinhere"],
     tags: ["zh", "semantic", "browser-extension", "issue"]
   },
   {
@@ -166,6 +167,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     kinds: ["endpoint"],
     judgments: [{ id: "endpoint:pinhere/create-issue", relevance: 3 }],
     requiredTopK: 1,
+    requiresProducts: ["pinhere"],
     tags: ["en", "semantic", "browser-extension", "issue"]
   },
   {

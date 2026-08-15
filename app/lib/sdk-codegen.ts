@@ -133,15 +133,13 @@ function requestArguments(
     );
   }
 
-  const namedParameters = operation.parameters.filter(
-    (parameter) => parameter.in === "query" || parameter.in === "header"
+  const queryParameters = operation.parameters.filter(
+    (parameter) => parameter.in === "query"
   );
-  if (namedParameters.length) {
+  if (queryParameters.length) {
     const values = Object.fromEntries(
-      namedParameters.flatMap((parameter) => {
-        const value = parameter.in === "query"
-          ? request.query[parameter.name]
-          : request.headers[parameter.name];
+      queryParameters.flatMap((parameter) => {
+        const value = request.query[parameter.name];
         return (value === undefined || value === "") && !parameter.required
           ? []
           : [
@@ -157,10 +155,30 @@ function requestArguments(
     args.push(typescriptValue(values));
   }
 
+  const headerParameters = operation.parameters.filter(
+    (parameter) => parameter.in === "header"
+  );
+  const headers = headerParameters.flatMap((parameter) => {
+    const value = request.headers[parameter.name];
+    return (value === undefined || value === "") && !parameter.required
+      ? []
+      : [
+          `${JSON.stringify(parameter.name)}: ${typescriptValue(
+            value === undefined || value === ""
+              ? placeholder(parameter.name, parameter.type, parameter)
+              : value
+          )}`
+        ];
+  });
   if (api.sdkContract?.auth?.kind === "bearer-request-init") {
+    headers.push(
+      `Authorization: \`Bearer \${process.env.${api.sdkContract.auth.envVar}!}\``
+    );
+  }
+  if (headers.length) {
     args.push(`{
   headers: {
-    Authorization: \`Bearer \${process.env.${api.sdkContract.auth.envVar}!}\`
+${headers.map((header) => `    ${header}`).join(",\n")}
   }
 }`);
   }
