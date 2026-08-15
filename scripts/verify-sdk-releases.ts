@@ -48,6 +48,9 @@ function declaredApiLockKeys(api: CatalogApi): string[] {
       throw new Error(`${api.slug}: unknown SDK operation ${operationId}`);
     }
     const controller = contract.controllers[operation.tag];
+    if (controller === null) {
+      return operationId;
+    }
     if (!controller) {
       throw new Error(
         `${api.slug}: no SDK controller for Endpoint tag ${operation.tag}`

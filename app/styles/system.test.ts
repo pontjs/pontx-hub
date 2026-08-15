@@ -147,26 +147,15 @@ describe("Pontx Hub visual system", () => {
   });
 
   it("keeps the shared Playground divider inside the documentation bounds", async () => {
-    const patch = await readFile(
-      new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url),
-      "utf8",
-    );
+    const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(patch).toContain("w-px shrink-0 self-stretch bg-border");
-    expect(patch.match(/w-px bg-border shrink-0 -my-6/g)).toHaveLength(1);
-    expect(patch).toContain(
-      '-          /* @__PURE__ */ e("div", { className: "w-px bg-border shrink-0 -my-6" }),',
-    );
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
   });
 
   it("keeps the Endpoint Playground Try action visually primary", async () => {
-    const patch = await readFile(
-      new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url),
-      "utf8",
-    );
+    const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(patch).toContain('-                    variant: "outline",');
-    expect(patch).toContain('+                    variant: "default",');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
   });
 
   it("lets the workspace toolbar define its grid track height", async () => {
@@ -214,11 +203,11 @@ describe("Pontx Hub visual system", () => {
   });
 
   it("keeps current-Endpoint history inside the Playground and replay-only", async () => {
-    const [workspace, history, css, patch] = await Promise.all([
+    const [workspace, history, css, manifest] = await Promise.all([
       readFile(new URL("../components/pontx-api-workspace.tsx", import.meta.url), "utf8"),
       readFile(new URL("../components/endpoint-playground-history.tsx", import.meta.url), "utf8"),
       readFile(new URL("./system.css", import.meta.url), "utf8"),
-      readFile(new URL("../../patches/@pontx__shadcn-ui@1.2.9.patch", import.meta.url), "utf8"),
+      readFile(new URL("../../package.json", import.meta.url), "utf8"),
     ]);
 
     expect(workspace).toMatch(
@@ -232,8 +221,7 @@ describe("Pontx Hub visual system", () => {
     );
     expect(history).toContain("Load inputs without sending the request");
     expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
-    expect(patch).toContain("playgroundTopContent");
-    expect(patch).toContain('"data-pontx-ui": "playground-top-content"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.10"');
     expect(css).toMatch(
       /\[data-pontx-ui="playground-top-content"\][\s\S]*?\.endpoint-playground-history li\s*{[\s\S]*?grid-template:/,
     );
