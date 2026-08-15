@@ -1,0 +1,78 @@
+name: Website problem / 网站问题
+description: Report a reproducible problem with the Pontx Hub website / 报告 Pontx Hub 网站问题
+title: "[Website] "
+labels:
+  - bug
+  - feedback
+  - area:web
+  - status:needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Pontx Hub. 感谢你帮助我们改进 Pontx Hub。
+
+        This report is public. Never include API keys, tokens, passwords, personal information, private provider responses, or security exploit details.
+        此报告将公开展示。请勿提交 API Key、Token、密码、个人信息、私密的服务商响应或安全漏洞细节。
+  - type: input
+    id: page_path
+    attributes:
+      label: Page path / 页面路径
+      description: The Pontx Hub path where the problem occurred. The website prefills this without query parameters or fragments. / 问题所在页面路径；网站会自动预填，但不会包含查询参数或片段。
+      placeholder: /zh/docs
+    validations:
+      required: true
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language / 语言
+      options:
+        - zh
+        - en
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened? / 发生了什么？
+      description: Describe the visible problem and its impact. / 描述可见问题及其影响。
+      placeholder: Tell us what went wrong and what you were trying to accomplish. / 请说明出现的问题以及你原本想完成的任务。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps / 复现步骤
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 预期行为
+      description: What should have happened instead? / 正确情况下应该发生什么？
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and device / 浏览器与设备
+      description: Optional. For example, Chrome 140 on macOS or Safari on iPhone. / 选填，例如 macOS Chrome 140 或 iPhone Safari。
+  - type: upload
+    id: screenshots
+    attributes:
+      label: Screenshots / 截图
+      description: Optional. Remove credentials and personal information before uploading. / 选填，上传前请移除凭证与个人信息。
+    validations:
+      required: false
+      accept: ".png,.jpg,.jpeg,.gif,.webp"
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data confirmation / 公开数据确认
+      options:
+        - label: I confirm that this public report contains no credentials, tokens, passwords, personal information, private provider responses, or exploit details. / 我确认此公开报告不包含凭证、Token、密码、个人信息、私密服务商响应或漏洞细节。
+          required: true

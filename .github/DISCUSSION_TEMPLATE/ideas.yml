@@ -1,0 +1,63 @@
+title: "[Feedback] "
+labels:
+  - feedback
+  - area:web
+  - status:needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share a concrete website improvement for Pontx Hub. We acknowledge and triage new feedback within three business days; this is not a promise to implement it within that time.
+        请分享一个具体的网站改进建议。我们会在 3 个工作日内确认并分流新反馈，但这不代表会在该时限内完成实现。
+
+        This discussion is public. Never include API keys, tokens, passwords, personal information, private provider responses, or security exploit details.
+        此讨论将公开展示。请勿提交 API Key、Token、密码、个人信息、私密的服务商响应或安全漏洞细节。
+  - type: dropdown
+    id: area
+    attributes:
+      label: Website area / 网站区域
+      options:
+        - Catalog, navigation, or search / 目录、导航或搜索
+        - API documentation / API 文档阅读体验
+        - Playground / 在线调试
+        - Accounts, favorites, or history / 账户、收藏或历史
+        - Pontx Agent / Pontx Agent
+        - Other website experience / 其他网站体验
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity / 问题或机会
+      description: What is difficult, missing, or unnecessarily slow today? / 目前有哪些困难、缺失或不必要的繁琐？
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired improvement / 期望改进
+      description: Describe the outcome you want rather than only a particular implementation. / 请描述期望达到的结果，而不只是某一种实现方式。
+    validations:
+      required: true
+  - type: input
+    id: page_path
+    attributes:
+      label: Relevant page path / 相关页面路径
+      description: Optional. The website prefills this without query parameters or fragments. / 选填；网站会自动预填，但不会包含查询参数或片段。
+      placeholder: /zh/docs
+  - type: dropdown
+    id: locale
+    attributes:
+      label: Language / 语言
+      options:
+        - zh
+        - en
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data confirmation / 公开数据确认
+      options:
+        - label: I confirm that this public discussion contains no credentials, tokens, passwords, personal information, private provider responses, or exploit details. / 我确认此公开讨论不包含凭证、Token、密码、个人信息、私密服务商响应或漏洞细节。
+          required: true
