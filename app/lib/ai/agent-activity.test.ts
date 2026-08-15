@@ -5,6 +5,7 @@ import {
   formatActivityPayload,
   parseToolArguments,
   startAgentActivity,
+  summarizeAgentActivities,
   updateAgentActivityArguments
 } from "./agent-activity";
 
@@ -48,5 +49,27 @@ describe("AG-UI tool activity presentation", () => {
   it("accepts streamed AG-UI JSON argument buffers without treating partial input as valid", () => {
     expect(parseToolArguments('{"query":"rates"}')).toEqual({ query: "rates" });
     expect(parseToolArguments('{"query"')).toBeUndefined();
+  });
+
+  it("summarizes a tool burst as one execution trace instead of separate chat messages", () => {
+    const completed = completeAgentActivity(
+      startAgentActivity({ toolCallId: "call-search", toolCallName: "search_resources" }),
+      "{}"
+    );
+    const running = updateAgentActivityArguments(
+      startAgentActivity({ toolCallId: "call-read", toolCallName: "read_file" }),
+      { path: "/catalog/frankfurter.json" }
+    );
+
+    expect(summarizeAgentActivities([completed, running], "zh")).toEqual({
+      eyebrow: "执行过程",
+      title: "Agent 正在执行 2 个步骤",
+      status: "进行中"
+    });
+    expect(summarizeAgentActivities([completed], "en")).toEqual({
+      eyebrow: "Execution trace",
+      title: "1 step completed",
+      status: "Completed"
+    });
   });
 });

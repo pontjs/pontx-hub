@@ -30,6 +30,12 @@ type ActivityCopy = {
   status: string;
 };
 
+export type AgentRunSummary = {
+  eyebrow: string;
+  title: string;
+  status: string;
+};
+
 const TARGET_FIELDS = [
   "path",
   "filePath",
@@ -162,4 +168,41 @@ function copyFor(activity: AgentActivity, locale: Locale): ActivityCopy {
 
 export function describeAgentActivity(activity: AgentActivity, locale: Locale) {
   return copyFor(activity, locale);
+}
+
+export function summarizeAgentActivities(
+  activities: AgentActivity[],
+  locale: Locale
+): AgentRunSummary {
+  const completed = activities.filter((activity) => activity.status === "completed").length;
+  const failed = activities.filter((activity) => activity.status === "failed").length;
+  const active = activities.some(
+    (activity) => activity.status === "preparing" || activity.status === "running"
+  );
+  const count = activities.length;
+  const zh = locale === "zh";
+
+  if (active) {
+    return {
+      eyebrow: zh ? "执行过程" : "Execution trace",
+      title: zh ? `Agent 正在执行 ${count} 个步骤` : `Agent is running ${count} step${count === 1 ? "" : "s"}`,
+      status: zh ? "进行中" : "Running"
+    };
+  }
+
+  if (failed) {
+    return {
+      eyebrow: zh ? "执行过程" : "Execution trace",
+      title: zh
+        ? `已完成 ${completed} 个步骤，${failed} 个未完成`
+        : `${completed} step${completed === 1 ? "" : "s"} completed, ${failed} incomplete`,
+      status: zh ? "需注意" : "Needs attention"
+    };
+  }
+
+  return {
+    eyebrow: zh ? "执行过程" : "Execution trace",
+    title: zh ? `已完成 ${completed} 个步骤` : `${completed} step${completed === 1 ? "" : "s"} completed`,
+    status: zh ? "已完成" : "Completed"
+  };
 }

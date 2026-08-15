@@ -21,6 +21,7 @@ import {
   failAgentActivity,
   formatActivityPayload,
   startAgentActivity,
+  summarizeAgentActivities,
   type AgentActivity,
   updateAgentActivityArguments
 } from "~/lib/ai/agent-activity";
@@ -217,37 +218,69 @@ function persistedMessages(messages: Message[]): Message[] {
   return messages.filter(isRenderableConversationMessage);
 }
 
-function AgentActivityCard({ activity, locale }: { activity: AgentActivity; locale: Locale }) {
-  const presentation = describeAgentActivity(activity, locale);
-  const input = formatActivityPayload(activity.input);
-  const output = formatActivityPayload(activity.result);
+function AgentRunTimeline({
+  activities,
+  locale,
+  indented = false
+}: {
+  activities: AgentActivity[];
+  locale: Locale;
+  indented?: boolean;
+}) {
+  const run = summarizeAgentActivities(activities, locale);
   return (
-    <details className="ai-activity" data-kind={activity.kind} data-status={activity.status}>
-      <summary>
-        <span className="ai-activity-icon" aria-hidden="true"><ActivityIcon kind={activity.kind} /></span>
-        <span className="ai-activity-summary-copy">
-          <strong>{presentation.title}</strong>
-          {activity.target ? <code title={activity.target}>{activity.target}</code> : <span>{activity.name}</span>}
+    <section
+      className="ai-run-timeline"
+      data-status={activities.some((activity) => activity.status === "failed") ? "failed" : activities.some((activity) => activity.status !== "completed") ? "running" : "completed"}
+      data-indent={indented || undefined}
+      aria-label={run.title}
+    >
+      <header className="ai-run-timeline-header">
+        <span className="ai-run-timeline-state" aria-hidden="true" />
+        <span className="ai-run-timeline-copy">
+          <span>{run.eyebrow}</span>
+          <strong>{run.title}</strong>
         </span>
-        <span className="ai-activity-status">{presentation.status}</span>
-      </summary>
-      {(input || output) ? (
-        <div className="ai-activity-details">
-          {input ? (
-            <div>
-              <span>{presentation.input}</span>
-              <pre>{input}</pre>
-            </div>
-          ) : null}
-          {output ? (
-            <div>
-              <span>{presentation.output}</span>
-              <pre>{output}</pre>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-    </details>
+        <span className="ai-run-timeline-status">{run.status}</span>
+      </header>
+      <ol className="ai-run-steps">
+        {activities.map((activity) => {
+          const presentation = describeAgentActivity(activity, locale);
+          const input = formatActivityPayload(activity.input);
+          const output = formatActivityPayload(activity.result);
+          return (
+            <li className="ai-run-step" data-kind={activity.kind} data-status={activity.status} key={activity.id}>
+              <span className="ai-run-step-icon" aria-hidden="true"><ActivityIcon kind={activity.kind} /></span>
+              <details className="ai-run-step-details">
+                <summary>
+                  <span className="ai-run-step-copy">
+                    <strong>{presentation.title}</strong>
+                    {activity.target ? <code title={activity.target}>{activity.target}</code> : <span>{activity.name}</span>}
+                  </span>
+                  <span className="ai-run-step-status">{presentation.status}</span>
+                </summary>
+                {(input || output) ? (
+                  <div className="ai-run-step-payload">
+                    {input ? (
+                      <div>
+                        <span>{presentation.input}</span>
+                        <pre>{input}</pre>
+                      </div>
+                    ) : null}
+                    {output ? (
+                      <div>
+                        <span>{presentation.output}</span>
+                        <pre>{output}</pre>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </details>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
 
@@ -707,9 +740,9 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                   ? activities.filter((activity) => activity.parentMessageId === message.id)
                   : [];
                 if (!isRenderableConversationMessage(message)) {
-                  return messageActivities.map((activity) => (
-                    <AgentActivityCard activity={activity} locale={locale} key={activity.id} />
-                  ));
+                  return messageActivities.length ? (
+                    <AgentRunTimeline activities={messageActivities} locale={locale} key={message.id} />
+                  ) : null;
                 }
                 return (
                   <Fragment key={message.id}>
@@ -729,15 +762,20 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                         ) : <p>{messageText(message)}</p>}
                       </div>
                     </article>
-                    {messageActivities.map((activity) => (
-                      <AgentActivityCard activity={activity} locale={locale} key={activity.id} />
-                    ))}
+                    {messageActivities.length ? (
+                      <AgentRunTimeline activities={messageActivities} locale={locale} indented />
+                    ) : null}
                   </Fragment>
                 );
               })}
-              {activities
-                .filter((activity) => !activity.parentMessageId || !messageIds.has(activity.parentMessageId))
-                .map((activity) => <AgentActivityCard activity={activity} locale={locale} key={activity.id} />)}
+              {(() => {
+                const unassignedActivities = activities.filter(
+                  (activity) => !activity.parentMessageId || !messageIds.has(activity.parentMessageId)
+                );
+                return unassignedActivities.length ? (
+                  <AgentRunTimeline activities={unassignedActivities} locale={locale} />
+                ) : null;
+              })()}
 
               {prepared.map((call, index) => {
                 const execution = executions[index] ?? { status: "idle" };
