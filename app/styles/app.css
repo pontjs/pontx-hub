@@ -1903,28 +1903,22 @@ samp,
 }
 
 .resource-directory-navigation {
-  display: flex;
+  display: block;
   height: 100%;
   min-width: 0;
   min-height: 0;
-  flex-direction: column;
   background: transparent;
-  gap: 4px;
-  overflow: hidden;
+  overflow: hidden auto;
+  overscroll-behavior-y: auto;
 }
 
 .resource-directory-group {
   display: block;
   min-width: 0;
-  min-height: 0;
-  flex: 0 0 auto;
 }
 
 .resource-directory-group[open] {
-  display: flex;
-  min-height: 0;
-  flex: 1 1 0;
-  flex-direction: column;
+  display: block;
 }
 
 .resource-directory-group > summary {
@@ -1993,18 +1987,18 @@ samp,
 }
 
 .resource-directory-group-content {
-  display: flex;
-  min-height: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
+  display: block;
+  overflow: visible;
 }
 
 .resource-directory-group-content > .pontx-directory,
 .resource-directory-group-content > .pontx-directory-flat,
 .resource-directory-group-content > .schema-directory-list {
   width: 100%;
-  min-height: 0;
-  flex: 1 1 auto;
+}
+
+.resource-directory-navigation .schema-directory-list {
+  overflow: visible;
 }
 
 .pontx-pane-label,
@@ -2119,10 +2113,8 @@ samp,
    compact list visually and behaviorally equivalent to the shared directory. */
 .pontx-directory-flat {
   display: grid;
-  min-height: 0;
   align-content: start;
-  overflow: hidden auto;
-  overscroll-behavior-y: auto;
+  overflow: visible;
   padding: 4px 6px 10px;
   gap: 3px;
 }
