@@ -30,6 +30,10 @@ export default [
     "routes/schema-detail.tsx"
   ),
   route(
+    ":locale/apis/:apiSlug/endpoints/:operationSlug",
+    "routes/endpoint-legacy-redirect.tsx"
+  ),
+  route(
     ":locale/apis/:apiSlug/:operationSlug",
     "routes/operation-detail.tsx"
   ),
