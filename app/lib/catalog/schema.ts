@@ -1,12 +1,18 @@
 import { z } from "zod";
 
 const httpsUrlSchema = z.string().url().refine((value) => value.startsWith("https://"), {
-  message: "OAuth endpoints must use HTTPS"
+  message: "External URLs must use HTTPS"
 });
 
 const localizedTextSchema = z.object({
   zh: z.string().min(1),
   en: z.string().min(1)
+});
+
+const credentialGuideSchema = z.object({
+  url: httpsUrlSchema,
+  title: localizedTextSchema,
+  steps: z.array(localizedTextSchema).min(1).max(8)
 });
 
 const documentationStatusSchema = z
@@ -234,13 +240,15 @@ const authSchema = z.discriminatedUnion("type", [
     name: z.string().min(1),
     in: z.enum(["header", "query"]),
     envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
-    description: localizedTextSchema
+    description: localizedTextSchema,
+    credentialGuide: credentialGuideSchema.optional()
   }),
   z.object({
     id: z.string().min(1),
     type: z.literal("bearer"),
     envVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
-    description: localizedTextSchema
+    description: localizedTextSchema,
+    credentialGuide: credentialGuideSchema.optional()
   }),
   z.object({
     id: z.string().min(1),
@@ -251,13 +259,7 @@ const authSchema = z.discriminatedUnion("type", [
       .enum(["client_secret_basic", "client_secret_post", "none"])
       .default("client_secret_basic"),
     pkce: z.enum(["required", "preferred", "unsupported"]).default("preferred"),
-    credentialGuide: z
-      .object({
-        url: httpsUrlSchema,
-        title: localizedTextSchema,
-        steps: z.array(localizedTextSchema).min(1).max(8)
-      })
-      .optional(),
+    credentialGuide: credentialGuideSchema.optional(),
     flows: z
       .object({
         authorizationCode: z
@@ -281,7 +283,8 @@ const authSchema = z.discriminatedUnion("type", [
     type: z.literal("basic"),
     usernameEnvVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
     passwordEnvVar: z.string().regex(/^[A-Z][A-Z0-9_]*$/),
-    description: localizedTextSchema
+    description: localizedTextSchema,
+    credentialGuide: credentialGuideSchema.optional()
   })
 ]);
 

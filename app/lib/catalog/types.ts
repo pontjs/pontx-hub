@@ -162,7 +162,13 @@ export type CatalogPricing = {
   };
 };
 
-export type CatalogAuthScheme =
+export type CredentialGuide = {
+  url: string;
+  title: LocalizedText;
+  steps: LocalizedText[];
+};
+
+export type CatalogAuthScheme = (
   | {
       id: string;
       type: "apiKey";
@@ -187,11 +193,6 @@ export type CatalogAuthScheme =
         | "client_secret_post"
         | "none";
       pkce?: "required" | "preferred" | "unsupported";
-      credentialGuide?: {
-        url: string;
-        title: LocalizedText;
-        steps: LocalizedText[];
-      };
       flows?: {
         authorizationCode?: OAuthFlow;
         clientCredentials?: OAuthFlow;
@@ -203,7 +204,10 @@ export type CatalogAuthScheme =
       usernameEnvVar: string;
       passwordEnvVar: string;
       description: LocalizedText;
-    };
+    }
+) & {
+  credentialGuide?: CredentialGuide;
+};
 
 export type OAuthFlow = {
   authorizationUrl?: string;

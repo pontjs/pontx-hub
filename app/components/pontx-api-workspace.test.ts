@@ -9,6 +9,7 @@ import {
   ApiOverviewActions,
   ApiOverviewFacts,
   codeGenScenariosForLocale,
+  CredentialSetupGuide,
   isOAuthAuthorizationDisabled,
   isOAuthExecutionBlocked,
   OperationTaskSelect,
@@ -134,6 +135,52 @@ describe("OperationTaskSelect", () => {
     expect(html).toContain("获取项目列表");
     expect(html).toContain('<select aria-hidden="true"');
     expect(html).not.toContain('<option');
+  });
+});
+
+describe("CredentialSetupGuide", () => {
+  const scheme = {
+    id: "apiKey",
+    type: "apiKey" as const,
+    name: "apikey",
+    in: "query" as const,
+    envVar: "PONTX_TWELVE_DATA_API_KEY",
+    description: {
+      zh: "Twelve Data API Key。",
+      en: "Twelve Data API key."
+    },
+    credentialGuide: {
+      url: "https://twelvedata.com/account/api-keys",
+      title: {
+        zh: "获取 Twelve Data API Key",
+        en: "Get a Twelve Data API key"
+      },
+      steps: [
+        { zh: "注册或登录账户。", en: "Create an account or sign in." },
+        { zh: "打开 API Keys 页面。", en: "Open the API Keys page." },
+        { zh: "复制并粘贴 Key。", en: "Copy and paste the key." }
+      ]
+    }
+  };
+
+  it.each([
+    ["zh" as const, "获取 Twelve Data API Key", "打开 API Key 管理页", "不会保存到 Pontx 服务器"],
+    ["en" as const, "Get a Twelve Data API key", "Open API key dashboard", "never stored on Pontx servers"]
+  ])("renders a localized, official, session-safe API key path in %s", (locale, title, action, safety) => {
+    const html = renderToStaticMarkup(createElement(CredentialSetupGuide, {
+      scheme,
+      locale
+    }));
+
+    expect(html).toContain('class="credential-setup-guide" open=""');
+    expect(html).toContain(title);
+    expect(html).toContain(action);
+    expect(html).toContain(safety);
+    expect(html).toContain('href="https://twelvedata.com/account/api-keys"');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noreferrer"');
+    expect(html).toContain(">01<");
+    expect(html).toContain(">03<");
   });
 });
 
