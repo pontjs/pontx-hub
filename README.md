@@ -1,6 +1,6 @@
 # Pontx Hub
 
-Curated, agent-ready OpenAPI documentation and unified SDK/CLI portal.
+Curated, agent-ready PontxSpec API documentation and unified SDK/CLI portal.
 
 - Production: [pontx.dev](https://pontx.dev)
 - Documentation: [English](https://pontx.dev/en/docs) · [中文](https://pontx.dev/zh/docs)
@@ -85,8 +85,16 @@ budget remains conservative. Direct Anthropic deployments may continue using
 
 The curated source of truth lives in the separate
 [`pontjs/pontx-api-metadata`](https://github.com/pontjs/pontx-api-metadata)
-repository. The Hub synchronizes its compiled catalog before development,
-tests, and production builds.
+repository. The Hub first reads the small `catalog/products.json` index, then
+loads every product's `product.json`, `spec.pontx.json`, `sdk.json`, and locale
+files from one exact metadata commit. It validates the canonical and localized
+PontxSpecs before writing untracked per-product build caches; there is no
+aggregate Catalog payload or OpenAPI build dependency.
+
+Local development auto-discovers a sibling metadata checkout or accepts
+`METADATA_REPO_LOCAL_PATH`. Remote builds must set `METADATA_REPO_COMMIT` to an
+exact 40-character commit SHA; `METADATA_REPO_RAW_URL` may override the raw host
+but must still resolve that same revision.
 
 ## Verification
 
@@ -108,8 +116,8 @@ expand; do not lower thresholds to accommodate a ranking regression.
 
 The standalone [`pontx-hub-cli`](https://github.com/pontjs/pontx-hub-cli)
 repository communicates only with the public Hub HTTP API. It provides one
-hybrid semantic search across API products, HTTP endpoints, request parameters,
-request/response schemas, and OpenAPI data structures, and
+hybrid semantic search across API products, Endpoints, request parameters,
+request/response schemas, and PontxSpec data structures, and
 installs the universal Agent Skill without coupling Hub releases to Pontx.
 
 The source Skill is packaged in the skills-only

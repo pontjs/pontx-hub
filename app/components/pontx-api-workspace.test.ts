@@ -2,8 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
-import { getCatalogApi } from "~/lib/catalog/catalog.server";
-import { toPontxApi } from "~/lib/catalog/pontx-adapter";
+import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
+import { pontxApiView } from "~/lib/catalog/pontx-view";
 import { localize } from "~/lib/catalog/types";
 import {
   ApiOverviewActions,
@@ -28,6 +28,11 @@ describe("Unified SDK code scenario naming", () => {
     });
   });
 });
+
+function endpointView(apiSlug: string, operationIndex = 0) {
+  const api = getCatalogApi(apiSlug)!;
+  return pontxApiView(getPontxSpec(apiSlug, "en")!, api.operations[operationIndex]);
+}
 
 function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
   const api = getCatalogApi(apiSlug);
@@ -234,7 +239,7 @@ describe("OAuthToolbar", () => {
 
   it("removes only the OAuth scheme managed by the Hub", () => {
     const api = getCatalogApi("dida365")!;
-    const adapted = toPontxApi(api, api.operations[0], "en");
+    const adapted = endpointView("dida365");
     const pontxApi = withoutHostManagedOAuthScheme({
       ...adapted,
       securitySchemes: {
@@ -250,7 +255,7 @@ describe("OAuthToolbar", () => {
   it("omits the Authentication card when OAuth is the only scheme", () => {
     const api = getCatalogApi("dida365")!;
     const stripped = withoutHostManagedOAuthScheme(
-      toPontxApi(api, api.operations[0], "en"),
+      endpointView("dida365"),
       "OAuth2"
     );
 

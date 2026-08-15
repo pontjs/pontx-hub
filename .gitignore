@@ -3,6 +3,7 @@ node_modules
 build
 coverage
 .catalog-cache
+.local-packages
 .vercel
 .env
 .env.*

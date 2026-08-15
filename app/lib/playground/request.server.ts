@@ -96,6 +96,9 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
   const match = getCatalogOperation(input.apiSlug, input.operationSlug);
   if (!match) throw new Error("Catalog operation not found");
   const { api, operation } = match;
+  if (operation.style !== "RESTFul" || !operation.method || !operation.path) {
+    throw new Error("This PontxSpec style has no Hub execution adapter");
+  }
   const server = api.servers.find((item) => item.id === input.serverId);
   if (!server) throw new Error("Server is not approved for this API");
   if (operation.serverIds.length && !operation.serverIds.includes(server.id)) {

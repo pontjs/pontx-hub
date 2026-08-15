@@ -86,7 +86,7 @@ const requestExampleSchema = z.object({
     headers: z.record(z.string(), z.string()).default({}),
     body: z.unknown().optional()
   }),
-  expectedStatus: z.string().regex(/^(?:2\d\d|2[xX]{2})$/),
+  expectedStatus: z.string().min(1),
   verifiedAt: z.string().date().optional(),
   completeness: z.enum(["ready", "requires-input"]),
   unresolved: z.array(requestExampleInputSchema).default([])
@@ -95,9 +95,10 @@ const requestExampleSchema = z.object({
 const operationSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   operationId: z.string().min(1),
-  tag: z.string().min(1),
-  method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]),
-  path: z.string().startsWith("/"),
+  style: z.enum(["RESTFul", "RPC", "GraphQL", "AsyncAPI"]).default("RESTFul"),
+  tag: z.string(),
+  method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]).optional(),
+  path: z.string().startsWith("/").optional(),
   title: localizedTextSchema,
   description: localizedTextSchema,
   contentType: z
@@ -131,8 +132,29 @@ const operationSchema = z.object({
   responseExample: z.unknown().optional(),
   deprecated: z.boolean().optional()
 }).superRefine((operation, context) => {
+  if (operation.style === "RESTFul" && (!operation.method || !operation.path)) {
+    context.addIssue({
+      code: "custom",
+      path: ["style"],
+      message: "RESTFul Endpoints require method and path"
+    });
+  }
+  if (operation.style !== "RESTFul" && (operation.method || operation.path)) {
+    context.addIssue({
+      code: "custom",
+      path: ["style"],
+      message: "Non-REST Endpoints cannot depend on HTTP method/path"
+    });
+  }
   const exampleIds = new Set<string>();
   for (const [index, example] of operation.requestExamples.entries()) {
+    if (operation.style === "RESTFul" && !/^(?:2\d\d|2[xX]{2})$/.test(example.expectedStatus)) {
+      context.addIssue({
+        code: "custom",
+        path: ["requestExamples", index, "expectedStatus"],
+        message: "RESTFul request examples require a 2xx expected status"
+      });
+    }
     if (exampleIds.has(example.id)) {
       context.addIssue({
         code: "custom",
@@ -294,6 +316,10 @@ const sdkContractSchema = z.object({
     z.string().min(1),
     javascriptIdentifierSchema.nullable()
   ),
+  compatibilityAliases: z.record(
+    javascriptIdentifierSchema,
+    z.array(z.string().min(1)).min(1)
+  ).optional(),
   operations: z.array(z.string().min(1)).min(1)
 });
 
@@ -352,13 +378,20 @@ export const catalogApiSchema = z
         requestExampleId: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
       })
       .optional(),
-    servers: z.array(serverSchema).min(1),
+    servers: z.array(serverSchema),
     auth: z.array(authSchema),
     pricing: pricingSchema.optional(),
     operations: z.array(operationSchema).min(1),
     schemas: z.array(catalogSchemaSchema).default([])
   })
   .superRefine((api, context) => {
+    if (api.operations.some((operation) => operation.style === "RESTFul") && !api.servers.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["servers"],
+        message: "RESTFul products require at least one server"
+      });
+    }
     if (api.sdkQuality) {
       if (api.sdkQuality.testedVersion !== api.sdkVersion) {
         context.addIssue({
@@ -396,6 +429,7 @@ export const catalogApiSchema = z
 
     if (api.sdkContract) {
       const contractOperations = new Set<string>();
+      const explicitContractTags = new Set<string>();
       const authEnvVars = new Set(
         api.auth.flatMap((auth) =>
           auth.type === "basic"
@@ -443,14 +477,25 @@ export const catalogApiSchema = z
             path: ["sdkContract", "operations", index],
             message: `Unknown SDK contract operation: ${operationId}`
           });
-        } else if (!Object.prototype.hasOwnProperty.call(
+        } else if (operation.tag && !Object.prototype.hasOwnProperty.call(
           api.sdkContract.controllers,
           operation.tag
         )) {
           context.addIssue({
             code: "custom",
             path: ["sdkContract", "controllers"],
-            message: `Missing SDK controller for tag: ${operation.tag}`
+            message: `Missing SDK controller for explicit tag: ${operation.tag}`
+          });
+        } else if (operation.tag) {
+          explicitContractTags.add(operation.tag);
+        }
+      }
+      for (const controllerTag of Object.keys(api.sdkContract.controllers)) {
+        if (!explicitContractTags.has(controllerTag)) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "controllers", controllerTag],
+            message: `SDK Controllers require an explicit PontxSpec tag: ${controllerTag}`
           });
         }
       }

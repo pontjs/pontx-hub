@@ -29,7 +29,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@pontx/nodejs-sdk": "^0.1.0",
     "@pontx/shadcn-ui": "^1.2.11",
-    "@pontx/spec": "^0.1.16-alpha.2",
+    "@pontx/spec": "1.0.0-beta.5",
     "@react-router/node": "7.18.2",
     "@react-router/serve": "7.18.2",
     "better-auth": "^1.6.26",
@@ -62,6 +62,7 @@
   },
   "pnpm": {
     "overrides": {
+      "@pontx/spec": "1.0.0-beta.5",
       "dompurify@<=3.4.12": "3.4.13",
       "nanoid@<3.3.17": "3.3.17"
     },

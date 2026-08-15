@@ -16,6 +16,8 @@ export type HttpMethod =
   | "HEAD"
   | "OPTIONS";
 
+export type ApiStyle = "RESTFul" | "RPC" | "GraphQL" | "AsyncAPI";
+
 export type CatalogParameter = {
   name: string;
   in: "path" | "query" | "header" | "body";
@@ -89,9 +91,11 @@ export type CatalogRequestExample = {
 export type CatalogOperation = {
   slug: string;
   operationId: string;
+  style: ApiStyle;
   tag: string;
-  method: HttpMethod;
-  path: string;
+  /** HTTP coordinates exist only for RESTFul PontxSpec Endpoints. */
+  method?: HttpMethod;
+  path?: string;
   title: LocalizedText;
   description: LocalizedText;
   contentType?: "application/json" | "application/x-www-form-urlencoded";
@@ -240,8 +244,10 @@ export type SdkContract = {
     kind: "bearer-request-init";
     envVar: string;
   };
-  /** OAS tag 到 SDK Controller 的映射；null 表示方法直接位于 client 根级。 */
+  /** PontxSpec 显式 tag 到 SDK Controller 的映射。无 tag Endpoint 始终位于 client 根级。 */
   controllers: Record<string, string | null>;
+  /** 旧分组访问仅作为兼容别名，不能参与稳定 Endpoint/CLI/Hub ID。 */
+  compatibilityAliases?: Record<string, string[]>;
   operations: string[];
 };
 
@@ -338,8 +344,9 @@ export type EndpointSearchResult = GlobalSearchResultBase & {
   kind: "endpoint";
   operationSlug: string;
   operationId: string;
-  method: HttpMethod;
-  path: string;
+  style?: ApiStyle;
+  method?: HttpMethod;
+  path?: string;
   tag: string;
 };
 

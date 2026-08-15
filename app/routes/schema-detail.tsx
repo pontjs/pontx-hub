@@ -1,7 +1,7 @@
 import type { Route } from "./+types/schema-detail";
 import { SchemaReference } from "~/components/schema-reference";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogSchema } from "~/lib/catalog/catalog.server";
+import { getCatalogSchema, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
@@ -10,7 +10,9 @@ export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const match = getCatalogSchema(params.apiSlug ?? "", params.schemaName ?? "");
   if (!match) throw new Response("Schema not found", { status: 404 });
-  return { locale, ...match };
+  const spec = getPontxSpec(match.api.slug, locale);
+  if (!spec) throw new Response("PontxSpec not found", { status: 500 });
+  return { locale, spec, ...match };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -69,10 +71,10 @@ export function headers() {
 }
 
 export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, schema } = loaderData;
+  const { locale, api, spec, schema } = loaderData;
   return (
     <SiteShell locale={locale}>
-      <SchemaReference locale={locale} api={api} schema={schema} />
+      <SchemaReference locale={locale} api={api} spec={spec} schema={schema} />
     </SiteShell>
   );
 }

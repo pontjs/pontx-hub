@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@pontx/spec': 1.0.0-beta.5
   dompurify@<=3.4.12: 3.4.13
   nanoid@<3.3.17: 3.3.17
 
@@ -36,8 +37,8 @@ importers:
         specifier: ^1.2.11
         version: 1.2.11(patch_hash=37b9f3f7febcaa7b5347def58ba9c764079651f33747d44afa9f920f2769743e)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@pontx/spec':
-        specifier: ^0.1.16-alpha.2
-        version: 0.1.16-alpha.2
+        specifier: 1.0.0-beta.5
+        version: 1.0.0-beta.5
       '@react-router/node':
         specifier: 7.18.2
         version: 7.18.2(react-router@7.18.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@5.9.3)
@@ -946,14 +947,8 @@ packages:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
 
-  '@pontx/spec@0.1.15':
-    resolution: {integrity: sha512-wwSZmWIzoSTGEfCwtwtaEner3HezkdZ0BxLDugLcxeTC83gf4nutLEfsaFmT05lue03q5cytu0l43M7idMJf7w==}
-
-  '@pontx/spec@0.1.16-alpha.2':
-    resolution: {integrity: sha512-8dCmKY5Bp1BUHIn0jG80x+jxSvfsETnRJNqjqi9kVwck+avXk2A5kOtfB+9KyTprTsxBzriZKB1zA4hLTZERQQ==}
-
-  '@pontx/spec@1.0.0-beta.0':
-    resolution: {integrity: sha512-qe9syRjqWP73YBh3EyMOdrL6ull9hX9tr+K1a/NW7/kSQjVp8GR0Sr6Kq+q6ir2OrBQ9PQtZG7qdpa04+Q2hng==}
+  '@pontx/spec@1.0.0-beta.5':
+    resolution: {integrity: sha512-z44nDA6SuJxYdYBOFpKtsQ6yLMpA9AVQ1VR8QBRDkhjSd3MPvt8Ywb4X/uSViNSTICYmrV7eSz9q6yJ/N2tzYQ==}
 
   '@protobuf-ts/protoc@2.11.1':
     resolution: {integrity: sha512-mUZJaV0daGO6HUX90o/atzQ6A7bbN2RSuHtdwo8SSF2Qoe3zHwa4IHyCN1evftTeHfLmdz+45qo47sL+5P8nyg==}
@@ -4645,14 +4640,14 @@ snapshots:
 
   '@pontx/nodejs-sdk@0.1.0(zod@3.25.76)':
     dependencies:
-      '@pontx/spec': 1.0.0-beta.0
+      '@pontx/spec': 1.0.0-beta.5
     optionalDependencies:
       zod: 3.25.76
 
   '@pontx/shadcn-ui@1.2.11(patch_hash=37b9f3f7febcaa7b5347def58ba9c764079651f33747d44afa9f920f2769743e)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@monaco-editor/react': 4.7.0(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@pontx/spec': 0.1.15
+      '@pontx/spec': 1.0.0-beta.5
       '@radix-ui/react-checkbox': 1.3.11(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-label': 2.1.15(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-select': 2.3.7(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -4688,19 +4683,7 @@ snapshots:
       - monaco-editor
       - supports-color
 
-  '@pontx/spec@0.1.15':
-    dependencies:
-      immer: 10.2.0
-      lodash: 4.18.1
-      oas-spec-ts: 0.6.4
-
-  '@pontx/spec@0.1.16-alpha.2':
-    dependencies:
-      immer: 10.2.0
-      lodash: 4.18.1
-      oas-spec-ts: 0.6.4
-
-  '@pontx/spec@1.0.0-beta.0':
+  '@pontx/spec@1.0.0-beta.5':
     dependencies:
       immer: 10.2.0
       lodash: 4.18.1

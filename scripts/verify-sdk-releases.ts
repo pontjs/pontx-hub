@@ -5,12 +5,11 @@ import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 import type { CatalogApi } from "../app/lib/catalog/types";
 import { generateSdkSnippet } from "../app/lib/sdk-codegen";
+import { loadCatalogShards } from "./load-catalog";
 
 const execFileAsync = promisify(execFile);
 
-const catalog = JSON.parse(
-  await readFile(resolve(process.cwd(), ".catalog-cache/catalog.json"), "utf8")
-) as { apis: CatalogApi[] };
+const catalog = await loadCatalogShards();
 
 async function registryVersion(api: CatalogApi) {
   const encoded = encodeURIComponent(api.packageName);
@@ -47,20 +46,9 @@ function declaredApiLockKeys(api: CatalogApi): string[] {
     if (!operation) {
       throw new Error(`${api.slug}: unknown SDK operation ${operationId}`);
     }
-    if (!Object.prototype.hasOwnProperty.call(contract.controllers, operation.tag)) {
-      throw new Error(
-        `${api.slug}: no SDK controller for Endpoint tag ${operation.tag}`
-      );
-    }
+    if (!operation.tag) return operationId;
     const controller = contract.controllers[operation.tag];
-    if (controller === null) {
-      if (operation.tag !== "default") {
-        throw new Error(
-          `${api.slug}: root-level SDK methods are allowed only for untagged Endpoints`
-        );
-      }
-      return operationId;
-    }
+    if (!controller) throw new Error(`${api.slug}: no SDK controller for explicit tag ${operation.tag}`);
     return `${controller}/${operationId}`;
   }).sort();
 }
@@ -107,7 +95,7 @@ const published: CatalogApi[] = [];
 let drafts = 0;
 let registryOnly = 0;
 
-for (const api of catalog.apis) {
+for (const api of catalog) {
   if (api.sdkStatus !== "published") {
     console.log(`${api.slug}: planned SDK skipped until the operator publishes it`);
     drafts++;

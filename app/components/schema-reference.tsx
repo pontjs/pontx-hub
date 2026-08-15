@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { SchemaProvider } from "@pontx/shadcn-ui";
 import { SchemaViewer } from "@pontx/shadcn-ui/schema-viewer";
+import type { PontxSpec } from "@pontx/spec";
 import type { CatalogApi, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
@@ -9,10 +10,12 @@ import { ResourceNavigation } from "~/components/resource-navigation";
 export function SchemaReference({
   locale,
   api,
+  spec,
   schema
 }: {
   locale: Locale;
   api: CatalogApi;
+  spec: PontxSpec;
   schema: CatalogSchema;
 }) {
   const zh = locale === "zh";
@@ -48,6 +51,7 @@ export function SchemaReference({
           <ResourceDirectoryNavigation
             locale={locale}
             api={api}
+            spec={spec}
             activeSchemaName={schema.name}
           />
         </aside>

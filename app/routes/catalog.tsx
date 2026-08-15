@@ -43,8 +43,8 @@ export function meta({ data }: Route.MetaArgs) {
   const locale = data?.locale ?? "zh";
   const title =
     locale === "zh"
-      ? "Pontx API Hub — OpenAPI 目录"
-      : "Pontx API Hub — OpenAPI Catalog";
+      ? "Pontx API Hub — API 目录"
+      : "Pontx API Hub — API Catalog";
   const description =
     locale === "zh"
       ? "在一个目录里找到 API、查看接口，并复制 SDK 或 CLI 代码接入项目。"
@@ -239,7 +239,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
       <main className="catalog-page">
         <header className="registry-header">
           <div className="registry-intro">
-            <p className="registry-label">PONTX / OPENAPI REGISTRY</p>
+            <p className="registry-label">PONTX / PONTXSPEC REGISTRY</p>
             <h1>{zh ? "Pontx API Hub · API 目录" : "Pontx API Hub · API Catalog"}</h1>
             <CatalogAccessSummary locale={locale} />
           </div>

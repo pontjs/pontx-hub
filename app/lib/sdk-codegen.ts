@@ -21,7 +21,7 @@ export function supportsSdkOperation(
   const contract = api.sdkContract;
   return Boolean(
     contract?.operations.includes(operation.operationId) &&
-    Object.prototype.hasOwnProperty.call(contract.controllers, operation.tag)
+    (!operation.tag || Object.prototype.hasOwnProperty.call(contract.controllers, operation.tag))
   );
 }
 
@@ -179,7 +179,7 @@ export function generateSdkSnippet(
     );
   }
 
-  const controller = contract.controllers[operation.tag];
+  const controller = operation.tag ? contract.controllers[operation.tag] : null;
   const method = `${contract.client.identifier}.${
     controller ? `${controller}.` : ""
   }${operation.operationId}`;
