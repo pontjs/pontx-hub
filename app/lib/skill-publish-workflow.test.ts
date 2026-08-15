@@ -29,6 +29,9 @@ describe("universal Skill publishing workflow", () => {
     expect(publish).toContain('--version "$SKILL_VERSION"');
     expect(publish).toContain("sha256sum");
     expect(publish).toContain("diff -u");
+    expect(publish).toContain("wait_for_remote");
+    expect(publish).toContain(".owner.handle");
+    expect(publish).toContain(".skill.slug");
     expect(publish).toContain("--dry-run");
     expect(publish).toContain("--source-commit");
 
