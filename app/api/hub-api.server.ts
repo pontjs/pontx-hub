@@ -13,6 +13,7 @@ import {
   isLocale,
   type GlobalSearchKind
 } from "~/lib/catalog/types";
+import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import {
   generateSdkSnippet,
   SdkCodegenUnavailableError
@@ -380,7 +381,7 @@ hubApi.get("/api/v1/specs/:slug/sdk", (context) => {
       ...(api.sdkStatus === "published"
         ? { install: `pnpm add ${api.packageName}` }
         : {}),
-      runtime: "node>=18",
+      runtime: sdkRuntime(api),
       moduleFormats: ["esm", "commonjs"],
       specSha256: api.approvedSha256
     }

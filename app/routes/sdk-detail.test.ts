@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
+import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import { meta, sdkOperationCoverage, sdkUsageExamples } from "./sdk-detail";
 
 describe("SDK usage examples", () => {
@@ -61,5 +62,11 @@ describe("SDK usage examples", () => {
       complete: true,
       verified: true
     });
+  });
+
+  it("derives runtime guidance from the SDK's tested Node.js matrix", () => {
+    const sqs = getCatalogApi("amazon-sqs");
+    if (!sqs) return;
+    expect(sdkRuntime(sqs)).toBe("node>=20");
   });
 });

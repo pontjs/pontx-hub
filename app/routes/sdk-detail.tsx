@@ -8,6 +8,7 @@ import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
 import { hubCliCommand } from "~/lib/hub-cli-command";
 import type { CatalogApi } from "~/lib/catalog/types";
+import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -109,6 +110,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
   const codeBlockCopied = zh ? "已复制" : "Copied";
   const codeBlockCopyFailed = zh ? "复制失败" : "Copy failed";
   const quality = api.sdkQuality;
+  const runtime = sdkRuntime(api);
   const coverage = sdkOperationCoverage(api);
   const unitPassRate = quality
     ? Math.round((quality.unitTests.passed / quality.unitTests.total) * 100)
@@ -160,7 +162,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
           ) : null}
           <div className="detail-meta">
             <span>{published ? `v${api.sdkVersion}` : zh ? "即将发布" : "Coming soon"}</span>
-            <span>Node.js ≥ 18</span>
+            <span>{quality ? `Node.js ${quality.nodeVersions.join(" / ")} CI` : runtime}</span>
             <span>ESM + CommonJS</span>
             <span>TypeScript declarations</span>
             {published && coverage.verified ? (
