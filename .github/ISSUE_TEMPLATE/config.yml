@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature ideas and feedback / 功能建议与反馈
+    url: https://github.com/pontjs/pontx-hub/discussions/categories/ideas
+    about: Start a public discussion for improvements that are not reproducible bugs. / 对无法按步骤复现的改进建议发起公开讨论。

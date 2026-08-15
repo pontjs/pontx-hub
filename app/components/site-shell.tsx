@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
+import { Button } from "@pontx/shadcn-ui";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
+import {
+  FeedbackDialog,
+  trackFeedbackOpen
+} from "~/components/feedback-dialog";
 import { GitHubIcon } from "~/components/github-icon";
 import { LanguageIcon } from "~/components/language-icon";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
@@ -13,6 +18,7 @@ const copy = {
     catalog: "API 目录",
     docs: "文档",
     skill: "Agent Skill",
+    feedback: "反馈",
     github: "GitHub",
     language: "English",
     languageLabel: "切换到英文",
@@ -30,6 +36,7 @@ const copy = {
     catalog: "API Catalog",
     docs: "Docs",
     skill: "Agent Skill",
+    feedback: "Feedback",
     github: "GitHub",
     language: "中文",
     languageLabel: "Switch to Chinese",
@@ -74,6 +81,14 @@ export function SiteShell({
     ));
   };
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const feedbackReturnFocusRef = useRef<HTMLButtonElement>(null);
+  const openFeedback = (event: React.MouseEvent<HTMLButtonElement>) => {
+    feedbackReturnFocusRef.current = event.currentTarget;
+    setMobileNavOpen(false);
+    setFeedbackOpen(true);
+    trackFeedbackOpen(locale);
+  };
 
   return (
     <div className="site-frame" data-pontx-ui="hub">
@@ -91,6 +106,18 @@ export function SiteShell({
           <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
           <NavLink to={`/${locale}/skills/pontx-hub`}>{text.skill}</NavLink>
           <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="feedback-trigger"
+            aria-haspopup="dialog"
+            aria-controls="site-feedback-dialog"
+            aria-expanded={feedbackOpen}
+            onClick={openFeedback}
+          >
+            {text.feedback}
+          </Button>
           <a
             className="github-link"
             href="https://github.com/pontjs/pontx-hub"
@@ -138,6 +165,17 @@ export function SiteShell({
             <NavLink to={`/${locale}/docs`} onClick={() => setMobileNavOpen(false)}>
               {text.docs}
             </NavLink>
+            <Button
+              type="button"
+              variant="ghost"
+              className="mobile-feedback-trigger"
+              aria-haspopup="dialog"
+              aria-controls="site-feedback-dialog"
+              aria-expanded={feedbackOpen}
+              onClick={openFeedback}
+            >
+              {text.feedback}
+            </Button>
             <a
               href="https://github.com/pontjs/pontx-hub"
               rel="noreferrer"
@@ -162,6 +200,13 @@ export function SiteShell({
           </nav>
         </div>
       </header>
+      <FeedbackDialog
+        open={feedbackOpen}
+        locale={locale}
+        pathname={location.pathname}
+        returnFocusRef={feedbackReturnFocusRef}
+        onClose={() => setFeedbackOpen(false)}
+      />
       {children}
       <footer className="site-footer">
         <div>

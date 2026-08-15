@@ -34,6 +34,9 @@ describe("site language switcher", () => {
     expect(html).toContain('<span>English</span>');
     expect(html).toContain('href="/zh/docs"');
     expect(html).toContain("PontxSpec → 统一 SDK / CLI → Agent");
+    expect(html.match(/aria-controls="site-feedback-dialog"/g)).toHaveLength(2);
+    expect(html.match(/aria-haspopup="dialog"/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(html.match(/>反馈<\/button>/g)).toHaveLength(2);
 
     const desktopNav = html.slice(
       html.indexOf('<nav aria-label="主导航">'),
@@ -60,5 +63,6 @@ describe("site language switcher", () => {
     expect(html).toContain('<span>中文</span>');
     expect(html).toContain('href="/en/docs"');
     expect(html).toContain("PontxSpec → Unified SDK / CLI → Agent");
+    expect(html.match(/>Feedback<\/button>/g)).toHaveLength(2);
   });
 });

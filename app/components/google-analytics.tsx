@@ -11,6 +11,19 @@ type GoogleAnalyticsWindow = Window & {
   gtag?: (...args: unknown[]) => void;
 };
 
+type AnalyticsEventParameters = Record<
+  string,
+  string | number | boolean | undefined
+>;
+
+export function trackAnalyticsEvent(
+  eventName: string,
+  parameters: AnalyticsEventParameters
+) {
+  if (typeof window === "undefined") return;
+  (window as GoogleAnalyticsWindow).gtag?.("event", eventName, parameters);
+}
+
 export function GoogleAnalytics({ measurementId }: { measurementId?: string }) {
   const location = useLocation();
   const initialized = useRef(false);
