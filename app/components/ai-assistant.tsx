@@ -25,35 +25,19 @@ import {
   type AgentActivity,
   updateAgentActivityArguments
 } from "~/lib/ai/agent-activity";
-import type { HttpMethod, Locale } from "~/lib/catalog/types";
-
-type PreparedCall = {
-  request: Record<string, unknown>;
-  preview: {
-    method: HttpMethod;
-    url: string;
-    curl: string;
-    requiresConfirmation: boolean;
-    proxyEnabled: boolean;
-    warnings: string[];
-  };
-  auth: Array<{ id: string; type: string }>;
-  operation: {
-    method: HttpMethod;
-    path: string;
-    href: string;
-    credentialStorageKey: string;
-  };
-  cli: string;
-};
-
-type ExecutionState = {
-  status: "idle" | "working" | "confirm" | "done" | "error";
-  preview?: Record<string, unknown>;
-  result?: Record<string, unknown>;
-  confirmationToken?: string;
-  error?: string;
-};
+import {
+  createAgentSession,
+  isRenderableConversationMessage,
+  messageText,
+  readAgentSession,
+  type AgentExecutionState,
+  type PreparedAgentCall
+} from "~/lib/ai/agent-session";
+import {
+  AgentExecutionTimeoutError,
+  postJsonWithTimeout
+} from "~/lib/ai/agent-execution";
+import type { Locale } from "~/lib/catalog/types";
 
 type AgentStatus = {
   kind: "runtime" | "limit" | "error";
@@ -91,6 +75,7 @@ const copy = {
     previewRun: "预览并调用",
     confirm: "确认执行写操作",
     executing: "正在执行…",
+    executionTimeout: "调用等待超时。请求可能已到达 API 服务，请先核对结果再重试。",
     completed: "调用完成",
     credentials: "请先在接口 Playground 中配置会话鉴权。",
     openEndpoint: "查看接口",
@@ -132,6 +117,7 @@ const copy = {
     previewRun: "Preview and call",
     confirm: "Confirm mutation",
     executing: "Executing…",
+    executionTimeout: "The call timed out. It may have reached the API; verify the result before retrying.",
     completed: "Call completed",
     credentials: "Configure session credentials in the endpoint Playground first.",
     openEndpoint: "View endpoint",
@@ -196,23 +182,6 @@ function ActivityIcon({ kind }: { kind: AgentActivity["kind"] }) {
     return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 6 5-6 5Z" /><path d="M3.5 3.5h13v13h-13Z" /></svg>;
   }
   return <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="4.5" /><path d="m12.5 12.5 3 3M9 6.75v4.5M6.75 9h4.5" /></svg>;
-}
-
-function messageText(message: Message): string {
-  if (typeof message.content === "string") return message.content;
-  if (!Array.isArray(message.content)) return "";
-  return message.content
-    .filter((part): part is { type: "text"; text: string } => part.type === "text")
-    .map((part) => part.text)
-    .join("\n");
-}
-
-function isRenderableConversationMessage(message: Message): boolean {
-  return (message.role === "user" || message.role === "assistant") && Boolean(messageText(message).trim());
-}
-
-function persistedMessages(messages: Message[]): Message[] {
-  return messages.filter(isRenderableConversationMessage);
 }
 
 function AgentRunTimeline({
@@ -281,20 +250,7 @@ function AgentRunTimeline({
   );
 }
 
-function readSession(): { threadId: string; messages: Message[] } {
-  const fallback = { threadId: crypto.randomUUID(), messages: [] as Message[] };
-  try {
-    const value = JSON.parse(
-      window.sessionStorage.getItem(SESSION_KEY) ?? "null"
-    ) as typeof fallback | null;
-    if (!value?.threadId || !Array.isArray(value.messages)) return fallback;
-    return { ...value, messages: persistedMessages(value.messages) };
-  } catch {
-    return fallback;
-  }
-}
-
-function sessionAuth(call: PreparedCall): Record<string, unknown> | undefined {
+function sessionAuth(call: PreparedAgentCall): Record<string, unknown> | undefined {
   let stored: { auth?: Record<string, unknown> } = {};
   try {
     stored = JSON.parse(
@@ -323,8 +279,8 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const [running, setRunning] = useState(false);
   const [status, setStatus] = useState<AgentStatus | null>(null);
   const [checkingRuntime, setCheckingRuntime] = useState(false);
-  const [prepared, setPrepared] = useState<PreparedCall[]>([]);
-  const [executions, setExecutions] = useState<Record<number, ExecutionState>>({});
+  const [prepared, setPrepared] = useState<PreparedAgentCall[]>([]);
+  const [executions, setExecutions] = useState<Record<number, AgentExecutionState>>({});
   const agentRef = useRef<HttpAgent | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -332,9 +288,14 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const session = readSession();
+    const session = readAgentSession(
+      window.sessionStorage.getItem(SESSION_KEY),
+      crypto.randomUUID()
+    );
     setMessages(session.messages);
     setThreadId(session.threadId);
+    setPrepared(session.prepared);
+    setExecutions(session.executions);
     agentRef.current = new HttpAgent({
       url: "/api/ai/v1/agent",
       threadId: session.threadId,
@@ -353,11 +314,15 @@ export function AiAssistant({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     if (!hydrated || !threadId) return;
-    window.sessionStorage.setItem(
-      SESSION_KEY,
-      JSON.stringify({ threadId, messages: persistedMessages(messages) })
-    );
-  }, [hydrated, messages, threadId]);
+    try {
+      window.sessionStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(createAgentSession({ threadId, messages, prepared, executions }))
+      );
+    } catch {
+      // Keep the current task usable when browser session storage is unavailable.
+    }
+  }, [executions, hydrated, messages, prepared, threadId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -462,7 +427,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
         },
         onCustomEvent({ event }) {
           if (event.name === "pontx.request_prepared") {
-            setPrepared((current) => [...current, event.value as PreparedCall]);
+            setPrepared((current) => [...current, event.value as PreparedAgentCall]);
           }
         },
         onRunErrorEvent({ event }) {
@@ -511,7 +476,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   };
 
   const execute = async (
-    call: PreparedCall,
+    call: PreparedAgentCall,
     index: number,
     confirmationToken?: string
   ) => {
@@ -530,15 +495,10 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     const request = { ...call.request, ...(auth ? { auth } : {}) };
     try {
       if (!confirmationToken) {
-        const response = await fetch("/api/v1/playground/preview", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(request)
-        });
-        const body = await response.json() as {
+        const { response, body } = await postJsonWithTimeout<{
           data?: Record<string, unknown>;
           error?: { message?: string };
-        };
+        }>("/api/v1/playground/preview", request);
         if (!response.ok || !body.data) {
           throw new Error(body.error?.message || `HTTP ${response.status}`);
         }
@@ -557,18 +517,13 @@ export function AiAssistant({ locale }: { locale: Locale }) {
           return;
         }
       }
-      const response = await fetch("/api/v1/playground/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...request,
-          ...(confirmationToken ? { confirmationToken } : {})
-        })
-      });
-      const body = await response.json() as {
+      const { response, body } = await postJsonWithTimeout<{
         data?: Record<string, unknown>;
         error?: { message?: string };
-      };
+      }>("/api/v1/playground/execute", {
+          ...request,
+          ...(confirmationToken ? { confirmationToken } : {})
+      });
       if (!response.ok) {
         throw new Error(body.error?.message || `HTTP ${response.status}`);
       }
@@ -581,7 +536,11 @@ export function AiAssistant({ locale }: { locale: Locale }) {
         ...state,
         [index]: {
           status: "error",
-          error: error instanceof Error ? error.message : text.unavailable as string
+          error: error instanceof AgentExecutionTimeoutError
+            ? text.executionTimeout as string
+            : error instanceof Error
+              ? error.message
+              : text.unavailable as string
         }
       }));
     }
@@ -799,7 +758,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                       <summary>{text.cli as string}</summary>
                       <pre>{call.cli}</pre>
                     </details>
-                    {execution.status === "done" ? (
+                    {execution.status === "done" && execution.result ? (
                       <details className="ai-prepared-code" open>
                         <summary>{text.response as string}</summary>
                         <pre>{JSON.stringify(execution.result, null, 2)}</pre>

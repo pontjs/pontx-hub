@@ -67,7 +67,7 @@ function requestId(): string {
 function jsonError(
   code: string,
   message: string,
-  status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429 | 500 | 502 | 503
+  status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429 | 500 | 502 | 503 | 504
 ) {
   const body: ErrorBody = {
     error: { code, message, requestId: requestId() }
@@ -200,6 +200,13 @@ async function executeProviderRequest(input: PlaygroundExecuteInput) {
       body,
       durationMs: Math.round(performance.now() - startedAt)
     };
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new HTTPException(504, {
+        message: "Provider did not respond within 30 seconds"
+      });
+    }
+    throw error;
   } finally {
     clearTimeout(timeout);
   }
@@ -220,7 +227,8 @@ hubApi.onError((error) => {
       | 429
       | 500
       | 502
-      | 503;
+      | 503
+      | 504;
     return jsonError("request_rejected", error.message, status);
   }
   return jsonError(

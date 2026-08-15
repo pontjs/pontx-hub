@@ -66,14 +66,31 @@ describe("Pontx Agent presentation", () => {
 
   it("filters non-text protocol messages and renders assistant Markdown safely", async () => {
     const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
+    const session = await readFile(new URL("../lib/ai/agent-session.ts", import.meta.url), "utf8");
     const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");
 
-    expect(source).toContain("function isRenderableConversationMessage");
-    expect(source).toContain("Boolean(messageText(message).trim())");
+    expect(source).toContain("isRenderableConversationMessage");
+    expect(source).toContain("createAgentSession({ threadId, messages, prepared, executions })");
+    expect(session).toContain("function isRenderableConversationMessage");
+    expect(session).toContain("Boolean(messageText(message).trim())");
     expect(source).toContain("<ReactMarkdown remarkPlugins={[remarkGfm]}>");
-    expect(source).toContain("messages: persistedMessages(messages)");
+    expect(session).toContain("messages: persistedMessages(input.messages)");
     expect(styles).toContain('.ai-message[data-role="assistant"] .ai-message-content pre');
     expect(styles).toContain('.ai-message[data-role="assistant"] .ai-message-content table');
+  });
+
+  it("keeps an Agent call recoverable across refreshes and gives a stalled call a bounded outcome", async () => {
+    const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
+    const session = await readFile(new URL("../lib/ai/agent-session.ts", import.meta.url), "utf8");
+
+    expect(source).toContain("setPrepared(session.prepared)");
+    expect(source).toContain("setExecutions(session.executions)");
+    expect(source).toContain("postJsonWithTimeout");
+    expect(source).toContain("AgentExecutionTimeoutError");
+    expect(source).toContain("executionTimeout");
+    expect(session).toContain("version: 2");
+    expect(session).toContain("if (value.status === \"working\" || value.status === \"confirm\") return { status: \"idle\" };");
+    expect(session).toContain("SENSITIVE_KEY");
   });
 
   it("renders AG-UI tool lifecycles as one scannable, expandable execution timeline", async () => {
