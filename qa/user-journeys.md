@@ -4,12 +4,13 @@
 
 ## 维护规则
 
-1. 每次先读取生产 sitemap、目录和 API 元数据，自动发现新增或下线的页面、API、接口、Schema、SDK 与语言；发现覆盖缺口时先补旅程，再执行。
-2. 旅程 ID 和问题 signature 保持稳定。已确认问题必须新增回归旅程；问题消失时在 `issues.md` 标记“待复核/已恢复”，不要直接删除历史记录。
-3. 每天先按 API 轮询完成每个产品的一条核心金丝雀，再继续覆盖 catalog 中全部 Endpoint；不得在几个无鉴权、无参数的简单接口通过后提前结束。七天滚动矩阵只用于扩大数据组合、Schema、错误状态和内容压力覆盖，不用于推迟 Endpoint 基础覆盖。
-4. 每个安全只读 Endpoint 都应完成真实调用，而不只是每个 API 一个代表。OAuth/API Key 从定时任务的安全环境读取，只输入当前浏览器会话且永不输出、持久化或写入报告；缺少凭据时相关 Endpoint 全部记为 `BLOCKED`，不得算通过。
-5. `proxyEnabled=false`、仅预览、没有可执行 Endpoint、默认参数不合法、请求未发出、非 2xx、空/错误响应或必须重试才能成功，都不能记为 PASS。写入型接口仍禁止执行，API 必须另提供只读金丝雀、sandbox 或明确的 dry-run。
-6. 每条失败记录环境、路径、语言、视口、步骤、预期、实际、证据、首次/最近发现日期、严重级别和推测归属仓库。相同 signature 当天只更新一次。
+1. 每个新 Agent Browser 隔离 session 的首次生产访问必须通过 `pnpm qa:browser:open -- --session <name> --path </path>` 启动。该命令在首个 GA 事件前写入内部流量标记，并使用加密的持久会话；不得先用无标记 URL 打开生产站。macOS 首次使用前用 `security add-generic-password -U -s pontx-agent-browser-state -a "$(id -un)" -w "$(openssl rand -hex 32)"` 把状态加密密钥存入 Keychain；其他环境使用不输出、不入库的 `AGENT_BROWSER_ENCRYPTION_KEY`。
+2. 每次先读取生产 sitemap、目录和 API 元数据，自动发现新增或下线的页面、API、接口、Schema、SDK 与语言；发现覆盖缺口时先补旅程，再执行。
+3. 旅程 ID 和问题 signature 保持稳定。已确认问题必须新增回归旅程；问题消失时在 `issues.md` 标记“待复核/已恢复”，不要直接删除历史记录。
+4. 每天先按 API 轮询完成每个产品的一条核心金丝雀，再继续覆盖 catalog 中全部 Endpoint；不得在几个无鉴权、无参数的简单接口通过后提前结束。七天滚动矩阵只用于扩大数据组合、Schema、错误状态和内容压力覆盖，不用于推迟 Endpoint 基础覆盖。
+5. 每个安全只读 Endpoint 都应完成真实调用，而不只是每个 API 一个代表。OAuth/API Key 从定时任务的安全环境读取，只输入当前浏览器会话且永不输出、持久化或写入报告；缺少凭据时相关 Endpoint 全部记为 `BLOCKED`，不得算通过。
+6. `proxyEnabled=false`、仅预览、没有可执行 Endpoint、默认参数不合法、请求未发出、非 2xx、空/错误响应或必须重试才能成功，都不能记为 PASS。写入型接口仍禁止执行，API 必须另提供只读金丝雀、sandbox 或明确的 dry-run。
+7. 每条失败记录环境、路径、语言、视口、步骤、预期、实际、证据、首次/最近发现日期、严重级别和推测归属仓库。相同 signature 当天只更新一次。
 
 ## 核心端到端硬门槛
 

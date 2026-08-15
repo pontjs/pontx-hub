@@ -15,6 +15,7 @@
     "typecheck": "pnpm metadata:sync && react-router typegen && tsc",
     "test": "pnpm metadata:sync && vitest run",
     "test:watch": "vitest",
+    "qa:browser:open": "tsx scripts/open-production-qa-browser.ts",
     "search:eval": "pnpm metadata:sync && tsx scripts/evaluate-search.ts",
     "ai:eval": "pnpm metadata:sync && vitest run app/lib/ai/agent-evaluation.test.ts",
     "db:generate": "drizzle-kit generate",
