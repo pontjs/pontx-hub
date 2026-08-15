@@ -127,20 +127,9 @@ describe("OperationSeoContent", () => {
     expect(html).toContain("/zh/apis/dida365/get-user-projects");
   });
 
-  it.each([
-    [
-      "zh" as const,
-      "仅预览：",
-      "包含身份证件、自拍、身份号码"
-    ],
-    [
-      "en" as const,
-      "Preview only:",
-      "Contains highly sensitive personal data including identity documents"
-    ]
-  ])(
-    "renders the localized preview-only reason in %s",
-    (locale, label, reason) => {
+  it.each(["zh" as const, "en" as const])(
+    "does not render Stripe Identity as unavailable in %s",
+    (locale) => {
       const match = getCatalogOperation(
         "stripe-identity",
         "get-identity-verification-sessions"
@@ -159,8 +148,39 @@ describe("OperationSeoContent", () => {
         )
       );
 
-      expect(html).toContain(label);
-      expect(html).toContain(reason);
+      expect(html).not.toContain(locale === "zh" ? "暂不支持在线调用：" : "Online calls unavailable:");
     }
   );
+
+  it.each([
+    [
+      "zh" as const,
+      "暂不支持在线调用：",
+      "当前 API 风格需要专用在线调用适配器，当前尚未提供。"
+    ],
+    [
+      "en" as const,
+      "Online calls unavailable:",
+      "This API style needs a dedicated online-call adapter, which is not available yet."
+    ]
+  ])("identifies a real adapter gap without calling it preview-only in %s", (locale, status, reason) => {
+    const match = getCatalogOperation("amazon-sqs", "list-queues");
+    expect(match).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(OperationSeoContent, {
+          locale,
+          api: match!.api,
+          operation: match!.operation
+        })
+      )
+    );
+
+    expect(html).toContain(status);
+    expect(html).toContain(reason);
+    expect(html).not.toContain(locale === "zh" ? "仅预览" : "Preview only");
+  });
 });

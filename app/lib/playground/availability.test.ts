@@ -3,27 +3,23 @@ import { describe, expect, it } from "vitest";
 import { getPlaygroundAvailability } from "./availability";
 
 describe("Playground availability", () => {
-  it("disables execution and localizes the curated endpoint reason", () => {
+  it("reports a real protocol-adapter gap without an Endpoint policy", () => {
     const operation = {
-      proxyEnabled: false,
-      proxyDisabledReason: {
-        zh: "供应商要求浏览器验证，Hub 不绕过该验证。",
-        en: "The provider requires browser verification, which Hub does not bypass."
-      }
+      style: "RPC" as const,
+      proxyEnabled: false
     };
 
     expect(
       getPlaygroundAvailability(operation, "zh")
     ).toEqual({
       executionEnabled: false,
-      disabledReason: "供应商要求浏览器验证，Hub 不绕过该验证。"
+      disabledReason: "RPC 规范可浏览和搜索；在线调用需要专用执行适配器，当前尚未提供。"
     });
     expect(
       getPlaygroundAvailability(operation, "en")
     ).toEqual({
       executionEnabled: false,
-      disabledReason:
-        "The provider requires browser verification, which Hub does not bypass."
+      disabledReason: "RPC specs are browsable and searchable; online calls need a dedicated execution adapter, which is not available yet."
     });
   });
 
@@ -33,7 +29,7 @@ describe("Playground availability", () => {
     ).toEqual({ executionEnabled: true });
   });
 
-  it("wires preview-only policy into the reusable Playground contract", async () => {
+  it("wires an adapter-limited Playground into the reusable contract", async () => {
     const workspace = await readFile(
       new URL("../../components/pontx-api-workspace.tsx", import.meta.url),
       "utf8"

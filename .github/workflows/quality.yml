@@ -11,7 +11,7 @@ jobs:
     env:
       # The hierarchy loader accepts only an immutable metadata revision. Keep
       # CI on the reviewed hierarchy commit rather than a drifting branch URL.
-      METADATA_REPO_COMMIT: ad25f69210764412d02633fcb8667cc03941ea7c
+      METADATA_REPO_COMMIT: 8739dacc4b595157b3ca40468809a527247343f6
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -154,7 +154,14 @@ async function readLimitedResponse(response: Response): Promise<unknown> {
 }
 
 async function executeProviderRequest(input: PlaygroundExecuteInput) {
-  const prepared = prepareRequest(input);
+  let prepared: ReturnType<typeof prepareRequest>;
+  try {
+    prepared = prepareRequest(input);
+  } catch (error) {
+    throw new HTTPException(400, {
+      message: error instanceof Error ? error.message : "Request could not be prepared"
+    });
+  }
   if (!prepared.proxyEnabled) {
     throw new HTTPException(403, {
       message: "This endpoint is not enabled for Playground execution"

@@ -27,10 +27,10 @@ export function getPlaygroundAvailability(
       ? localize(operation.proxyDisabledReason, locale)
       : operation.style && operation.style !== "RESTFul"
         ? locale === "zh"
-          ? `${operation.style} 规范可浏览和搜索，但本次尚未提供网络执行器。`
-          : `${operation.style} specs are browsable and searchable, but do not have a network executor yet.`
+          ? `${operation.style} 规范可浏览和搜索；在线调用需要专用执行适配器，当前尚未提供。`
+          : `${operation.style} specs are browsable and searchable; online calls need a dedicated execution adapter, which is not available yet.`
       : locale === "zh"
-        ? "此接口仅支持预览，Hub 不会向供应商发送请求。"
-        : "This endpoint is preview-only; Hub will not send the request to the provider."
+        ? "此接口尚未接入在线调用适配器。"
+        : "This endpoint has not been connected to an online-call adapter yet."
   };
 }
