@@ -249,14 +249,17 @@ describe("API directory integration styles", () => {
     );
   });
 
-  it("stacks Endpoint and Schema as expandable desktop directory groups with a mobile fallback", async () => {
+  it("keeps Endpoint and Schema in one scrollable desktop directory with a mobile fallback", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.resource-directory-navigation\s*{[\s\S]*?flex-direction:\s*column;[\s\S]*?overflow:\s*hidden;/,
+      /\.resource-directory-navigation\s*{[\s\S]*?display:\s*block;[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
     );
     expect(css).toMatch(
-      /\.resource-directory-group\[open\]\s*{[\s\S]*?flex-direction:\s*column;/,
+      /\.resource-directory-group\[open\]\s*{\s*display:\s*block;/,
+    );
+    expect(css).toMatch(
+      /\.resource-directory-group-content\s*{\s*display:\s*block;\s*overflow:\s*visible;/,
     );
     expect(css).toMatch(
       /\.resource-directory-group > summary\s*{[\s\S]*?grid-template-columns:\s*14px minmax\(0, 1fr\) auto;[\s\S]*?list-style:\s*none;/,
@@ -273,14 +276,14 @@ describe("API directory integration styles", () => {
     );
   });
 
-  it("styles ungrouped Endpoints as a scrollable directory list", async () => {
+  it("styles ungrouped Endpoints as part of the shared directory flow", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
       /\.resource-directory-group-content > \.pontx-directory,[\s\S]*?\.resource-directory-group-content > \.pontx-directory-flat,[\s\S]*?\.resource-directory-group-content > \.schema-directory-list/,
     );
     expect(css).toMatch(
-      /\.pontx-directory-flat\s*{[\s\S]*?display:\s*grid;[\s\S]*?overflow:\s*hidden auto;[\s\S]*?overscroll-behavior-y:\s*auto;/,
+      /\.pontx-directory-flat\s*{[\s\S]*?display:\s*grid;[\s\S]*?overflow:\s*visible;/,
     );
     expect(css).toMatch(
       /\.pontx-directory-flat a\s*{[\s\S]*?grid-template-columns:\s*48px minmax\(0, 1fr\);[\s\S]*?border-radius:\s*8px;/,
