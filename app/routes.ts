@@ -4,6 +4,7 @@ export default [
   index("routes/locale-redirect.tsx"),
   route("robots.txt", "routes/robots.ts"),
   route("sitemap.xml", "routes/sitemap.ts"),
+  route("sitemaps/:page", "routes/sitemap-page.ts"),
   route("llms.txt", "routes/llms.ts"),
   route("openapi.json", "routes/openapi.ts"),
   route("badges/sdk/*", "routes/sdk-quality-badge.ts"),
