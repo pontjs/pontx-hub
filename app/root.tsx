@@ -6,7 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation
+  useLocation,
+  useRouteLoaderData
 } from "react-router";
 import type { Route } from "./+types/root";
 import { GoogleAnalytics } from "~/components/google-analytics";
@@ -64,9 +65,14 @@ export const links: Route.LinksFunction = () => [
   }
 ];
 
+type RootLoaderData = Awaited<ReturnType<typeof loader>>;
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation();
-  const { siteVerification } = useLoaderData<typeof loader>();
+  // Layout renders for every matched route and also on error paths where the
+  // root loader data is not present; read it defensively through the route id.
+  const rootData = useRouteLoaderData("root") as RootLoaderData | undefined;
+  const siteVerification = rootData?.siteVerification;
   const language = pathname === "/en" || pathname.startsWith("/en/") ? "en" : "zh-CN";
 
   return (
@@ -91,7 +97,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const { accountsEnabled, googleAnalyticsId } = useLoaderData<typeof loader>();
+  const rootData = useRouteLoaderData("root") as RootLoaderData | undefined;
+  const accountsEnabled = rootData?.accountsEnabled ?? false;
+  const googleAnalyticsId = rootData?.googleAnalyticsId;
 
   return (
     <>
