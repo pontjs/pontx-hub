@@ -12,7 +12,8 @@ describe("Hub API", () => {
     expect([
       ["dida365", "frankfurter", "frankfurter-v2", "massive"],
       ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"]
+      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"],
+      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity"]
     ]).toContainEqual(slugs);
   });
 
