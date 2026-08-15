@@ -121,7 +121,7 @@ describe("curated catalog", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "ecb-data-portal");
     if (!api) return;
     expect(api?.packageName).toBe("@pontx/ecb-data-portal");
-    expect(api?.sdkVersion).toBe("0.1.0");
+    expect(api?.sdkVersion).toBe("0.1.1");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.operations).toHaveLength(8);
     expect(api?.schemas).toHaveLength(12);
@@ -134,7 +134,7 @@ describe("curated catalog", () => {
   it("preserves CurrencyBeacon's full, flat SDK contract without a product-wide execution gate", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "currencybeacon-rest");
     expect(api?.packageName).toBe("@pontx/currencybeacon-rest");
-    expect(api?.sdkVersion).toBe("0.1.1");
+    expect(api?.sdkVersion).toBe("0.1.2");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.operations).toHaveLength(5);
