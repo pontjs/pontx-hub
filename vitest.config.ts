@@ -9,6 +9,9 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["app/**/*.test.ts"]
+    include: ["app/**/*.test.ts"],
+    // The full catalog now includes complete provider schemas and is routinely
+    // initialized by integration-style tests on slower CI runners.
+    testTimeout: 30_000
   }
 });
