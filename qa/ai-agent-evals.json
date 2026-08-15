@@ -35,6 +35,23 @@
     "expectUiEvent": "pontx.request_prepared"
   },
   {
+    "id": "prepare-rates-call-links-to-canonical-endpoint",
+    "tool": "prepare_api_call",
+    "input": {
+      "apiSlug": "frankfurter-v2",
+      "operationSlug": "get-rates",
+      "serverId": "default",
+      "path": {},
+      "query": { "base": "EUR", "quotes": "USD" },
+      "headers": {},
+      "locale": "en"
+    },
+    "expectMethod": "GET",
+    "expectHref": "/en/apis/frankfurter-v2/get-rates",
+    "expectConfirmation": false,
+    "expectUiEvent": "pontx.request_prepared"
+  },
+  {
     "id": "prepare-mutation-requires-confirmation",
     "tool": "prepare_api_call",
     "input": {

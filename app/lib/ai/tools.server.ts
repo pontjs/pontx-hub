@@ -31,6 +31,10 @@ function schema(properties: Record<string, unknown>, required: string[] = []): T
   return { type: "object", properties, required, additionalProperties: false };
 }
 
+function endpointHref(locale: Locale, apiSlug: string, operationSlug: string) {
+  return `/${locale}/apis/${apiSlug}/${operationSlug}`;
+}
+
 export const agentToolDefinitions: Tool[] = [
   {
     name: "search_resources",
@@ -279,7 +283,7 @@ export async function runAgentTool(name: string, input: unknown): Promise<AgentT
       operation: {
         method: match.operation.method,
         path: match.operation.path,
-        href: `/${data.locale}/apis/${match.api.slug}/endpoints/${match.operation.slug}`,
+        href: endpointHref(data.locale, match.api.slug, match.operation.slug),
         credentialStorageKey: `playground:${match.operation.method}:${match.operation.path}:params`
       },
       cli: hubCliSnippet(match.api.slug, match.operation, request),
