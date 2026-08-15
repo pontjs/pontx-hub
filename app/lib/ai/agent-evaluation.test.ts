@@ -11,6 +11,7 @@ type EvaluationCase = {
   expectAuthType?: string;
   expectText?: string;
   expectMethod?: string;
+  expectHref?: string;
   expectConfirmation?: boolean;
   expectUiEvent?: string;
   expectPricingStatusOneOf?: string[];
@@ -35,6 +36,7 @@ describe("Pontx AI assistant deterministic tool evaluations", () => {
       }
       if (evaluation.expectText) expect(result.content).toContain(evaluation.expectText);
       if (evaluation.expectMethod) expect(value.preview.method).toBe(evaluation.expectMethod);
+      if (evaluation.expectHref) expect(value.operation.href).toBe(evaluation.expectHref);
       if (evaluation.expectConfirmation !== undefined) {
         expect(value.preview.requiresConfirmation).toBe(evaluation.expectConfirmation);
       }
