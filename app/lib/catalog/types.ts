@@ -88,6 +88,12 @@ export type CatalogRequestExample = {
   unresolved: CatalogRequestExampleInput[];
 };
 
+/** A logical action inside a named RPC protocol. */
+export type CatalogRpcOperation = {
+  action: string;
+  target?: string;
+};
+
 export type CatalogOperation = {
   slug: string;
   operationId: string;
@@ -96,6 +102,7 @@ export type CatalogOperation = {
   /** HTTP coordinates exist only for RESTFul PontxSpec Endpoints. */
   method?: HttpMethod;
   path?: string;
+  rpc?: CatalogRpcOperation;
   title: LocalizedText;
   description: LocalizedText;
   contentType?: "application/json" | "application/x-www-form-urlencoded";
@@ -115,6 +122,21 @@ export type CatalogOperation = {
   responseExample?: unknown;
   deprecated?: boolean;
 };
+
+/**
+ * The catalog remains HTTP-compatible, but can state when its operations use
+ * a named RPC protocol. Consumers must use the declared SDK/runtime rather
+ * than manufacture a REST request from the method and path alone.
+ */
+export type CatalogTransport =
+  | { kind: "http" }
+  | {
+      kind: "rpc";
+      protocol: string;
+      compatibleProtocols?: string[];
+      signing?: { scheme: string; service?: string };
+      endpointRuleSet?: string;
+    };
 
 export type CatalogSchemaProperty = {
   name: string;
@@ -276,6 +298,8 @@ export type CatalogApi = {
     cli: string;
   };
   proxyEnabled: boolean;
+  /** Omitted catalog entries are HTTP APIs for backwards compatibility. */
+  transport?: CatalogTransport;
   documentationStatus: DocumentationStatus;
   evidenceUrls: string[];
   verifiedAt?: string;

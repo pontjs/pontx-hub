@@ -81,6 +81,34 @@ describe("curated catalog", () => {
     }).success).toBe(true);
   });
 
+  it("accepts a signed RPC catalog contract only with explicit actions and no Hub proxy", () => {
+    const api = listCatalog().find((candidate) => candidate.slug === "frankfurter");
+    const rpcApi = {
+      ...api,
+      proxyEnabled: false,
+      transport: {
+        kind: "rpc" as const,
+        protocol: "aws-json-1.0",
+        compatibleProtocols: ["aws-query"],
+        signing: { scheme: "aws-sigv4", service: "sqs" },
+        endpointRuleSet: "smithy.rules#endpointRuleSet"
+      },
+      operations: api?.operations.map((operation) => ({
+        ...operation,
+        style: "RPC" as const,
+        method: undefined,
+        path: undefined,
+        rpc: { action: operation.operationId, target: `AmazonSQS.${operation.operationId}` }
+      }))
+    };
+    expect(catalogApiSchema.safeParse(rpcApi).success).toBe(true);
+    expect(catalogApiSchema.safeParse({ ...rpcApi, proxyEnabled: true }).success).toBe(false);
+    expect(catalogApiSchema.safeParse({
+      ...rpcApi,
+      operations: rpcApi.operations?.map(({ rpc: _rpc, ...operation }) => operation)
+    }).success).toBe(false);
+  });
+
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);

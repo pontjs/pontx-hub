@@ -92,6 +92,11 @@ const requestExampleSchema = z.object({
   unresolved: z.array(requestExampleInputSchema).default([])
 });
 
+const rpcOperationSchema = z.object({
+  action: z.string().min(1),
+  target: z.string().min(1).optional()
+});
+
 const operationSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
   operationId: z.string().min(1),
@@ -99,6 +104,7 @@ const operationSchema = z.object({
   tag: z.string(),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]).optional(),
   path: z.string().startsWith("/").optional(),
+  rpc: rpcOperationSchema.optional(),
   title: localizedTextSchema,
   description: localizedTextSchema,
   contentType: z
@@ -146,6 +152,13 @@ const operationSchema = z.object({
       message: "Non-REST Endpoints cannot depend on HTTP method/path"
     });
   }
+  if (operation.style === "RPC" && !operation.rpc) {
+    context.addIssue({
+      code: "custom",
+      path: ["rpc"],
+      message: "RPC Endpoints require an explicit rpc.action"
+    });
+  }
   const exampleIds = new Set<string>();
   for (const [index, example] of operation.requestExamples.entries()) {
     if (operation.style === "RESTFul" && !/^(?:2\d\d|2[xX]{2})$/.test(example.expectedStatus)) {
@@ -179,6 +192,20 @@ const operationSchema = z.object({
     }
   }
 });
+
+const transportSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("http") }),
+  z.object({
+    kind: z.literal("rpc"),
+    protocol: z.string().min(1),
+    compatibleProtocols: z.array(z.string().min(1)).optional(),
+    signing: z.object({
+      scheme: z.string().min(1),
+      service: z.string().min(1).optional()
+    }).optional(),
+    endpointRuleSet: z.string().min(1).optional()
+  })
+]);
 
 const schemaPropertySchema = z.object({
   name: z.string().min(1),
@@ -368,6 +395,7 @@ export const catalogApiSchema = z
       })
       .optional(),
     proxyEnabled: z.boolean().default(false),
+    transport: transportSchema.optional(),
     documentationStatus: documentationStatusSchema,
     evidenceUrls: z.array(z.string().url()).default([]),
     verifiedAt: z.string().date().optional(),
@@ -390,6 +418,22 @@ export const catalogApiSchema = z
         code: "custom",
         path: ["servers"],
         message: "RESTFul products require at least one server"
+      });
+    }
+    const rpcOperations = api.operations.filter((operation) => operation.style === "RPC");
+    if (rpcOperations.length && api.proxyEnabled) {
+      context.addIssue({
+        code: "custom",
+        path: ["proxyEnabled"],
+        message: "RPC APIs must not enable the Hub HTTP proxy"
+      });
+    }
+    const actions = rpcOperations.map((operation) => operation.rpc?.action);
+    if (new Set(actions).size !== actions.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["operations"],
+        message: "RPC API actions must be unique"
       });
     }
     if (api.sdkQuality) {
