@@ -158,5 +158,32 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     judgments: [{ id: "api:dida365", relevance: 3 }],
     requiredTopK: 1,
     tags: ["en", "api", "product"]
+  },
+  {
+    id: "en-public-holidays-by-country",
+    query: "public holidays for a country in 2026",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:nager-date/list-holidays-by-year", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["nager-date"],
+    tags: ["en", "holidays", "temporal", "endpoint"]
+  },
+  {
+    id: "zh-public-holidays-by-country",
+    query: "查询某个国家 2026 年的公共节假日",
+    locale: "zh",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:nager-date/list-holidays-by-year", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["nager-date"],
+    tags: ["zh", "holidays", "temporal", "endpoint"]
   }
 ];
+
+export function selectSearchEvaluationCases(productSlugs: Iterable<string>): SearchEvaluationCase[] {
+  const availableProducts = new Set(productSlugs);
+  return searchEvaluationCases.filter((evaluationCase) =>
+    evaluationCase.requiresProducts?.every((slug) => availableProducts.has(slug)) ?? true
+  );
+}
