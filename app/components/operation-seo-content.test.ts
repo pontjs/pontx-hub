@@ -105,6 +105,40 @@ describe("OperationSeoContent", () => {
     expect(html).toContain("成功请求示例");
   });
 
+  it("renders typed SSE events as semantic server HTML", () => {
+    const match = getCatalogOperation("dida365", "create-project");
+    expect(match).toBeDefined();
+    const operation = {
+      ...match!.operation,
+      sse: {
+        unknownEventPolicy: "preserve" as const,
+        events: [
+          {
+            name: "delta",
+            dataFormat: "json" as const,
+            schemaName: "Project",
+            description: { zh: "项目变更。", en: "Project update." }
+          },
+          { name: "done", dataFormat: "text" as const, terminal: true }
+        ]
+      }
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(OperationSeoContent, { locale: "en", api: match!.api, operation })
+      )
+    );
+
+    expect(html).toContain('<h2 id="sse-events-heading">Stream events</h2>');
+    expect(html).toContain("Preserved as raw payloads for forward compatibility.");
+    expect(html).toContain("Data format: JSON");
+    expect(html).toContain("Terminal event");
+    expect(html).toContain("/en/apis/dida365/schemas/Project");
+  });
+
   it("renders arbitrary dynamic inputs and their prerequisite Endpoint", () => {
     const match = getCatalogOperation("dida365", "create-task");
     expect(match).toBeDefined();

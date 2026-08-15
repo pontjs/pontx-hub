@@ -220,6 +220,8 @@ function makeOperation(
   const localeResponses = translated.responses ?? {};
   const successfulResponse = responseEntries.find(([status]) => status.startsWith("2"))?.[1];
   const successfulMedia = firstMedia(successfulResponse?.content);
+  const sourceSse = source.sse as JsonRecord | undefined;
+  const localeSse = translated.sse as JsonRecord | undefined;
   const documentation = source.metadata?.documentation ?? {};
   const localeDocumentation = translated.metadata?.documentation ?? {};
   const execution = source.metadata?.execution ?? {};
@@ -276,6 +278,29 @@ function makeOperation(
         )
       };
     }),
+    ...(sourceSse?.unknownEventPolicy === "preserve"
+      ? {
+          sse: {
+            unknownEventPolicy: "preserve" as const,
+            events: Object.entries<JsonRecord>(sourceSse.events ?? {}).map(([name, event]) => {
+              const localeEvent = localeSse?.events?.[name] ?? {};
+              return {
+                name,
+                dataFormat: event.dataFormat,
+                ...(event.terminal ? { terminal: true } : {}),
+                ...payloadMetadata(
+                  spec,
+                  localeSpec,
+                  event.schema,
+                  [],
+                  event.description,
+                  localeEvent.description
+                )
+              };
+            })
+          }
+        }
+      : {}),
     serverIds: (source.servers ?? spec.servers ?? []).map((server: JsonRecord) => server.id).filter(Boolean),
     proxyHeaders: execution.headers ?? {},
     proxyEnabled: style === "RESTFul" && execution.enabled !== false,
