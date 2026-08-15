@@ -362,13 +362,27 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
       translated.description ?? scheme.description,
       credential.schemeId
     );
+    const guide = credential.guide;
+    const localeGuide = translated.guide;
+    const credentialGuide = guide
+      ? {
+          credentialGuide: {
+            url: guide.url,
+            title: localized(guide.title, localeGuide?.title, guide.title),
+            steps: (guide.steps ?? []).map((step: string, index: number) =>
+              localized(step, localeGuide?.steps?.[index], step)
+            )
+          }
+        }
+      : {};
     if (credential.usernameEnvVar) {
       return {
         id: credential.schemeId,
         type: "basic",
         usernameEnvVar: credential.usernameEnvVar,
         passwordEnvVar: credential.passwordEnvVar,
-        description
+        description,
+        ...credentialGuide
       };
     }
     if (scheme.type === "apiKey") {
@@ -378,12 +392,11 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
         name: scheme.name,
         in: scheme.in,
         envVar: credential.envVar,
-        description
+        description,
+        ...credentialGuide
       };
     }
     if (scheme.type === "oauth2") {
-      const guide = credential.guide;
-      const localeGuide = translated.guide;
       return {
         id: credential.schemeId,
         type: "oauth2",
@@ -391,17 +404,7 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
         description,
         ...(credential.tokenEndpointAuthMethod ? { tokenEndpointAuthMethod: credential.tokenEndpointAuthMethod } : {}),
         ...(credential.pkce ? { pkce: credential.pkce } : {}),
-        ...(guide
-          ? {
-              credentialGuide: {
-                url: guide.url,
-                title: localized(guide.title, localeGuide?.title, guide.title),
-                steps: (guide.steps ?? []).map((step: string, index: number) =>
-                  localized(step, localeGuide?.steps?.[index], step)
-                )
-              }
-            }
-          : {}),
+        ...credentialGuide,
         flows: scheme.flows ?? {}
       };
     }
@@ -409,7 +412,8 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
       id: credential.schemeId,
       type: "bearer",
       envVar: credential.envVar,
-      description
+      description,
+      ...credentialGuide
     };
   });
 }
