@@ -9,10 +9,21 @@ import {
   StatusBadge
 } from "@pontx/shadcn-ui";
 import { HttpAgent, type Message } from "@ag-ui/client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
 import { MethodBadge } from "~/components/method-badge";
+import {
+  completeAgentActivity,
+  describeAgentActivity,
+  failAgentActivity,
+  formatActivityPayload,
+  startAgentActivity,
+  type AgentActivity,
+  updateAgentActivityArguments
+} from "~/lib/ai/agent-activity";
 import type { HttpMethod, Locale } from "~/lib/catalog/types";
 
 type PreparedCall = {
@@ -170,6 +181,25 @@ function StopIcon() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1" /></svg>;
 }
 
+function ActivityIcon({ kind }: { kind: AgentActivity["kind"] }) {
+  if (kind === "read" || kind === "inspect") {
+    return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 3.5h6l3 3v10h-9Z" /><path d="M11.5 3.5v3h3M7.5 10h5M7.5 13h4" /></svg>;
+  }
+  if (kind === "write") {
+    return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 14.75-.5 2 2-.5L15 7.75 12.25 5Z" /><path d="m11.5 5.75 2.75 2.75M4.5 4.5h5" /></svg>;
+  }
+  if (kind === "delegate") {
+    return <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="2" /><circle cx="13.5" cy="12.5" r="2" /><path d="M8.7 8.1 12 11M4 15.5c.45-2 1.6-3 3.45-3" /></svg>;
+  }
+  if (kind === "code") {
+    return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.25 5-4 5 4 5M12.75 5l4 5-4 5M11 3.75 9 16.25" /></svg>;
+  }
+  if (kind === "call") {
+    return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 6 5-6 5Z" /><path d="M3.5 3.5h13v13h-13Z" /></svg>;
+  }
+  return <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="4.5" /><path d="m12.5 12.5 3 3M9 6.75v4.5M6.75 9h4.5" /></svg>;
+}
+
 function messageText(message: Message): string {
   if (typeof message.content === "string") return message.content;
   if (!Array.isArray(message.content)) return "";
@@ -179,6 +209,48 @@ function messageText(message: Message): string {
     .join("\n");
 }
 
+function isRenderableConversationMessage(message: Message): boolean {
+  return (message.role === "user" || message.role === "assistant") && Boolean(messageText(message).trim());
+}
+
+function persistedMessages(messages: Message[]): Message[] {
+  return messages.filter(isRenderableConversationMessage);
+}
+
+function AgentActivityCard({ activity, locale }: { activity: AgentActivity; locale: Locale }) {
+  const presentation = describeAgentActivity(activity, locale);
+  const input = formatActivityPayload(activity.input);
+  const output = formatActivityPayload(activity.result);
+  return (
+    <details className="ai-activity" data-kind={activity.kind} data-status={activity.status}>
+      <summary>
+        <span className="ai-activity-icon" aria-hidden="true"><ActivityIcon kind={activity.kind} /></span>
+        <span className="ai-activity-summary-copy">
+          <strong>{presentation.title}</strong>
+          {activity.target ? <code title={activity.target}>{activity.target}</code> : <span>{activity.name}</span>}
+        </span>
+        <span className="ai-activity-status">{presentation.status}</span>
+      </summary>
+      {(input || output) ? (
+        <div className="ai-activity-details">
+          {input ? (
+            <div>
+              <span>{presentation.input}</span>
+              <pre>{input}</pre>
+            </div>
+          ) : null}
+          {output ? (
+            <div>
+              <span>{presentation.output}</span>
+              <pre>{output}</pre>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </details>
+  );
+}
+
 function readSession(): { threadId: string; messages: Message[] } {
   const fallback = { threadId: crypto.randomUUID(), messages: [] as Message[] };
   try {
@@ -186,7 +258,7 @@ function readSession(): { threadId: string; messages: Message[] } {
       window.sessionStorage.getItem(SESSION_KEY) ?? "null"
     ) as typeof fallback | null;
     if (!value?.threadId || !Array.isArray(value.messages)) return fallback;
-    return value;
+    return { ...value, messages: persistedMessages(value.messages) };
   } catch {
     return fallback;
   }
@@ -215,6 +287,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   const [hydrated, setHydrated] = useState(false);
   const [floatingTrigger, setFloatingTrigger] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [activities, setActivities] = useState<AgentActivity[]>([]);
   const [threadId, setThreadId] = useState("");
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
@@ -252,7 +325,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     if (!hydrated || !threadId) return;
     window.sessionStorage.setItem(
       SESSION_KEY,
-      JSON.stringify({ threadId, messages })
+      JSON.stringify({ threadId, messages: persistedMessages(messages) })
     );
   }, [hydrated, messages, threadId]);
 
@@ -261,7 +334,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
       top: scrollRef.current.scrollHeight,
       behavior: "smooth"
     });
-  }, [messages, prepared, running]);
+  }, [activities, messages, prepared, running]);
 
   useEffect(() => {
     if (!open) return;
@@ -331,12 +404,39 @@ export function AiAssistant({ locale }: { locale: Locale }) {
         onMessagesChanged({ messages: next }) {
           setMessages(next.map((message) => ({ ...message })) as Message[]);
         },
+        onToolCallStartEvent({ event }) {
+          setActivities((current) => current.some((activity) => activity.id === event.toolCallId)
+            ? current
+            : [...current, startAgentActivity(event)]);
+        },
+        onToolCallArgsEvent({ event, partialToolCallArgs }) {
+          setActivities((current) => current.map((activity) => (
+            activity.id === event.toolCallId
+              ? updateAgentActivityArguments(activity, partialToolCallArgs)
+              : activity
+          )));
+        },
+        onToolCallEndEvent({ event, toolCallArgs }) {
+          setActivities((current) => current.map((activity) => (
+            activity.id === event.toolCallId
+              ? updateAgentActivityArguments(activity, toolCallArgs)
+              : activity
+          )));
+        },
+        onToolCallResultEvent({ event }) {
+          setActivities((current) => current.map((activity) => (
+            activity.id === event.toolCallId
+              ? completeAgentActivity(activity, event.content)
+              : activity
+          )));
+        },
         onCustomEvent({ event }) {
           if (event.name === "pontx.request_prepared") {
             setPrepared((current) => [...current, event.value as PreparedCall]);
           }
         },
         onRunErrorEvent({ event }) {
+          setActivities((current) => current.map(failAgentActivity));
           if (event.code === "ai_usage_unavailable") {
             showRuntimeStatus();
             return;
@@ -357,6 +457,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
         }
       });
     } catch (error) {
+      setActivities((current) => current.map(failAgentActivity));
       const message = error instanceof Error ? error.message : "";
       if (message.includes("ai_usage_unavailable")) {
         showRuntimeStatus();
@@ -465,6 +566,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
     });
     setThreadId(nextThread);
     setMessages([]);
+    setActivities([]);
     setPrepared([]);
     setExecutions({});
     setStatus(null);
@@ -490,9 +592,9 @@ export function AiAssistant({ locale }: { locale: Locale }) {
   };
 
   const suggestions = text.suggestions as string[][];
-  const visibleMessages = messages.filter(
-    (message) => message.role === "user" || message.role === "assistant"
-  );
+  const visibleMessages = messages.filter(isRenderableConversationMessage);
+  const messageIds = new Set(messages.map((message) => message.id));
+  const hasTranscript = Boolean(visibleMessages.length || activities.length);
   const trigger = (
     <Button
       ref={triggerRef}
@@ -551,7 +653,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                   size="iconSm"
                   aria-label={text.clear as string}
                   title={text.clear as string}
-                  disabled={!visibleMessages.length && !prepared.length}
+                  disabled={!hasTranscript && !prepared.length}
                   onClick={clear}
                 >
                   <NewSessionIcon />
@@ -572,7 +674,7 @@ export function AiAssistant({ locale }: { locale: Locale }) {
             <Separator />
 
             <div className="ai-assistant-feed" ref={scrollRef} aria-live="polite">
-              {!visibleMessages.length ? (
+              {!hasTranscript ? (
                 <div className="ai-assistant-empty-wrap">
                   <EmptyState
                     className="ai-assistant-empty"
@@ -600,23 +702,42 @@ export function AiAssistant({ locale }: { locale: Locale }) {
                 </div>
               ) : null}
 
-              {visibleMessages.map((message) => (
-                <article
-                  className="ai-message"
-                  key={message.id}
-                  data-role={message.role}
-                  aria-label={message.role === "user" ? text.you as string : text.agent as string}
-                >
-                  {message.role === "assistant" ? (
-                    <span className="ai-message-avatar" aria-hidden="true">
-                      <AgentIcon />
-                    </span>
-                  ) : null}
-                  <div className="ai-message-content">
-                    <p>{messageText(message)}</p>
-                  </div>
-                </article>
-              ))}
+              {messages.map((message) => {
+                const messageActivities = message.role === "assistant"
+                  ? activities.filter((activity) => activity.parentMessageId === message.id)
+                  : [];
+                if (!isRenderableConversationMessage(message)) {
+                  return messageActivities.map((activity) => (
+                    <AgentActivityCard activity={activity} locale={locale} key={activity.id} />
+                  ));
+                }
+                return (
+                  <Fragment key={message.id}>
+                    <article
+                      className="ai-message"
+                      data-role={message.role}
+                      aria-label={message.role === "user" ? text.you as string : text.agent as string}
+                    >
+                      {message.role === "assistant" ? (
+                        <span className="ai-message-avatar" aria-hidden="true">
+                          <AgentIcon />
+                        </span>
+                      ) : null}
+                      <div className="ai-message-content">
+                        {message.role === "assistant" ? (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{messageText(message)}</ReactMarkdown>
+                        ) : <p>{messageText(message)}</p>}
+                      </div>
+                    </article>
+                    {messageActivities.map((activity) => (
+                      <AgentActivityCard activity={activity} locale={locale} key={activity.id} />
+                    ))}
+                  </Fragment>
+                );
+              })}
+              {activities
+                .filter((activity) => !activity.parentMessageId || !messageIds.has(activity.parentMessageId))
+                .map((activity) => <AgentActivityCard activity={activity} locale={locale} key={activity.id} />)}
 
               {prepared.map((call, index) => {
                 const execution = executions[index] ?? { status: "idle" };
