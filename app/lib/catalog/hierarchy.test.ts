@@ -11,6 +11,7 @@ const baseSpec = loadPontxSpec({
   style: "RPC",
   name: "rpc-minimal",
   info: { title: "最小 RPC", version: "1.0.0" },
+  security: [{ fixtureKey: [] }],
   apis: {
     "inventory/getItem": {
       operationId: "getItem",
@@ -28,6 +29,14 @@ const baseSpec = loadPontxSpec({
   },
   tags: [{ name: "inventory", description: "库存方法" }],
   components: {
+    securitySchemes: {
+      fixtureKey: {
+        type: "apiKey",
+        in: "header",
+        name: "x-fixture-key",
+        description: "调用方的测试密钥。"
+      }
+    },
     schemas: {
       Item: {
         type: "object",
@@ -51,6 +60,14 @@ const localizedSpec = loadPontxSpec({
   },
   tags: [{ name: "inventory", description: "Inventory methods" }],
   components: {
+    securitySchemes: {
+      fixtureKey: {
+        type: "apiKey",
+        in: "header",
+        name: "x-fixture-key",
+        description: "Caller-owned fixture key."
+      }
+    },
     schemas: {
       Item: {
         type: "object",
@@ -72,11 +89,28 @@ const api = buildCatalogApi({
     display: { title: "最小 RPC API", summary: "验证非 HTTP 索引。", accent: "#334155" },
     legal: { license: "MIT", attributionUrl: "https://pontx.dev/" },
     documentation: { status: "official", evidence: ["https://pontx.dev/"], verifiedAt: "2026-08-15" },
-    credentials: [],
+    credentials: [{
+      schemeId: "fixtureKey",
+      envVar: "PONTX_FIXTURE_KEY",
+      description: "调用方的测试密钥。",
+      guide: {
+        url: "https://pontx.dev/keys",
+        title: "获取测试密钥",
+        steps: ["打开密钥页面。"]
+      }
+    }],
     quickStart: { operationId: "getItem", requestExampleId: "default" }
   },
   localizedProduct: {
-    display: { title: "Minimal RPC API", summary: "Verifies non-HTTP indexing." }
+    display: { title: "Minimal RPC API", summary: "Verifies non-HTTP indexing." },
+    credentials: [{
+      schemeId: "fixtureKey",
+      description: "Caller-owned fixture key.",
+      guide: {
+        title: "Get a fixture key",
+        steps: ["Open the key dashboard."]
+      }
+    }]
   },
   spec: baseSpec,
   localizedSpec,
@@ -94,7 +128,8 @@ const api = buildCatalogApi({
 
 describe("Pontx hierarchy consumer", () => {
   it("loads and indexes RPC without OAS or HTTP coordinates", () => {
-    expect(catalogApiSchema.parse(api)).toBeTruthy();
+    const parsedApi = catalogApiSchema.parse(api);
+    expect(parsedApi).toBeTruthy();
     const operation = api.operations[0];
     expect(operation).toMatchObject({ style: "RPC", sdkMethod: "readItem", operationId: "getItem" });
     expect(operation).not.toHaveProperty("method");
@@ -103,6 +138,15 @@ describe("Pontx hierarchy consumer", () => {
       .toBe("endpoint:rpc-minimal/get-item");
     expect(getPlaygroundAvailability(operation, "en")).toMatchObject({
       executionEnabled: false
+    });
+    expect(parsedApi.auth[0]).toMatchObject({
+      id: "fixtureKey",
+      type: "apiKey",
+      credentialGuide: {
+        url: "https://pontx.dev/keys",
+        title: { zh: "获取测试密钥", en: "Get a fixture key" },
+        steps: [{ zh: "打开密钥页面。", en: "Open the key dashboard." }]
+      }
     });
     expect(pontxApiView(localizedSpec, operation)).toMatchObject({
       operationId: "getItem",

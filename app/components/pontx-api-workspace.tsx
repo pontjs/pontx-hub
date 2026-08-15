@@ -69,6 +69,16 @@ type OAuthUiState = {
   error?: string;
 };
 
+type GuidedCredentialScheme = CatalogApi["auth"][number] & {
+  credentialGuide: NonNullable<CatalogApi["auth"][number]["credentialGuide"]>;
+};
+
+function hasCredentialGuide(
+  scheme: CatalogApi["auth"][number]
+): scheme is GuidedCredentialScheme {
+  return Boolean(scheme.credentialGuide);
+}
+
 export function isOAuthAuthorizationDisabled({
   busy,
   clientId,
@@ -313,6 +323,63 @@ export function OperationTaskSelect({
         </SelectContent>
       </Select>
     </div>
+  );
+}
+
+export function CredentialSetupGuide({
+  scheme,
+  locale
+}: {
+  scheme: GuidedCredentialScheme;
+  locale: Locale;
+}) {
+  const zh = locale === "zh";
+  const badge = scheme.type === "apiKey"
+    ? "API KEY"
+    : scheme.type === "bearer" || scheme.type === "oauth2"
+      ? "TOKEN"
+      : "BASIC";
+  const guideCopy = zh
+    ? {
+        label: "官方凭据申请指引",
+        steps: `${scheme.credentialGuide.steps.length} 步`,
+        action: scheme.type === "apiKey" ? "打开 API Key 管理页 ↗" : "打开官方凭据管理页 ↗",
+        safety: "凭据只保留在当前浏览器会话中，不会保存到 Pontx 服务器。"
+      }
+    : {
+        label: "Official credential setup",
+        steps: `${scheme.credentialGuide.steps.length} steps`,
+        action: scheme.type === "apiKey" ? "Open API key dashboard ↗" : "Open credential dashboard ↗",
+        safety: "Your credential stays in this browser session and is never stored on Pontx servers."
+      };
+
+  return (
+    <details className="credential-setup-guide" open>
+      <summary>
+        <span className="credential-setup-guide-mark" aria-hidden="true">{badge}</span>
+        <span className="credential-setup-guide-heading">
+          <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
+          <small>{guideCopy.label}</small>
+        </span>
+        <span className="credential-setup-guide-count">{guideCopy.steps}</span>
+      </summary>
+      <div className="credential-setup-guide-body">
+        <ol>
+          {scheme.credentialGuide.steps.map((step, index) => (
+            <li key={index}>
+              <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              <p>{localize(step, locale)}</p>
+            </li>
+          ))}
+        </ol>
+        <footer>
+          <a href={scheme.credentialGuide.url} target="_blank" rel="noreferrer">
+            {guideCopy.action}
+          </a>
+          <p>{guideCopy.safety}</p>
+        </footer>
+      </div>
+    </details>
   );
 }
 
@@ -672,6 +739,17 @@ export function PontxApiWorkspace({
     useState<PlaygroundExecutionResult>();
   const [isExecuting, setIsExecuting] = useState(false);
   const oauthScheme = api.auth.find((scheme) => scheme.type === "oauth2");
+  const credentialGuideSchemes = useMemo(() => {
+    const requiredSchemeIds = new Set(
+      activeOperation.security?.map((requirement) => requirement.schemeId) ?? []
+    );
+    return api.auth.filter(
+      (scheme): scheme is GuidedCredentialScheme =>
+        scheme.type !== "oauth2" &&
+        hasCredentialGuide(scheme) &&
+        requiredSchemeIds.has(scheme.id)
+    );
+  }, [activeOperation.security, api.auth]);
   const tokenStorageKey = `pontx:oauth:token:${api.slug}:${oauthScheme?.id ?? "oauth2"}`;
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
@@ -1267,17 +1345,25 @@ export function PontxApiWorkspace({
                 playgroundAvailable && (guided || isPlaygroundOpen)
               }
               playgroundTopContent={
-                !guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
-                  <EndpointPlaygroundHistory
-                    locale={locale}
-                    apiSlug={api.slug}
-                    operationSlug={activeOperation.slug}
-                    availableServerIds={operationServers.map((server) => server.id)}
-                    initialEntries={initialPlaygroundHistory}
-                    refreshVersion={historyRefreshVersion}
-                    loadedEntryId={loadedHistoryEntryId}
-                    onReplay={replayPlaygroundHistory}
-                  />
+                credentialGuideSchemes.length ||
+                (!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer))) ? (
+                  <div className="playground-context-stack">
+                    {credentialGuideSchemes.map((scheme) => (
+                      <CredentialSetupGuide key={scheme.id} scheme={scheme} locale={locale} />
+                    ))}
+                    {!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
+                      <EndpointPlaygroundHistory
+                        locale={locale}
+                        apiSlug={api.slug}
+                        operationSlug={activeOperation.slug}
+                        availableServerIds={operationServers.map((server) => server.id)}
+                        initialEntries={initialPlaygroundHistory}
+                        refreshVersion={historyRefreshVersion}
+                        loadedEntryId={loadedHistoryEntryId}
+                        onReplay={replayPlaygroundHistory}
+                      />
+                    ) : null}
+                  </div>
                 ) : undefined
               }
               specName={api.slug}

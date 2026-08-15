@@ -128,6 +128,9 @@ describe("Hub API", () => {
     });
     expect(payload.data[0]).not.toHaveProperty("apiSlug");
     expect(payload.data[0].files[0]).not.toHaveProperty("content");
+    expect(
+      payload.data.some((skill: { apiSlug?: string }) => Boolean(skill.apiSlug))
+    ).toBe(true);
   });
 
   it("serves native verified Skill details while retaining the legacy bundle", async () => {
