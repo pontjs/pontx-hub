@@ -2664,6 +2664,641 @@ textarea {
   border-radius: 7px;
 }
 
+/* Skills directory and product playbooks */
+
+.skills-index-page,
+.product-skill-page {
+  min-height: calc(100svh - 145px);
+  background: var(--paper);
+}
+
+.skills-index-page {
+  padding: clamp(36px, 5vw, 68px) clamp(20px, 5vw, 72px) 76px;
+}
+
+.skills-hero,
+.skills-universal,
+.skills-products {
+  width: min(1160px, 100%);
+  margin-inline: auto;
+}
+
+.skills-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, .72fr);
+  gap: clamp(28px, 5vw, 76px);
+  align-items: end;
+  padding-bottom: clamp(30px, 4vw, 48px);
+}
+
+.skills-hero-copy {
+  max-width: 780px;
+}
+
+.skills-hero-copy h1 {
+  margin: 12px 0 18px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(46px, 6vw, 76px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: .96;
+}
+
+.skills-hero-copy > p:last-child {
+  max-width: 700px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.skills-layer-note {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 0 14px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  padding: 18px 0;
+}
+
+.skills-layer-note > span {
+  color: var(--blue-deep);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.skills-layer-note > div + span,
+.skills-layer-note > div + span + div {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.skills-layer-note strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.skills-layer-note p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.skills-universal {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr);
+  gap: clamp(24px, 5vw, 64px);
+  align-items: end;
+  padding: clamp(28px, 4vw, 46px);
+  border: 1px solid #1e40af;
+  border-radius: var(--radius-xl);
+  color: #fff;
+  background:
+    radial-gradient(circle at 92% -20%, rgb(147 197 253 / 30%), transparent 22rem),
+    linear-gradient(125deg, #172554, #1d4ed8);
+  box-shadow: 0 20px 50px rgb(30 64 175 / 18%);
+}
+
+.skills-universal::before {
+  position: absolute;
+  top: 0;
+  right: 34%;
+  width: 1px;
+  height: 100%;
+  background: rgb(255 255 255 / 12%);
+  content: "";
+  transform: rotate(18deg);
+}
+
+.skills-card-kicker,
+.skills-section-index,
+.product-skill-card-topline,
+.product-skill-card > div:nth-child(2) > p:first-child {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.skills-card-kicker {
+  margin: 0 0 10px;
+  color: #bfdbfe;
+}
+
+.skills-universal h2 {
+  margin: 0 0 10px;
+  color: #fff;
+  font-family: var(--serif);
+  font-size: clamp(34px, 4vw, 52px);
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+
+.skills-universal p:not(.skills-card-kicker) {
+  max-width: 690px;
+  margin: 0;
+  color: #dbeafe;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.skills-universal-action {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.skills-universal-action code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #dbeafe;
+  font-size: 12px;
+}
+
+.skills-universal-action .button {
+  border-color: #fff;
+  color: #172554;
+  background: #fff;
+  box-shadow: none;
+  gap: 16px;
+}
+
+.skills-universal-action .button:hover {
+  border-color: var(--acid);
+  color: #172554;
+  background: var(--acid);
+}
+
+.skills-products {
+  padding-top: clamp(42px, 6vw, 72px);
+}
+
+.skills-products .section-heading {
+  align-items: end;
+}
+
+.skills-products .section-heading > div {
+  max-width: 700px;
+}
+
+.skills-products .section-heading h2 {
+  margin-top: 9px;
+}
+
+.skills-section-index {
+  margin: 0;
+  color: var(--blue-deep);
+}
+
+.product-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.product-skill-card {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 290px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.product-skill-card:hover,
+.product-skill-card:has(a:focus-visible) {
+  border-color: #9fb0c3;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.product-skill-card:has(a:focus-visible) {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.product-skill-card-topline,
+.product-skill-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-skill-card-topline {
+  color: var(--ink-faint);
+}
+
+.product-skill-card > div:nth-child(2) {
+  align-self: center;
+  padding: 24px 0;
+}
+
+.product-skill-card > div:nth-child(2) > p:first-child {
+  margin: 0 0 7px;
+  color: var(--blue-deep);
+}
+
+.product-skill-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 27px;
+  letter-spacing: -.035em;
+  line-height: 1.08;
+}
+
+.product-skill-card h3 a::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.product-skill-card h3 a:focus-visible {
+  outline: none;
+}
+
+.product-skill-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 12px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.product-skill-card footer {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.product-skill-card footer code {
+  min-width: 0;
+  overflow: hidden;
+  color: #42556a;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-skill-card footer b {
+  color: var(--blue-deep);
+  font-weight: 500;
+}
+
+.skills-empty {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 24px;
+  border: 1px dashed #aab8c8;
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 64%);
+}
+
+.skills-empty > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #c8d4e2;
+  border-radius: 50%;
+  color: var(--blue-deep);
+  background: #fff;
+}
+
+.skills-empty h3,
+.skills-empty p {
+  margin: 0;
+}
+
+.skills-empty h3 {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.skills-empty p {
+  margin-top: 3px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.skills-empty a {
+  color: var(--blue-deep);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.product-skill-hero {
+  padding: clamp(28px, 4vw, 52px) clamp(20px, 5vw, 72px);
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 88% 10%, rgb(37 99 235 / 10%), transparent 24rem),
+    linear-gradient(135deg, #fff, #f7faff);
+}
+
+.product-skill-breadcrumbs,
+.product-skill-hero-grid,
+.product-skill-layout {
+  width: min(1160px, 100%);
+  margin-inline: auto;
+}
+
+.product-skill-breadcrumbs {
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.product-skill-breadcrumbs a {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-skill-breadcrumbs a:hover {
+  color: var(--blue-deep);
+}
+
+.product-skill-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+  gap: clamp(30px, 6vw, 84px);
+  align-items: end;
+}
+
+.product-skill-hero-grid h1 {
+  margin: 11px 0 16px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(42px, 5.4vw, 68px);
+  letter-spacing: -.055em;
+  line-height: .98;
+}
+
+.product-skill-hero-grid > div > p:last-child {
+  max-width: 730px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+.product-skill-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.product-skill-facts > div {
+  min-width: 0;
+  padding: 13px 12px 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.product-skill-facts dt {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.product-skill-facts dd {
+  overflow: hidden;
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-skill-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 32px);
+  align-items: start;
+  padding: clamp(28px, 4vw, 48px) 0 76px;
+}
+
+.product-skill-install,
+.product-skill-document {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+}
+
+.product-skill-install {
+  position: sticky;
+  top: 138px;
+  padding: 22px;
+}
+
+.product-skill-install h2,
+.product-skill-document h2 {
+  margin: 7px 0 8px;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 27px;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+}
+
+.product-skill-install > div:first-child > p:last-child {
+  margin: 0 0 18px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.product-skill-install .code-frame-content {
+  padding: 15px 14px 17px;
+}
+
+.product-skill-install .code-frame-content > code {
+  font-size: 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.product-skill-universal-link {
+  display: inline-flex;
+  margin-top: 18px;
+  color: var(--blue-deep);
+  font-size: 12px;
+  font-weight: 650;
+  gap: 7px;
+}
+
+.product-skill-document {
+  overflow: hidden;
+}
+
+.product-skill-document > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 22px clamp(20px, 3vw, 34px);
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-soft);
+}
+
+.product-skill-document > header .skills-section-index {
+  width: 100%;
+}
+
+.product-skill-document > header h2 {
+  margin-bottom: 0;
+}
+
+.product-skill-document > header span {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.skill-markdown {
+  padding: clamp(24px, 4vw, 44px);
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.skill-markdown > :first-child {
+  margin-top: 0;
+}
+
+.skill-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.skill-markdown :where(h2, h3, h4) {
+  scroll-margin-top: 140px;
+  color: var(--ink);
+  letter-spacing: -.025em;
+  line-height: 1.2;
+}
+
+.skill-markdown h2 {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: 30px;
+}
+
+.skill-markdown h3 {
+  margin: 34px 0 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-size: 20px;
+}
+
+.skill-markdown h4 {
+  margin: 25px 0 9px;
+  font-size: 16px;
+}
+
+.skill-markdown p,
+.skill-markdown :where(ul, ol) {
+  margin: 0 0 16px;
+}
+
+.skill-markdown :where(ul, ol) {
+  padding-left: 22px;
+}
+
+.skill-markdown li + li {
+  margin-top: 6px;
+}
+
+.skill-markdown a {
+  color: var(--blue-deep);
+  text-decoration: underline;
+  text-decoration-color: #bfdbfe;
+  text-underline-offset: 3px;
+}
+
+.skill-markdown :not(pre) > code {
+  padding: 2px 5px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: #2949b8;
+  background: var(--paper-soft);
+  font-size: .86em;
+  overflow-wrap: anywhere;
+}
+
+.skill-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 18px 0;
+  padding: 17px 18px;
+  border: 1px solid #26364b;
+  border-radius: var(--radius-md);
+  color: #dbeafe;
+  background: #152033;
+  scrollbar-width: thin;
+}
+
+.skill-markdown pre code {
+  font-size: 12px;
+}
+
+.skill-markdown blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--blue);
+  color: var(--ink-soft);
+  background: var(--blue-soft);
+}
+
+.skill-markdown table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  margin: 18px 0;
+  border-collapse: collapse;
+}
+
+.skill-markdown :where(th, td) {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.skill-markdown th {
+  background: var(--paper-soft);
+}
+
 /* Account, saved APIs, and request history */
 
 .account-page,
@@ -2822,6 +3457,18 @@ textarea {
   .schema-reference-grid {
     grid-template-columns: 244px minmax(0, 1fr);
   }
+
+  .product-skill-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-skill-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .product-skill-install {
+    position: static;
+  }
 }
 
 @media (max-width: 740px) {
@@ -2856,6 +3503,7 @@ textarea {
 
   .catalog-page,
   .detail-page,
+  .skills-index-page,
   .account-page,
   .saved-apis-page,
   .playground-history-page {
@@ -3042,6 +3690,94 @@ textarea {
 
   .detail-page .section {
     padding: 20px 16px;
+  }
+
+  .skills-index-page {
+    padding: 30px 16px 52px;
+  }
+
+  .skills-hero,
+  .skills-universal,
+  .product-skill-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skills-hero {
+    gap: 26px;
+  }
+
+  .skills-hero-copy h1 {
+    font-size: clamp(38px, 12vw, 52px);
+  }
+
+  .skills-universal {
+    padding: 26px 20px;
+    border-radius: var(--radius-lg);
+  }
+
+  .skills-universal::before {
+    display: none;
+  }
+
+  .product-skill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-skill-card {
+    min-height: 250px;
+  }
+
+  .skills-empty {
+    grid-template-columns: 38px minmax(0, 1fr);
+    padding: 20px 16px;
+  }
+
+  .skills-empty > span {
+    width: 38px;
+    height: 38px;
+  }
+
+  .skills-empty a {
+    grid-column: 2;
+  }
+
+  .product-skill-hero {
+    padding: 24px 16px 30px;
+  }
+
+  .product-skill-breadcrumbs {
+    margin-bottom: 22px;
+  }
+
+  .product-skill-hero-grid {
+    gap: 26px;
+  }
+
+  .product-skill-hero-grid h1 {
+    font-size: clamp(36px, 11vw, 48px);
+  }
+
+  .product-skill-layout {
+    padding: 20px 16px 52px;
+  }
+
+  .product-skill-install {
+    padding: 20px 16px;
+  }
+
+  .product-skill-document > header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px 16px;
+  }
+
+  .skill-markdown {
+    padding: 24px 18px;
+    font-size: 13px;
+  }
+
+  .skill-markdown h2 {
+    font-size: 26px;
   }
 
   .section-heading {

@@ -49,10 +49,11 @@ describe("site language switcher", () => {
       .map((match) => match[1]);
     expect(primaryHrefs.slice(0, 4)).toEqual([
       "/zh",
-      "/zh/skills/pontx-hub",
+      "/zh/skills",
       "/zh/docs",
       "https://github.com/pontjs/pontx-hub"
     ]);
+    expect(desktopNav).toContain(">技能</a>");
   });
 
   it("keeps the inverse language target localized", () => {
@@ -62,6 +63,8 @@ describe("site language switcher", () => {
     expect(html).toContain('aria-label="Switch to Chinese"');
     expect(html).toContain('<span>中文</span>');
     expect(html).toContain('href="/en/docs"');
+    expect(html).toContain('href="/en/skills"');
+    expect(html).toContain(">Skills</a>");
     expect(html).toContain("PontxSpec → Unified SDK / CLI → Agent");
     expect(html.match(/>Feedback<\/button>/g)).toHaveLength(2);
   });

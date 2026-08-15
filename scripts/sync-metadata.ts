@@ -24,6 +24,14 @@ type Source = {
   read(relativePath: string): Promise<Uint8Array>;
 };
 
+type ProductSkillFile = {
+  path: string;
+  sha256: string;
+  content: string;
+};
+
+class MissingOptionalSourceFileError extends Error {}
+
 function parseJson(bytes: Uint8Array, path: string): unknown {
   try {
     return JSON.parse(Buffer.from(bytes).toString("utf8"));
@@ -55,6 +63,116 @@ function validateIndex(value: unknown): ProductIndex {
     throw new Error("catalog/products.json contains duplicate products");
   }
   return index as ProductIndex;
+}
+
+function hasExactKeys(value: Record<string, unknown>, keys: string[]): boolean {
+  return JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort());
+}
+
+function safeSkillPath(path: string): boolean {
+  if (!path || path.length > 512 || path.startsWith("/") || path.includes("\\") || path.includes("\0")) {
+    return false;
+  }
+  return path.split("/").every((part) => part.length > 0 && part !== "." && part !== "..");
+}
+
+function validateSkillRegistry(value: unknown, productSlugs: string[]): void {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("skills/registry.json must be an object");
+  }
+  const registry = value as Record<string, unknown>;
+  if (!hasExactKeys(registry, ["formatVersion", "skills"])) {
+    throw new Error("skills/registry.json may contain only formatVersion and skills");
+  }
+  if (registry.formatVersion !== 1 || !Array.isArray(registry.skills)) {
+    throw new Error("Unsupported product Skill registry format");
+  }
+
+  const products = new Set(productSlugs);
+  const names = new Set<string>();
+  const apiSlugs = new Set<string>();
+  const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  const semverPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+  const shaPattern = /^[a-f0-9]{64}$/;
+
+  for (const [skillIndex, value] of registry.skills.entries()) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      throw new Error(`skills/registry.json skills[${skillIndex}] must be an object`);
+    }
+    const skill = value as Record<string, unknown>;
+    if (!hasExactKeys(skill, [
+      "name", "apiSlug", "version", "description", "license", "contentHash", "files"
+    ])) {
+      throw new Error(`skills/registry.json skills[${skillIndex}] has unsupported fields`);
+    }
+    if (typeof skill.apiSlug !== "string" || !slugPattern.test(skill.apiSlug) || !products.has(skill.apiSlug)) {
+      throw new Error(`skills/registry.json skills[${skillIndex}] has an unknown apiSlug`);
+    }
+    if (skill.name !== `pontx-${skill.apiSlug}` || names.has(skill.name)) {
+      throw new Error(`${skill.apiSlug}: product Skill name is invalid or duplicated`);
+    }
+    if (apiSlugs.has(skill.apiSlug)) {
+      throw new Error(`${skill.apiSlug}: product Skill apiSlug is duplicated`);
+    }
+    names.add(skill.name);
+    apiSlugs.add(skill.apiSlug);
+    if (typeof skill.version !== "string" || !semverPattern.test(skill.version)) {
+      throw new Error(`${skill.name}: version must be valid SemVer`);
+    }
+    if (typeof skill.description !== "string" || !skill.description.trim() || skill.description.length > 300) {
+      throw new Error(`${skill.name}: description must contain at most 300 characters`);
+    }
+    if (typeof skill.license !== "string" || !skill.license.trim()) {
+      throw new Error(`${skill.name}: license must be a non-empty string`);
+    }
+    if (typeof skill.contentHash !== "string" || !shaPattern.test(skill.contentHash)) {
+      throw new Error(`${skill.name}: contentHash must be a lowercase SHA-256 digest`);
+    }
+    if (!Array.isArray(skill.files) || skill.files.length === 0) {
+      throw new Error(`${skill.name}: files must be a non-empty array`);
+    }
+
+    const files = skill.files.map((value, fileIndex): ProductSkillFile => {
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        throw new Error(`${skill.name}: files[${fileIndex}] must be an object`);
+      }
+      const file = value as Record<string, unknown>;
+      if (!hasExactKeys(file, ["path", "sha256", "content"])) {
+        throw new Error(`${skill.name}: files[${fileIndex}] has unsupported fields`);
+      }
+      if (typeof file.path !== "string" || !safeSkillPath(file.path)) {
+        throw new Error(`${skill.name}: files[${fileIndex}] has an unsafe path`);
+      }
+      if (typeof file.content !== "string" || typeof file.sha256 !== "string" || !shaPattern.test(file.sha256)) {
+        throw new Error(`${skill.name}: ${String(file.path)} has invalid content or sha256`);
+      }
+      const actualFileHash = createHash("sha256").update(file.content, "utf8").digest("hex");
+      if (file.sha256 !== actualFileHash) {
+        throw new Error(`${skill.name}: ${file.path} sha256 does not match its content`);
+      }
+      return file as ProductSkillFile;
+    });
+    const paths = files.map((file) => file.path);
+    const sortedPaths = [...paths].sort((left, right) =>
+      Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"))
+    );
+    if (new Set(paths).size !== paths.length || JSON.stringify(paths) !== JSON.stringify(sortedPaths)) {
+      throw new Error(`${skill.name}: files must have unique paths sorted by path`);
+    }
+    if (!paths.includes("SKILL.md")) {
+      throw new Error(`${skill.name}: files must include SKILL.md`);
+    }
+    const contentHash = createHash("sha256");
+    for (const file of files) {
+      contentHash.update(file.path, "utf8");
+      contentHash.update("\0");
+      contentHash.update(file.content, "utf8");
+      contentHash.update("\0");
+    }
+    if (contentHash.digest("hex") !== skill.contentHash) {
+      throw new Error(`${skill.name}: contentHash does not match its files`);
+    }
+  }
 }
 
 async function localSource(): Promise<Source | undefined> {
@@ -116,15 +234,45 @@ function remoteSource(): Source {
         headers: { Accept: "application/json", "Cache-Control": "no-cache" },
         cache: "no-store"
       });
+      if (response.status === 404 && path === "skills/registry.json") {
+        throw new MissingOptionalSourceFileError(`Unable to sync ${path}: HTTP 404`);
+      }
       if (!response.ok) throw new Error(`Unable to sync ${path}: HTTP ${response.status}`);
       return new Uint8Array(await response.arrayBuffer());
     }
   };
 }
 
+async function readOptionalSkillRegistry(source: Source, index: ProductIndex): Promise<Uint8Array | undefined> {
+  let bytes: Uint8Array;
+  try {
+    bytes = await source.read("skills/registry.json");
+  } catch (error) {
+    if (
+      error instanceof MissingOptionalSourceFileError ||
+      (error as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
+      console.warn("Product Skill registry is unavailable; continuing with the universal Skill only.");
+      return undefined;
+    }
+    throw error;
+  }
+
+  try {
+    validateSkillRegistry(parseJson(bytes, "skills/registry.json"), index.products);
+    return bytes;
+  } catch (error) {
+    console.warn(
+      `Product Skill registry is invalid; continuing with the universal Skill only: ${error instanceof Error ? error.message : String(error)}`
+    );
+    return undefined;
+  }
+}
+
 const source = await localSource() ?? remoteSource();
 const indexBytes = await source.read("catalog/products.json");
 const index = validateIndex(parseJson(indexBytes, "catalog/products.json"));
+const skillRegistryBytes = await readOptionalSkillRegistry(source, index);
 
 const files = await Promise.all(index.products.map(async (slug) => {
   const prefix = `products/${slug}`;
@@ -181,7 +329,12 @@ for (const productEntries of files) {
     await writeFile(destination, bytes);
   }
 }
+if (skillRegistryBytes) {
+  const destination = resolve(cacheRoot, "skills/registry.json");
+  await mkdir(dirname(destination), { recursive: true });
+  await writeFile(destination, skillRegistryBytes);
+}
 
 console.log(
-  `Synced ${index.products.length} product shards from ${source.description} at ${source.commit}.`
+  `Synced ${index.products.length} product shards${skillRegistryBytes ? " and the product Skill registry" : ""} from ${source.description} at ${source.commit}.`
 );

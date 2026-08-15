@@ -11,6 +11,7 @@ import { loader as agentSkillRedirectLoader } from "./agent-skill-redirect";
 import { readFile } from "node:fs/promises";
 import { listCatalog } from "~/lib/catalog/catalog.server";
 import { DOC_SLUGS, docHref } from "~/lib/docs";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 describe("SEO resource routes", () => {
   it("serves robots.txt as a plain-text resource", async () => {
@@ -31,6 +32,8 @@ describe("SEO resource routes", () => {
     expect(body).toContain("# Pontx API");
     expect(body).toContain("https://pontx.dev/en/docs");
     expect(body).toContain("https://pontx.dev/zh/docs");
+    expect(body).toContain("https://pontx.dev/en/skills");
+    expect(body).toContain("https://pontx.dev/zh/skills");
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
     expect(body).toContain("https://pontx.dev/.well-known/skills/index.json");
     expect(body).toContain("https://pontx.dev/openapi.json");
@@ -52,6 +55,10 @@ describe("SEO resource routes", () => {
     expect(document.servers).toEqual([{ url: "https://pontx.dev" }]);
     expect(document.paths).toHaveProperty("/api/v2/search");
     expect(document.paths).toHaveProperty("/api/v1/skill");
+    expect(document.paths).toHaveProperty("/api/v1/skills");
+    expect(document.paths).toHaveProperty("/api/v1/skills/{name}");
+    expect(document).toHaveProperty("components.schemas.SkillSummary");
+    expect(document).toHaveProperty("components.schemas.SkillBundle");
     expect(document.paths).not.toHaveProperty("/api/v1/playground/execute");
   });
 
@@ -60,15 +67,22 @@ describe("SEO resource routes", () => {
       params: { "*": "index.json" }
     } as never);
     const index = await indexResponse.json() as {
-      skills: Array<{ name: string; description: string; files: string[] }>;
+      skills: Array<{
+        name: string;
+        description: string;
+        files: Array<{ path: string; sha256: string }>;
+      }>;
     };
 
     expect(indexResponse.headers.get("Access-Control-Allow-Origin")).toBe("*");
-    expect(index.skills).toHaveLength(1);
+    expect(index.skills).toHaveLength(listSkillSummaries().length);
     expect(index.skills[0]).toEqual(expect.objectContaining({
       name: "pontx-hub",
       description: expect.stringContaining("API discovery"),
-      files: expect.arrayContaining(["SKILL.md", "references/auth-and-safety.md"])
+      files: expect.arrayContaining([
+        { path: "SKILL.md", sha256: expect.any(String) },
+        { path: "references/auth-and-safety.md", sha256: expect.any(String) }
+      ])
     }));
 
     const skillResponse = skillDiscoveryLoader({
@@ -76,6 +90,15 @@ describe("SEO resource routes", () => {
     } as never);
     expect(skillResponse.headers.get("Content-Type")).toBe("text/markdown; charset=utf-8");
     expect(await skillResponse.text()).toContain("name: pontx-hub");
+
+    const productSkill = listSkillSummaries().find((skill) => skill.apiSlug);
+    if (productSkill) {
+      const productFileResponse = skillDiscoveryLoader({
+        params: { "*": `${productSkill.name}/SKILL.md` }
+      } as never);
+      expect(productFileResponse.status).toBe(200);
+      expect(await productFileResponse.text()).toContain(`name: ${productSkill.name}`);
+    }
 
     const optionsResponse = skillDiscoveryAction({
       request: new Request("https://pontx.dev/.well-known/skills/index.json", {
@@ -110,6 +133,11 @@ describe("SEO resource routes", () => {
     expect(body).toContain('hreflang="en"');
     expect(body).toContain('hreflang="x-default"');
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
+    expect(body).toContain("https://pontx.dev/en/skills</loc>");
+    for (const skill of listSkillSummaries()) {
+      expect(body).toContain(`https://pontx.dev/en/skills/${skill.name}</loc>`);
+      expect(body).toContain(`https://pontx.dev/zh/skills/${skill.name}</loc>`);
+    }
     for (const locale of ["zh", "en"] as const) {
       for (const slug of DOC_SLUGS) {
         expect(body).toContain(`<loc>https://pontx.dev${docHref(locale, slug)}</loc>`);
@@ -131,7 +159,7 @@ describe("SEO resource routes", () => {
     expect(body).not.toContain("/account/");
     expect(body).not.toContain("/sign-in");
     expect(body).not.toContain("<!DOCTYPE html>");
-    const expectedPerLocale = 2 + DOC_SLUGS.length + catalog.reduce(
+    const expectedPerLocale = 2 + DOC_SLUGS.length + listSkillSummaries().length + catalog.reduce(
       (count, api) => count + 1 + api.operations.length + api.schemas.length + (api.sdkStatus === "published" ? 1 : 0),
       0
     );

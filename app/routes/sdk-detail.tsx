@@ -8,12 +8,16 @@ import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
 import { hubCliCommand } from "~/lib/hub-cli-command";
 import type { CatalogApi } from "~/lib/catalog/types";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const api = getCatalogApi(params.apiSlug ?? "");
   if (!api) throw new Response("SDK not found", { status: 404 });
-  return { locale, api };
+  const skillName = listSkillSummaries().find(
+    (skill) => skill.apiSlug === api.slug
+  )?.name;
+  return { locale, api, skillName };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -92,7 +96,7 @@ export function headers() {
 }
 
 export default function SdkDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api } = loaderData;
+  const { locale, api, skillName } = loaderData;
   const zh = locale === "zh";
   const published = api.sdkStatus === "published";
   const install = `pnpm add ${api.packageName}`;
@@ -119,7 +123,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
 
   return (
     <SiteShell locale={locale}>
-      <ResourceNavigation locale={locale} api={api} active="sdk" />
+      <ResourceNavigation locale={locale} api={api} active="sdk" skillName={skillName} />
       <main className="detail-page sdk-page">
         <header className="detail-hero">
           <p className="eyebrow">TypeScript SDK</p>

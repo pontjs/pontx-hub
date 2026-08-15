@@ -89,8 +89,8 @@ describe("public route SEO metadata", () => {
       "https://pontx.dev/en/skills/pontx-hub"
     );
     expect(JSON.stringify(skillDescriptors)).toContain("SoftwareApplication");
-    expect(JSON.stringify(skillDescriptors)).toContain("Agent API Workflow");
-    expect(JSON.stringify(skillDescriptors)).toContain("one agent workflow");
+    expect(JSON.stringify(skillDescriptors)).toContain("Universal Skill");
+    expect(JSON.stringify(skillDescriptors)).toContain("catalog-wide API search");
 
     const sdkDescriptors = descriptors(sdkMeta({
       data: { locale: "en", api: plannedApi }

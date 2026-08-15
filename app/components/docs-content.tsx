@@ -189,10 +189,10 @@ function Overview({ locale }: { locale: Locale }) {
     },
     {
       number: "04",
-      title: "Agent Skill",
-      description: zh ? "让 Agent 沿用同一份目录、接口与 Schema，再按预览优先的步骤准备调用。" : "Let an agent use the same catalog, Endpoints, and Schemas while following a preview-first workflow.",
+      title: "Agent Skills",
+      description: zh ? "统一 Skill 负责跨目录发现与安全流程；产品 Skill 只补充提供商特有的集成指引。" : "The universal Skill handles catalog-wide discovery and safety; product Skills add only provider-specific integration guidance.",
       href: docHref(locale, "agent-skill"),
-      tag: "pontx-hub"
+      tag: "pontx-hub + pontx-<api>"
     }
   ];
 
@@ -223,7 +223,7 @@ function Overview({ locale }: { locale: Locale }) {
         id="shared-model"
         marker="02"
         title={zh ? "不同入口，同一份 API 资料" : "One source, whichever way you work"}
-        lead={zh ? "pontx-hub、统一 SDK、专属 CLI、Agent Skill 与网站都读取同一份已审核 API 定义。" : "pontx-hub, the Unified SDK, dedicated CLIs, the Agent Skill, and the website all use the same reviewed API definition."}
+        lead={zh ? "pontx-hub、统一 SDK、专属 CLI、Agent Skills 与网站都读取同一份已审核 PontxSpec。" : "pontx-hub, the Unified SDK, dedicated CLIs, Agent Skills, and the website all use the same reviewed PontxSpec."}
       >
         <div className="docs-model-flow" aria-label={zh ? "Pontx 资源层级" : "Pontx resource hierarchy"}>
           <div><span>API</span><strong>{zh ? "产品与认证边界" : "Product and auth boundary"}</strong><code>api:frankfurter</code></div>
@@ -395,7 +395,9 @@ pontx-hub --help`} />
             ["<api> preview …", zh ? "构造并脱敏预演请求" : "Build a redacted preview"],
             ["<api> call …", zh ? "通过受控 Hub 代理调用" : "Call through the controlled Hub proxy"],
             ["sdk <api>", zh ? "查看 SDK 包名与状态" : "Inspect SDK package and status"],
-            ["skill install", zh ? "安装通用 Agent Skill" : "Install the universal Agent Skill"]
+            ["skill list", zh ? "列出通用与产品 Skills" : "List universal and product Skills"],
+            ["skill install", zh ? "安装通用 pontx-hub Skill" : "Install the universal pontx-hub Skill"],
+            ["skill install <apiSlug>", zh ? "安装一个产品 Skill" : "Install a product Skill"]
           ].map(([command, purpose]) => (
             <div key={command}><code>{command}</code><span>{purpose}</span></div>
           ))}
@@ -532,20 +534,23 @@ function SkillGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
     <>
-      <DocSection id="install" marker="01" title={zh ? "安装 Skill" : "Install the Skill"} lead={zh ? "Skill 只需要安装一次。之后告诉 Agent 你想完成什么，它会通过 CLI 查资料、检查请求并执行必要的步骤。" : "Install the Skill once. Then tell your agent what you want to accomplish; it uses the CLI to look things up, check the request, and complete the necessary steps."}>
+      <DocSection id="install" marker="01" title={zh ? "安装统一或产品 Skill" : "Install a universal or product Skill"} lead={zh ? "先安装统一 pontx-hub Skill；需要某个提供商的集成流程、最佳实践或注意事项时，再安装对应产品 Skill。" : "Start with the universal pontx-hub Skill, then add a product Skill when you need a provider's integration flow, best practices, or caveats."}>
         <CodeTabs locale={locale} label={zh ? "Skill 安装方式" : "Skill installation methods"} examples={[
           { id: "skill-standard", label: "Agent Skills", language: "shell", code: `npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub` },
           { id: "skill-cli", label: "Pontx Hub CLI", language: "shell", code: `pnpm add --global @pontx/hub-cli
-pontx-hub skill install` }
+pontx-hub skill install
+pontx-hub skill list
+pontx-hub skill install stripe-identity` }
         ]} />
-        <p>{zh ? "CLI 默认安装到当前项目的 .agents/skills/pontx-hub；使用 --output 可选择目录，使用 --force 明确更新已有 Skill。" : "The CLI installs to .agents/skills/pontx-hub in the current project. Use --output to choose a location and --force to explicitly update an existing Skill."}</p>
+        <p>{zh ? "skill install 不带参数时安装统一 Skill；传入 apiSlug 或完整 Skill 名称时安装产品 Skill。使用 --output 选择目录，使用 --force 明确更新已有 Skill。" : "skill install without an argument installs the universal Skill; pass an apiSlug or full Skill name to install a product Skill. Use --output to choose a location and --force to explicitly update an existing Skill."}</p>
       </DocSection>
 
-      <DocSection id="workflow" marker="02" title={zh ? "一次完整的使用过程" : "A complete request"} lead={zh ? "你可以看到它找到什么、准备发送什么；涉及真实调用时，仍由你决定是否继续。" : "You can see what it found and what it plans to send. You still decide whether a live call should go ahead."}>
+      <DocSection id="workflow" marker="02" title={zh ? "统一发现，产品指引" : "Universal discovery, product guidance"} lead={zh ? "统一 Skill 用 CLI 查找并检查当前资料；产品 Skill 只在选定 API 后补充提供商特有的步骤和风险提示。真实调用仍由你决定。" : "The universal Skill uses the CLI to find and inspect current data. After an API is selected, a product Skill adds only provider-specific sequencing and risk guidance. You still decide on every live call."}>
         <div className="docs-agent-flow">
           {[
             ["search", zh ? "找到合适的接口" : "Find the right Endpoint"],
             ["show", zh ? "查看参数和说明" : "Read parameters and docs"],
+            ["product Skill", zh ? "补充产品集成指引" : "Add product guidance"],
             ["preview", zh ? "核对完整请求" : "Check the full request"],
             ["confirm", zh ? "确认是否会修改数据" : "Confirm any data changes"],
             ["call", zh ? "确认后调用" : "Call after confirmation"],
@@ -561,13 +566,13 @@ pontx-hub frankfurter preview 'Exchange Rates' getLatestRates --base USD
 pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
       </DocSection>
 
-      <DocSection id="context" marker="03" title={zh ? "需要时再读取 API 资料" : "Load API details when needed"} lead={zh ? "Skill 主要规定做事步骤；具体的 API、接口和字段会按当前问题从目录读取，不必把整份 API 目录放进 Skill。" : "The Skill mainly defines the process. It reads the relevant API, Endpoint, and field details from the catalog for the question at hand instead of bundling the whole catalog."}>
+      <DocSection id="context" marker="03" title={zh ? "两层 Skill，一份 PontxSpec" : "Two Skill layers, one PontxSpec"} lead={zh ? "Skill 只保留真正有用的流程与经验；具体 API、接口、字段、认证和版本始终按当前问题从 PontxSpec 读取。" : "Skills keep only useful workflow guidance. APIs, Endpoints, fields, authentication, and versions are always read from the current PontxSpec for the task."}>
         <div className="docs-context-meter">
-          <div><span>{zh ? "Skill 自带" : "Included in the Skill"}</span><strong>{zh ? "查找与调用步骤" : "Search and call steps"}</strong><i /></div>
-          <div><span>{zh ? "需要时读取" : "Read when needed"}</span><strong>API → Endpoint → Schema</strong><i /></div>
-          <div><span>{zh ? "交付给你" : "Ready for you"}</span><strong>Preview → Call → SDK</strong><i /></div>
+          <div><span>{zh ? "统一 Skill" : "Universal Skill"}</span><strong>{zh ? "跨目录发现与安全流程" : "Catalog discovery and safety"}</strong><i /></div>
+          <div><span>{zh ? "产品 Skill" : "Product Skill"}</span><strong>{zh ? "提供商特有流程与注意事项" : "Provider flows and caveats"}</strong><i /></div>
+          <div><span>{zh ? "当前 PontxSpec" : "Current PontxSpec"}</span><strong>API → Endpoint → Schema → SDK</strong><i /></div>
         </div>
-        <p>{zh ? "这样更容易拿到最新参数，也不会被无关的数据结构干扰。每次选择仍会保留稳定的资源 ID，方便你继续查看和复用。" : "This makes it easier to use current parameters without unrelated data getting in the way. Stable resource IDs remain available for inspection and reuse."}</p>
+        <p>{zh ? "产品 Skill 不复制 Endpoint 清单、Schema 或参数表。这样更容易拿到最新资料，也不会让提供商经验与 API 元数据发生漂移。" : "Product Skills do not copy Endpoint inventories, Schemas, or parameter tables. This keeps provider guidance useful without letting it drift from API metadata."}</p>
       </DocSection>
 
       <DocSection id="boundaries" marker="04" title={zh ? "不可绕过的边界" : "Boundaries that cannot be bypassed"} lead={zh ? "Skill 可以帮你查资料和准备调用，但不会替你决定是否发送请求。" : "The Skill can find information and prepare a call, but it never decides to send the request for you."}>
@@ -576,11 +581,13 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
           <li><span>✓</span>{zh ? "可能修改数据的操作，必须先展示完整请求，再由你确认。" : "Any operation that may change data must show the full request before you confirm it."}</li>
           <li><span>✓</span>{zh ? "凭证来自环境变量，不写入命令参数、日志或回复。" : "Credentials come from environment variables, never arguments, logs, or responses."}</li>
           <li><span>✓</span>{zh ? "只能调用 Hub 目录中批准的 API、接口与服务地址。" : "Only catalog-approved APIs, Endpoints, and servers can be called."}</li>
+          <li><span>✓</span>{zh ? "产品 Skill 负责提供商集成经验，当前 API 事实仍以 PontxSpec 为准。" : "Product Skills provide provider integration guidance; the current PontxSpec remains authoritative for API facts."}</li>
+          <li><span>✓</span>{zh ? "应用代码使用已发布的 @pontx/<apiSlug> SDK。" : "Application code uses the published @pontx/<apiSlug> SDK."}</li>
         </ul>
         <div className="docs-next-action">
           <span>→</span>
-          <p>{zh ? "查看 Skill 的公开说明页，或者继续了解凭证与请求确认规则。" : "Read the public Skill overview, or continue with credentials and request confirmation."}</p>
-          <Link to={`/${locale}/skills/pontx-hub`}>{zh ? "查看 Skill 说明" : "Read the Skill overview"}</Link>
+          <p>{zh ? "浏览统一与产品 Skills，或者继续了解凭证与请求确认规则。" : "Browse universal and product Skills, or continue with credentials and request confirmation."}</p>
+          <Link to={`/${locale}/skills`}>{zh ? "浏览 Skills" : "Browse Skills"}</Link>
         </div>
       </DocSection>
     </>

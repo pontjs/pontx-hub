@@ -1,0 +1,163 @@
+name: Publish universal Skill
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/skill-publish.yml"
+      - "plugins/pontx-api/skills/pontx-hub/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/skill-publish.yml"
+      - "plugins/pontx-api/skills/pontx-hub/**"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish instead of running the non-mutating preview
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: universal-skill-publish-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  CLAWHUB_CLI_VERSION: 0.23.1
+  SKILL_NAME: pontx-hub
+  SKILL_VERSION: 0.4.0
+  SKILL_PATH: plugins/pontx-api/skills/pontx-hub
+
+jobs:
+  validate-and-install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the exact source commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Validate the publish contract
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec vitest run app/lib/skill-publish-workflow.test.ts
+
+      - name: Verify a clean skills.sh-compatible install
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISABLE_TELEMETRY: "1"
+        run: |
+          install_root=$(mktemp -d)
+          source="$GITHUB_WORKSPACE"
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            source="pontjs/pontx-hub"
+          fi
+          cd "$install_root"
+          npx --yes skills@latest add "$source" \
+            --skill "$SKILL_NAME" \
+            --agent codex \
+            --copy \
+            --yes
+          installed="$install_root/.agents/skills/$SKILL_NAME/SKILL.md"
+          test -f "$installed"
+          cmp "$GITHUB_WORKSPACE/$SKILL_PATH/SKILL.md" "$installed"
+
+  clawhub:
+    needs: validate-and-install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the exact source commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Select preview or publish mode
+        id: mode
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUBLISH_REQUESTED: ${{ inputs.publish }}
+        run: |
+          mode=dry-run
+          if [ "$EVENT_NAME" = "push" ] || { [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$PUBLISH_REQUESTED" = "true" ]; }; then
+            mode=publish
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate for a real publish
+        if: steps.mode.outputs.mode == 'publish'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+          CLAWHUB_CONFIG_PATH: ${{ runner.temp }}/clawhub-config.json
+        run: |
+          if [ -z "$CLAWHUB_TOKEN" ]; then
+            echo "CLAWHUB_TOKEN is not configured."
+            exit 1
+          fi
+          npx --yes "clawhub@$CLAWHUB_CLI_VERSION" login --token "$CLAWHUB_TOKEN"
+          npx --yes "clawhub@$CLAWHUB_CLI_VERSION" whoami
+
+      - name: Publish or verify the exact immutable version
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+          CLAWHUB_CONFIG_PATH: ${{ runner.temp }}/clawhub-config.json
+          CLAWHUB_DISABLE_TELEMETRY: "1"
+        run: |
+          skill_root="$GITHUB_WORKSPACE/$SKILL_PATH"
+          remote_json="${{ runner.temp }}/remote-$SKILL_NAME.json"
+
+          verify_remote() {
+            test "$(jq -r '.version.version' "$remote_json")" = "$SKILL_VERSION"
+            local_paths="${{ runner.temp }}/local-paths.txt"
+            remote_paths="${{ runner.temp }}/remote-paths.txt"
+            (cd "$skill_root" && find . -type f -print | sed 's#^./##' | LC_ALL=C sort) > "$local_paths"
+            jq -r '.version.files[].path' "$remote_json" | LC_ALL=C sort > "$remote_paths"
+            diff -u "$local_paths" "$remote_paths"
+            while IFS= read -r relative_path; do
+              local_sha=$(sha256sum "$skill_root/$relative_path" | cut -d' ' -f1)
+              remote_sha=$(jq -r --arg path "$relative_path" '.version.files[] | select(.path == $path) | .sha256' "$remote_json")
+              test "$local_sha" = "$remote_sha"
+            done < "$local_paths"
+          }
+
+          if npx --yes "clawhub@$CLAWHUB_CLI_VERSION" inspect \
+            "@pontjs/$SKILL_NAME" --version "$SKILL_VERSION" --json > "$remote_json" 2>/dev/null; then
+            verify_remote
+            echo "ClawHub already has the identical immutable version."
+            exit 0
+          fi
+
+          publish_args=(--owner pontjs --version "$SKILL_VERSION" --json)
+          if [ "$MODE" = "dry-run" ]; then
+            publish_args+=(--dry-run)
+          fi
+          npx --yes "clawhub@$CLAWHUB_CLI_VERSION" skill publish "$skill_root" \
+            "${publish_args[@]}" \
+            --source-repo "$GITHUB_REPOSITORY" \
+            --source-commit "$GITHUB_SHA" \
+            --source-ref "$GITHUB_REF" \
+            --source-path "$SKILL_PATH"
+
+          if [ "$MODE" = "publish" ]; then
+            npx --yes "clawhub@$CLAWHUB_CLI_VERSION" inspect \
+              "@pontjs/$SKILL_NAME" --version "$SKILL_VERSION" --json > "$remote_json"
+            verify_remote
+          fi

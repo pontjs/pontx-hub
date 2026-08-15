@@ -1,6 +1,7 @@
 import { listCatalog } from "~/lib/catalog/catalog.server";
 import { DOC_SLUGS } from "~/lib/docs";
 import { siteUrl } from "~/lib/http";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 function escapeXml(value: string): string {
   return value
@@ -17,7 +18,8 @@ export function loader() {
     ...DOC_SLUGS.map((slug) => ({
       path: slug === "overview" ? "/docs" : `/docs/${slug}`
     })),
-    { path: "/skills/pontx-hub" }
+    { path: "/skills" },
+    ...listSkillSummaries().map((skill) => ({ path: `/skills/${skill.name}` }))
   ];
   for (const api of listCatalog()) {
     urls.push({ path: `/apis/${api.slug}`, lastmod: api.contentUpdatedAt });

@@ -39,5 +39,7 @@ export default [
   ),
   route(":locale/sdks/:apiSlug", "routes/sdk-detail.tsx"),
   route(":locale/agent-skill", "routes/agent-skill-redirect.tsx"),
-  route(":locale/skills/pontx-hub", "routes/agent-skill.tsx")
+  route(":locale/skills", "routes/skills-index.tsx"),
+  route(":locale/skills/pontx-hub", "routes/agent-skill.tsx"),
+  route(":locale/skills/:skillName", "routes/product-skill.tsx")
 ] satisfies RouteConfig;

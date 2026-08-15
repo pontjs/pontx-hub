@@ -26,7 +26,7 @@ collect client secrets.
 POST, PUT, PATCH, and DELETE are mutations even when their names sound
 read-only. Always:
 
-1. Inspect the operation metadata.
+1. Inspect the Endpoint metadata in the current PontxSpec.
 2. Run `pontx-hub <api-collection> preview [controller] <api-name>`.
 3. Present the resolved method, host, path, query, redacted headers, and body.
 4. State the expected side effect.

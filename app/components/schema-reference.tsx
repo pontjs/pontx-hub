@@ -11,12 +11,14 @@ export function SchemaReference({
   locale,
   api,
   spec,
-  schema
+  schema,
+  skillName
 }: {
   locale: Locale;
   api: CatalogApi;
   spec: PontxSpec;
   schema: CatalogSchema;
+  skillName?: string;
 }) {
   const zh = locale === "zh";
   const [isHydrated, setIsHydrated] = useState(false);
@@ -42,7 +44,12 @@ export function SchemaReference({
 
   return (
     <main className="schema-reference">
-      <ResourceNavigation locale={locale} api={api} active="schemas" />
+      <ResourceNavigation
+        locale={locale}
+        api={api}
+        active="schemas"
+        skillName={skillName}
+      />
       <div className="schema-reference-grid">
         <aside
           className="schema-directory"

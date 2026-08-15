@@ -34,6 +34,18 @@
         "Requests explicit confirmation before passing --yes",
         "Does not expose credentials"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "I am integrating Stripe Identity and want the provider-specific workflow and caveats in my coding agent. Find the matching Pontx product Skill and show me how to install it. Do not make an API request.",
+      "expected_output": "Lists available Pontx Skills, identifies the Stripe Identity product Skill, explains that it adds provider-specific guidance while the Hub remains authoritative for current PontxSpec details, and installs it only after user approval.",
+      "files": [],
+      "expectations": [
+        "Uses pontx-hub skill list to discover the product Skill",
+        "Uses pontx-hub skill install stripe-identity as the installation command",
+        "Explains the universal Skill and product Skill responsibilities",
+        "Does not execute a provider request"
+      ]
     }
   ]
 }

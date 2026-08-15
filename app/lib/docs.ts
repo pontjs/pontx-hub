@@ -35,8 +35,8 @@ const pages: Record<DocSlug, DocPageDefinition> = {
     slug: "overview",
     navTitle: text("文档首页", "Documentation home"),
     metaTitle: text(
-      "API 文档、统一 SDK、统一 CLI 与 Agent Skill",
-      "API Documentation, Unified SDK, Universal CLI & Agent Skill"
+      "API 文档、统一 SDK、统一 CLI 与 Agent Skills",
+      "API Documentation, Unified SDK, Universal CLI & Agent Skills"
     ),
     title: text("每个被收录的 API，都有一致的 SDK 与 CLI 调用方式。", "Every curated API comes with a consistent SDK and CLI call model."),
     description: text(
@@ -138,22 +138,22 @@ const pages: Record<DocSlug, DocPageDefinition> = {
   },
   "agent-skill": {
     slug: "agent-skill",
-    navTitle: text("Agent Skill", "Agent Skill"),
+    navTitle: text("Agent Skills", "Agent Skills"),
     metaTitle: text(
-      "Agent Skill：查找、预演与调用 API",
-      "Agent Skill for API Discovery, Preview & Calls"
+      "Agent Skills：统一发现与产品集成",
+      "Agent Skills for Universal Discovery & Product Integration"
     ),
-    title: text("让 Agent 用一套清楚可靠的步骤来使用 API。", "Give your agent a clear, reliable way to work with APIs."),
+    title: text("让 Agent 结合统一 Skill 与产品 Skill 使用 API。", "Combine universal and product Skills to work with APIs."),
     description: text(
-      "安装 Pontx Hub Agent Skill，让 Agent 按清楚步骤搜索 API、核对接口参数、预览请求，并在确认后调用接口或准备统一 SDK 代码。",
-      "Install the Pontx Hub Agent Skill so an agent can find APIs, check Endpoint parameters, preview requests, and, once confirmed, call an Endpoint or prepare Unified SDK code."
+      "统一 pontx-hub Skill 负责跨目录发现、检查与安全调用；产品 Skill 补充提供商特有的集成流程、最佳实践和注意事项。",
+      "The universal pontx-hub Skill handles catalog-wide discovery, inspection, and safe calls; product Skills add provider-specific integration flows, best practices, and caveats."
     ),
-    eyebrow: text("Agent / 通用 Skill", "Agent / universal Skill"),
-    keywords: text("Agent Skill Codex 安装 工作流 安全", "Agent Skill Codex install workflow safety"),
+    eyebrow: text("Agent / 统一 + 产品 Skills", "Agent / universal + product Skills"),
+    keywords: text("Agent Skills Codex 产品 Skill 安装 工作流 安全", "Agent Skills Codex product Skill install workflow safety"),
     sections: [
-      { id: "install", title: text("安装 Skill", "Install the Skill") },
-      { id: "workflow", title: text("一次完整的使用过程", "A complete request") },
-      { id: "context", title: text("需要时再读取 API 资料", "Load API details when needed") },
+      { id: "install", title: text("安装统一或产品 Skill", "Install a universal or product Skill") },
+      { id: "workflow", title: text("统一发现，产品指引", "Universal discovery, product guidance") },
+      { id: "context", title: text("两层 Skill，一份 PontxSpec", "Two Skill layers, one PontxSpec") },
       { id: "boundaries", title: text("不可绕过的边界", "Boundaries that cannot be bypassed") }
     ]
   },

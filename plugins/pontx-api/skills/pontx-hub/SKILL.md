@@ -1,6 +1,6 @@
 ---
 name: pontx-hub
-description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use when an agent needs API discovery, OpenAPI Endpoint or Schema search, safe request preview, explicit mutation confirmation, or unified SDK generation.
+description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use for catalog-wide API discovery, PontxSpec Endpoint or Schema inspection, product Skill installation, safe request preview, explicit mutation confirmation, or unified SDK integration.
 ---
 
 # Pontx Hub
@@ -8,6 +8,10 @@ description: Search, inspect, preview, call, and integrate curated public APIs t
 Use `pontx-hub` as the authoritative interface to the curated API catalog. Keep
 API metadata out of long-lived context by searching and loading only the
 product, endpoint, or schema needed for the current task.
+
+This universal Skill owns catalog-wide discovery and request safety. A
+`pontx-<apiSlug>` product Skill adds only provider-specific integration flows,
+best practices, and caveats; it does not replace the current PontxSpec.
 
 ## Workflow
 
@@ -33,31 +37,46 @@ product, endpoint, or schema needed for the current task.
    pontx-hub show schema:<api>/<schema>
    ```
 
-3. For an endpoint, build and review the exact request without sending it:
+3. When provider-specific guidance would help, check the available product
+   Skills. Explain the benefit and install one only when the user requests or
+   approves the installation:
+
+   ```bash
+   pontx-hub skill list
+   pontx-hub skill install <apiSlug>
+   ```
+
+   Use that product Skill for provider-specific sequencing and caveats, then
+   return to `pontx-hub show` for current Endpoint, Schema, and auth details.
+
+4. For an Endpoint, build and review the exact request without sending it:
 
    ```bash
    pontx-hub <api-collection> preview <api-name> --parameter value --body '<json>'
    pontx-hub <api-collection> preview <controller> <api-name> --parameter value --body '<json>'
    ```
 
-4. For GET or HEAD, call only when the user requested execution:
+5. For GET or HEAD, call only when the user requested execution:
 
    ```bash
    pontx-hub <api-collection> call <api-name> --parameter value
    pontx-hub <api-collection> call <controller> <api-name> --parameter value
    ```
 
-5. For POST, PUT, PATCH, or DELETE, show the dry-run result and obtain explicit
+6. For POST, PUT, PATCH, or DELETE, show the dry-run result and obtain explicit
    user confirmation. Then pass `--yes` without changing parameters:
 
    ```bash
    pontx-hub <api-collection> call <controller> <api-name> --parameter value --body '<json>' --yes
    ```
 
-6. Generate integration code after the request shape is verified:
+7. Generate application code after the request shape is verified. Use the
+   package and exports reported by the Hub instead of inventing a package or
+   pinning a stale version:
 
    ```bash
    pontx-hub sdk <api>
+   pnpm add @pontx/<apiSlug>
    ```
 
 ## Safety
@@ -66,9 +85,12 @@ product, endpoint, or schema needed for the current task.
   preview an API.
 - Never print, echo, log, or place credentials directly in command arguments.
 - Read credentials from the environment variables named by `show`.
-- Never call an arbitrary URL or an operation outside the Hub catalog.
+- Never call an arbitrary URL or an Endpoint outside the Hub catalog.
+- Never treat a product Skill as the source for Endpoint, parameter, Schema,
+  authentication, package-version, or server metadata; inspect the current
+  PontxSpec through the Hub.
 - Never bypass the separate `preview` step for a mutation.
-- Treat a changed parameter, body, server, or operation as a new request that
+- Treat a changed parameter, body, server, or Endpoint as a new request that
   requires another dry-run and confirmation.
 - Read [references/auth-and-safety.md](references/auth-and-safety.md) when
   configuring credentials, diagnosing authentication, or executing a mutation.
@@ -79,5 +101,5 @@ Prefer `--json` when consuming CLI output programmatically. Preserve the CLI
 exit code and machine-readable error code when reporting failures. Use the
 result's `match.mode` and `match.fields` to explain whether product, parameter,
 request, response, schema, or property metadata produced the match. Use the
-operation's published `@pontx/<api-slug>` package when generating application
+Endpoint's published `@pontx/<apiSlug>` package when generating application
 code.

@@ -33,12 +33,35 @@ describe("API resource navigation", () => {
 
     expect(contextNavigation).toContain("resource-navigation-mobile-link is-active");
     expect(contextNavigation).toContain(`href="/zh/sdks/${api.slug}"`);
+    expect(contextNavigation).not.toContain(`/zh/skills/pontx-${api.slug}`);
     expect(directoryNavigation).toContain('role="group" aria-label="API 参考目录"');
     expect(directoryNavigation).toContain('<details class="resource-directory-group" open=""><summary aria-current="page"><span>接口</span>');
     expect(directoryNavigation).toContain('<details class="resource-directory-group"><summary><span>数据结构</span>');
     expect(directoryNavigation).toContain('placeholder="搜索接口…"');
     expect(directoryNavigation).toContain(`href="/zh/apis/${api.slug}/schemas/`);
     expect(directoryNavigation).toContain(`aria-label="${api.schemas.length} 个数据结构">${api.schemas.length}</strong>`);
+  });
+
+  it("shows a product Skill tab only when the loader resolves one", () => {
+    const skillName = `pontx-${api.slug}`;
+    const withSkill = render(createElement(ResourceNavigation, {
+      locale: "en",
+      api,
+      active: "skill",
+      skillName
+    }));
+    const withoutSkill = render(createElement(ResourceNavigation, {
+      locale: "en",
+      api,
+      active: "overview"
+    }));
+
+    expect(withSkill).toContain(`aria-current="page" href="/en/skills/${skillName}"`);
+    expect(withSkill).toContain(">Skill</a>");
+    expect(withSkill).toContain(">Endpoints</a>");
+    expect(withSkill).toContain(">Schemas<span>");
+    expect(withSkill).not.toMatch(/resource-navigation-mobile-link[^>]+>Endpoints/);
+    expect(withoutSkill).not.toContain(`/en/skills/${skillName}`);
   });
 
   it("opens the English Schema group and marks the current Schema link", () => {

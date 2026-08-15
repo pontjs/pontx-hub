@@ -6,6 +6,7 @@ import type { CatalogOperation } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
+import { listSkillSummaries } from "~/lib/product-skills.server";
 
 function quickStartScore(operation: CatalogOperation): number {
   const required = operation.parameters.filter((parameter) => parameter.required);
@@ -37,7 +38,10 @@ export async function loader({ params }: Route.LoaderArgs) {
     [...api.operations].sort(
       (left, right) => quickStartScore(right) - quickStartScore(left)
     )[0];
-  return { locale, api, spec, operation };
+  const skillName = listSkillSummaries().find(
+    (skill) => skill.apiSlug === api.slug
+  )?.name;
+  return { locale, api, spec, operation, skillName };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -92,7 +96,7 @@ export function headers() {
 }
 
 export default function ApiDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, spec, operation } = loaderData;
+  const { locale, api, spec, operation, skillName } = loaderData;
   return (
     <SiteShell locale={locale}>
       <PontxApiWorkspace
@@ -100,6 +104,7 @@ export default function ApiDetail({ loaderData }: Route.ComponentProps) {
         api={api}
         spec={spec}
         operation={operation}
+        skillName={skillName}
         variant="guided"
       />
     </SiteShell>

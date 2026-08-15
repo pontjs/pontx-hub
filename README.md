@@ -89,7 +89,8 @@ repository. The Hub first reads the small `catalog/products.json` index, then
 loads every product's `product.json`, `spec.pontx.json`, `sdk.json`, and locale
 files from one exact metadata commit. It validates the canonical and localized
 PontxSpecs before writing untracked per-product build caches; there is no
-aggregate Catalog payload or OpenAPI build dependency.
+aggregate Catalog payload, and the build consumes the declared PontxSpec
+hierarchy directly.
 
 Local development auto-discovers a sibling metadata checkout or accepts
 `METADATA_REPO_LOCAL_PATH`. Remote builds must set `METADATA_REPO_COMMIT` to an
@@ -112,15 +113,16 @@ throughput. Add human-reviewed cases in
 `app/lib/catalog/search-evaluation-cases.ts` as the catalog and query traffic
 expand; do not lower thresholds to accommodate a ranking regression.
 
-## Hub CLI and Agent Skill
+## Hub CLI and Agent Skills
 
 The standalone [`pontx-hub-cli`](https://github.com/pontjs/pontx-hub-cli)
 repository communicates only with the public Hub HTTP API. It provides one
 hybrid semantic search across API products, Endpoints, request parameters,
-request/response schemas, and PontxSpec data structures, and
-installs the universal Agent Skill without coupling Hub releases to Pontx.
+request/response schemas, and PontxSpec data structures. It also discovers and
+installs the universal `pontx-hub` Skill and focused product Skills without
+coupling Hub releases to Pontx.
 
-The source Skill is packaged in the skills-only
+The universal Skill is packaged in the skills-only
 [`Pontx API plugin`](./plugins/pontx-api), and is also discoverable from
 [`/.well-known/skills/index.json`](https://pontx.dev/.well-known/skills/index.json),
 while [`/llms.txt`](https://pontx.dev/llms.txt) provides a compact Agent-readable
@@ -128,12 +130,24 @@ map of the canonical documentation and
 [`/openapi.json`](https://pontx.dev/openapi.json) describes the read-only Hub
 discovery API.
 
+Use the universal Skill and `pontx-hub` CLI for catalog-wide discovery,
+PontxSpec inspection, safe request preview, and approved calls. Product Skills
+named `pontx-<apiSlug>` come from `pontx-api-metadata` and add only
+provider-specific integration flows, best practices, and caveats. Application
+code uses the published `@pontx/<apiSlug>` SDK; neither Skill layer duplicates
+the current Endpoint, Schema, authentication, or package metadata.
+
 ```bash
+pontx-hub skill install
+pontx-hub skill list
+pontx-hub skill install stripe-identity
+
 pontx-hub search "exchange rate" --json
 pontx-hub search "创建任务的入参" --locale zh --json
 pontx-hub search "返回 dueDate 的接口" --locale zh --json
 pontx-hub search projectId --type schema --json
 pontx-hub show schema:dida365/TaskCreate
+pontx-hub sdk stripe-identity
 ```
 
 The reusable search contract is `GET /api/v2/search`. The endpoint accepts
