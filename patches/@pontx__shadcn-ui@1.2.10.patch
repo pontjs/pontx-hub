@@ -1,0 +1,87 @@
+diff --git a/dist/ApiDocumentation-RfFnc9mz.js b/dist/ApiDocumentation-RfFnc9mz.js
+index 82ca26855da98bdf0abf73d6e7a2c0ec6a77068b..5454422568917233e329ade398bde458a998c532 100644
+--- a/dist/ApiDocumentation-RfFnc9mz.js
++++ b/dist/ApiDocumentation-RfFnc9mz.js
+@@ -22,6 +22,8 @@ const ee = ({
+   oauthRequiredScopes: P,
+   executionResult: A,
+   isExecuting: T = !1,
++  executeDisabled: ne,
++  executeDisabledReason: te,
+   onValidationError: I,
+   onPlaygroundStateChange: p,
+   getCodeGenScenarios: S,
+@@ -70,9 +72,9 @@ const ee = ({
+                   {
+                     variant: "default",
+                     size: "sm",
+-                    disabled: v,
++                    disabled: v || ne,
+                     onClick: H,
+-                    title: n(o ? "tryApi" : "executeUnavailable"),
++                    title: ne ? te : n(o ? "tryApi" : "executeUnavailable"),
+                     children: n("try")
+                   }
+                 )
+@@ -283,6 +285,8 @@ const ee = ({
+               oauthRequiredScopes: P,
+               executionResult: A,
+               isExecuting: T,
++              executeDisabled: ne,
++              executeDisabledReason: te,
+               onValidationError: I,
+               getCodeGenScenarios: S,
+               onGenerateCode: V
+diff --git a/dist/PlaygroundPanel-Ec9bZbbT.js b/dist/PlaygroundPanel-Ec9bZbbT.js
+index 3f728fbd6936ad8c33a03292d9eaa41336410f04..f5ee5568149220dd5c54fee27d1bd102f2bd6d3d 100644
+--- a/dist/PlaygroundPanel-Ec9bZbbT.js
++++ b/dist/PlaygroundPanel-Ec9bZbbT.js
+@@ -651,6 +651,8 @@ const Jt = ({
+   oauthRequiredScopes: C,
+   executionResult: E,
+   isExecuting: p,
++  executeDisabled: re,
++  executeDisabledReason: ae,
+   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   onValidationError: a,
+   onStateChange: s,
+@@ -960,7 +962,8 @@ const Jt = ({
+                   pt,
+                   {
+                     onExecute: nt,
+-                    disabled: p,
++                    disabled: p || re,
++                    disabledReason: re ? ae : void 0,
+                     isExecuting: p
+                   }
+                 ),
+diff --git a/dist/playground/PlaygroundPanel.d.ts b/dist/playground/PlaygroundPanel.d.ts
+index c5aefc424c81f1684695278112fe33f4a6e849c3..6429f8b379e7ff007258e93e73bbfd45f4f0272e 100644
+--- a/dist/playground/PlaygroundPanel.d.ts
++++ b/dist/playground/PlaygroundPanel.d.ts
+@@ -30,6 +30,10 @@ export interface PlaygroundPanelProps {
+     executionResult?: PlaygroundExecutionResult;
+     /** Whether request is currently executing */
+     isExecuting: boolean;
++    /** Prevent execution while a host prerequisite is unmet. */
++    executeDisabled?: boolean;
++    /** Explains why the host disabled execution. */
++    executeDisabledReason?: string;
+     /** Callback for validation errors */
+     onValidationError?: (errors: ValidationError[]) => void;
+     /** Callback for state changes */
+diff --git a/dist/types/playground.d.ts b/dist/types/playground.d.ts
+index 5ae9854a3b0a5f9cff602f686fb8439e05e0f0c1..a641692034602c24c09fde7ca19cfb14fa4e7b6f 100644
+--- a/dist/types/playground.d.ts
++++ b/dist/types/playground.d.ts
+@@ -172,6 +172,10 @@ export interface ApiDocumentationProps {
+     executionResult?: PlaygroundExecutionResult;
+     /** Whether request is currently executing */
+     isExecuting?: boolean;
++    /** Prevent execution while a host prerequisite is unmet. */
++    executeDisabled?: boolean;
++    /** Explains why the host disabled execution. */
++    executeDisabledReason?: string;
+     /** Callback for parameter validation errors */
+     onValidationError?: (errors: ValidationError[]) => void;
+     /** Callback for Playground state changes */
