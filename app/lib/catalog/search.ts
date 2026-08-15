@@ -80,7 +80,7 @@ const semanticConcepts: string[][] = [
   ["trade", "transaction", "成交", "交易"],
   ["chart", "kline", "candlestick", "bar", "bars", "图表", "k 线", "k线"],
   ["adjusted", "adjustment", "forward adjusted", "前复权"],
-  ["historical", "history", "past", "previous", "历史", "过去", "前一"],
+  ["historical", "history", "past", "previous", "yesterday", "close", "closing", "历史", "过去", "前一", "收盘"],
   ["fund", "funds", "基金"],
   ["nav", "net asset value", "净值"],
   ["estimate", "estimated", "valuation", "估值", "预估"],
