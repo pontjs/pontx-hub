@@ -28,7 +28,6 @@
     "@ag-ui/core": "0.0.57",
     "@anthropic-ai/sdk": "0.117.1",
     "@neondatabase/serverless": "^1.1.0",
-    "@pontx/nodejs-sdk": "^0.1.0",
     "@pontx/shadcn-ui": "^1.2.11",
     "@pontx/spec": "1.0.0-beta.5",
     "@radix-ui/react-collapsible": "^1.1.20",
@@ -44,7 +43,6 @@
     "react-markdown": "10.1.0",
     "react-router": "7.18.2",
     "remark-gfm": "4.0.1",
-    "yaml": "^2.8.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -62,7 +60,8 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.6",
     "vite-plugin-commonjs": "^0.10.4",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "yaml": "^2.8.1"
   },
   "pnpm": {
     "overrides": {

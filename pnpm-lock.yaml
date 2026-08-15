@@ -30,9 +30,6 @@ importers:
       '@neondatabase/serverless':
         specifier: ^1.1.0
         version: 1.1.0
-      '@pontx/nodejs-sdk':
-        specifier: ^0.1.0
-        version: 0.1.0(zod@3.25.76)
       '@pontx/shadcn-ui':
         specifier: ^1.2.11
         version: 1.2.11(patch_hash=1ebe9e6015cb335704e70d44e62aaeb7fab84a559d2f415ecb6a102ad88f0173)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -78,9 +75,6 @@ importers:
       remark-gfm:
         specifier: 4.0.1
         version: 4.0.1
-      yaml:
-        specifier: ^2.8.1
-        version: 2.9.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -130,6 +124,9 @@ importers:
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@types/node@22.20.1)(jsdom@26.1.0)(vite@7.3.6(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.1)(yaml@2.9.0))
+      yaml:
+        specifier: ^2.8.1
+        version: 2.9.0
 
 packages:
 
@@ -971,15 +968,6 @@ packages:
   '@opentelemetry/semantic-conventions@1.43.0':
     resolution: {integrity: sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg==}
     engines: {node: '>=14'}
-
-  '@pontx/nodejs-sdk@0.1.0':
-    resolution: {integrity: sha512-7AJNG10bzadYWv9Mjzkcrl/tw9HnvBLfgA4CcT97J86wBX3GkwKtSMg1EPP6d/6zZMfPpriTcN5H/9ItjXy6OQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      zod: ^3.20.0
-    peerDependenciesMeta:
-      zod:
-        optional: true
 
   '@pontx/shadcn-ui@1.2.11':
     resolution: {integrity: sha512-4hb/mBNRWvYmQNOAbohYLy7SDmxUHNDdBWv3ntaPLN8D4BAQ7pxlSuAzdYfr9Qv1ePLkJHnPANuXLHYhEQHyRA==}
@@ -4886,12 +4874,6 @@ snapshots:
       fastq: 1.20.1
 
   '@opentelemetry/semantic-conventions@1.43.0': {}
-
-  '@pontx/nodejs-sdk@0.1.0(zod@3.25.76)':
-    dependencies:
-      '@pontx/spec': 1.0.0-beta.5
-    optionalDependencies:
-      zod: 3.25.76
 
   '@pontx/shadcn-ui@1.2.11(patch_hash=1ebe9e6015cb335704e70d44e62aaeb7fab84a559d2f415ecb6a102ad88f0173)(@babel/core@7.29.7)(@babel/template@7.29.7)(@react-spectrum/provider@3.11.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(monaco-editor@0.56.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
