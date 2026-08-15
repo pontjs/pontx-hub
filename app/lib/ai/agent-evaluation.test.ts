@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { listCatalog } from "~/lib/catalog/catalog.server";
 import { runAgentTool } from "./tools.server";
 
 type EvaluationCase = {
@@ -15,6 +16,7 @@ type EvaluationCase = {
   expectConfirmation?: boolean;
   expectUiEvent?: string;
   expectPricingStatusOneOf?: string[];
+  requiresProducts?: string[];
 };
 
 const cases = JSON.parse(readFileSync(
@@ -23,8 +25,10 @@ const cases = JSON.parse(readFileSync(
 )) as EvaluationCase[];
 
 describe("Pontx AI assistant deterministic tool evaluations", () => {
+  const availableProducts = new Set(listCatalog().map((api) => api.slug));
   for (const evaluation of cases) {
-    it(evaluation.id, async () => {
+    const requires = evaluation.requiresProducts ?? [];
+    it.skipIf(requires.some((slug) => !availableProducts.has(slug)))(evaluation.id, async () => {
       const result = await runAgentTool(evaluation.tool, evaluation.input);
       const value = JSON.parse(result.content) as Record<string, any>;
       if (evaluation.expectResource) {

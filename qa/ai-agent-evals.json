@@ -112,7 +112,10 @@
         "api"
       ]
     },
-    "expectResource": "api:notion"
+    "expectResource": "api:notion",
+    "requiresProducts": [
+      "notion"
+    ]
   },
   {
     "id": "inspect-notion-read-en",
@@ -122,7 +125,10 @@
       "locale": "en"
     },
     "expectPath": "/v1/users/me",
-    "expectAuthType": "bearer"
+    "expectAuthType": "bearer",
+    "requiresProducts": [
+      "notion"
+    ]
   },
   {
     "id": "generate-notion-sdk-en",
@@ -131,7 +137,10 @@
       "apiSlug": "notion",
       "locale": "en"
     },
-    "expectText": "@pontx/notion"
+    "expectText": "@pontx/notion",
+    "requiresProducts": [
+      "notion"
+    ]
   },
   {
     "id": "prepare-notion-read-no-credentials",
@@ -149,6 +158,9 @@
     },
     "expectMethod": "GET",
     "expectConfirmation": false,
-    "expectUiEvent": "pontx.request_prepared"
+    "expectUiEvent": "pontx.request_prepared",
+    "requiresProducts": [
+      "notion"
+    ]
   }
 ]

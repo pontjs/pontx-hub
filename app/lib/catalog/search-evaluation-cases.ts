@@ -206,6 +206,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     kinds: ["api"],
     judgments: [{ id: "api:notion", relevance: 3 }],
     requiredTopK: 1,
+    requiresProducts: ["notion"],
     tags: ["zh", "api", "product"]
   },
   {
@@ -215,6 +216,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     kinds: ["endpoint"],
     judgments: [{ id: "endpoint:notion/list-views", relevance: 3 }, { id: "endpoint:notion/query-data-source", relevance: 2 }],
     requiredTopK: 1,
+    requiresProducts: ["notion"],
     tags: ["en", "semantic", "endpoint"]
   },
   {
@@ -224,6 +226,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     kinds: ["endpoint"],
     judgments: [{ id: "endpoint:notion/post-page", relevance: 3 }],
     requiredTopK: 1,
+    requiresProducts: ["notion"],
     tags: ["zh", "mutation", "endpoint"]
   }
 ];
