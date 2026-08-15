@@ -44,7 +44,7 @@ export function RequestExampleNotice({
   operation,
   example,
   selectedId,
-  previewOnly = false,
+  executionUnavailable = false,
   onSelect,
   onPreview
 }: {
@@ -53,7 +53,7 @@ export function RequestExampleNotice({
   operation: CatalogOperation;
   example: CatalogRequestExample;
   selectedId?: string;
-  previewOnly?: boolean;
+  executionUnavailable?: boolean;
   onSelect?: (id: string) => void;
   onPreview?: () => void;
 }) {
@@ -63,10 +63,10 @@ export function RequestExampleNotice({
     ? zh
       ? `已填入稳定值；发送前还需补充 ${example.unresolved.length} 个动态输入。`
       : `Stable values are prefilled; complete ${example.unresolved.length} dynamic input(s) before sending.`
-    : previewOnly
+    : executionUnavailable
       ? zh
-        ? "请求已按成功示例预填；Hub 仅生成预览，不会向供应商发送。"
-        : "The successful request example is prefilled; Hub will preview it without contacting the provider."
+        ? "请求已按成功示例预填；在线调用需要专用执行适配器，当前尚未提供。"
+        : "The successful request example is prefilled; online calls need a dedicated execution adapter, which is not available yet."
       : zh
         ? "已填入一组可成功调用的示例值；检查并确认后即可发送。"
         : "A successful request example is prefilled and ready to review before sending.";
@@ -88,8 +88,8 @@ export function RequestExampleNotice({
         <span className="request-example-state">
           {requiresInput
             ? zh ? "需补充输入" : "Input required"
-            : previewOnly
-              ? zh ? "仅预览" : "Preview only"
+            : executionUnavailable
+              ? zh ? "暂不可调用" : "Unavailable"
               : zh ? "可发送" : "Ready"}
         </span>
       </div>

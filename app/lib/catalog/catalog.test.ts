@@ -146,14 +146,23 @@ describe("curated catalog", () => {
     });
   });
 
-  it("preserves Amazon SQS's complete RPC contract and disabled Hub execution", () => {
+  it("keeps every REST Endpoint eligible for the shared Playground executor", () => {
+    const restOperations = listCatalog()
+      .flatMap((api) => api.operations)
+      .filter((operation) => operation.style === "RESTFul");
+
+    expect(restOperations).toHaveLength(258);
+    expect(restOperations.every((operation) => operation.proxyEnabled)).toBe(true);
+  });
+
+  it("preserves Amazon SQS's complete RPC contract without fabricating an HTTP executor", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "amazon-sqs");
     if (!api) {
       expect(listCatalog()).toHaveLength(9);
       return;
     }
     expect(api?.packageName).toBe("@pontx/amazon-sqs");
-    expect(api?.sdkVersion).toBe("0.1.3");
+    expect(api?.sdkVersion).toBe("0.1.4");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.sdkContract?.client).toMatchObject({

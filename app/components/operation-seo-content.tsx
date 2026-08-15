@@ -28,7 +28,7 @@ export function DocumentationEvidence({
     <aside className="documentation-evidence">
       {!availability.executionEnabled ? (
         <p>
-          <strong>{zh ? "仅预览：" : "Preview only: "}</strong>
+          <strong>{zh ? "暂不支持在线调用：" : "Online calls unavailable: "}</strong>
           {availability.disabledReason}
         </p>
       ) : null}
@@ -115,7 +115,7 @@ export function OperationSeoContent({
           api={api}
           operation={operation}
           example={requestExample}
-          previewOnly={!getPlaygroundAvailability(operation, locale).executionEnabled}
+          executionUnavailable={!getPlaygroundAvailability(operation, locale).executionEnabled}
         />
       ) : null}
 

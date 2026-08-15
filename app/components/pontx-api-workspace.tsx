@@ -273,8 +273,8 @@ export function ApiOverviewFacts({
         value: executableOperationCount
           ? `${executableOperationCount}/${api.operations.length}`
           : locale === "zh"
-            ? "仅预览"
-            : "Preview only",
+            ? "暂不可调用"
+            : "Unavailable",
         href: "#quick-call",
         ariaLabel: locale === "zh"
           ? `跳到 ${apiTitle} 在线调用`
@@ -1329,7 +1329,7 @@ export function PontxApiWorkspace({
             <div className="pontx-workspace-bar-actions">
               <p>
                 {!playgroundAvailability.executionEnabled
-                  ? locale === "zh" ? "仅预览 · 原因见下方" : "Preview only · details below"
+                  ? locale === "zh" ? "暂不支持在线调用 · 原因见下方" : "Online calls unavailable · details below"
                   : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
                 ? "调试经 Hub 代理 · 凭证仅保留当前会话"
                 : "Hub-proxied execution · credentials stay in this session"}
@@ -1377,7 +1377,7 @@ export function PontxApiWorkspace({
                   operation={activeOperation}
                   example={requestExample}
                   selectedId={requestExample.id}
-                  previewOnly={!playgroundAvailability.executionEnabled}
+                  executionUnavailable={!playgroundAvailability.executionEnabled}
                   onSelect={applyRequestExample}
                   onPreview={() => previewRequestExample(requestExample.id)}
                 />

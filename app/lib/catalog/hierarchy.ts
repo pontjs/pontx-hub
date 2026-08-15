@@ -282,8 +282,8 @@ function makeOperation(
     ...((style !== "RESTFul" || execution.enabled === false)
       ? {
           proxyDisabledReason: localized(
-            execution.disabledReason ?? "当前 API 风格尚无执行适配器。",
-            localeExecution.disabledReason ?? "This API style has no execution adapter yet."
+            execution.disabledReason ?? "当前 API 风格需要专用在线调用适配器，当前尚未提供。",
+            localeExecution.disabledReason ?? "This API style needs a dedicated online-call adapter, which is not available yet."
           )
         }
       : {}),

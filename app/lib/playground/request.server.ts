@@ -238,7 +238,7 @@ export function createPreview(input: PlaygroundRequestInput): PlaygroundPreview 
         ? ["This request changes provider state and requires explicit confirmation."]
         : []),
       ...(!prepared.proxyEnabled
-        ? ["This provider is configured for preview-only mode."]
+        ? ["This provider needs a dedicated execution adapter for online calls."]
         : [])
     ]
   };

@@ -311,24 +311,24 @@ describe("Hub API", () => {
     expect(payload.data.warnings).toEqual([]);
   });
 
-  it("rejects an explicitly disabled endpoint without a generic 500", async () => {
+  it("reports a missing RPC execution adapter without a generic 500", async () => {
     const response = await hubApi.request("/api/v1/playground/execute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        apiSlug: "stripe-identity",
-        operationSlug: "get-identity-verification-sessions",
-        serverId: "stripe-identity",
+        apiSlug: "amazon-sqs",
+        operationSlug: "list-queues",
+        serverId: "aws-sqs-regional",
         path: {},
         query: {}
       })
     });
     const payload = await response.json();
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(400);
     expect(payload.error.code).toBe("request_rejected");
     expect(payload.error.message).toBe(
-      "This endpoint is not enabled for Playground execution"
+      "This PontxSpec style has no Hub execution adapter"
     );
   });
 
