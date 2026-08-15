@@ -191,7 +191,8 @@ function makeOperation(
   localeSpec: PontxSpec,
   apiKey: string,
   api: PontxAPI,
-  localeApi: PontxAPI
+  localeApi: PontxAPI,
+  sdkMethod: string
 ): CatalogOperation {
   const source = api as JsonRecord;
   const translated = localeApi as JsonRecord;
@@ -233,7 +234,7 @@ function makeOperation(
 
   return {
     slug: slugify(operationId),
-    sdkMethod: apiKey.split("/").at(-1),
+    sdkMethod,
     operationId,
     tag: source.tags?.[0] ?? "",
     style,
@@ -415,9 +416,18 @@ function makeAuth(files: HierarchyProductFiles): CatalogAuthScheme[] {
 
 export function buildCatalogApi(files: HierarchyProductFiles): CatalogApi {
   const { product, localizedProduct, spec, localizedSpec, sdk, metadataCommit } = files;
-  const operations = Object.entries(spec.apis).map(([apiKey, api]) =>
-    makeOperation(spec, localizedSpec, apiKey, api, localizedSpec.apis[apiKey])
-  );
+  const sdkMethodNames = (sdk.contract?.methodNames ?? {}) as Record<string, string>;
+  const operations = Object.entries(spec.apis).map(([apiKey, api]) => {
+    const operationId = api.operationId ?? apiKey.split("/").at(-1) ?? apiKey;
+    return makeOperation(
+      spec,
+      localizedSpec,
+      apiKey,
+      api,
+      localizedSpec.apis[apiKey],
+      sdkMethodNames[operationId] ?? apiKey.split("/").at(-1) ?? operationId,
+    );
+  });
   const operationById = new Map(operations.map((operation) => [operation.operationId, operation]));
   const sdkOperationIds = sdk.coverage?.mode === "partial"
     ? sdk.coverage.endpointIds ?? []

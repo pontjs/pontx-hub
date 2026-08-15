@@ -321,6 +321,10 @@ const sdkContractSchema = z.object({
     javascriptIdentifierSchema,
     z.array(z.string().min(1)).min(1)
   ).optional(),
+  methodNames: z.record(
+    z.string().min(1),
+    javascriptIdentifierSchema
+  ).optional(),
   operations: z.array(z.string().min(1)).min(1)
 });
 
@@ -497,6 +501,24 @@ export const catalogApiSchema = z
             code: "custom",
             path: ["sdkContract", "controllers", controllerTag],
             message: `SDK Controllers require an explicit PontxSpec tag: ${controllerTag}`
+          });
+        }
+      }
+      for (const [operationId, methodName] of Object.entries(api.sdkContract.methodNames ?? {})) {
+        const operation = api.operations.find(
+          (candidate) => candidate.operationId === operationId
+        );
+        if (!operation) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "methodNames", operationId],
+            message: `Unknown SDK method mapping operation: ${operationId}`
+          });
+        } else if (operation.sdkMethod !== methodName) {
+          context.addIssue({
+            code: "custom",
+            path: ["sdkContract", "methodNames", operationId],
+            message: `SDK method mapping does not match ${operationId}`
           });
         }
       }

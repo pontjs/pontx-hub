@@ -86,6 +86,7 @@ const api = buildCatalogApi({
     contract: {
       client: { kind: "named", identifier: "rpcMinimalClient" },
       controllers: { inventory: "inventory" },
+      methodNames: { getItem: "readItem" },
       operations: ["getItem"]
     },
     spec: { path: "products/rpc-minimal/spec.pontx.json", sha256: "b".repeat(64) }
@@ -96,7 +97,7 @@ describe("Pontx hierarchy consumer", () => {
   it("loads and indexes RPC without OAS or HTTP coordinates", () => {
     expect(catalogApiSchema.parse(api)).toBeTruthy();
     const operation = api.operations[0];
-    expect(operation).toMatchObject({ style: "RPC", sdkMethod: "getItem", operationId: "getItem" });
+    expect(operation).toMatchObject({ style: "RPC", sdkMethod: "readItem", operationId: "getItem" });
     expect(operation).not.toHaveProperty("method");
     expect(operation).not.toHaveProperty("path");
     expect(buildSearchResponse([api], "inventory", "en").items[0]?.id)

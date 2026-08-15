@@ -250,6 +250,8 @@ export type SdkContract = {
   controllers: Record<string, string | null>;
   /** 旧分组访问仅作为兼容别名，不能参与稳定 Endpoint/CLI/Hub ID。 */
   compatibilityAliases?: Record<string, string[]>;
+  /** Stable Endpoint ID to generated SDK method mapping when the names differ. */
+  methodNames?: Record<string, string>;
   operations: string[];
 };
 
