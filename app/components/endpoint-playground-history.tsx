@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { Link } from "react-router";
 import type { Locale } from "~/lib/catalog/types";
 
@@ -104,6 +104,8 @@ export function EndpointPlaygroundHistory({
   const [loadedId, setLoadedId] = useState<string>();
   const [refreshFailed, setRefreshFailed] = useState(false);
   const [replayFailed, setReplayFailed] = useState(false);
+  const [expanded, setExpanded] = useState(Boolean(loadedEntryId));
+  const detailsId = useId();
 
   const availableServerKey = availableServerIds.join("\u0000");
   const availableServers = useMemo(
@@ -116,6 +118,10 @@ export function EndpointPlaygroundHistory({
       initialEntries.filter((entry) => availableServers.has(entry.serverId))
     );
   }, [availableServers, initialEntries]);
+
+  useEffect(() => {
+    if (loadedEntryId) setExpanded(true);
+  }, [loadedEntryId]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -174,90 +180,115 @@ export function EndpointPlaygroundHistory({
           </h2>
         </div>
         <div className="endpoint-playground-history-header-actions">
-          <span>{zh ? "重试会同步参数与代码" : "Retry syncs inputs and code"}</span>
+          <span>{zh ? "重试仅载入，不会发送" : "Retry loads only; no send"}</span>
+          {entries.length ? (
+            <button
+              className="endpoint-playground-history-toggle"
+              type="button"
+              aria-controls={detailsId}
+              aria-expanded={expanded}
+              aria-label={
+                expanded
+                  ? (zh ? "收起调试历史" : "Collapse Playground history")
+                  : (zh
+                      ? `展开 ${entries.length} 条调试历史`
+                      : `Expand ${entries.length} Playground history entries`)
+              }
+              onClick={() => setExpanded((value) => !value)}
+            >
+              {expanded ? (zh ? "收起" : "Collapse") : (zh ? "展开" : "Expand")}
+              <span aria-hidden="true">⌄</span>
+            </button>
+          ) : null}
           <Link to={`/${locale}/account/history`}>
             {zh ? "全部历史" : "All history"}<span aria-hidden="true">↗</span>
           </Link>
         </div>
       </header>
 
-      {entries.length ? (
-        <ol>
-          {entries.map((entry) => {
-            const successful =
-              entry.responseStatus >= 200 && entry.responseStatus < 300;
-            const time = formatHistoryTime(entry.createdAt, locale);
-            return (
-              <li key={entry.id} data-loaded={displayedLoadedId === entry.id || undefined}>
-                <span
-                  className={
-                    `endpoint-history-status${successful ? " is-success" : " is-error"}`
-                  }
-                >
-                  HTTP {entry.responseStatus}
-                </span>
-                <time dateTime={entry.createdAt}>{time} UTC</time>
-                <span className="endpoint-history-inputs">
-                  {historyInputSummary(entry, locale)}
-                  <small>{entry.durationMs} ms</small>
-                  {entry.omittedFields.length ? (
-                    <small title={entry.omittedFields.join(", ")}>
-                      {zh
-                        ? `已跳过 ${entry.omittedFields.length} 个敏感字段`
-                        : `${entry.omittedFields.length} sensitive omitted`}
-                    </small>
-                  ) : null}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => replay(entry)}
-                  title={
-                    zh
-                      ? "载入参数，不会自动发送请求"
-                      : "Load inputs without sending the request"
-                  }
-                  aria-label={
-                    zh
-                      ? `使用 ${time} 的参数重试`
-                      : `Retry with inputs from ${time}`
-                  }
-                >
-                  {displayedLoadedId === entry.id
-                    ? (zh ? "已载入" : "Loaded")
-                    : (zh ? "重试" : "Retry")}
-                  <span aria-hidden="true">→</span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      ) : (
-        <p className="endpoint-playground-history-empty">
-          {zh
-            ? "还没有当前接口的记录。完成一次调试后，可在这里直接重试。"
-            : "No runs for this endpoint yet. Finish one request to retry it here."}
-        </p>
-      )}
+      <div
+        id={detailsId}
+        className="endpoint-playground-history-details"
+        hidden={Boolean(entries.length) && !expanded}
+      >
+        {entries.length ? (
+          <ol>
+            {entries.map((entry) => {
+              const successful =
+                entry.responseStatus >= 200 && entry.responseStatus < 300;
+              const time = formatHistoryTime(entry.createdAt, locale);
+              return (
+                <li key={entry.id} data-loaded={displayedLoadedId === entry.id || undefined}>
+                  <span
+                    className={
+                      `endpoint-history-status${successful ? " is-success" : " is-error"}`
+                    }
+                  >
+                    HTTP {entry.responseStatus}
+                  </span>
+                  <time dateTime={entry.createdAt}>{time} UTC</time>
+                  <span className="endpoint-history-inputs">
+                    {historyInputSummary(entry, locale)}
+                    <small>{entry.durationMs} ms</small>
+                    {entry.omittedFields.length ? (
+                      <small title={entry.omittedFields.join(", ")}>
+                        {zh
+                          ? `已跳过 ${entry.omittedFields.length} 个敏感字段`
+                          : `${entry.omittedFields.length} sensitive omitted`}
+                      </small>
+                    ) : null}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => replay(entry)}
+                    title={
+                      zh
+                        ? "载入参数，不会自动发送请求"
+                        : "Load inputs without sending the request"
+                    }
+                    aria-label={
+                      zh
+                        ? `使用 ${time} 的参数重试`
+                        : `Retry with inputs from ${time}`
+                    }
+                  >
+                    {displayedLoadedId === entry.id
+                      ? (zh ? "已载入" : "Loaded")
+                      : (zh ? "重试" : "Retry")}
+                    <span aria-hidden="true">→</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <p className="endpoint-playground-history-empty">
+            {zh
+              ? "还没有当前接口的记录。完成一次调试后，可在这里直接重试。"
+              : "No runs for this endpoint yet. Finish one request to retry it here."}
+          </p>
+        )}
 
-      {displayedLoadedId ? (
-        <p className="endpoint-playground-history-feedback" role="status">
-          {zh
-            ? "历史参数已载入；Playground、统一 SDK 与 CLI 代码已同步，确认后可重新发送。"
-            : "History loaded. Playground, Unified SDK, and CLI code are in sync; review before sending."}
-        </p>
-      ) : replayFailed ? (
-        <p className="endpoint-playground-history-feedback is-error" role="alert">
-          {zh
-            ? "历史参数载入失败，请重试。"
-            : "History inputs could not be loaded. Try again."}
-        </p>
-      ) : refreshFailed ? (
-        <p className="endpoint-playground-history-feedback is-error" role="status">
-          {zh
-            ? "最新记录暂时未刷新，现有记录仍可使用。"
-            : "The latest run could not refresh; existing history is still available."}
-        </p>
-      ) : null}
+        {displayedLoadedId ? (
+          <p className="endpoint-playground-history-feedback" role="status">
+            {zh
+              ? "历史参数已载入；Playground、统一 SDK 与 CLI 代码已同步，确认后可重新发送。"
+              : "History loaded. Playground, Unified SDK, and CLI code are in sync; review before sending."}
+          </p>
+        ) : replayFailed ? (
+          <p className="endpoint-playground-history-feedback is-error" role="alert">
+            {zh
+              ? "历史参数载入失败，请重试。"
+              : "History inputs could not be loaded. Try again."}
+          </p>
+        ) : refreshFailed ? (
+          <p className="endpoint-playground-history-feedback is-error" role="status">
+            {zh
+              ? "最新记录暂时未刷新，现有记录仍可使用。"
+              : "The latest run could not refresh; existing history is still available."}
+          </p>
+        ) : null}
+      </div>
     </section>
   );
 }
