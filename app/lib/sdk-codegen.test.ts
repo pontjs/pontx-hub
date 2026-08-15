@@ -234,6 +234,24 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain('"limit": 0');
   });
 
+  it("passes Endpoint header parameters through RequestInit.headers", () => {
+    const headerOperation = {
+      ...operation,
+      parameters: [
+        { name: "base", in: "path", type: "string" },
+        { name: "If-Match", in: "header", type: "string", required: true }
+      ]
+    } as CatalogOperation;
+    const code = generateSdkSnippet(
+      api({ kind: "default", identifier: "ratesClient" }),
+      headerOperation,
+      { path: { base: "EUR" }, query: {}, headers: { "If-Match": "7" } }
+    );
+
+    expect(code).toMatch(/headers:\s*\{\s*"If-Match": "7"\s*\}/);
+    expect(code).not.toContain('\n  "If-Match": "7"\n);');
+  });
+
   it("rejects operations absent from the published SDK contract", () => {
     const contractApi = api({ kind: "default", identifier: "ratesClient" });
     const unsupported = { ...operation, operationId: "missing" };

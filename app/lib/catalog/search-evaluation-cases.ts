@@ -151,6 +151,26 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     tags: ["en", "finance", "aggregate"]
   },
   {
+    id: "zh-browser-screenshot-issue",
+    query: "网页问题截图创建缺陷",
+    locale: "zh",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:pinhere/create-issue", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["pinhere"],
+    tags: ["zh", "semantic", "browser-extension", "issue"]
+  },
+  {
+    id: "en-browser-screenshot-issue",
+    query: "browser extension screenshot issue triage",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:pinhere/create-issue", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["pinhere"],
+    tags: ["en", "semantic", "browser-extension", "issue"]
+  },
+  {
     id: "api-product",
     query: "task productivity service",
     locale: "en",

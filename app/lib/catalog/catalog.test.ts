@@ -172,7 +172,7 @@ describe("curated catalog", () => {
       .flatMap((api) => api.operations)
       .filter((operation) => operation.style === "RESTFul");
 
-    expect([258, 264]).toContain(restOperations.length);
+    expect([258, 264, 292]).toContain(restOperations.length);
     expect(restOperations.every((operation) =>
       operation.proxyEnabled || Boolean(operation.proxyDisabledReason)
     )).toBe(true);
