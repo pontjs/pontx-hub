@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
@@ -53,6 +53,15 @@ import {
   storedConfigForRequestExample,
   unresolvedRequestInputs
 } from "~/lib/playground/request-examples";
+import {
+  credentialGuidePreferenceKey,
+  isBrowserCredentialGuideCollapsed,
+  persistBrowserCredentialGuideCollapsed
+} from "~/lib/playground/credential-guide-preference";
+
+const useClientLayoutEffect = typeof window === "undefined"
+  ? useEffect
+  : useLayoutEffect;
 
 type OAuthAuthorizeInput = {
   schemeName: string;
@@ -327,9 +336,11 @@ export function OperationTaskSelect({
 }
 
 export function CredentialSetupGuide({
+  apiSlug,
   scheme,
   locale
 }: {
+  apiSlug: string;
   scheme: GuidedCredentialScheme;
   locale: Locale;
 }) {
@@ -352,10 +363,40 @@ export function CredentialSetupGuide({
         action: scheme.type === "apiKey" ? "Open API key dashboard ↗" : "Open credential dashboard ↗",
         safety: "Your credential stays in this browser session and is never stored on Pontx servers."
       };
+  const preferenceKey = credentialGuidePreferenceKey(apiSlug, scheme.id);
+  const [open, setOpen] = useState(true);
+
+  useClientLayoutEffect(() => {
+    setOpen(!isBrowserCredentialGuideCollapsed(apiSlug, scheme.id));
+  }, [apiSlug, preferenceKey, scheme.id]);
+
+  useEffect(() => {
+    const syncStoredPreference = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== preferenceKey) return;
+      setOpen(!isBrowserCredentialGuideCollapsed(apiSlug, scheme.id));
+    };
+
+    window.addEventListener("storage", syncStoredPreference);
+    return () => window.removeEventListener("storage", syncStoredPreference);
+  }, [apiSlug, preferenceKey, scheme.id]);
 
   return (
-    <details className="credential-setup-guide" open>
-      <summary>
+    <details
+      className="credential-setup-guide"
+      open={open}
+    >
+      <summary
+        onClick={(event) => {
+          event.preventDefault();
+          const nextOpen = !open;
+          setOpen(nextOpen);
+          persistBrowserCredentialGuideCollapsed(
+            apiSlug,
+            scheme.id,
+            !nextOpen
+          );
+        }}
+      >
         <span className="credential-setup-guide-mark" aria-hidden="true">{badge}</span>
         <span className="credential-setup-guide-heading">
           <strong>{localize(scheme.credentialGuide.title, locale)}</strong>
@@ -1349,7 +1390,12 @@ export function PontxApiWorkspace({
                 (!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer))) ? (
                   <div className="playground-context-stack">
                     {credentialGuideSchemes.map((scheme) => (
-                      <CredentialSetupGuide key={scheme.id} scheme={scheme} locale={locale} />
+                      <CredentialSetupGuide
+                        key={`${api.slug}:${scheme.id}`}
+                        apiSlug={api.slug}
+                        scheme={scheme}
+                        locale={locale}
+                      />
                     ))}
                     {!guided && (playgroundHistoryEnabled || Boolean(accounts.viewer)) ? (
                       <EndpointPlaygroundHistory

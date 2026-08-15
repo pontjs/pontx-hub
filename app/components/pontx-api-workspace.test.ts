@@ -168,6 +168,7 @@ describe("CredentialSetupGuide", () => {
     ["en" as const, "Get a Twelve Data API key", "Open API key dashboard", "never stored on Pontx servers"]
   ])("renders a localized, official, session-safe API key path in %s", (locale, title, action, safety) => {
     const html = renderToStaticMarkup(createElement(CredentialSetupGuide, {
+      apiSlug: "twelve-data-forex",
       scheme,
       locale
     }));
