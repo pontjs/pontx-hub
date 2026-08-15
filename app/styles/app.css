@@ -519,16 +519,6 @@ samp,
   transform: translateY(-3px);
 }
 
-.api-card::before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: var(--api-accent);
-  content: "";
-}
-
 .api-card-main {
   display: flex;
   min-width: 0;

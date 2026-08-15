@@ -31,6 +31,16 @@ describe("Pontx Hub visual system", () => {
     expect(css).toMatch(/\.api-card\s*{[\s\S]*?--api-accent:\s*var\(--blue\) !important;/);
   });
 
+  it("keeps catalog cards free of decorative accent stripes", async () => {
+    const [appCss, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(appCss).not.toMatch(/\.api-card::before\s*{/);
+    expect(systemCss).not.toMatch(/\.api-card::before\s*{/);
+  });
+
   it("keeps the GitHub hover border clear of its icon and label", async () => {
     const [appCss, systemCss] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),
