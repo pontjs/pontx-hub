@@ -14,7 +14,8 @@ describe("curated catalog", () => {
     expect([
       ["dida365", "frankfurter", "frankfurter-v2", "massive"],
       ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"]
+      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"],
+      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity"]
     ]).toContainEqual(catalog.map((api) => api.slug));
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
@@ -79,7 +80,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect([53, 126, 134]).toContain(operations.length);
+    expect([53, 126, 134, 142]).toContain(operations.length);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(

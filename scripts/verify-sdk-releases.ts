@@ -47,14 +47,19 @@ function declaredApiLockKeys(api: CatalogApi): string[] {
     if (!operation) {
       throw new Error(`${api.slug}: unknown SDK operation ${operationId}`);
     }
-    const controller = contract.controllers[operation.tag];
-    if (controller === null) {
-      return operationId;
-    }
-    if (!controller) {
+    if (!Object.prototype.hasOwnProperty.call(contract.controllers, operation.tag)) {
       throw new Error(
         `${api.slug}: no SDK controller for Endpoint tag ${operation.tag}`
       );
+    }
+    const controller = contract.controllers[operation.tag];
+    if (controller === null) {
+      if (operation.tag !== "default") {
+        throw new Error(
+          `${api.slug}: root-level SDK methods are allowed only for untagged Endpoints`
+        );
+      }
+      return operationId;
     }
     return `${controller}/${operationId}`;
   }).sort();
