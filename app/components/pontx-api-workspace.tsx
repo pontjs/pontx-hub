@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
   Button,
@@ -24,6 +24,8 @@ import type { PontxSpec } from "@pontx/spec";
 import { pontxApiView } from "~/lib/catalog/pontx-view";
 import type {
   CatalogApi,
+  CatalogApiContext,
+  CatalogEndpointSummary,
   CatalogOperation,
   Locale
 } from "~/lib/catalog/types";
@@ -185,7 +187,7 @@ export function ApiOverviewFacts({
   operationSlug
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   operationSlug: string;
 }) {
   const executableOperationCount = api.operations.filter(
@@ -214,15 +216,13 @@ export function ApiOverviewFacts({
     value,
     href,
     ariaLabel,
-    arrow = "↗",
-    reloadDocument = false
+    arrow = "↗"
   }: {
     label: string;
     value: string | number;
     href: string;
     ariaLabel: string;
     arrow?: string;
-    reloadDocument?: boolean;
   }) => (
     <div className="api-overview-link-fact">
       <dt>{label}</dt>
@@ -237,7 +237,6 @@ export function ApiOverviewFacts({
             className="api-overview-fact-link"
             to={href}
             aria-label={ariaLabel}
-            reloadDocument={reloadDocument}
           >
             <span>{value}</span>
             <span className="api-overview-fact-arrow" aria-hidden="true">{arrow}</span>
@@ -257,8 +256,7 @@ export function ApiOverviewFacts({
         href: `/${locale}/apis/${api.slug}/${operationSlug}`,
         ariaLabel: locale === "zh"
           ? `打开 ${apiTitle} 接口目录`
-          : `Open the ${apiTitle} endpoint directory`,
-        reloadDocument: true
+          : `Open the ${apiTitle} endpoint directory`
       })}
       {defaultSchema ? linkedFact({
         label: locale === "zh" ? "数据结构" : "Schemas",
@@ -266,8 +264,7 @@ export function ApiOverviewFacts({
         href: `/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchema.name)}`,
         ariaLabel: locale === "zh"
           ? `打开 ${apiTitle} 数据结构目录`
-          : `Open the ${apiTitle} schema directory`,
-        reloadDocument: true
+          : `Open the ${apiTitle} schema directory`
       }) : (
         <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
       )}
@@ -305,7 +302,7 @@ export function OperationTaskSelect({
 }: {
   locale: Locale;
   apiSlug: string;
-  operations: CatalogOperation[];
+  operations: Array<CatalogOperation | CatalogEndpointSummary>;
   value: string;
   onValueChange: (slug: string) => void;
 }) {
@@ -640,7 +637,10 @@ function payloadError<T>(payload: ApiEnvelope<T>): string | undefined {
   return "error" in payload ? payload.error.message : undefined;
 }
 
-function authPayload(auth: AuthData | undefined, api: CatalogApi) {
+function authPayload(
+  auth: AuthData | undefined,
+  api: Pick<CatalogApiContext, "auth">
+) {
   if (!auth) return undefined;
   const scheme = api.auth[0];
   if (!scheme) return undefined;
@@ -672,7 +672,7 @@ function authPayload(auth: AuthData | undefined, api: CatalogApi) {
 
 function hubRequestPayload(
   request: PlaygroundRequest,
-  api: CatalogApi,
+  api: Pick<CatalogApiContext, "auth" | "servers" | "slug">,
   operation: CatalogOperation
 ) {
   const approvedServers = operation.serverIds.length
@@ -721,7 +721,7 @@ export function PontxApiWorkspace({
   variant = "reference"
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   spec: PontxSpec;
   operation: CatalogOperation;
   initialFavorite?: boolean;
@@ -732,6 +732,7 @@ export function PontxApiWorkspace({
 }) {
   installPlaygroundSessionStorageBridge();
   const accounts = useAccount();
+  const navigate = useNavigate();
 
   const guided = variant === "guided";
   const [selectedOperation, setSelectedOperation] = useState(operation);
@@ -1305,12 +1306,14 @@ export function PontxApiWorkspace({
               value={activeOperation.slug}
               onValueChange={(selectedSlug) => {
                 const candidate = api.operations.find((item) => item.slug === selectedSlug);
-                if (candidate) {
+                if (candidate && "parameters" in candidate) {
                   setSelectedOperation(candidate);
                   setSelectedRequestExampleId(
                     defaultRequestExample(api, candidate)?.id
                   );
                   setExecutionResult(undefined);
+                } else if (candidate) {
+                  navigate(`/${locale}/apis/${api.slug}/${candidate.slug}`);
                 }
               }}
             />

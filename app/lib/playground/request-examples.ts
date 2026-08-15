@@ -25,7 +25,7 @@ function stringifyValues(
 }
 
 export function defaultRequestExample(
-  api: CatalogApi,
+  api: Pick<CatalogApi, "quickStart">,
   operation: CatalogOperation
 ): CatalogRequestExample | undefined {
   const requestedId =

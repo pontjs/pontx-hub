@@ -53,6 +53,11 @@ describe("SEO resource routes", () => {
     expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
     expect(document.openapi).toBe("3.1.0");
     expect(document.servers).toEqual([{ url: "https://pontx.dev" }]);
+    expect(document.paths).toHaveProperty("/api/v2/products");
+    expect(document.paths).toHaveProperty("/api/v2/products/{slug}");
+    expect(document.paths).toHaveProperty("/api/v2/products/{slug}/endpoints/{endpointSlug}");
+    expect(document.paths).toHaveProperty("/api/v2/products/{slug}/schemas/{schemaName}");
+    expect(document.paths).toHaveProperty("/api/v2/products/{slug}/metadata");
     expect(document.paths).toHaveProperty("/api/v2/search");
     expect(document.paths).toHaveProperty("/api/v1/skill");
     expect(document.paths).toHaveProperty("/api/v1/skills");

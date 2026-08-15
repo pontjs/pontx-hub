@@ -1,20 +1,24 @@
 import type { Route } from "./+types/sdk-detail";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogApi } from "~/lib/catalog/catalog.server";
+import {
+  catalogApiContext,
+  getProductMetadata
+} from "~/lib/catalog/metadata.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
 import { hubCliCommand } from "~/lib/hub-cli-command";
-import type { CatalogApi } from "~/lib/catalog/types";
+import type { CatalogApiContext } from "~/lib/catalog/types";
 import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import { listSkillSummaries } from "~/lib/product-skills.server";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
-  const api = getCatalogApi(params.apiSlug ?? "");
-  if (!api) throw new Response("SDK not found", { status: 404 });
+  const product = getProductMetadata(params.apiSlug ?? "");
+  if (!product) throw new Response("SDK not found", { status: 404 });
+  const api = catalogApiContext(product);
   const skillName = listSkillSummaries().find(
     (skill) => skill.apiSlug === api.slug
   )?.name;
@@ -63,7 +67,7 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export function sdkUsageExamples(api: CatalogApi) {
+export function sdkUsageExamples(api: CatalogApiContext) {
   if (api.sdkExamples) return api.sdkExamples;
 
   const moduleName = api.operations[0]?.tag
@@ -81,7 +85,7 @@ const result = await client.${moduleName}.${api.operations[0]?.operationId}({});
   };
 }
 
-export function sdkOperationCoverage(api: CatalogApi) {
+export function sdkOperationCoverage(api: CatalogApiContext) {
   const supported = api.sdkContract?.operations.length;
   const total = api.operations.length;
   return {

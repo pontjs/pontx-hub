@@ -1,5 +1,6 @@
 import type { PontxAPI, PontxJsonSchema, PontxSpec } from "@pontx/spec";
 import type {
+  CatalogApiContext,
   CatalogOperation,
   CatalogRequestExample
 } from "./types";
@@ -108,7 +109,7 @@ export function pontxApiView(
 
 export function pontxDirectorySpec(
   spec: PontxSpec,
-  operations: CatalogOperation[]
+  operations: CatalogApiContext["operations"]
 ): PontxSpec {
   const operationById = new Map(operations.map((operation) => [operation.operationId, operation]));
   return {

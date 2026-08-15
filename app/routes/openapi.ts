@@ -7,12 +7,18 @@ const pathParameter = (name: string) => ({
   schema: { type: "string" }
 });
 
+const localeParameter = {
+  name: "locale",
+  in: "query",
+  schema: { type: "string", enum: ["en", "zh"], default: "en" }
+};
+
 export function loader() {
   return Response.json({
     openapi: "3.1.0",
     info: {
       title: "Pontx Hub Discovery API",
-      version: "2.1.0",
+      version: "2.2.0",
       description: "Search curated public APIs, inspect PontxSpec Endpoints, Schemas, and SDKs, and install the universal or product-specific Agent Skills. Use the Pontx Hub CLI for preview-first execution workflows."
     },
     servers: [{ url: siteUrl("").replace(/\/$/, "") }],
@@ -24,13 +30,89 @@ export function loader() {
           responses: { "200": { description: "Curated API summaries" } }
         }
       },
+      "/api/v2/products": {
+        get: {
+          operationId: "listProducts",
+          summary: "List compact API product metadata",
+          description: "Returns product identity, counts, authentication types, and SDK status without Endpoint or Schema details.",
+          responses: {
+            "200": {
+              description: "Compact product list",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/ProductListEnvelope" } } }
+            }
+          }
+        }
+      },
+      "/api/v2/products/{slug}": {
+        get: {
+          operationId: "getProductSummary",
+          summary: "Get one product overview and resource directory",
+          description: "Returns product metadata plus navigation-sized Endpoint and Schema summaries. Request/response bodies and JSON Schemas are intentionally excluded.",
+          parameters: [pathParameter("slug")],
+          responses: {
+            "200": {
+              description: "Product overview with Endpoint and Schema summaries",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/ProductSummaryEnvelope" } } }
+            },
+            "404": { description: "Product not found" }
+          }
+        }
+      },
+      "/api/v2/products/{slug}/endpoints/{endpointSlug}": {
+        get: {
+          operationId: "getEndpointMetadata",
+          summary: "Get one Endpoint's complete metadata",
+          description: "Returns the selected Endpoint and a localized PontxSpec fragment containing its transitive Schema closure and the compact product directory.",
+          parameters: [pathParameter("slug"), pathParameter("endpointSlug"), localeParameter],
+          responses: {
+            "200": {
+              description: "Endpoint detail and localized PontxSpec fragment",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/EndpointDetailEnvelope" } } }
+            },
+            "404": { description: "Endpoint not found" },
+            "422": { description: "Invalid locale" }
+          }
+        }
+      },
+      "/api/v2/products/{slug}/schemas/{schemaName}": {
+        get: {
+          operationId: "getSchemaMetadata",
+          summary: "Get one Schema's complete metadata",
+          description: "Returns the selected Schema and a localized PontxSpec fragment containing its transitive Schema closure and the compact product directory.",
+          parameters: [pathParameter("slug"), pathParameter("schemaName"), localeParameter],
+          responses: {
+            "200": {
+              description: "Schema detail and localized PontxSpec fragment",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/SchemaDetailEnvelope" } } }
+            },
+            "404": { description: "Schema not found" },
+            "422": { description: "Invalid locale" }
+          }
+        }
+      },
+      "/api/v2/products/{slug}/metadata": {
+        get: {
+          operationId: "getFullProductMetadata",
+          summary: "Get all metadata for one product",
+          description: "Returns the full bilingual product catalog record and the complete PontxSpec in the requested locale. Intended for agents, offline indexing, and bulk tooling rather than page navigation.",
+          parameters: [pathParameter("slug"), localeParameter],
+          responses: {
+            "200": {
+              description: "Complete product metadata and PontxSpec",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/FullProductMetadataEnvelope" } } }
+            },
+            "404": { description: "Product not found" },
+            "422": { description: "Invalid locale" }
+          }
+        }
+      },
       "/api/v2/search": {
         get: {
           operationId: "searchApiCatalog",
           summary: "Search API products, Endpoints, and Schemas",
           parameters: [
             { name: "q", in: "query", required: true, schema: { type: "string", minLength: 1 } },
-            { name: "locale", in: "query", schema: { type: "string", enum: ["en", "zh"], default: "en" } },
+            localeParameter,
             { name: "types", in: "query", description: "Comma-separated resource types", schema: { type: "string", examples: ["api,endpoint,schema"] } },
             { name: "limit", in: "query", schema: { type: "integer", minimum: 1, maximum: 100, default: 30 } },
             { name: "offset", in: "query", schema: { type: "integer", minimum: 0, default: 0 } }
@@ -134,6 +216,138 @@ export function loader() {
     },
     components: {
       schemas: {
+        LocalizedText: {
+          type: "object",
+          additionalProperties: false,
+          required: ["zh", "en"],
+          properties: { zh: { type: "string" }, en: { type: "string" } }
+        },
+        ProductListItem: {
+          type: "object",
+          required: ["id", "slug", "name", "provider", "title", "summary", "endpointCount", "schemaCount", "authTypes", "sdk"],
+          properties: {
+            id: { type: "string", pattern: "^api:" },
+            slug: { type: "string" },
+            name: { type: "string" },
+            provider: { type: "string" },
+            title: { $ref: "#/components/schemas/LocalizedText" },
+            summary: { $ref: "#/components/schemas/LocalizedText" },
+            endpointCount: { type: "integer", minimum: 0 },
+            schemaCount: { type: "integer", minimum: 0 },
+            defaultEndpointSlug: { type: "string" },
+            authTypes: { type: "array", items: { type: "string", enum: ["apiKey", "bearer", "oauth2", "basic"] } },
+            sdk: { type: "object", additionalProperties: true }
+          }
+        },
+        ProductListEnvelope: {
+          type: "object",
+          required: ["version", "metadataRevision", "data"],
+          properties: {
+            version: { const: "v2" },
+            metadataRevision: { type: "string", pattern: "^[a-f0-9]{40}$" },
+            data: { type: "array", items: { $ref: "#/components/schemas/ProductListItem" } }
+          }
+        },
+        EndpointSummary: {
+          type: "object",
+          required: ["id", "slug", "operationId", "style", "tag", "title"],
+          properties: {
+            id: { type: "string", pattern: "^endpoint:" },
+            slug: { type: "string" },
+            operationId: { type: "string" },
+            style: { type: "string", enum: ["RESTFul", "RPC", "GraphQL", "AsyncAPI"] },
+            tag: { type: "string" },
+            method: { type: "string" },
+            path: { type: "string" },
+            title: { $ref: "#/components/schemas/LocalizedText" },
+            deprecated: { type: "boolean" }
+          }
+        },
+        SchemaSummary: {
+          type: "object",
+          required: ["id", "name", "title", "type", "propertyCount"],
+          properties: {
+            id: { type: "string", pattern: "^schema:" },
+            name: { type: "string" },
+            title: { $ref: "#/components/schemas/LocalizedText" },
+            type: { type: "string", enum: ["string", "number", "integer", "boolean", "object", "array"] },
+            propertyCount: { type: "integer", minimum: 0 }
+          }
+        },
+        ProductSummaryEnvelope: {
+          type: "object",
+          required: ["version", "metadataRevision", "data"],
+          properties: {
+            version: { const: "v2" },
+            metadataRevision: { type: "string", pattern: "^[a-f0-9]{40}$" },
+            data: {
+              type: "object",
+              required: ["id", "slug", "endpointCount", "schemaCount", "endpoints", "schemas"],
+              properties: {
+                id: { type: "string", pattern: "^api:" },
+                slug: { type: "string" },
+                endpointCount: { type: "integer", minimum: 0 },
+                schemaCount: { type: "integer", minimum: 0 },
+                endpoints: { type: "array", items: { $ref: "#/components/schemas/EndpointSummary" } },
+                schemas: { type: "array", items: { $ref: "#/components/schemas/SchemaSummary" } }
+              },
+              additionalProperties: true
+            }
+          }
+        },
+        EndpointDetailEnvelope: {
+          type: "object",
+          required: ["version", "metadataRevision", "data"],
+          properties: {
+            version: { const: "v2" },
+            metadataRevision: { type: "string", pattern: "^[a-f0-9]{40}$" },
+            data: {
+              type: "object",
+              required: ["locale", "product", "endpoint", "pontxSpec"],
+              properties: {
+                locale: { type: "string", enum: ["en", "zh"] },
+                product: { $ref: "#/components/schemas/ProductListItem" },
+                endpoint: { type: "object", additionalProperties: true },
+                pontxSpec: { type: "object", additionalProperties: true }
+              }
+            }
+          }
+        },
+        SchemaDetailEnvelope: {
+          type: "object",
+          required: ["version", "metadataRevision", "data"],
+          properties: {
+            version: { const: "v2" },
+            metadataRevision: { type: "string", pattern: "^[a-f0-9]{40}$" },
+            data: {
+              type: "object",
+              required: ["locale", "product", "schema", "pontxSpec"],
+              properties: {
+                locale: { type: "string", enum: ["en", "zh"] },
+                product: { $ref: "#/components/schemas/ProductListItem" },
+                schema: { type: "object", additionalProperties: true },
+                pontxSpec: { type: "object", additionalProperties: true }
+              }
+            }
+          }
+        },
+        FullProductMetadataEnvelope: {
+          type: "object",
+          required: ["version", "metadataRevision", "data"],
+          properties: {
+            version: { const: "v2" },
+            metadataRevision: { type: "string", pattern: "^[a-f0-9]{40}$" },
+            data: {
+              type: "object",
+              required: ["locale", "product", "pontxSpec"],
+              properties: {
+                locale: { type: "string", enum: ["en", "zh"] },
+                product: { type: "object", additionalProperties: true },
+                pontxSpec: { type: "object", additionalProperties: true }
+              }
+            }
+          }
+        },
         SkillFileSummary: {
           type: "object",
           additionalProperties: false,

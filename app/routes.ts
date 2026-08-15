@@ -24,19 +24,12 @@ export default [
   route(":locale/docs", "routes/docs-index.tsx"),
   route(":locale/docs/:docSlug", "routes/docs-detail.tsx"),
   route(":locale/apis", "routes/catalog-redirect.tsx"),
-  route(":locale/apis/:apiSlug", "routes/api-detail.tsx"),
-  route(
-    ":locale/apis/:apiSlug/schemas/:schemaName",
-    "routes/schema-detail.tsx"
-  ),
-  route(
-    ":locale/apis/:apiSlug/endpoints/:operationSlug",
-    "routes/endpoint-legacy-redirect.tsx"
-  ),
-  route(
-    ":locale/apis/:apiSlug/:operationSlug",
-    "routes/operation-detail.tsx"
-  ),
+  route(":locale/apis/:apiSlug", "routes/api-layout.tsx", [
+    index("routes/api-detail.tsx"),
+    route("schemas/:schemaName", "routes/schema-detail.tsx"),
+    route("endpoints/:operationSlug", "routes/endpoint-legacy-redirect.tsx"),
+    route(":operationSlug", "routes/operation-detail.tsx")
+  ]),
   route(":locale/sdks/:apiSlug", "routes/sdk-detail.tsx"),
   route(":locale/agent-skill", "routes/agent-skill-redirect.tsx"),
   route(":locale/skills", "routes/skills-index.tsx"),

@@ -15,7 +15,7 @@ export class SdkCodegenUnavailableError extends Error {
 }
 
 export function supportsSdkOperation(
-  api: CatalogApi,
+  api: Pick<CatalogApi, "sdkContract">,
   operation: CatalogOperation
 ): boolean {
   const contract = api.sdkContract;

@@ -21,6 +21,100 @@ describe("Hub API", () => {
     ]).toContainEqual(slugs);
   });
 
+  it("serves layered v2 product metadata without embedding resource details in summaries", async () => {
+    const listResponse = await hubApi.request("/api/v2/products");
+    const list = await listResponse.json();
+    expect(listResponse.status).toBe(200);
+    expect(list.version).toBe("v2");
+    expect(list.metadataRevision).toMatch(/^[a-f0-9]{40}$/);
+    expect(list.data[0]).toMatchObject({
+      id: expect.stringMatching(/^api:/),
+      endpointCount: expect.any(Number),
+      schemaCount: expect.any(Number),
+      sdk: expect.objectContaining({ packageName: expect.any(String) })
+    });
+    expect(list.data[0]).not.toHaveProperty("endpoints");
+    expect(list.data[0]).not.toHaveProperty("schemas");
+
+    const denseProduct = [...list.data].sort(
+      (left, right) => right.schemaCount - left.schemaCount
+    )[0];
+    const summaryResponse = await hubApi.request(
+      `/api/v2/products/${denseProduct.slug}`
+    );
+    const summary = await summaryResponse.json();
+    expect(summaryResponse.status).toBe(200);
+    expect(summary.data.endpoints).toHaveLength(denseProduct.endpointCount);
+    expect(summary.data.schemas).toHaveLength(denseProduct.schemaCount);
+    expect(summary.data.endpoints[0]).not.toHaveProperty("parameters");
+    expect(summary.data.endpoints[0]).not.toHaveProperty("responses");
+    expect(summary.data.schemas[0]).not.toHaveProperty("schema");
+    expect(summary.data.schemas[0]).not.toHaveProperty("properties");
+  });
+
+  it("serves localized Endpoint and Schema details plus an explicit full-metadata resource", async () => {
+    const summaryResponse = await hubApi.request(
+      "/api/v2/products/twelve-data-forex"
+    );
+    const summary = await summaryResponse.json();
+    const endpoint = summary.data.endpoints[0];
+    const schema = summary.data.schemas[0];
+
+    const endpointResponse = await hubApi.request(
+      `/api/v2/products/twelve-data-forex/endpoints/${endpoint.slug}?locale=zh`
+    );
+    const endpointDetail = await endpointResponse.json();
+    expect(endpointResponse.status).toBe(200);
+    expect(endpointDetail.data.locale).toBe("zh");
+    expect(endpointDetail.data.endpoint.slug).toBe(endpoint.slug);
+    expect(Object.keys(endpointDetail.data.pontxSpec.apis)).toHaveLength(
+      summary.data.endpointCount
+    );
+    expect(endpointDetail.data.endpoint).toHaveProperty("parameters");
+    expect(endpointDetail.data.endpoint).toHaveProperty("responses");
+
+    const schemaResponse = await hubApi.request(
+      `/api/v2/products/twelve-data-forex/schemas/${encodeURIComponent(schema.name)}?locale=en`
+    );
+    const schemaDetail = await schemaResponse.json();
+    expect(schemaResponse.status).toBe(200);
+    expect(schemaDetail.data.locale).toBe("en");
+    expect(schemaDetail.data.schema.name).toBe(schema.name);
+    expect(schemaDetail.data.pontxSpec.components.schemas).toHaveProperty(
+      schema.name
+    );
+
+    const fullResponse = await hubApi.request(
+      "/api/v2/products/twelve-data-forex/metadata?locale=en"
+    );
+    const full = await fullResponse.json();
+    expect(fullResponse.status).toBe(200);
+    expect(full.data.product.operations).toHaveLength(summary.data.endpointCount);
+    expect(Object.keys(full.data.pontxSpec.components.schemas)).toHaveLength(
+      summary.data.schemaCount
+    );
+    expect(JSON.stringify(endpointDetail).length).toBeLessThan(
+      JSON.stringify(full).length / 3
+    );
+    expect(JSON.stringify(schemaDetail).length).toBeLessThan(
+      JSON.stringify(full).length / 3
+    );
+  });
+
+  it("validates metadata locales and reuses ETags", async () => {
+    const invalid = await hubApi.request(
+      "/api/v2/products/frankfurter/metadata?locale=fr"
+    );
+    expect(invalid.status).toBe(422);
+    expect((await invalid.json()).error.code).toBe("invalid_locale");
+
+    const first = await hubApi.request("/api/v2/products/frankfurter");
+    const second = await hubApi.request("/api/v2/products/frankfurter", {
+      headers: { "If-None-Match": first.headers.get("etag")! }
+    });
+    expect(second.status).toBe(304);
+  });
+
   it("returns a machine-readable 404", async () => {
     const response = await hubApi.request("/api/v1/specs/missing");
     const payload = await response.json();

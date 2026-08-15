@@ -1,30 +1,27 @@
 import type { Route } from "./+types/operation-detail";
+import { useOutletContext } from "react-router";
 import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogOperation, getPontxSpec } from "~/lib/catalog/catalog.server";
+import { getEndpointMetadata } from "~/lib/catalog/metadata.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
-import { listSkillSummaries } from "~/lib/product-skills.server";
+import type { ApiLayoutContext } from "./api-layout";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
-  const match = getCatalogOperation(
+  const detail = getEndpointMetadata(
     params.apiSlug ?? "",
-    params.operationSlug ?? ""
+    params.operationSlug ?? "",
+    locale
   );
-  if (!match) throw new Response("Operation not found", { status: 404 });
-  const spec = getPontxSpec(match.api.slug, locale);
-  if (!spec) throw new Response("PontxSpec not found", { status: 500 });
-  const skillName = listSkillSummaries().find(
-    (skill) => skill.apiSlug === match.api.slug
-  )?.name;
-  return { locale, spec, skillName, ...match };
+  if (!detail) throw new Response("Operation not found", { status: 404 });
+  return detail;
 }
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "Operation not found — Pontx Hub" }];
-  const { locale, api, operation } = data;
+  const { locale, product: api, endpoint: operation } = data;
   const title = `${localize(operation.title, locale)} — ${api.name}`;
   const description = localize(operation.description, locale);
   const path = `/${locale}/apis/${api.slug}/${operation.slug}`;
@@ -92,7 +89,8 @@ export function headers() {
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const { locale, api, spec, operation, skillName } = loaderData;
+  const { locale, api, skillName } = useOutletContext<ApiLayoutContext>();
+  const { pontxSpec: spec, endpoint: operation } = loaderData;
 
   return (
     <SiteShell locale={locale}>
