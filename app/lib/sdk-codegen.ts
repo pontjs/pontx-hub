@@ -180,9 +180,10 @@ export function generateSdkSnippet(
   }
 
   const controller = operation.tag ? contract.controllers[operation.tag] : null;
+  const sdkMethod = operation.sdkMethod ?? operation.operationId;
   const method = `${contract.client.identifier}.${
     controller ? `${controller}.` : ""
-  }${operation.operationId}`;
+  }${sdkMethod}`;
   const lines: string[] = [];
   if (contract.client.kind === "default") {
     lines.push(

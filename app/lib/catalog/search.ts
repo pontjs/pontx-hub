@@ -68,6 +68,7 @@ const semanticConcepts: string[][] = [
   ["complete", "finish", "done", "完成", "办结"],
   ["task", "todo", "item", "任务", "待办", "事项"],
   ["project", "workspace", "folder", "项目", "清单", "工作区"],
+  ["convert", "conversion", "换算", "换成", "转换", "兑换"],
   ["currency", "exchange", "rate", "forex", "convert", "conversion", "price", "汇率", "换汇", "换算", "换成", "转换", "兑换", "外汇", "币种", "货币", "价格"],
   ["date", "time", "deadline", "due", "schedule", "日期", "时间", "截止", "到期", "日程"],
   ["priority", "importance", "urgent", "优先级", "重要", "紧急"],

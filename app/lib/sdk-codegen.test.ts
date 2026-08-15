@@ -74,6 +74,25 @@ const result = await ratesClient.common.getRate(
     expect(code).not.toContain("frankfurterV2Client.common");
   });
 
+  it("uses the generated SDK method when it differs from the stable operation ID", () => {
+    const flatOperation = {
+      ...operation,
+      tag: "",
+      operationId: "getLatestRates",
+      sdkMethod: "latest"
+    } as CatalogOperation;
+    const flatApi = api({ kind: "named", identifier: "client" });
+    flatApi.sdkContract = {
+      ...flatApi.sdkContract!,
+      controllers: {},
+      operations: ["getLatestRates"]
+    };
+
+    expect(generateSdkSnippet(flatApi, flatOperation, {
+      path: {}, query: {}, headers: {}
+    })).toContain("client.latest(");
+  });
+
   it("generates named client imports for CommonJS-compatible packages", () => {
     const code = generateSdkSnippet(api({
       kind: "named",

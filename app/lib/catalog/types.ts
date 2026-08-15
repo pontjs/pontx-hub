@@ -90,6 +90,8 @@ export type CatalogRequestExample = {
 
 export type CatalogOperation = {
   slug: string;
+  /** Generated SDK/CLI method name. This may differ from the stable operationId. */
+  sdkMethod?: string;
   operationId: string;
   style: ApiStyle;
   tag: string;

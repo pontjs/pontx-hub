@@ -46,10 +46,11 @@ function declaredApiLockKeys(api: CatalogApi): string[] {
     if (!operation) {
       throw new Error(`${api.slug}: unknown SDK operation ${operationId}`);
     }
-    if (!operation.tag) return operationId;
+    const sdkMethod = operation.sdkMethod ?? operationId;
+    if (!operation.tag) return sdkMethod;
     const controller = contract.controllers[operation.tag];
     if (!controller) throw new Error(`${api.slug}: no SDK controller for explicit tag ${operation.tag}`);
-    return `${controller}/${operationId}`;
+    return `${controller}/${sdkMethod}`;
   }).sort();
 }
 

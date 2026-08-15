@@ -62,7 +62,10 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     query: "getHistoricalRates",
     locale: "en",
     kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:frankfurter/get-historical-rates", relevance: 3 }],
+    judgments: [
+      { id: "endpoint:currencybeacon-rest/get-historical-rates", relevance: 3 },
+      { id: "endpoint:frankfurter/get-historical-rates", relevance: 3 }
+    ],
     requiredTopK: 1,
     tags: ["en", "exact", "operation-id"]
   },
@@ -92,7 +95,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     query: "把欧元换成美元",
     locale: "zh",
     kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:frankfurter/get-latest-rates", relevance: 3 }],
+    judgments: [{ id: "endpoint:currencybeacon-rest/convert-currency", relevance: 3 }],
     tags: ["zh", "semantic", "currency"]
   },
   {
@@ -100,7 +103,10 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     query: "which currencies are supported",
     locale: "en",
     kinds: ["endpoint"],
-    judgments: [{ id: "endpoint:frankfurter/get-currencies", relevance: 3 }],
+    judgments: [
+      { id: "endpoint:currencybeacon-rest/list-currencies", relevance: 3 },
+      { id: "endpoint:frankfurter/get-currencies", relevance: 3 }
+    ],
     requiredTopK: 1,
     tags: ["en", "currency", "endpoint"]
   },

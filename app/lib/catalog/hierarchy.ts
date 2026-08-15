@@ -233,6 +233,7 @@ function makeOperation(
 
   return {
     slug: slugify(operationId),
+    sdkMethod: apiKey.split("/").at(-1),
     operationId,
     tag: source.tags?.[0] ?? "",
     style,

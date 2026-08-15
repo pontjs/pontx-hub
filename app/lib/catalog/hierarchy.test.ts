@@ -96,7 +96,7 @@ describe("Pontx hierarchy consumer", () => {
   it("loads and indexes RPC without OAS or HTTP coordinates", () => {
     expect(catalogApiSchema.parse(api)).toBeTruthy();
     const operation = api.operations[0];
-    expect(operation).toMatchObject({ style: "RPC", operationId: "getItem" });
+    expect(operation).toMatchObject({ style: "RPC", sdkMethod: "getItem", operationId: "getItem" });
     expect(operation).not.toHaveProperty("method");
     expect(operation).not.toHaveProperty("path");
     expect(buildSearchResponse([api], "inventory", "en").items[0]?.id)
