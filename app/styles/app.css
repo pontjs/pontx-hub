@@ -3120,39 +3120,7 @@ samp,
   }
 }
 
-@media (max-width: 740px) {
-  .resource-navigation {
-    display: block;
-    padding: 8px 14px 0;
-  }
-
-  .resource-navigation-path {
-    min-height: 32px;
-  }
-
-  .resource-navigation-tabs {
-    height: 40px;
-    overflow-x: auto;
-    gap: 18px;
-  }
-
-  .resource-navigation-tabs a {
-    white-space: nowrap;
-  }
-
-  .resource-navigation-tabs a.resource-navigation-mobile-link {
-    display: inline-flex;
-  }
-
-  .registry-taskline span {
-    line-height: 1.45;
-  }
-
-  .search-summary > div {
-    display: grid;
-    gap: 2px;
-  }
-
+@media (max-width: 900px) {
   .site-header {
     align-items: center;
   }
@@ -3221,6 +3189,40 @@ samp,
   .mobile-nav nav a.active {
     background: #f2f5fb;
     color: var(--blue);
+  }
+}
+
+@media (max-width: 740px) {
+  .resource-navigation {
+    display: block;
+    padding: 8px 14px 0;
+  }
+
+  .resource-navigation-path {
+    min-height: 32px;
+  }
+
+  .resource-navigation-tabs {
+    height: 40px;
+    overflow-x: auto;
+    gap: 18px;
+  }
+
+  .resource-navigation-tabs a {
+    white-space: nowrap;
+  }
+
+  .resource-navigation-tabs a.resource-navigation-mobile-link {
+    display: inline-flex;
+  }
+
+  .registry-taskline span {
+    line-height: 1.45;
+  }
+
+  .search-summary > div {
+    display: grid;
+    gap: 2px;
   }
 
   .registry-header {

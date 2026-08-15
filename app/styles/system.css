@@ -1427,7 +1427,7 @@ textarea {
   }
 }
 
-@media (max-width: 740px) {
+@media (max-width: 900px) {
   .mobile-nav nav .mobile-feedback-trigger {
     width: 100%;
     min-height: 44px;
@@ -1449,6 +1449,9 @@ textarea {
     color: var(--blue);
     background: #f2f5fb;
   }
+}
+
+@media (max-width: 740px) {
 
   .feedback-dialog {
     width: calc(100vw - 20px);
