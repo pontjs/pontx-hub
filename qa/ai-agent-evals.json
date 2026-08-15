@@ -2,20 +2,32 @@
   {
     "id": "discover-currency-api-zh",
     "tool": "search_resources",
-    "input": { "query": "把欧元换成人民币", "locale": "zh", "types": ["endpoint"] },
+    "input": {
+      "query": "把欧元换成人民币",
+      "locale": "zh",
+      "types": [
+        "endpoint"
+      ]
+    },
     "expectResource": "endpoint:frankfurter/get-latest-rates"
   },
   {
     "id": "inspect-task-auth-en",
     "tool": "get_resource",
-    "input": { "resourceId": "endpoint:dida365/create-task", "locale": "en" },
+    "input": {
+      "resourceId": "endpoint:dida365/create-task",
+      "locale": "en"
+    },
     "expectPath": "/open/v1/task",
     "expectAuthType": "oauth2"
   },
   {
     "id": "generate-sdk-cli-en",
     "tool": "get_sdk_and_cli",
-    "input": { "apiSlug": "frankfurter", "locale": "en" },
+    "input": {
+      "apiSlug": "frankfurter",
+      "locale": "en"
+    },
     "expectText": "@pontx/hub-cli"
   },
   {
@@ -26,7 +38,10 @@
       "operationSlug": "get-latest-rates",
       "serverId": "default",
       "path": {},
-      "query": { "base": "EUR", "symbols": "CNY" },
+      "query": {
+        "base": "EUR",
+        "symbols": "CNY"
+      },
       "headers": {},
       "locale": "zh"
     },
@@ -42,7 +57,10 @@
       "operationSlug": "get-rates",
       "serverId": "default",
       "path": {},
-      "query": { "base": "EUR", "quotes": "USD" },
+      "query": {
+        "base": "EUR",
+        "quotes": "USD"
+      },
       "headers": {},
       "locale": "en"
     },
@@ -58,10 +76,14 @@
       "apiSlug": "dida365",
       "operationSlug": "update-task",
       "serverId": "default",
-      "path": { "taskId": "task-1" },
+      "path": {
+        "taskId": "task-1"
+      },
       "query": {},
       "headers": {},
-      "body": { "title": "Review agent implementation" },
+      "body": {
+        "title": "Review agent implementation"
+      },
       "locale": "en"
     },
     "expectMethod": "POST",
@@ -71,7 +93,74 @@
   {
     "id": "pricing-does-not-guess",
     "tool": "get_pricing",
-    "input": { "apiSlug": "frankfurter", "locale": "en" },
-    "expectPricingStatusOneOf": ["free", "unknown"]
+    "input": {
+      "apiSlug": "frankfurter",
+      "locale": "en"
+    },
+    "expectPricingStatusOneOf": [
+      "free",
+      "unknown"
+    ]
+  },
+  {
+    "id": "discover-notion-api-zh",
+    "tool": "search_resources",
+    "input": {
+      "query": "查询工作区里的页面和数据库",
+      "locale": "zh",
+      "types": [
+        "api"
+      ]
+    },
+    "expectResource": "api:notion",
+    "requiresProducts": [
+      "notion"
+    ]
+  },
+  {
+    "id": "inspect-notion-read-en",
+    "tool": "get_resource",
+    "input": {
+      "resourceId": "endpoint:notion/get-self",
+      "locale": "en"
+    },
+    "expectPath": "/v1/users/me",
+    "expectAuthType": "bearer",
+    "requiresProducts": [
+      "notion"
+    ]
+  },
+  {
+    "id": "generate-notion-sdk-en",
+    "tool": "get_sdk_and_cli",
+    "input": {
+      "apiSlug": "notion",
+      "locale": "en"
+    },
+    "expectText": "@pontx/notion",
+    "requiresProducts": [
+      "notion"
+    ]
+  },
+  {
+    "id": "prepare-notion-read-no-credentials",
+    "tool": "prepare_api_call",
+    "input": {
+      "apiSlug": "notion",
+      "operationSlug": "get-self",
+      "serverId": "notion-production",
+      "path": {},
+      "query": {},
+      "headers": {
+        "Notion-Version": "2026-03-11"
+      },
+      "locale": "zh"
+    },
+    "expectMethod": "GET",
+    "expectConfirmation": false,
+    "expectUiEvent": "pontx.request_prepared",
+    "requiresProducts": [
+      "notion"
+    ]
   }
 ]

@@ -198,6 +198,36 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     requiredTopK: 1,
     requiresProducts: ["nager-date"],
     tags: ["zh", "holidays", "temporal", "endpoint"]
+  },
+  {
+    id: "zh-notion-workspace-pages",
+    query: "查询工作区里的页面和数据库",
+    locale: "zh",
+    kinds: ["api"],
+    judgments: [{ id: "api:notion", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["notion"],
+    tags: ["zh", "api", "product"]
+  },
+  {
+    id: "en-notion-list-pages",
+    query: "list pages in my workspace database",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:notion/list-views", relevance: 3 }, { id: "endpoint:notion/query-data-source", relevance: 2 }],
+    requiredTopK: 1,
+    requiresProducts: ["notion"],
+    tags: ["en", "semantic", "endpoint"]
+  },
+  {
+    id: "zh-notion-create-page",
+    query: "创建页面并添加内容",
+    locale: "zh",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:notion/post-page", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["notion"],
+    tags: ["zh", "mutation", "endpoint"]
   }
 ];
 
