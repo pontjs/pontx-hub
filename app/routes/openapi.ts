@@ -18,10 +18,11 @@ export function loader() {
     openapi: "3.1.0",
     info: {
       title: "Pontx Hub Discovery API",
-      version: "2.2.0",
+      version: "2.3.0",
       description: "Search curated public APIs, inspect PontxSpec Endpoints, Schemas, and SDKs, and install the universal or product-specific Agent Skills. Use the Pontx Hub CLI for preview-first execution workflows."
     },
     servers: [{ url: siteUrl("").replace(/\/$/, "") }],
+    security: [],
     paths: {
       "/api/v1/catalog": {
         get: {
@@ -153,6 +154,21 @@ export function loader() {
           summary: "Inspect published SDK metadata",
           parameters: [pathParameter("slug")],
           responses: { "200": { description: "SDK package and version metadata" }, "404": { description: "SDK not found" } }
+        }
+      },
+      "/api/v1/specs/{slug}/pricing": {
+        get: {
+          operationId: "getApiPricing",
+          summary: "Inspect reviewed API pricing",
+          description: "Returns reviewed pricing metadata, or an explicit unknown status when no reviewed pricing is available.",
+          parameters: [pathParameter("slug")],
+          responses: {
+            "200": {
+              description: "Reviewed pricing metadata or an explicit unknown status",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/PricingEnvelope" } } }
+            },
+            "404": { description: "API not found" }
+          }
         }
       },
       "/api/v1/skill": {
@@ -344,6 +360,38 @@ export function loader() {
                 locale: { type: "string", enum: ["en", "zh"] },
                 product: { type: "object", additionalProperties: true },
                 pontxSpec: { type: "object", additionalProperties: true }
+              }
+            }
+          }
+        },
+        PricingEnvelope: {
+          type: "object",
+          additionalProperties: false,
+          required: ["version", "data"],
+          properties: {
+            version: { const: "v1" },
+            data: {
+              type: "object",
+              additionalProperties: false,
+              required: ["status", "summary"],
+              properties: {
+                status: { type: "string", enum: ["free", "freemium", "paid", "contact", "unknown"] },
+                summary: { $ref: "#/components/schemas/LocalizedText" },
+                officialUrl: { type: "string", format: "uri" },
+                verifiedAt: { type: "string", format: "date" },
+                currency: { type: "string" },
+                freeTier: { $ref: "#/components/schemas/LocalizedText" },
+                billingUnit: { $ref: "#/components/schemas/LocalizedText" },
+                startingPrice: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["amount", "currency", "unit"],
+                  properties: {
+                    amount: { type: "number" },
+                    currency: { type: "string" },
+                    unit: { $ref: "#/components/schemas/LocalizedText" }
+                  }
+                }
               }
             }
           }

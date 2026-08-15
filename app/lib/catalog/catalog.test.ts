@@ -11,18 +11,24 @@ import { catalogApiSchema } from "./schema";
 describe("curated catalog", () => {
   it("loads and validates every synchronized metadata API", () => {
     const catalog = listCatalog();
-    expect([
-      ["dida365", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "pinhere", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "pinhere", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex"]
-    ]).toContainEqual(catalog.map((api) => api.slug));
+    expect(catalog.map((api) => api.slug)).toEqual([
+      "amazon-sqs",
+      "currencybeacon-rest",
+      "dida365",
+      "dropbox-sign",
+      "ecb-data-portal",
+      "frankfurter",
+      "frankfurter-v2",
+      "massive",
+      "mongodb-atlas-admin",
+      "nager-date",
+      "openai",
+      "pinhere",
+      "hub-cli",
+      "stripe-identity",
+      "twelve-data-forex",
+      "notion"
+    ]);
     expect(new Set(catalog.map((api) => api.slug)).size).toBe(catalog.length);
   });
 
@@ -90,7 +96,7 @@ describe("curated catalog", () => {
   it("provides every endpoint with a successful request example and a ready Quick Start", () => {
     const catalog = listCatalog();
     const operations = catalog.flatMap((api) => api.operations);
-    expect([53, 126, 134, 142, 253, 258, 281, 315, 321, 1149]).toContain(operations.length);
+    expect(operations).toHaveLength(1213);
     expect(operations.every((operation) => operation.requestExamples.length > 0)).toBe(true);
     expect(
       operations.flatMap((operation) => operation.requestExamples).every(
@@ -173,7 +179,7 @@ describe("curated catalog", () => {
       .flatMap((api) => api.operations)
       .filter((operation) => operation.style === "RESTFul");
 
-    expect([258, 264, 292, 298, 1126]).toContain(restOperations.length);
+    expect(restOperations).toHaveLength(1190);
     expect(restOperations.every((operation) =>
       operation.proxyEnabled || Boolean(operation.proxyDisabledReason)
     )).toBe(true);

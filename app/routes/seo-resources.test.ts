@@ -64,11 +64,13 @@ describe("SEO resource routes", () => {
     expect(document.paths).toHaveProperty("/api/v2/products/{slug}/schemas/{schemaName}");
     expect(document.paths).toHaveProperty("/api/v2/products/{slug}/metadata");
     expect(document.paths).toHaveProperty("/api/v2/search");
+    expect(document.paths).toHaveProperty("/api/v1/specs/{slug}/pricing");
     expect(document.paths).toHaveProperty("/api/v1/skill");
     expect(document.paths).toHaveProperty("/api/v1/skills");
     expect(document.paths).toHaveProperty("/api/v1/skills/{name}");
     expect(document).toHaveProperty("components.schemas.SkillSummary");
     expect(document).toHaveProperty("components.schemas.SkillBundle");
+    expect(document).toHaveProperty("components.schemas.PricingEnvelope");
     expect(document.paths).not.toHaveProperty("/api/v1/playground/execute");
   });
 

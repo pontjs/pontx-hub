@@ -10,18 +10,24 @@ describe("Hub API", () => {
     expect(response.headers.get("etag")).toBeTruthy();
     expect(payload.version).toBe("v1");
     const slugs = payload.data.map((api: { slug: string }) => api.slug);
-    expect([
-      ["dida365", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity"],
-      ["dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "pinhere", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "pinhere", "stripe-identity", "twelve-data-forex"],
-      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex"]
-    ]).toContainEqual(slugs);
+    expect(slugs).toEqual([
+      "amazon-sqs",
+      "currencybeacon-rest",
+      "dida365",
+      "dropbox-sign",
+      "ecb-data-portal",
+      "frankfurter",
+      "frankfurter-v2",
+      "massive",
+      "mongodb-atlas-admin",
+      "nager-date",
+      "openai",
+      "pinhere",
+      "hub-cli",
+      "stripe-identity",
+      "twelve-data-forex",
+      "notion"
+    ]);
   });
 
   it("serves layered v2 product metadata without embedding resource details in summaries", async () => {
