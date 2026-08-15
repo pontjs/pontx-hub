@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import type { CatalogApi, CatalogOperation, Locale } from "~/lib/catalog/types";
+import type { CatalogApiContext, CatalogOperation, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { defaultRequestExample } from "~/lib/playground/request-examples";
@@ -11,7 +11,7 @@ export function DocumentationEvidence({
   operation
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   operation: CatalogOperation;
 }) {
   const zh = locale === "zh";
@@ -73,7 +73,7 @@ export function OperationSeoContent({
   operation
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   operation: CatalogOperation;
 }) {
   const zh = locale === "zh";
@@ -145,7 +145,7 @@ export function OperationSeoContent({
           <h2 id="body-heading">{zh ? "Body 参数" : "Request body"}</h2>
           <p className="operation-seo-schema-line">
             {requestSchemaName ? (
-              <Link to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(requestSchemaName)}`} reloadDocument>
+              <Link to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(requestSchemaName)}`}>
                 {requestSchemaName}
               </Link>
             ) : <span>{typeLabel(body ?? operation.requestBody!)}</span>}
@@ -170,7 +170,7 @@ export function OperationSeoContent({
               <h3><code>{response.status}</code></h3>
               <p>
                 {response.schemaName ? (
-                  <Link to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(response.schemaName)}`} reloadDocument>
+                  <Link to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(response.schemaName)}`}>
                     {response.schemaName}
                   </Link>
                 ) : <span>{typeLabel(response)}</span>}

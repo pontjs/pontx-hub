@@ -30,6 +30,7 @@ export function loader() {
 - [Pontx Hub Agent Skill](${siteUrl("/en/skills/pontx-hub")})
 - [Agent Skills discovery index](${siteUrl("/.well-known/skills/index.json")})
 - [Pontx Hub OpenAPI description](${siteUrl("/openapi.json")})
+- [Compact product metadata](${siteUrl("/api/v2/products")})
 - [Pontx Hub CLI](https://github.com/pontjs/pontx-hub-cli)
 - [Pontx source](https://github.com/pontjs/pontx)
 
@@ -47,7 +48,7 @@ ${skillLinks.join("\n")}
 
 ## Agent guidance
 
-Install the universal Skill first with \`pontx-hub skill install\`. Use \`pontx-hub skill list\` and \`pontx-hub skill install <api-slug>\` to add a concise product playbook when provider-specific integration guidance is useful. Search the live catalog instead of copying Endpoint, parameter, or Schema metadata into long-lived context. Preview every request, and require explicit user confirmation before any mutation.
+Install the universal Skill first with \`pontx-hub skill install\`. Use \`pontx-hub skill list\` and \`pontx-hub skill install <api-slug>\` to add a concise product playbook when provider-specific integration guidance is useful. Search the live catalog instead of copying Endpoint, parameter, or Schema metadata into long-lived context. Use \`/api/v2/products/{slug}/metadata?locale=en|zh\` only when a complete product snapshot is required; normal navigation should use product summaries and individual Endpoint or Schema details. Preview every request, and require explicit user confirmation before any mutation.
 `;
 
   return new Response(body, {

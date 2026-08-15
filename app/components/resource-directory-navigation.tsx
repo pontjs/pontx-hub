@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
 import type { PontxAPI, PontxSpec } from "@pontx/spec";
 import type {
-  CatalogApi,
+  CatalogApiContext,
   CatalogOperation,
   Locale
 } from "~/lib/catalog/types";
@@ -19,7 +19,7 @@ export function ResourceDirectoryNavigation({
   activeSchemaName
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   spec: PontxSpec;
   activeOperation?: CatalogOperation;
   activeSchemaName?: string;
@@ -120,7 +120,6 @@ export function ResourceDirectoryNavigation({
                     key={schema.name}
                     to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`}
                     aria-current={active ? "page" : undefined}
-                    reloadDocument
                   >
                     <strong>{localize(schema.title, locale)}</strong>
                     <code>{schema.name}</code>

@@ -32,6 +32,7 @@ type HierarchyManifest = {
 };
 
 type LoadedHierarchy = {
+  metadataCommit: string;
   catalog: CatalogApi[];
   specs: Map<string, { zh: PontxSpec; en: PontxSpec }>;
 };
@@ -107,8 +108,12 @@ function loadHierarchy(): LoadedHierarchy {
     return left.name.localeCompare(right.name);
   });
 
-  hierarchyCache = { catalog, specs };
+  hierarchyCache = { metadataCommit: manifest.metadataCommit, catalog, specs };
   return hierarchyCache;
+}
+
+export function getCatalogMetadataCommit(): string {
+  return loadHierarchy().metadataCommit;
 }
 
 export function listCatalog(): CatalogApi[] {

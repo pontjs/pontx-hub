@@ -11,8 +11,17 @@ import {
 } from "~/lib/catalog/catalog.server";
 import {
   isLocale,
-  type GlobalSearchKind
+  type GlobalSearchKind,
+  type Locale
 } from "~/lib/catalog/types";
+import {
+  getEndpointMetadata,
+  getFullProductMetadata,
+  getProductMetadata,
+  getSchemaMetadata,
+  listProductMetadata,
+  metadataEnvelope
+} from "~/lib/catalog/metadata.server";
 import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import {
   generateSdkSnippet,
@@ -323,6 +332,62 @@ hubApi.get("/api/v2/search", (context) => {
       offset
     })
   });
+});
+
+function metadataLocale(value: string | undefined): Locale | undefined {
+  const locale = value ?? "en";
+  return isLocale(locale) ? locale : undefined;
+}
+
+hubApi.get("/api/v2/products", (context) => {
+  return cacheableJson(
+    context.req.raw,
+    metadataEnvelope(listProductMetadata())
+  );
+});
+
+hubApi.get("/api/v2/products/:slug", (context) => {
+  const product = getProductMetadata(context.req.param("slug"));
+  if (!product) return jsonError("not_found", "Product not found", 404);
+  return cacheableJson(context.req.raw, metadataEnvelope(product));
+});
+
+hubApi.get("/api/v2/products/:slug/endpoints/:endpointSlug", (context) => {
+  const locale = metadataLocale(context.req.query("locale"));
+  if (!locale) {
+    return jsonError("invalid_locale", "locale must be zh or en", 422);
+  }
+  const endpoint = getEndpointMetadata(
+    context.req.param("slug"),
+    context.req.param("endpointSlug"),
+    locale
+  );
+  if (!endpoint) return jsonError("not_found", "Endpoint not found", 404);
+  return cacheableJson(context.req.raw, metadataEnvelope(endpoint));
+});
+
+hubApi.get("/api/v2/products/:slug/schemas/:schemaName", (context) => {
+  const locale = metadataLocale(context.req.query("locale"));
+  if (!locale) {
+    return jsonError("invalid_locale", "locale must be zh or en", 422);
+  }
+  const schema = getSchemaMetadata(
+    context.req.param("slug"),
+    context.req.param("schemaName"),
+    locale
+  );
+  if (!schema) return jsonError("not_found", "Schema not found", 404);
+  return cacheableJson(context.req.raw, metadataEnvelope(schema));
+});
+
+hubApi.get("/api/v2/products/:slug/metadata", (context) => {
+  const locale = metadataLocale(context.req.query("locale"));
+  if (!locale) {
+    return jsonError("invalid_locale", "locale must be zh or en", 422);
+  }
+  const metadata = getFullProductMetadata(context.req.param("slug"), locale);
+  if (!metadata) return jsonError("not_found", "Product not found", 404);
+  return cacheableJson(context.req.raw, metadataEnvelope(metadata));
 });
 
 hubApi.get("/api/v2/specs/:slug/schemas/:schemaName", (context) => {

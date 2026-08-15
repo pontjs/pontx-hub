@@ -7,7 +7,7 @@ import {
   SelectValue
 } from "@pontx/shadcn-ui";
 import type {
-  CatalogApi,
+  CatalogApiContext,
   CatalogOperation,
   CatalogRequestExample,
   Locale
@@ -49,7 +49,7 @@ export function RequestExampleNotice({
   onPreview
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   operation: CatalogOperation;
   example: CatalogRequestExample;
   selectedId?: string;

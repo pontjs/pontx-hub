@@ -1,27 +1,27 @@
 import type { Route } from "./+types/schema-detail";
+import { useOutletContext } from "react-router";
 import { SchemaReference } from "~/components/schema-reference";
 import { SiteShell } from "~/components/site-shell";
-import { getCatalogSchema, getPontxSpec } from "~/lib/catalog/catalog.server";
+import { getSchemaMetadata } from "~/lib/catalog/metadata.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
-import { listSkillSummaries } from "~/lib/product-skills.server";
+import type { ApiLayoutContext } from "./api-layout";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
-  const match = getCatalogSchema(params.apiSlug ?? "", params.schemaName ?? "");
-  if (!match) throw new Response("Schema not found", { status: 404 });
-  const spec = getPontxSpec(match.api.slug, locale);
-  if (!spec) throw new Response("PontxSpec not found", { status: 500 });
-  const skillName = listSkillSummaries().find(
-    (skill) => skill.apiSlug === match.api.slug
-  )?.name;
-  return { locale, spec, skillName, ...match };
+  const detail = getSchemaMetadata(
+    params.apiSlug ?? "",
+    params.schemaName ?? "",
+    locale
+  );
+  if (!detail) throw new Response("Schema not found", { status: 404 });
+  return detail;
 }
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "Schema not found — Pontx Hub" }];
-  const { locale, api, schema } = data;
+  const { locale, product: api, schema } = data;
   const localizedTitle = localize(schema.title, locale);
   const title = localizedTitle === schema.name
     ? `${schema.name} Schema — ${api.name}`
@@ -75,7 +75,8 @@ export function headers() {
 }
 
 export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, spec, schema, skillName } = loaderData;
+  const { locale, api, skillName } = useOutletContext<ApiLayoutContext>();
+  const { pontxSpec: spec, schema } = loaderData;
   return (
     <SiteShell locale={locale}>
       <SchemaReference

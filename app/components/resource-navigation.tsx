@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import type { CatalogApi, Locale } from "~/lib/catalog/types";
+import type { CatalogApiContext, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 
@@ -10,7 +10,7 @@ export function ResourceNavigation({
   skillName
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   active: "overview" | "docs" | "schemas" | "sdk" | "skill";
   skillName?: string;
 }) {
@@ -45,7 +45,6 @@ export function ResourceNavigation({
             to={`/${locale}/apis/${api.slug}/${defaultOperation}`}
             className={directoryLinkClass("docs")}
             aria-current={active === "docs" ? "page" : undefined}
-            reloadDocument
           >
             {workspaceCopy.endpointTab}
           </Link>
@@ -55,7 +54,6 @@ export function ResourceNavigation({
             to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(api.schemas[0].name)}`}
             className={directoryLinkClass("schemas")}
             aria-current={active === "schemas" ? "page" : undefined}
-            reloadDocument
           >
             {zh ? "数据结构" : "Schemas"}
             <span>{api.schemas.length}</span>

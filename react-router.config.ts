@@ -3,5 +3,6 @@ import { vercelPreset } from "@vercel/react-router/vite";
 
 export default {
   ssr: true,
+  routeDiscovery: { mode: "initial" },
   presets: [vercelPreset()]
 } satisfies Config;

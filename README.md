@@ -97,6 +97,28 @@ Local development auto-discovers a sibling metadata checkout or accepts
 exact 40-character commit SHA; `METADATA_REPO_RAW_URL` may override the raw host
 but must still resolve that same revision.
 
+## Metadata API
+
+The v2 metadata resources separate navigation-sized summaries from resource
+details. Every response includes the exact 40-character `metadataRevision`, an
+ETag, and a stable `v2` envelope. Existing v1 resources remain compatible.
+
+- `GET /api/v2/products` lists compact product identities and counts.
+- `GET /api/v2/products/{slug}` returns the product overview plus Endpoint and
+  Schema names/IDs, without request, response, or JSON Schema details.
+- `GET /api/v2/products/{slug}/endpoints/{endpointSlug}?locale=en|zh` returns
+  one complete Endpoint plus the transitive localized Schema closure it needs.
+- `GET /api/v2/products/{slug}/schemas/{schemaName}?locale=en|zh` returns one
+  complete Schema plus its transitive localized Schema closure.
+- `GET /api/v2/products/{slug}/metadata?locale=en|zh` returns the complete
+  product record and PontxSpec for agents, offline indexing, and bulk tools.
+- `GET /api/v2/search` remains the shared catalog-wide API/Endpoint/Schema
+  search resource.
+
+The SSR documentation routes call the same server-side DTO builders directly;
+they do not make an internal HTTP round trip or defer indexable content to the
+browser. See `/openapi.json` for the discovery contract.
+
 ## Verification
 
 ```bash

@@ -10,6 +10,7 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import { GoogleAnalytics } from "~/components/google-analytics";
+import { NavigationProgress } from "~/components/navigation-progress";
 import { PONTX_LOGO_DATA_URL } from "~/lib/brand";
 import { AccountProvider } from "~/lib/accounts/account-context";
 import { readAccountsConfiguration } from "~/lib/accounts/config.server";
@@ -33,6 +34,12 @@ export async function loader() {
     googleAnalyticsId:
       configuredId && GA_MEASUREMENT_ID_PATTERN.test(configuredId) ? configuredId : undefined
   };
+}
+
+// Deployment configuration is immutable for the lifetime of a client bundle.
+// Re-reading it on every documentation navigation only adds a serial route-data request.
+export function shouldRevalidate() {
+  return false;
 }
 
 export function siteVerificationMeta(data: Awaited<ReturnType<typeof loader>>["siteVerification"] | undefined) {
@@ -88,6 +95,7 @@ export default function App() {
 
   return (
     <>
+      <NavigationProgress />
       <AccountProvider initialState={{
         enabled: accountsEnabled,
         loaded: true,

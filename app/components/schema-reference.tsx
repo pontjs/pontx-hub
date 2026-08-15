@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SchemaProvider } from "@pontx/shadcn-ui";
 import { SchemaViewer } from "@pontx/shadcn-ui/schema-viewer";
 import type { PontxSpec } from "@pontx/spec";
-import type { CatalogApi, CatalogSchema, Locale } from "~/lib/catalog/types";
+import type { CatalogApiContext, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
@@ -15,7 +15,7 @@ export function SchemaReference({
   skillName
 }: {
   locale: Locale;
-  api: CatalogApi;
+  api: CatalogApiContext;
   spec: PontxSpec;
   schema: CatalogSchema;
   skillName?: string;
@@ -23,19 +23,17 @@ export function SchemaReference({
   const zh = locale === "zh";
   const [isHydrated, setIsHydrated] = useState(false);
   const components = useMemo(
-    () => ({
-      schemas: Object.fromEntries(
-        api.schemas.map((catalogSchema) => [
-          catalogSchema.name,
-          catalogSchema.localizedSchema?.[locale] ?? catalogSchema.schema
-        ])
-      )
-    }),
-    [api.schemas, locale]
+    () => ({ schemas: spec.components?.schemas ?? {} }),
+    [spec.components?.schemas]
   );
   const viewerSchema = useMemo(
-    () => ({ ...(schema.localizedSchema?.[locale] ?? schema.schema), components }),
-    [components, locale, schema.localizedSchema, schema.schema]
+    () => ({
+      ...(components.schemas[schema.name] ??
+        schema.localizedSchema?.[locale] ??
+        schema.schema),
+      components
+    }),
+    [components, locale, schema.localizedSchema, schema.name, schema.schema]
   );
 
   useEffect(() => {

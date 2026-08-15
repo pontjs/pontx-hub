@@ -309,6 +309,74 @@ export type CatalogSummary = Omit<
   authTypes: Array<CatalogAuthScheme["type"]>;
 };
 
+/**
+ * Stable, navigation-sized Endpoint metadata. Detailed request/response data
+ * belongs to the Endpoint detail resource instead of the product summary.
+ */
+export type CatalogEndpointSummary = Pick<
+  CatalogOperation,
+  | "slug"
+  | "operationId"
+  | "style"
+  | "tag"
+  | "method"
+  | "path"
+  | "title"
+  | "deprecated"
+  | "proxyEnabled"
+  | "proxyDisabledReason"
+> & {
+  id: `endpoint:${string}/${string}`;
+};
+
+/** Navigation-sized Schema metadata. The JSON Schema is served by its detail resource. */
+export type CatalogSchemaSummary = Pick<
+  CatalogSchema,
+  "name" | "title" | "type"
+> & {
+  id: `schema:${string}/${string}`;
+  propertyCount: number;
+};
+
+export type CatalogProductListItem = Pick<
+  CatalogApi,
+  | "slug"
+  | "name"
+  | "provider"
+  | "category"
+  | "featured"
+  | "attributionUrl"
+  | "title"
+  | "summary"
+> & {
+  id: `api:${string}`;
+  endpointCount: number;
+  schemaCount: number;
+  defaultEndpointSlug?: string;
+  authTypes: Array<CatalogAuthScheme["type"]>;
+  sdk: Pick<CatalogApi, "packageName" | "sdkVersion" | "sdkStatus" | "cliName">;
+};
+
+/**
+ * Product metadata used for directory navigation. It intentionally contains
+ * only Endpoint and Schema names/identities; details live in separate
+ * resources so dense products do not make every route transition megabytes.
+ */
+export type CatalogProductMetadata = Omit<CatalogApi, "operations" | "schemas"> & {
+  id: `api:${string}`;
+  endpointCount: number;
+  schemaCount: number;
+  defaultEndpointSlug?: string;
+  endpoints: CatalogEndpointSummary[];
+  schemas: CatalogSchemaSummary[];
+};
+
+/** Internal component adapter for product-summary-backed reference pages. */
+export type CatalogApiContext = Omit<CatalogApi, "operations" | "schemas"> & {
+  operations: Array<CatalogOperation | CatalogEndpointSummary>;
+  schemas: Array<CatalogSchema | CatalogSchemaSummary>;
+};
+
 export type GlobalSearchKind = "api" | "endpoint" | "schema";
 
 export type GlobalSearchMatchField =

@@ -61,7 +61,7 @@ describe("public route SEO metadata", () => {
   it("keeps Endpoint and Schema pages canonical, localized, and breadcrumbed", () => {
     const operation = api.operations[0];
     const operationDescriptors = descriptors(operationMeta({
-      data: { locale: "en", api, operation }
+      data: { locale: "en", product: api, endpoint: operation }
     } as never));
     expectLocalizedPublicMeta(
       operationDescriptors,
@@ -72,7 +72,7 @@ describe("public route SEO metadata", () => {
 
     const schema = api.schemas[0];
     const schemaDescriptors = descriptors(schemaMeta({
-      data: { locale: "zh", api, schema }
+      data: { locale: "zh", product: api, schema }
     } as never));
     expectLocalizedPublicMeta(
       schemaDescriptors,
@@ -107,7 +107,7 @@ describe("public route SEO metadata", () => {
     const loaded = await apiLoader({
       params: { locale: "zh", apiSlug: "frankfurter" }
     } as never);
-    expect(loaded.operation.slug).toBe("get-latest-rates");
+    expect(loaded.endpoint.slug).toBe("get-latest-rates");
 
     const apiDescriptors = descriptors(apiMeta({ data: loaded } as never));
     expectLocalizedPublicMeta(
