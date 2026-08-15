@@ -40,20 +40,24 @@ function renderGuide(apiSlug = "twelve-data-forex", locale: "zh" | "en" = "en") 
   }));
 }
 
-function details(container: HTMLElement): HTMLDetailsElement {
-  const element = container.querySelector("details");
-  if (!(element instanceof HTMLDetailsElement)) {
+function disclosure(container: HTMLElement): HTMLElement {
+  const element = container.querySelector(".credential-setup-guide");
+  if (!(element instanceof HTMLElement)) {
     throw new Error("Expected a credential guide disclosure");
   }
   return element;
 }
 
-function toggle(element: HTMLDetailsElement): void {
-  const summary = element.querySelector("summary");
-  if (!(summary instanceof HTMLElement)) {
-    throw new Error("Expected a credential guide summary");
+function isOpen(element: HTMLElement): boolean {
+  return element.dataset.state === "open";
+}
+
+function toggle(element: HTMLElement): void {
+  const trigger = element.querySelector("button[aria-expanded]");
+  if (!(trigger instanceof HTMLButtonElement)) {
+    throw new Error("Expected a credential guide trigger");
   }
-  fireEvent.click(summary);
+  fireEvent.click(trigger);
 }
 
 beforeEach(() => {
@@ -69,17 +73,17 @@ describe("credential setup guide preference", () => {
   it("remembers a collapsed guide across endpoints, locale changes, and remounts", async () => {
     const storageKey = credentialGuidePreferenceKey("twelve-data-forex", "apiKey");
     const first = renderGuide();
-    const firstDetails = details(first.container);
-    expect(firstDetails.open).toBe(true);
+    const firstDisclosure = disclosure(first.container);
+    expect(isOpen(firstDisclosure)).toBe(true);
 
-    toggle(firstDetails);
-    await waitFor(() => expect(firstDetails.open).toBe(false));
+    toggle(firstDisclosure);
+    await waitFor(() => expect(isOpen(firstDisclosure)).toBe(false));
     expect(window.localStorage.getItem(storageKey)).toBe("1");
     expect(window.sessionStorage.length).toBe(0);
     first.unmount();
 
     const second = renderGuide("twelve-data-forex", "zh");
-    await waitFor(() => expect(details(second.container).open).toBe(false));
+    await waitFor(() => expect(isOpen(disclosure(second.container))).toBe(false));
   });
 
   it("keeps another product expanded and removes the preference when reopened", async () => {
@@ -87,14 +91,14 @@ describe("credential setup guide preference", () => {
     window.localStorage.setItem(storageKey, "1");
 
     const otherProduct = renderGuide("currencybeacon-rest");
-    await waitFor(() => expect(details(otherProduct.container).open).toBe(true));
+    await waitFor(() => expect(isOpen(disclosure(otherProduct.container))).toBe(true));
     otherProduct.unmount();
 
     const sameProduct = renderGuide();
-    const sameProductDetails = details(sameProduct.container);
-    await waitFor(() => expect(sameProductDetails.open).toBe(false));
-    toggle(sameProductDetails);
-    await waitFor(() => expect(sameProductDetails.open).toBe(true));
+    const sameProductDisclosure = disclosure(sameProduct.container);
+    await waitFor(() => expect(isOpen(sameProductDisclosure)).toBe(false));
+    toggle(sameProductDisclosure);
+    await waitFor(() => expect(isOpen(sameProductDisclosure)).toBe(true));
     expect(window.localStorage.getItem(storageKey)).toBeNull();
   });
 });

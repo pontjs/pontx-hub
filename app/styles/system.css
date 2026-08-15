@@ -2406,40 +2406,45 @@ textarea {
   overflow: hidden;
   container-type: inline-size;
   flex: 0 0 auto;
-  border: 1px solid #b8c9f6;
-  border-left: 3px solid var(--blue);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
   color: var(--ink);
-  background:
-    linear-gradient(90deg, rgb(49 87 213 / 5%) 1px, transparent 1px),
-    linear-gradient(135deg, #f7f9ff 0%, #fff 62%);
-  background-size: 28px 100%, auto;
-  box-shadow: var(--shadow-xs);
+  background: var(--surface);
+  box-shadow: none;
 }
 
-.credential-setup-guide > summary {
+.credential-setup-guide > .credential-setup-guide-trigger {
   display: grid;
   min-height: 52px;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 9px;
   padding: 8px 10px;
   cursor: pointer;
-  list-style: none;
+  border-radius: inherit;
 }
 
-.credential-setup-guide > summary::-webkit-details-marker {
-  display: none;
+.credential-setup-guide > .credential-setup-guide-trigger:hover {
+  background: var(--paper-soft);
 }
 
-.credential-setup-guide > summary:focus-visible {
+.credential-setup-guide > .credential-setup-guide-trigger:focus-visible {
   outline: 2px solid var(--blue);
   outline-offset: -3px;
+  box-shadow: none;
 }
 
-.credential-setup-guide[open] > summary {
-  border-bottom: 1px solid #d8e2f7;
-  background: rgb(255 255 255 / 76%);
+.credential-setup-guide > .credential-setup-guide-trigger > svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-soft);
+}
+
+.credential-setup-guide[data-state="open"] > .credential-setup-guide-trigger {
+  border-bottom: 1px solid var(--line);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background: var(--paper-soft);
 }
 
 .credential-setup-guide-mark {
@@ -2447,11 +2452,11 @@ textarea {
   min-width: 42px;
   height: 23px;
   place-items: center;
-  border: 1px solid #9fb5f1;
+  border: 1px solid var(--line-strong);
   border-radius: 999px;
   padding-inline: 7px;
-  color: #fff;
-  background: var(--blue);
+  color: #475569;
+  background: var(--paper-soft);
   font-family: var(--mono);
   font-size: 8px;
   font-weight: 700;
@@ -2484,22 +2489,11 @@ textarea {
 .credential-setup-guide-count {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: var(--blue-deep);
+  color: var(--ink-soft);
   font-family: var(--mono);
   font-size: 9px;
   font-weight: 650;
   white-space: nowrap;
-}
-
-.credential-setup-guide-count::after {
-  content: "+";
-  font-size: 14px;
-  line-height: 1;
-}
-
-.credential-setup-guide[open] .credential-setup-guide-count::after {
-  content: "−";
 }
 
 .credential-setup-guide-body {
@@ -2528,10 +2522,10 @@ textarea {
   width: 24px;
   height: 24px;
   place-items: center;
-  border: 1px solid #c9d5f2;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  color: var(--blue-deep);
-  background: #fff;
+  color: var(--ink-soft);
+  background: var(--paper-soft);
   font-family: var(--mono);
   font-size: 8px;
   font-weight: 700;
@@ -2549,31 +2543,12 @@ textarea {
   display: grid;
   gap: 7px;
   padding-top: 9px;
-  border-top: 1px solid #d8e2f7;
+  border-top: 1px solid var(--line);
 }
 
 .credential-setup-guide footer a {
-  display: inline-flex;
   width: fit-content;
-  min-height: 31px;
-  align-items: center;
-  border: 1px solid var(--blue);
-  border-radius: 6px;
-  padding: 0 10px;
-  color: #fff;
-  background: var(--blue);
-  font-size: 11px;
-  font-weight: 700;
   text-decoration: none;
-}
-
-.credential-setup-guide footer a:hover {
-  background: var(--blue-deep);
-}
-
-.credential-setup-guide footer a:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
 }
 
 .credential-setup-guide footer p {
@@ -2600,12 +2575,12 @@ textarea {
 }
 
 @container (max-width: 480px) {
-  .credential-setup-guide-count {
-    font-size: 0;
+  .credential-setup-guide > .credential-setup-guide-trigger {
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
-  .credential-setup-guide-count::after {
-    font-size: 14px;
+  .credential-setup-guide-count {
+    display: none;
   }
 
   .credential-setup-guide-heading strong {
