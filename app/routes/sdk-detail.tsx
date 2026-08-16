@@ -13,6 +13,7 @@ import { hubCliCommand } from "~/lib/hub-cli-command";
 import type { CatalogApiContext } from "~/lib/catalog/types";
 import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import { listSkillSummaries } from "~/lib/product-skills.server";
+import { trackCodeCopied, trackSdkNpmOpened } from "~/lib/analytics/events";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -158,6 +159,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
                 href={npmUrl}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => trackSdkNpmOpened({ locale, apiSlug: api.slug })}
                 aria-label={`${zh ? "在 npm 打开" : "Open on npm"} ${api.packageName}`}
               >
                 {zh ? "在 npm 查看" : "Open on npm"} <span aria-hidden="true">↗</span>
@@ -249,8 +251,8 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
           </div>
           {published ? (
             <>
-              <CodeBlock code={install} language="shell" label={zh ? "安装 SDK" : "Install SDK"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
-              <CodeBlock className="code-frame-spaced" code={usage} language="typescript" label={zh ? "TypeScript 调用" : "TypeScript usage"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
+              <CodeBlock code={install} language="shell" label={zh ? "安装 SDK" : "Install SDK"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} onCopied={() => trackCodeCopied({ surface: "sdk", kind: "install", apiSlug: api.slug })} />
+              <CodeBlock className="code-frame-spaced" code={usage} language="typescript" label={zh ? "TypeScript 调用" : "TypeScript usage"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} onCopied={() => trackCodeCopied({ surface: "sdk", kind: "typescript", apiSlug: api.slug })} />
               <div className="section-heading" style={{ marginTop: 32 }}>
                 <h2>{zh ? "命令行调用" : "Command-line access"}</h2>
                 <p>{hasDedicatedCliExample
@@ -261,7 +263,7 @@ export default function SdkDetail({ loaderData }: Route.ComponentProps) {
                     ? "Pontx Hub CLI 先选择 API 产品，再按 controller 与接口名称调用。没有 controller 分组的 API 产品可直接写接口名称。"
                     : "Pontx Hub CLI selects the API product first, then calls an endpoint by controller and name. API products without a controller group use the endpoint name directly."}</p>
               </div>
-              <CodeBlock code={cliUsage} language="shell" label={hasDedicatedCliExample ? (zh ? "独立 API CLI" : "Dedicated API CLI") : "Pontx Hub CLI"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} />
+              <CodeBlock code={cliUsage} language="shell" label={hasDedicatedCliExample ? (zh ? "独立 API CLI" : "Dedicated API CLI") : "Pontx Hub CLI"} copyLabel={codeBlockCopy} copiedLabel={codeBlockCopied} copyFailedLabel={codeBlockCopyFailed} onCopied={() => trackCodeCopied({ surface: "sdk", kind: "cli", apiSlug: api.slug })} />
             </>
           ) : null}
         </section>

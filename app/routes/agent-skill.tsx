@@ -4,6 +4,7 @@ import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { CodeBlock } from "~/components/code-block";
 import { agentSkillHeroCopy } from "~/lib/i18n";
+import { trackCodeCopied } from "~/lib/analytics/events";
 import { Link } from "react-router";
 
 export function loader({ params }: Route.LoaderArgs) {
@@ -96,9 +97,9 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
                 : "The Hub Skill always previews first, and mutations require explicit user confirmation."}
             </p>
           </div>
-          <CodeBlock code={`pnpm add -g @pontx/hub-cli\npontx-hub skill install`} language="shell" label={zh ? "安装" : "Install"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
-          <CodeBlock className="code-frame-spaced" code={`npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub`} language="shell" label={zh ? "通过 Agent Skills 安装" : "Install with Agent Skills"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
-          <CodeBlock className="code-frame-spaced" code={workflow} language="shell" label={zh ? "安全调用流程" : "Safe call workflow"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} />
+          <CodeBlock code={`pnpm add -g @pontx/hub-cli\npontx-hub skill install`} language="shell" label={zh ? "安装" : "Install"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} onCopied={() => trackCodeCopied({ surface: "hub_skill", kind: "install" })} />
+          <CodeBlock className="code-frame-spaced" code={`npx skills add https://github.com/pontjs/pontx-hub --skill pontx-hub`} language="shell" label={zh ? "通过 Agent Skills 安装" : "Install with Agent Skills"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} onCopied={() => trackCodeCopied({ surface: "hub_skill", kind: "install" })} />
+          <CodeBlock className="code-frame-spaced" code={workflow} language="shell" label={zh ? "安全调用流程" : "Safe call workflow"} copyLabel={copyLabel} copiedLabel={copiedLabel} copyFailedLabel={copyFailedLabel} onCopied={() => trackCodeCopied({ surface: "hub_skill", kind: "workflow" })} />
         </section>
         <section className="section">
           <div className="section-heading">
@@ -116,6 +117,7 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`;
             copyLabel={copyLabel}
             copiedLabel={copiedLabel}
             copyFailedLabel={copyFailedLabel}
+            onCopied={() => trackCodeCopied({ surface: "hub_skill", kind: "example" })}
           />
         </section>
       </main>

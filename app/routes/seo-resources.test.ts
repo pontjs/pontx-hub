@@ -8,6 +8,8 @@ import {
 import { loader as sitemapPageLoader } from "./sitemap-page";
 import { loader as llmsLoader } from "./llms";
 import { loader as openApiLoader } from "./openapi";
+import { loader as indexNowKeyLoader } from "./indexnow-key";
+import { INDEXNOW_KEY } from "~/lib/indexnow";
 import {
   action as skillDiscoveryAction,
   loader as skillDiscoveryLoader
@@ -45,6 +47,14 @@ describe("SEO resource routes", () => {
     expect(body).toContain("Published package in the Unified SDK for");
     expect(body).not.toContain("Published TypeScript and Node.js SDK");
     expect(body).not.toContain("pontx-hub.vercel.app");
+  });
+
+  it("hosts the public IndexNow verification key outside the search index", async () => {
+    const response = indexNowKeyLoader();
+
+    expect(response.headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
+    expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(await response.text()).toBe(INDEXNOW_KEY);
   });
 
   it("publishes a discovery-only OpenAPI description", async () => {

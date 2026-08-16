@@ -10,6 +10,7 @@ import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { getSkillBundle } from "~/lib/product-skills.server";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
+import { trackCodeCopied } from "~/lib/analytics/events";
 
 type SkillFileView = {
   path: string;
@@ -163,6 +164,7 @@ export default function ProductSkill({ loaderData }: Route.ComponentProps) {
               copyLabel={copyLabel}
               copiedLabel={copiedLabel}
               copyFailedLabel={copyFailedLabel}
+              onCopied={() => trackCodeCopied({ surface: "product_skill", kind: "install", apiSlug: api.slug })}
             />
             <CodeBlock
               className="code-frame-spaced"
@@ -172,6 +174,7 @@ export default function ProductSkill({ loaderData }: Route.ComponentProps) {
               copyLabel={copyLabel}
               copiedLabel={copiedLabel}
               copyFailedLabel={copyFailedLabel}
+              onCopied={() => trackCodeCopied({ surface: "product_skill", kind: "install", apiSlug: api.slug })}
             />
             <Link className="product-skill-universal-link" to={`/${locale}/skills/pontx-hub`}>
               {zh ? "先了解统一 Skill" : "Learn about the universal Skill"} <span aria-hidden="true">→</span>

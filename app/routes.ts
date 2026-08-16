@@ -1,4 +1,5 @@
 import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { INDEXNOW_KEY_PATH } from "./lib/indexnow";
 
 export default [
   index("routes/locale-redirect.tsx"),
@@ -6,6 +7,7 @@ export default [
   route("sitemap.xml", "routes/sitemap.ts"),
   route("sitemaps/:page", "routes/sitemap-page.ts"),
   route("llms.txt", "routes/llms.ts"),
+  route(INDEXNOW_KEY_PATH.slice(1), "routes/indexnow-key.ts"),
   route("openapi.json", "routes/openapi.ts"),
   route("badges/sdk/*", "routes/sdk-quality-badge.ts"),
   route(".well-known/skills/*", "routes/skill-discovery.ts"),

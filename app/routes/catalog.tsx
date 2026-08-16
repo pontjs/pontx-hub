@@ -21,6 +21,7 @@ import {
 } from "~/lib/catalog/catalog.server";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { createDebouncedTask } from "~/lib/debounce";
+import { trackCatalogSearchViewed } from "~/lib/analytics/events";
 
 const SEARCH_DEBOUNCE_MS = 350;
 const GlobalSearchResults = lazy(async () => {
@@ -238,11 +239,20 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
   const zh = locale === "zh";
   const terminology = publicResourceTerminologyCopy(locale);
   const [searchPending, setSearchPending] = useState(false);
+  const lastTrackedSearch = useRef<string | undefined>(undefined);
   const searchSummary = search
     ? zh
       ? `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints} · ${search.counts.schema} ${terminology.schemas}`
       : `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints.toLowerCase()} · ${search.counts.schema} ${terminology.schemas.toLowerCase()}`
     : `${String(apis.length).padStart(2, "0")} ${terminology.apiProducts}`;
+
+  useEffect(() => {
+    if (!query || !search) return;
+    const key = `${locale}:${query}:${search.total}`;
+    if (lastTrackedSearch.current === key) return;
+    lastTrackedSearch.current = key;
+    trackCatalogSearchViewed({ locale, query, resultCount: search.total });
+  }, [locale, query, search]);
 
   return (
     <SiteShell locale={locale}>
