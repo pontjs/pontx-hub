@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import type { CatalogSummary, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { publicResourceTerminologyCopy } from "~/lib/i18n";
+import { trackCatalogResourceOpened } from "~/lib/analytics/events";
 
 export function ApiCard({
   api,
@@ -30,6 +31,7 @@ export function ApiCard({
           className="api-card-main"
           to={`/${locale}/apis/${api.slug}`}
           reloadDocument
+          onClick={() => trackCatalogResourceOpened({ locale, apiSlug: api.slug, target: "api" })}
           aria-label={`${title} — ${api.operationCount} ${
             locale === "zh" ? "个接口" : "endpoints"
           }`}
@@ -67,6 +69,7 @@ export function ApiCard({
               <Link
                 className="api-card-sdk-link"
                 to={`/${locale}/sdks/${api.slug}`}
+                onClick={() => trackCatalogResourceOpened({ locale, apiSlug: api.slug, target: "sdk" })}
                 aria-label={sdkLabel}
               >
                 <span>

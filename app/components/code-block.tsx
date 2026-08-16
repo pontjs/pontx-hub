@@ -12,6 +12,7 @@ type CodeBlockProps = {
   copiedLabel: string;
   copyFailedLabel: string;
   className?: string;
+  onCopied?: () => void;
 };
 
 const shellKeywords = new Set([
@@ -78,7 +79,8 @@ export function CodeBlock({
   copyLabel,
   copiedLabel,
   copyFailedLabel,
-  className
+  className,
+  onCopied
 }: CodeBlockProps) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const lines = code.split("\n");
@@ -88,6 +90,7 @@ export function CodeBlock({
     try {
       await navigator.clipboard.writeText(code);
       setCopyStatus("copied");
+      onCopied?.();
     } catch {
       setCopyStatus("failed");
     }

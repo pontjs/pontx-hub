@@ -65,6 +65,7 @@ import {
   isBrowserCredentialGuideCollapsed,
   persistBrowserCredentialGuideCollapsed
 } from "~/lib/playground/credential-guide-preference";
+import { trackPlaygroundRequest } from "~/lib/analytics/events";
 
 const useClientLayoutEffect = typeof window === "undefined"
   ? useEffect
@@ -1081,6 +1082,13 @@ export function PontxApiWorkspace({
       setExecutionResult(undefined);
       try {
         if (oauthExecutionBlocked) {
+          trackPlaygroundRequest({
+            apiSlug: api.slug,
+            operationSlug: activeOperation.slug,
+            mode: playgroundAvailability.executionEnabled ? "execute" : "preview_only",
+            outcome: "blocked",
+            blocker: "oauth"
+          });
           setExecutionResult({
             status: 401,
             statusText: locale === "zh" ? "需要先完成 OAuth 授权" : "OAuth authorization required",
@@ -1096,6 +1104,13 @@ export function PontxApiWorkspace({
         }
         const unresolved = unresolvedRequestInputs(request, requestExample);
         if (unresolved.length) {
+          trackPlaygroundRequest({
+            apiSlug: api.slug,
+            operationSlug: activeOperation.slug,
+            mode: playgroundAvailability.executionEnabled ? "execute" : "preview_only",
+            outcome: "blocked",
+            blocker: "dynamic_input"
+          });
           setExecutionResult({
             status: 422,
             statusText:
@@ -1117,6 +1132,12 @@ export function PontxApiWorkspace({
           "/api/v1/playground/preview",
           requestBody
         );
+        trackPlaygroundRequest({
+          apiSlug: api.slug,
+          operationSlug: activeOperation.slug,
+          mode: playgroundAvailability.executionEnabled ? "execute" : "preview_only",
+          outcome: "previewed"
+        });
         if (!playgroundAvailability.executionEnabled) {
           setExecutionResult({
             status: 0,
@@ -1141,6 +1162,12 @@ export function PontxApiWorkspace({
               : "This request changes provider data. Send the exact request you previewed?"
           )
         ) {
+          trackPlaygroundRequest({
+            apiSlug: api.slug,
+            operationSlug: activeOperation.slug,
+            mode: "execute",
+            outcome: "cancelled"
+          });
           return;
         }
         const result = await postHub<Execution>(
@@ -1158,7 +1185,19 @@ export function PontxApiWorkspace({
           duration: result.durationMs
         });
         setHistoryRefreshVersion((version) => version + 1);
+        trackPlaygroundRequest({
+          apiSlug: api.slug,
+          operationSlug: activeOperation.slug,
+          mode: "execute",
+          outcome: "succeeded"
+        });
       } catch (error) {
+        trackPlaygroundRequest({
+          apiSlug: api.slug,
+          operationSlug: activeOperation.slug,
+          mode: playgroundAvailability.executionEnabled ? "execute" : "preview_only",
+          outcome: "failed"
+        });
         setExecutionResult({
           status: 500,
           statusText: locale === "zh" ? "请求失败" : "Request failed",

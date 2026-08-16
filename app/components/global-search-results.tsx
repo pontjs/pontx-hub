@@ -13,6 +13,7 @@ import {
   type FavoriteEndpointIdentity
 } from "~/lib/accounts/favorites";
 import { publicResourceTerminologyCopy } from "~/lib/i18n";
+import { trackSearchResultOpened } from "~/lib/analytics/events";
 
 const kinds: GlobalSearchKind[] = ["api", "endpoint", "schema"];
 
@@ -119,7 +120,11 @@ export function GlobalSearchResults({
             <div className="search-result-list">
               {results.map((result) => (
                 <div className="search-result-item" key={result.id}>
-                  <Link className="search-result-row" to={result.href}>
+                  <Link
+                    className="search-result-row"
+                    to={result.href}
+                    onClick={() => trackSearchResultOpened({ locale, result })}
+                  >
                   <ResultBadge result={result} locale={locale} />
                   <div className="search-result-main">
                     <div>
