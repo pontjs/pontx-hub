@@ -123,6 +123,25 @@ const result = await ratesClient.common.getRate(
     expect(code).toContain("client.common.getRate");
   });
 
+  it("preserves verified public factory defaults instead of treating them as credentials", () => {
+    const code = generateSdkSnippet(api({
+      kind: "factory",
+      factory: "createRatesClient",
+      identifier: "client",
+      options: {
+        apiKey: "RATES_API_KEY",
+        baseUrl: "https://api.example.com"
+      }
+    }), operation, {
+      path: { base: "EUR", quote: "USD" },
+      query: {},
+      headers: {}
+    });
+
+    expect(code).toContain("apiKey: process.env.RATES_API_KEY!");
+    expect(code).toContain('baseUrl: "https://api.example.com"');
+  });
+
   it("places request bodies before named parameters and bearer request init", () => {
     const bodyOperation = {
       operationId: "updateTask",

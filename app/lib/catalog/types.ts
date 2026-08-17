@@ -160,7 +160,7 @@ export type CatalogServer = {
 };
 
 export type CatalogPricing = {
-  status: "free" | "freemium" | "paid" | "contact" | "unknown";
+  status: "free" | "freemium" | "paid" | "usage-based" | "contact" | "unknown";
   summary: LocalizedText;
   officialUrl: string;
   verifiedAt: string;

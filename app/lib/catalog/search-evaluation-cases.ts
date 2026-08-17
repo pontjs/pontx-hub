@@ -128,7 +128,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
   },
   {
     id: "zh-exchange-plan-usage",
-    query: "查看汇率数据服务套餐还剩多少请求额度",
+    query: "查看 App ID 当前套餐用量统计",
     locale: "zh",
     kinds: ["endpoint"],
     judgments: [{ id: "endpoint:open-exchange-rates/get-usage", relevance: 3 }],
@@ -192,7 +192,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
   },
   {
     id: "api-product",
-    query: "task productivity service",
+    query: "projects tasks and habits productivity service",
     locale: "en",
     kinds: ["api"],
     judgments: [
