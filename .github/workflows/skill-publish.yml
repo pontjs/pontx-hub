@@ -28,7 +28,7 @@ concurrency:
 env:
   CLAWHUB_CLI_VERSION: 0.23.1
   SKILL_NAME: pontx-hub
-  SKILL_VERSION: 0.4.0
+  SKILL_VERSION: 0.5.0
   SKILL_PATH: plugins/pontx-api/skills/pontx-hub
 
 jobs:

@@ -175,7 +175,10 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     query: "task productivity service",
     locale: "en",
     kinds: ["api"],
-    judgments: [{ id: "api:dida365", relevance: 3 }],
+    judgments: [
+      { id: "api:dida365", relevance: 3 },
+      { id: "api:wps-365", relevance: 3 }
+    ],
     requiredTopK: 1,
     tags: ["en", "api", "product"]
   },

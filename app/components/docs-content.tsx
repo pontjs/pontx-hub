@@ -687,6 +687,85 @@ function NotionTypeScriptGuide({ locale }: { locale: Locale }) {
   );
 }
 
+function AgentDiscoveryGuide({ locale }: { locale: Locale }) {
+  const zh = locale === "zh";
+  return (
+    <>
+      <DocSection
+        id="entry-points"
+        marker="01"
+        title={zh ? "从标准入口开始" : "Start with standard entry points"}
+        lead={zh ? "Pontx 同时公开 API Catalog、OpenAPI、Agent Skills 索引和文本导航；Agent 不需要先知道站内页面结构。" : "Pontx publishes an API Catalog, OpenAPI description, Agent Skills index, and text map, so an agent does not need to know the site structure first."}
+      >
+        <div className="docs-feature-table" role="table" aria-label={zh ? "机器可读发现入口" : "Machine-readable discovery entry points"}>
+          <div role="row"><strong role="cell">/.well-known/api-catalog</strong><p role="cell">{zh ? "RFC 9727 入口，把 API 服务连接到 OpenAPI、文档和 Skill 元数据。" : "The RFC 9727 entry point linking API services to OpenAPI, documentation, and Skill metadata."}</p></div>
+          <div role="row"><strong role="cell">/.well-known/agent-skills/index.json</strong><p role="cell">{zh ? "Agent Skills Discovery v0.2 索引，提供可下载归档和 SHA-256 摘要。" : "The Agent Skills Discovery v0.2 index with downloadable archives and SHA-256 digests."}</p></div>
+          <div role="row"><strong role="cell">/openapi.json</strong><p role="cell">{zh ? "用于搜索、产品、Endpoint、Schema 和 Skill 发现的 OpenAPI 3.1 描述。" : "An OpenAPI 3.1 description for search, products, Endpoints, Schemas, and Skill discovery."}</p></div>
+          <div role="row"><strong role="cell">/llms.txt</strong><p role="cell">{zh ? "面向模型的紧凑导航，指向可索引的人类文档与机器接口。" : "A compact model-facing map to indexable human documentation and machine interfaces."}</p></div>
+        </div>
+        <CopyableCode locale={locale} language="shell" label={zh ? "读取发现入口" : "Read the discovery entry points"} code={`curl --fail https://pontx.dev/.well-known/api-catalog
+curl --fail https://pontx.dev/.well-known/agent-skills/index.json
+curl --fail https://pontx.dev/openapi.json
+curl --fail https://pontx.dev/llms.txt`} />
+        <Callout tone="note" title={zh ? "旧入口仍可用" : "The legacy path remains available"}>
+          {zh ? "已有客户端可以继续读取 /.well-known/skills/index.json；新集成应优先使用 Agent Skills Discovery v0.2 入口。" : "Existing clients can keep reading /.well-known/skills/index.json. New integrations should prefer the Agent Skills Discovery v0.2 path."}
+        </Callout>
+      </DocSection>
+
+      <DocSection
+        id="skill-integrity"
+        marker="02"
+        title={zh ? "下载并校验 Skill" : "Download and verify a Skill"}
+        lead={zh ? "索引里的 digest 是归档内容的 SHA-256。校验通过后再解压，SKILL.md 位于归档根目录。" : "Each index digest is the archive's SHA-256. Verify it before extraction; SKILL.md is at the archive root."}
+      >
+        <CopyableCode locale={locale} language="shell" label={zh ? "校验 pontx-hub Skill" : "Verify the pontx-hub Skill"} code={`curl --fail --output pontx-hub.tar.gz \\
+  https://pontx.dev/.well-known/agent-skills/pontx-hub.tar.gz
+
+# Compare this value with the index digest after removing the "sha256:" prefix.
+shasum -a 256 pontx-hub.tar.gz
+tar -tzf pontx-hub.tar.gz`} />
+        <p>{zh ? "归档同时包含许可、Agent 元数据和按需读取的安全参考。产品 Skill 使用同一份发现与摘要契约。" : "The archive also includes its license, agent metadata, and an on-demand safety reference. Product Skills use the same discovery and digest contract."}</p>
+      </DocSection>
+
+      <DocSection
+        id="source-selection"
+        marker="03"
+        title={zh ? "按任务加载最小资料" : "Load only the source the task needs"}
+        lead={zh ? "不同入口解决不同问题。避免把完整 API 目录长期复制进上下文。" : "Each source answers a different question. Avoid copying the complete API catalog into long-lived context."}
+      >
+        <ul className="docs-checklist">
+          <li><span>✓</span>{zh ? "找 API 或字段：使用 /api/v2/search，再用稳定资源 ID 读取详情。" : "Finding an API or field: use /api/v2/search, then load details by stable resource ID."}</li>
+          <li><span>✓</span>{zh ? "生成工具调用：从 /openapi.json 读取当前发现接口。" : "Generating tool calls: read the current discovery surface from /openapi.json."}</li>
+          <li><span>✓</span>{zh ? "安装工作流：从 Agent Skills 索引选择并校验统一或产品 Skill。" : "Installing a workflow: select and verify a universal or product Skill from the Agent Skills index."}</li>
+          <li><span>✓</span>{zh ? "回答与引用：优先链接对应的中英文 API、Endpoint、Schema 或指南页面。" : "Answering with citations: link the matching localized API, Endpoint, Schema, or guide page."}</li>
+        </ul>
+        <CopyableCode locale={locale} language="shell" label={zh ? "按能力搜索当前目录" : "Search the live catalog by capability"} code={`curl --get https://pontx.dev/api/v2/search \\
+  --data-urlencode "q=exchange rate" \\
+  --data-urlencode "locale=en"`} />
+      </DocSection>
+
+      <DocSection
+        id="safe-integration"
+        marker="04"
+        title={zh ? "发现不等于执行授权" : "Discovery is not execution permission"}
+        lead={zh ? "这些入口允许工具读取公开资料和准备请求，但不会扩大用户对外部 API 的授权。" : "These entry points let tools read public material and prepare requests, but they do not expand the user's authority over an external API."}
+      >
+        <ul className="docs-checklist">
+          <li><span>✓</span>{zh ? "搜索、安装 Skill、读取 OpenAPI 和预览请求都是只读步骤。" : "Search, Skill installation, OpenAPI reads, and request previews are read-only steps."}</li>
+          <li><span>✓</span>{zh ? "GET 或 HEAD 只有在用户要求执行时才调用。" : "GET or HEAD is called only when the user requests execution."}</li>
+          <li><span>✓</span>{zh ? "POST、PUT、PATCH 或 DELETE 必须先预览完全相同的请求，再获得明确确认。" : "POST, PUT, PATCH, or DELETE requires a preview of the exact request followed by explicit confirmation."}</li>
+          <li><span>✓</span>{zh ? "凭证来自本地环境或当前浏览器会话，不能写进日志、URL 或 Agent 回复。" : "Credentials come from the local environment or current browser session and never belong in logs, URLs, or agent responses."}</li>
+        </ul>
+        <div className="docs-next-action">
+          <span>→</span>
+          <p>{zh ? "继续了解 Agent Skill 工作流，或查看完整的凭证与确认边界。" : "Continue with the Agent Skill workflow or review the complete credential and confirmation boundaries."}</p>
+          <Link to={docHref(locale, "safety")}>{zh ? "查看安全指南" : "Read the safety guide"}</Link>
+        </div>
+      </DocSection>
+    </>
+  );
+}
+
 function SafetyGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
@@ -742,5 +821,6 @@ export function DocsContent({ locale, slug }: { locale: Locale; slug: DocSlug })
   if (slug === "cli") return <CliGuide locale={locale} />;
   if (slug === "sdk") return <SdkGuide locale={locale} />;
   if (slug === "agent-skill") return <SkillGuide locale={locale} />;
+  if (slug === "agent-discovery") return <AgentDiscoveryGuide locale={locale} />;
   return <SafetyGuide locale={locale} />;
 }

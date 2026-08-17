@@ -27,11 +27,11 @@ export type PublicSkillSummary = Omit<PublicSkillBundle, "files"> & {
 };
 
 export const PONTX_HUB_SKILL_DESCRIPTION =
-  "Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use for catalog-wide API discovery, PontxSpec Endpoint or Schema inspection, product Skill installation, safe request preview, explicit mutation confirmation, or unified SDK integration.";
+  "Discover, compare, inspect, preview, call, and integrate curated public APIs with Pontx Hub. Use whenever a user asks to find a public API for a task, identify which Endpoint or Schema returns a field, inspect PontxSpec or OpenAPI documentation, install provider-specific Skills, preview a request safely, confirm a mutation, or generate code with a published Pontx SDK.";
 
 export const skillBundle = {
   name: "pontx-hub",
-  version: "0.4.0",
+  version: "0.5.0",
   files: {
     LICENSE: license,
     "SKILL.md": skill,
@@ -40,8 +40,11 @@ export const skillBundle = {
   }
 };
 
-export function sha256(content: string): string {
-  return createHash("sha256").update(content, "utf8").digest("hex");
+export function sha256(content: string | Uint8Array): string {
+  const hash = createHash("sha256");
+  if (typeof content === "string") hash.update(content, "utf8");
+  else hash.update(content);
+  return hash.digest("hex");
 }
 
 export function compareSkillPaths(left: string, right: string): number {

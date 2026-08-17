@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Pontx">
+  <rect width="200" height="200" fill="#000"/>
+  <path d="M38 162V84l8-9h34" fill="none" stroke="#fff" stroke-width="11" stroke-linejoin="miter"/>
+  <circle cx="83" cy="78" r="12" fill="#fff"/>
+  <path d="M38 44h43c21 0 36 14 36 34s-15 34-36 34H61" fill="none" stroke="#fff" stroke-width="11"/>
+  <text x="53" y="162" fill="#fff" font-family="Arial, sans-serif" font-size="38" font-weight="700">ont</text>
+  <text x="121" y="162" fill="#fff" font-family="Arial, sans-serif" font-size="64" font-weight="700">X</text>
+</svg>

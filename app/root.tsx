@@ -53,6 +53,10 @@ export function siteVerificationMeta(data: Awaited<ReturnType<typeof loader>>["s
 
 export const links: Route.LinksFunction = () => [
   { rel: "icon", type: "image/svg+xml", href: PONTX_LOGO_DATA_URL },
+  { rel: "api-catalog", type: "application/linkset+json", href: "/.well-known/api-catalog" },
+  { rel: "service-desc", type: "application/vnd.oai.openapi+json", href: "/openapi.json" },
+  { rel: "describedby", type: "application/json", href: "/.well-known/agent-skills/index.json" },
+  { rel: "alternate", type: "text/plain", href: "/llms.txt", title: "LLM documentation index" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

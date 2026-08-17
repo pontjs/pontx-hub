@@ -1,7 +1,7 @@
 {
   "name": "pontx-api",
-  "version": "0.1.0",
-  "description": "Discover curated public APIs, inspect PontxSpec Endpoints and Schemas, install focused product Skills, preview requests safely, and generate type-safe SDK integrations.",
+  "version": "0.2.0",
+  "description": "Discover and compare curated public APIs, inspect PontxSpec or OpenAPI contracts, install focused product Skills, preview requests safely, and generate type-safe SDK integrations.",
   "author": {
     "name": "Pontx",
     "url": "https://github.com/pontjs"
@@ -9,17 +9,23 @@
   "homepage": "https://pontx.dev/en/skills/pontx-hub",
   "repository": "https://github.com/pontjs/pontx-hub",
   "license": "MIT-0",
-  "keywords": ["api-discovery", "pontxspec", "agent-skill", "schema", "typescript-sdk"],
+  "keywords": ["public-api", "api-discovery", "openapi", "pontxspec", "agent-skill", "schema", "typescript-sdk"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Pontx API",
     "shortDescription": "Discover and integrate curated public APIs.",
-    "longDescription": "Search curated API products, inspect current PontxSpec Endpoints and Schemas, add provider-specific product Skills, preview calls safely, and generate published TypeScript and Node.js SDK integrations.",
+    "longDescription": "Find and compare public API products, inspect current PontxSpec or OpenAPI Endpoints and Schemas, add provider-specific product Skills, preview calls safely, and generate published TypeScript and Node.js SDK integrations.",
     "developerName": "Pontx",
     "category": "Developer Tools",
     "capabilities": ["API discovery", "PontxSpec inspection", "Product Skill installation", "Safe request preview", "SDK generation"],
     "websiteURL": "https://pontx.dev",
     "brandColor": "#2563EB",
-    "defaultPrompt": "Find a public API for my task and show me the safest integration path."
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.svg",
+    "defaultPrompt": [
+      "Find the best public API for this task and inspect its contract.",
+      "Show me the safest way to call this API Endpoint.",
+      "Generate a typed Pontx SDK example for this API."
+    ]
   }
 }

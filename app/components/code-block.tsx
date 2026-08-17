@@ -113,7 +113,7 @@ export function CodeBlock({
           {copyStatus === "copied" ? copiedLabel : copyStatus === "failed" ? copyFailedLabel : ""}
         </span>
       </figcaption>
-      <pre className="code-frame-content" tabIndex={0} aria-label={`${label ?? languageLabel} code`}>
+      <pre className="code-frame-content" tabIndex={0}>
         <code>
           {lines.map((line, index) => (
             <Fragment key={`${index}-${line}`}>

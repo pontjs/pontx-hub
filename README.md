@@ -146,11 +146,23 @@ coupling Hub releases to Pontx.
 
 The universal Skill is packaged in the skills-only
 [`Pontx API plugin`](./plugins/pontx-api), and is also discoverable from
-[`/.well-known/skills/index.json`](https://pontx.dev/.well-known/skills/index.json),
-while [`/llms.txt`](https://pontx.dev/llms.txt) provides a compact Agent-readable
-map of the canonical documentation and
+the [Agent Skills Discovery v0.2 index](https://pontx.dev/.well-known/agent-skills/index.json).
+The legacy [`/.well-known/skills/index.json`](https://pontx.dev/.well-known/skills/index.json)
+remains available for existing clients. The
+[RFC 9727 API Catalog](https://pontx.dev/.well-known/api-catalog) connects the
+Hub services to their OpenAPI description, human documentation, and Skill
+metadata, while [`/llms.txt`](https://pontx.dev/llms.txt) provides a compact
+Agent-readable map of the canonical documentation and
 [`/openapi.json`](https://pontx.dev/openapi.json) describes the read-only Hub
 discovery API.
+
+This repository also exposes a Codex marketplace manifest. From a local
+checkout, add the marketplace and install the plugin with:
+
+```bash
+codex plugin marketplace add .
+codex plugin add pontx-api@pontx
+```
 
 Use the universal Skill and `pontx-hub` CLI for catalog-wide discovery,
 PontxSpec inspection, safe request preview, and approved calls. Product Skills

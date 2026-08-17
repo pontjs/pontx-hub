@@ -130,7 +130,7 @@ function DocsHero({ locale, slug }: { locale: Locale; slug: DocSlug }) {
           </div>
         ) : null}
       </div>
-      <div className="docs-hero-route" aria-label={zh ? "Pontx 集成流程" : "Pontx integration flow"}>
+      <div className="docs-hero-route" role="img" aria-label={zh ? "Pontx 集成流程" : "Pontx integration flow"}>
         {[
           ["01", zh ? "搜索目录" : "Search the catalog", "pontx-hub search"],
           ["02", zh ? "预览请求" : "Preview a request", "pontx-hub preview"],

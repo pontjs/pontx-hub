@@ -1,6 +1,6 @@
 ---
 name: pontx-hub
-description: Search, inspect, preview, call, and integrate curated public APIs through Pontx Hub. Use for catalog-wide API discovery, PontxSpec Endpoint or Schema inspection, product Skill installation, safe request preview, explicit mutation confirmation, or unified SDK integration.
+description: Discover, compare, inspect, preview, call, and integrate curated public APIs with Pontx Hub. Use whenever a user asks to find a public API for a task, identify which Endpoint or Schema returns a field, inspect PontxSpec or OpenAPI documentation, install provider-specific Skills, preview a request safely, confirm a mutation, or generate code with a published Pontx SDK.
 ---
 
 # Pontx Hub
