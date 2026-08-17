@@ -42,7 +42,9 @@ describe("SEO resource routes", () => {
     expect(body).toContain("https://pontx.dev/en/skills");
     expect(body).toContain("https://pontx.dev/zh/skills");
     expect(body).toContain("https://pontx.dev/en/skills/pontx-hub");
-    expect(body).toContain("https://pontx.dev/.well-known/skills/index.json");
+    expect(body).toContain("https://pontx.dev/.well-known/agent-skills/index.json");
+    expect(body).toContain("https://pontx.dev/.well-known/api-catalog");
+    expect(body).toContain("https://pontx.dev/en/docs/agent-discovery");
     expect(body).toContain("https://pontx.dev/openapi.json");
     expect(body).toContain("Published package in the Unified SDK for");
     expect(body).not.toContain("Published TypeScript and Node.js SDK");
@@ -98,7 +100,7 @@ describe("SEO resource routes", () => {
     expect(index.skills).toHaveLength(listSkillSummaries().length);
     expect(index.skills[0]).toEqual(expect.objectContaining({
       name: "pontx-hub",
-      description: expect.stringContaining("API discovery"),
+      description: expect.stringContaining("public APIs"),
       files: expect.arrayContaining([
         { path: "SKILL.md", sha256: expect.any(String) },
         { path: "references/auth-and-safety.md", sha256: expect.any(String) }

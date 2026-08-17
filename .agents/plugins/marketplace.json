@@ -1,0 +1,20 @@
+{
+  "name": "pontx",
+  "interface": {
+    "displayName": "Pontx"
+  },
+  "plugins": [
+    {
+      "name": "pontx-api",
+      "source": {
+        "source": "local",
+        "path": "./plugins/pontx-api"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

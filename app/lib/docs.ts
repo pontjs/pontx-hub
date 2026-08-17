@@ -7,6 +7,7 @@ export const DOC_SLUGS = [
   "cli",
   "sdk",
   "agent-skill",
+  "agent-discovery",
   "web",
   "safety"
 ] as const;
@@ -185,6 +186,33 @@ const pages: Record<DocSlug, DocPageDefinition> = {
       { id: "boundaries", title: text("不可绕过的边界", "Boundaries that cannot be bypassed") }
     ]
   },
+  "agent-discovery": {
+    slug: "agent-discovery",
+    navTitle: text("Agent 与 API 发现", "Agent & API discovery"),
+    metaTitle: text(
+      "Agent 自动发现 Pontx API、Skills 与 OpenAPI",
+      "Agent Discovery for Pontx APIs, Skills & OpenAPI"
+    ),
+    title: text(
+      "让工具从 pontx.dev 自动发现 API、Skills 与安全调用规则。",
+      "Let tools discover APIs, Skills, and safe-call rules from pontx.dev."
+    ),
+    description: text(
+      "通过 RFC 9727 API Catalog、Agent Skills Discovery、OpenAPI 与 llms.txt 发现 Pontx Hub，并校验可安装 Skill 的 SHA-256 摘要。",
+      "Discover Pontx Hub through the RFC 9727 API Catalog, Agent Skills Discovery, OpenAPI, and llms.txt, then verify installable Skills with SHA-256 digests."
+    ),
+    eyebrow: text("机器可读入口 / 开放标准", "Machine-readable entry points / open standards"),
+    keywords: text(
+      "Agent API 发现 Agent Skills Discovery RFC 9727 OpenAPI llms.txt SHA-256",
+      "Agent API discovery Agent Skills Discovery RFC 9727 OpenAPI llms.txt SHA-256"
+    ),
+    sections: [
+      { id: "entry-points", title: text("从标准入口开始", "Start with standard entry points") },
+      { id: "skill-integrity", title: text("下载并校验 Skill", "Download and verify a Skill") },
+      { id: "source-selection", title: text("按任务加载最小资料", "Load only the source the task needs") },
+      { id: "safe-integration", title: text("发现不等于执行授权", "Discovery is not execution permission") }
+    ]
+  },
   safety: {
     slug: "safety",
     navTitle: text("凭证与安全", "Credentials and safety"),
@@ -219,7 +247,7 @@ export const DOC_GROUPS = [
   },
   {
     label: text("使用方式", "Interfaces"),
-    slugs: ["cli", "sdk", "agent-skill", "web"] as DocSlug[]
+    slugs: ["cli", "sdk", "agent-skill", "agent-discovery", "web"] as DocSlug[]
   },
   {
     label: text("使用须知", "Before you send"),

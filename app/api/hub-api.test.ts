@@ -22,6 +22,7 @@ describe("Hub API", () => {
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "nager-date", "pinhere", "stripe-identity", "twelve-data-forex"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mistral-ai", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex", "notion", "sendbird-chat-platform"],
+      ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mistral-ai", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex", "notion", "sendbird-chat-platform", "wps-365"],
       ["amazon-sqs", "currencybeacon-rest", "dida365", "dropbox-sign", "ecb-data-portal", "frankfurter", "frankfurter-v2", "massive", "mistral-ai", "mongodb-atlas-admin", "nager-date", "openai", "pinhere", "stripe-identity", "twelve-data-forex", "notion", "open-exchange-rates", "posthog", "sendbird-chat-platform", "wps-365"]
     ]).toContainEqual(slugs);
   });
