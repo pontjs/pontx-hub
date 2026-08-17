@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { CodeBlock } from "~/components/code-block";
 import type { Locale } from "~/lib/catalog/types";
 import { docHref, type DocSlug } from "~/lib/docs";
+import { trackCodeCopied } from "~/lib/analytics/events";
 
 type CodeExample = {
   id: string;
@@ -16,13 +17,15 @@ function CopyableCode({
   code,
   language,
   label,
-  className
+  className,
+  onCopied
 }: {
   locale: Locale;
   code: string;
   language: CodeExample["language"];
   label: string;
   className?: string;
+  onCopied?: () => void;
 }) {
   const zh = locale === "zh";
   return (
@@ -34,6 +37,7 @@ function CopyableCode({
       copyLabel={zh ? "复制" : "Copy"}
       copiedLabel={zh ? "已复制" : "Copied"}
       copyFailedLabel={zh ? "复制失败" : "Copy failed"}
+      onCopied={onCopied}
     />
   );
 }
@@ -594,6 +598,95 @@ pontx-hub frankfurter call 'Exchange Rates' getLatestRates --base USD`} />
   );
 }
 
+function NotionTypeScriptGuide({ locale }: { locale: Locale }) {
+  const zh = locale === "zh";
+  const trackExample = () => trackCodeCopied({
+    surface: "docs",
+    kind: "example",
+    apiSlug: "notion"
+  });
+
+  return (
+    <>
+      <DocSection
+        id="before-you-start"
+        marker="01"
+        title={zh ? "先确认连接边界" : "Confirm the connection boundary"}
+        lead={zh ? "这一页只验证你的集成身份；不会把工作区数据发送给 Pontx。" : "This page verifies your integration identity only; it does not send workspace data to Pontx."}
+      >
+        <p>{zh
+          ? "Notion 工作区内容属于你的最终用户数据。先在 Notion 中创建或选择一个集成，并只给它需要读取的页面或数据源权限。令牌始终保留在本机环境变量中。"
+          : "Notion workspace content is your end-user data. Create or select an integration in Notion, give it access only to the pages or data sources it needs, and keep its token in a local environment variable."}</p>
+        <Callout tone="safe" title={zh ? "从一次只读身份检查开始" : "Start with one read-only identity check"}>
+          {zh
+            ? "getSelf 只确认当前令牌代表哪个用户或连接。确认成功后，再根据具体任务查看页面、块或数据源接口。"
+            : "getSelf confirms which user or connection the token represents. Once it succeeds, move to the page, block, or data-source Endpoint that fits the task."}
+        </Callout>
+      </DocSection>
+
+      <DocSection
+        id="install"
+        marker="02"
+        title={zh ? "安装并保留凭证在本机" : "Install and keep credentials local"}
+        lead={zh ? "把令牌交给运行时环境，不要写进源码、命令历史或 issue。" : "Give the token to your runtime environment, never to source code, shell history, or an issue."}
+      >
+        <CopyableCode
+          locale={locale}
+          language="shell"
+          label={zh ? "安装与环境变量" : "Install and environment variable"}
+          code={`pnpm add @pontx/notion\n\n# Keep the value in your local shell or secret manager.\nexport NOTION_ACCESS_TOKEN="<your-notion-integration-token>"`}
+          onCopied={trackExample}
+        />
+        <p>{zh
+          ? "SDK 会按其固定的 API 版本发送请求。不要在示例里替换成真实令牌；部署环境应通过对应的密钥管理方式提供同名环境变量。"
+          : "The SDK sends requests using its pinned API version. Do not replace the placeholder with a real token in an example; deployment environments should provide the same variable through their secret manager."}</p>
+      </DocSection>
+
+      <DocSection
+        id="verify"
+        marker="03"
+        title={zh ? "先验证当前身份" : "Verify the current identity first"}
+        lead={zh ? "这是最小的只读调用：它确认令牌可用，却不读取你的页面或数据源。" : "This is the smallest read-only call: it confirms the token works without reading your pages or data sources."}
+      >
+        <CopyableCode
+          locale={locale}
+          language="typescript"
+          label={zh ? "TypeScript：读取当前身份" : "TypeScript: read the current identity"}
+          code={`import { createNotionClient } from "@pontx/notion";\n\nconst client = createNotionClient({\n  auth: process.env.NOTION_ACCESS_TOKEN\n});\n\nconst me = await client.users.getSelf();\nconsole.log(me);`}
+          onCopied={trackExample}
+        />
+        <div className="docs-next-action">
+          <span>→</span>
+          <p>{zh ? "需要先核对请求和本地凭证？使用同包的 CLI 生成 dry-run 预览。" : "Want to inspect the request with local credentials first? Use the package CLI to create a dry-run preview."}</p>
+          <CopyableCode
+            locale={locale}
+            language="shell"
+            label={zh ? "CLI：只预览" : "CLI: preview only"}
+            code={`pnpm add --global @pontx/notion\npontx-notion call users get-self --dry-run`}
+            onCopied={trackExample}
+          />
+        </div>
+      </DocSection>
+
+      <DocSection
+        id="next"
+        marker="04"
+        title={zh ? "继续到实际工作区任务" : "Continue to a workspace task"}
+        lead={zh ? "连接验证完成后，选择与任务匹配的接口，而不是猜测请求字段。" : "Once the connection is verified, choose the Endpoint that matches the task instead of guessing request fields."}
+      >
+        <div className="docs-split-actions">
+          <Link to={`/${locale}/apis/notion/get-self`}><span>GET /v1/users/me</span><strong>{zh ? "查看身份检查接口" : "Inspect the identity Endpoint"}</strong><i aria-hidden="true">→</i></Link>
+          <Link to={`/${locale}/sdks/notion`}><span>@pontx/notion</span><strong>{zh ? "查看 SDK 版本与调用参考" : "View SDK version and call reference"}</strong><i aria-hidden="true">→</i></Link>
+        </div>
+        <p>{zh
+          ? "之后可从 Notion API 概览进入页面、块、数据源、评论和搜索的完整文档。涉及创建、更新或删除工作区数据的请求，应先在本地预览并确认目标与参数。"
+          : "From the Notion API overview, continue to the full page, block, data-source, comment, and search reference. Preview and verify the target and parameters locally before any request that creates, updates, or deletes workspace data."}</p>
+        <Link className="docs-text-link" to={`/${locale}/apis/notion`}>{zh ? "打开 Notion API 概览" : "Open the Notion API overview"} ↗</Link>
+      </DocSection>
+    </>
+  );
+}
+
 function SafetyGuide({ locale }: { locale: Locale }) {
   const zh = locale === "zh";
   return (
@@ -644,6 +737,7 @@ function SafetyGuide({ locale }: { locale: Locale }) {
 export function DocsContent({ locale, slug }: { locale: Locale; slug: DocSlug }) {
   if (slug === "overview") return <Overview locale={locale} />;
   if (slug === "quick-start") return <QuickStart locale={locale} />;
+  if (slug === "notion-typescript") return <NotionTypeScriptGuide locale={locale} />;
   if (slug === "web") return <WebGuide locale={locale} />;
   if (slug === "cli") return <CliGuide locale={locale} />;
   if (slug === "sdk") return <SdkGuide locale={locale} />;

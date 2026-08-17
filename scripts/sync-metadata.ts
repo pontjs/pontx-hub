@@ -32,6 +32,42 @@ type ProductSkillFile = {
 
 class MissingOptionalSourceFileError extends Error {}
 
+const REMOTE_READ_CONCURRENCY = 8;
+const REMOTE_READ_ATTEMPTS = 6;
+
+function wait(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function remoteRetryDelay(response: Response, attempt: number): number {
+  const retryAfter = response.headers.get("retry-after");
+  const seconds = retryAfter ? Number(retryAfter) : Number.NaN;
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.min(seconds * 1_000, 15_000);
+  }
+  const retryAt = retryAfter ? Date.parse(retryAfter) : Number.NaN;
+  if (Number.isFinite(retryAt)) return Math.min(Math.max(retryAt - Date.now(), 0), 15_000);
+  return 250 * 2 ** attempt;
+}
+
+function createReadQueue(limit: number) {
+  let active = 0;
+  const waiting: Array<() => void> = [];
+
+  return async function queue<T>(read: () => Promise<T>): Promise<T> {
+    if (active >= limit) {
+      await new Promise<void>((resolve) => waiting.push(resolve));
+    }
+    active += 1;
+    try {
+      return await read();
+    } finally {
+      active -= 1;
+      waiting.shift()?.();
+    }
+  };
+}
+
 function parseJson(bytes: Uint8Array, path: string): unknown {
   try {
     return JSON.parse(Buffer.from(bytes).toString("utf8"));
@@ -225,20 +261,44 @@ function remoteSource(): Source {
     process.env.METADATA_REPO_RAW_URL ??
     `https://raw.githubusercontent.com/pontjs/pontx-api-metadata/${commit}`
   ).replace(/\/$/, "");
+  const queueRead = createReadQueue(REMOTE_READ_CONCURRENCY);
   return {
     description: rawBase,
     commit: commit!,
     async read(path) {
-      const url = `${rawBase}/${path}`;
-      const response = await fetch(url, {
-        headers: { Accept: "application/json", "Cache-Control": "no-cache" },
-        cache: "no-store"
+      return queueRead(async () => {
+        const url = `${rawBase}/${path}`;
+        let lastNetworkError: unknown;
+        for (let attempt = 0; attempt < REMOTE_READ_ATTEMPTS; attempt += 1) {
+          let response: Response;
+          try {
+            response = await fetch(url, {
+              headers: { Accept: "application/json" },
+              // The URL is pinned to an immutable Git commit, so a cached
+              // response is exact and avoids needlessly revalidating every shard.
+              cache: "force-cache"
+            });
+          } catch (error) {
+            lastNetworkError = error;
+            if (attempt < REMOTE_READ_ATTEMPTS - 1) {
+              await wait(250 * 2 ** attempt);
+              continue;
+            }
+            throw error;
+          }
+          if (response.ok) return new Uint8Array(await response.arrayBuffer());
+          if (response.status === 404 && path === "skills/registry.json") {
+            throw new MissingOptionalSourceFileError(`Unable to sync ${path}: HTTP 404`);
+          }
+          const retryable = response.status === 429 || response.status >= 500;
+          if (retryable && attempt < REMOTE_READ_ATTEMPTS - 1) {
+            await wait(remoteRetryDelay(response, attempt));
+            continue;
+          }
+          throw new Error(`Unable to sync ${path}: HTTP ${response.status}`);
+        }
+        throw lastNetworkError ?? new Error(`Unable to sync ${path}`);
       });
-      if (response.status === 404 && path === "skills/registry.json") {
-        throw new MissingOptionalSourceFileError(`Unable to sync ${path}: HTTP 404`);
-      }
-      if (!response.ok) throw new Error(`Unable to sync ${path}: HTTP ${response.status}`);
-      return new Uint8Array(await response.arrayBuffer());
     }
   };
 }

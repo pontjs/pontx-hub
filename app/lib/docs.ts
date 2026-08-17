@@ -3,6 +3,7 @@ import type { Locale } from "~/lib/catalog/types";
 export const DOC_SLUGS = [
   "overview",
   "quick-start",
+  "notion-typescript",
   "cli",
   "sdk",
   "agent-skill",
@@ -70,6 +71,33 @@ const pages: Record<DocSlug, DocPageDefinition> = {
       { id: "discover", title: text("搜索并检查", "Search and inspect") },
       { id: "preview", title: text("预演再调用", "Preview, then call") },
       { id: "integrate", title: text("进入 SDK 集成", "Move into an SDK integration") }
+    ]
+  },
+  "notion-typescript": {
+    slug: "notion-typescript",
+    navTitle: text("Notion TypeScript 接入", "Notion TypeScript integration"),
+    metaTitle: text(
+      "Notion API TypeScript SDK：先验证连接，再读取工作区数据",
+      "Notion API TypeScript SDK: Verify a Connection Before Reading Workspace Data"
+    ),
+    title: text(
+      "用 TypeScript 安全地接入 Notion API。",
+      "Connect the Notion API from TypeScript, safely."
+    ),
+    description: text(
+      "安装 @pontx/notion，使用本地环境变量验证当前连接身份，再进入 Notion 页面、数据源和块的 API 参考。",
+      "Install @pontx/notion, verify the current connection from a local environment variable, then continue to the Notion page, data-source, and block API reference."
+    ),
+    eyebrow: text("Notion API / TypeScript 实操", "Notion API / TypeScript recipe"),
+    keywords: text(
+      "Notion API TypeScript SDK Node.js 集成 token users me 数据源 页面",
+      "Notion API TypeScript SDK Node.js integration token users me data sources pages"
+    ),
+    sections: [
+      { id: "before-you-start", title: text("先确认连接边界", "Confirm the connection boundary") },
+      { id: "install", title: text("安装并保留凭证在本机", "Install and keep credentials local") },
+      { id: "verify", title: text("先验证当前身份", "Verify the current identity first") },
+      { id: "next", title: text("继续到实际工作区任务", "Continue to a workspace task") }
     ]
   },
   web: {
@@ -184,6 +212,10 @@ export const DOC_GROUPS = [
   {
     label: text("开始使用", "Get started"),
     slugs: ["overview", "quick-start"] as DocSlug[]
+  },
+  {
+    label: text("集成实操", "Integration recipes"),
+    slugs: ["notion-typescript"] as DocSlug[]
   },
   {
     label: text("使用方式", "Interfaces"),
