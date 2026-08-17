@@ -231,7 +231,7 @@ const serverSchema = z.object({
 });
 
 const pricingSchema = z.object({
-  status: z.enum(["free", "freemium", "paid", "contact", "unknown"]),
+  status: z.enum(["free", "freemium", "paid", "usage-based", "contact", "unknown"]),
   summary: localizedTextSchema,
   officialUrl: httpsUrlSchema,
   verifiedAt: z.string().date(),
@@ -305,6 +305,11 @@ const javascriptIdentifierSchema = z
   .string()
   .regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/);
 
+const sdkClientOptionValueSchema = z.union([
+  z.string().regex(/^[A-Z][A-Z0-9_]*$/),
+  httpsUrlSchema
+]);
+
 const sdkContractSchema = z.object({
   client: z.discriminatedUnion("kind", [
     z.object({
@@ -321,7 +326,7 @@ const sdkContractSchema = z.object({
       identifier: javascriptIdentifierSchema,
       options: z.record(
         javascriptIdentifierSchema,
-        z.string().regex(/^[A-Z][A-Z0-9_]*$/)
+        sdkClientOptionValueSchema
       ).default({})
     })
   ]),
@@ -469,13 +474,13 @@ export const catalogApiSchema = z
       if (
         api.sdkContract.client.kind === "factory" &&
         Object.values(api.sdkContract.client.options).some(
-          (envVar) => !authEnvVars.has(envVar)
+          (value) => /^[A-Z][A-Z0-9_]*$/.test(value) && !authEnvVars.has(value)
         )
       ) {
         context.addIssue({
           code: "custom",
           path: ["sdkContract", "client", "options"],
-          message: "SDK factory environment variables must be declared by API auth"
+          message: "SDK factory credential environment variables must be declared by API auth"
         });
       }
       if (

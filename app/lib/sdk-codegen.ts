@@ -326,7 +326,12 @@ export function generateSdkSnippet(
       `import { ${contract.client.factory} } from "${api.packageName}";`
     );
     const options = Object.entries(contract.client.options)
-      .map(([name, envVar]) => `  ${name}: process.env.${envVar}!`)
+      .map(([name, value]) => {
+        const expression = /^[A-Z][A-Z0-9_]*$/.test(value)
+          ? `process.env.${value}!`
+          : JSON.stringify(value);
+        return `  ${name}: ${expression}`;
+      })
       .join(",\n");
     lines.push(
       "",

@@ -127,6 +127,26 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
     tags: ["en", "currency", "temporal"]
   },
   {
+    id: "zh-exchange-plan-usage",
+    query: "查看 App ID 当前套餐用量统计",
+    locale: "zh",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:open-exchange-rates/get-usage", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["open-exchange-rates"],
+    tags: ["zh", "currency", "usage", "plan", "semantic"]
+  },
+  {
+    id: "en-exchange-ohlc",
+    query: "get open high low close foreign exchange rates",
+    locale: "en",
+    kinds: ["endpoint"],
+    judgments: [{ id: "endpoint:open-exchange-rates/get-ohlc", relevance: 3 }],
+    requiredTopK: 1,
+    requiresProducts: ["open-exchange-rates"],
+    tags: ["en", "currency", "ohlc", "semantic"]
+  },
+  {
     id: "en-symbol-search",
     query: "find a security by ticker symbol",
     locale: "en",
@@ -172,7 +192,7 @@ export const searchEvaluationCases: SearchEvaluationCase[] = [
   },
   {
     id: "api-product",
-    query: "task productivity service",
+    query: "projects tasks and habits productivity service",
     locale: "en",
     kinds: ["api"],
     judgments: [
