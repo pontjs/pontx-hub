@@ -90,6 +90,21 @@ describe("localized documentation", () => {
     expect(en).not.toContain("visible, reviewable, and portable");
   });
 
+  it("publishes a useful, localized Notion TypeScript recipe with safe local credential handling", () => {
+    const zh = renderDocs("/zh/docs/notion-typescript", "zh", "notion-typescript");
+    expect(zh.match(/<h1/g)).toHaveLength(1);
+    expect(zh).toContain("用 TypeScript 安全地接入 Notion API");
+    expect(zh).toContain("NOTION_ACCESS_TOKEN");
+    expect(zh).toContain("client.users.getSelf()");
+    expect(zh).toContain('href="/zh/apis/notion/get-self"');
+    expect(zh).toContain('href="/zh/sdks/notion"');
+
+    const en = renderDocs("/en/docs/notion-typescript", "en", "notion-typescript");
+    expect(en).toContain("Connect the Notion API from TypeScript, safely");
+    expect(en).toContain("Verify the current identity first");
+    expect(en).toContain('href="/en/apis/notion"');
+  });
+
   it("explains the universal and product Skill relationship without duplicating PontxSpec metadata", () => {
     const html = renderDocs("/zh/docs/agent-skill", "zh", "agent-skill");
     const text = html.replace(/<[^>]+>/g, "");
