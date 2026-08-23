@@ -29,6 +29,13 @@ describe("Playground request preparation", () => {
     expect(prepared.headers.Authorization).toBe("Bearer dida_secret");
     expect(preview.headers.Authorization).toBe("Bearer ••••••••");
     expect(preview.curl).not.toContain("dida_secret");
+    expect(preview.curl).toBe(
+      "curl -X GET \\\n" +
+      "  'https://api.dida365.com/open/v1/project/project-1/task/task-1' \\\n" +
+      "  -H 'Accept: application/json' \\\n" +
+      "  -H 'User-Agent: Pontx-Hub-Playground/0.1' \\\n" +
+      "  -H 'Authorization: Bearer ••••••••'"
+    );
     expect(preview.requiresConfirmation).toBe(false);
   });
 

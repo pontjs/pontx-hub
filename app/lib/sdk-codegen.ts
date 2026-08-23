@@ -364,7 +364,8 @@ export function generateSdkSnippet(
     : "()";
   lines.push(
     "",
-    `const result = await ${method}${call};`
+    `const result = await ${method}${call};`,
+    "console.log(result);"
   );
   return lines.join("\n");
 }

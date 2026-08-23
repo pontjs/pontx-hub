@@ -19,6 +19,8 @@ type HubCliSnippetRequest = {
 
 export type HubCliAction = "preview" | "call";
 
+const controllerlessTags = new Set(["", "common", "default"]);
+
 const reservedCliOptions = new Set([
   "body",
   "header",
@@ -31,6 +33,27 @@ const reservedCliOptions = new Set([
 export function shellArgument(value: string): string {
   if (/^[A-Za-z0-9_@%+=:,./-]+$/.test(value)) return value;
   return `'${value.replaceAll("'", `'"'"'`)}'`;
+}
+
+export function hubCliControllerName(tag: string): string | undefined {
+  const trimmed = tag.trim();
+  if (controllerlessTags.has(trimmed.toLocaleLowerCase())) return undefined;
+
+  const words = trimmed.split(/[^\p{L}\p{N}]+/gu).filter(Boolean);
+  if (!words.length) return undefined;
+  const [first, ...rest] = words;
+  const lowerFirst = /^[A-Z0-9]+$/.test(first) || /^[A-Z]{2}/.test(first)
+    ? first.toLocaleLowerCase()
+    : `${first.slice(0, 1).toLocaleLowerCase()}${first.slice(1)}`;
+  return [
+    lowerFirst,
+    ...rest.map((word) => {
+      const normalized = /^[A-Z0-9]+$/.test(word)
+        ? word.toLocaleLowerCase()
+        : word;
+      return `${normalized.slice(0, 1).toLocaleUpperCase()}${normalized.slice(1)}`;
+    })
+  ].join("");
 }
 
 function parameterValue(value: unknown): string {
@@ -59,9 +82,8 @@ export function hubCliCommand(
   action: HubCliAction = "call"
 ): string {
   const parts = ["pontx-hub", shellArgument(apiSlug), action];
-  if (operation.tag.trim().toLocaleLowerCase() !== "default") {
-    parts.push(shellArgument(operation.tag));
-  }
+  const controller = hubCliControllerName(operation.tag);
+  if (controller) parts.push(shellArgument(controller));
   parts.push(shellArgument(operation.operationId));
   return parts.join(" ");
 }

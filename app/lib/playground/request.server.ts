@@ -209,17 +209,14 @@ function shellQuote(value: string): string {
 export function createPreview(input: PlaygroundRequestInput): PlaygroundPreview {
   const prepared = prepareRequest(input);
   const redactedHeaders = redactHeaders(prepared.headers);
-  const curlParts = [
-    "curl",
-    "-X",
-    prepared.method,
-    shellQuote(prepared.url),
-    ...Object.entries(redactedHeaders).flatMap(([name, value]) => [
-      "-H",
-      shellQuote(`${name}: ${value}`)
-    ])
+  const curlLines = [
+    `curl -X ${prepared.method}`,
+    `  ${shellQuote(prepared.url)}`,
+    ...Object.entries(redactedHeaders).map(([name, value]) =>
+      `  -H ${shellQuote(`${name}: ${value}`)}`
+    )
   ];
-  if (prepared.body) curlParts.push("--data", shellQuote(prepared.body));
+  if (prepared.body) curlLines.push(`  --data ${shellQuote(prepared.body)}`);
 
   const requiresConfirmation = WRITE_METHODS.has(prepared.method);
   return {
@@ -227,7 +224,7 @@ export function createPreview(input: PlaygroundRequestInput): PlaygroundPreview 
     url: prepared.url,
     headers: redactedHeaders,
     body: input.body,
-    curl: curlParts.join(" \\\n  "),
+    curl: curlLines.join(" \\\n"),
     requiresConfirmation,
     confirmationToken: requiresConfirmation
       ? createConfirmationToken(prepared)
