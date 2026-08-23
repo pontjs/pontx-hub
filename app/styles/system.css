@@ -2459,6 +2459,10 @@ textarea {
   gap: 8px;
 }
 
+.credential-guide-standalone {
+  margin: 0 0 12px;
+}
+
 .credential-setup-guide {
   overflow: hidden;
   container-type: inline-size;

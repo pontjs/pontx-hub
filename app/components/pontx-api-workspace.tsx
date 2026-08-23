@@ -96,6 +96,35 @@ function hasCredentialGuide(
   return Boolean(scheme.credentialGuide);
 }
 
+export function getStandaloneCredentialGuideSchemes({
+  auth,
+  operationSecurity,
+  guided,
+  playgroundAvailable,
+  handledOAuthSchemeId
+}: {
+  auth: CatalogApi["auth"];
+  operationSecurity?: CatalogOperation["security"];
+  guided: boolean;
+  playgroundAvailable: boolean;
+  handledOAuthSchemeId?: string;
+}) {
+  const requiredSchemeIds = new Set(
+    operationSecurity?.map((requirement) => requirement.schemeId) ?? []
+  );
+
+  return auth.filter((scheme): scheme is GuidedCredentialScheme => {
+    if (!hasCredentialGuide(scheme)) return false;
+    if (!guided && !requiredSchemeIds.has(scheme.id)) return false;
+    if (scheme.id === handledOAuthSchemeId) return false;
+
+    const renderedInsidePlayground = playgroundAvailable
+      && scheme.type !== "oauth2"
+      && requiredSchemeIds.has(scheme.id);
+    return !renderedInsidePlayground;
+  });
+}
+
 export function isOAuthAuthorizationDisabled({
   busy,
   clientId,
@@ -357,14 +386,14 @@ export function CredentialSetupGuide({
     ? {
         label: "官方凭据申请指引",
         steps: `${scheme.credentialGuide.steps.length} 步`,
-        action: scheme.type === "apiKey" ? "打开 API Key 管理页 ↗" : "打开官方凭据管理页 ↗",
-        safety: "凭据只保留在当前浏览器会话中，不会保存到 Pontx 服务器。"
+        action: "打开官方获取/配置指引 ↗",
+        safety: "Pontx 不会保存你的凭据；请仅在当前会话或调用方本地安全环境中使用。"
       }
     : {
         label: "Official credential setup",
         steps: `${scheme.credentialGuide.steps.length} steps`,
-        action: scheme.type === "apiKey" ? "Open API key dashboard ↗" : "Open credential dashboard ↗",
-        safety: "Your credential stays in this browser session and is never stored on Pontx servers."
+        action: "Open official setup guidance ↗",
+        safety: "Pontx never stores your credential; use it only in this session or a caller-controlled local environment."
       };
   const preferenceKey = credentialGuidePreferenceKey(apiSlug, scheme.id);
   const [open, setOpen] = useState(true);
@@ -1249,6 +1278,13 @@ export function PontxApiWorkspace({
     activeOperation.security?.some((requirement) => requirement.schemeId === oauthScheme.id) &&
     (guided || isPlaygroundOpen)
   );
+  const standaloneCredentialGuideSchemes = getStandaloneCredentialGuideSchemes({
+    auth: api.auth,
+    operationSecurity: activeOperation.security,
+    guided,
+    playgroundAvailable,
+    handledOAuthSchemeId: showOAuthConfiguration ? oauthScheme?.id : undefined
+  });
   const category =
     locale === "zh"
       ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
@@ -1388,6 +1424,21 @@ export function PontxApiWorkspace({
           className="pontx-workspace-body"
           data-oauth-execution-blocked={oauthExecutionBlocked || undefined}
         >
+          {standaloneCredentialGuideSchemes.length ? (
+            <div
+              className="playground-context-stack credential-guide-standalone"
+              data-credential-guide-placement="workspace"
+            >
+              {standaloneCredentialGuideSchemes.map((scheme) => (
+                <CredentialSetupGuide
+                  key={`${api.slug}:${scheme.id}:standalone`}
+                  apiSlug={api.slug}
+                  scheme={scheme}
+                  locale={locale}
+                />
+              ))}
+            </div>
+          ) : null}
           {isHydrated && !guided ? (
             <h1 className="pontx-hydrated-title">
               {localize(activeOperation.title, locale)} — {api.name}

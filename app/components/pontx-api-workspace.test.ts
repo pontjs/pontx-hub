@@ -10,6 +10,7 @@ import {
   ApiOverviewFacts,
   codeGenScenariosForLocale,
   CredentialSetupGuide,
+  getStandaloneCredentialGuideSchemes,
   isOAuthAuthorizationDisabled,
   isOAuthExecutionBlocked,
   OperationTaskSelect,
@@ -164,8 +165,8 @@ describe("CredentialSetupGuide", () => {
   };
 
   it.each([
-    ["zh" as const, "获取 Twelve Data API Key", "打开 API Key 管理页", "不会保存到 Pontx 服务器"],
-    ["en" as const, "Get a Twelve Data API key", "Open API key dashboard", "never stored on Pontx servers"]
+    ["zh" as const, "获取 Twelve Data API Key", "打开官方获取/配置指引", "Pontx 不会保存你的凭据"],
+    ["en" as const, "Get a Twelve Data API key", "Open official setup guidance", "Pontx never stores your credential"]
   ])("renders a localized, official, session-safe API key path in %s", (locale, title, action, safety) => {
     const html = renderToStaticMarkup(createElement(CredentialSetupGuide, {
       apiSlug: "twelve-data-forex",
@@ -185,6 +186,47 @@ describe("CredentialSetupGuide", () => {
     expect(html).toContain('rel="noreferrer"');
     expect(html).toContain(">01<");
     expect(html).toContain(">03<");
+  });
+
+  it("keeps guides visible when an API overview quick start is public or execution is disabled", () => {
+    const publicQuickStart = getStandaloneCredentialGuideSchemes({
+      auth: [scheme],
+      operationSecurity: [],
+      guided: true,
+      playgroundAvailable: false
+    });
+    const disabledAuthenticatedEndpoint = getStandaloneCredentialGuideSchemes({
+      auth: [scheme],
+      operationSecurity: [{ schemeId: scheme.id, scopes: [] }],
+      guided: false,
+      playgroundAvailable: false
+    });
+
+    expect(publicQuickStart.map((candidate) => candidate.id)).toEqual([scheme.id]);
+    expect(disabledAuthenticatedEndpoint.map((candidate) => candidate.id)).toEqual([scheme.id]);
+  });
+
+  it("does not duplicate a guide already rendered in the Playground or OAuth toolbar", () => {
+    expect(getStandaloneCredentialGuideSchemes({
+      auth: [scheme],
+      operationSecurity: [{ schemeId: scheme.id, scopes: [] }],
+      guided: true,
+      playgroundAvailable: true
+    })).toEqual([]);
+
+    const oauthScheme = {
+      ...scheme,
+      id: "OAuth2",
+      type: "oauth2" as const,
+      flows: { authorizationCode: { authorizationUrl: "https://example.com/oauth", tokenUrl: "https://example.com/token", scopes: {} } }
+    };
+    expect(getStandaloneCredentialGuideSchemes({
+      auth: [oauthScheme],
+      operationSecurity: [{ schemeId: oauthScheme.id, scopes: [] }],
+      guided: true,
+      playgroundAvailable: true,
+      handledOAuthSchemeId: oauthScheme.id
+    })).toEqual([]);
   });
 });
 
