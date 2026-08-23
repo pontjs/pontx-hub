@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   hubCliCommand,
+  hubCliControllerName,
   hubCliParameterArguments,
   hubCliSnippet,
   shellArgument
@@ -11,14 +12,28 @@ describe("hubCliCommand", () => {
     expect(hubCliCommand("frankfurter", {
       tag: "Exchange Rates",
       operationId: "getLatestRates"
-    })).toBe("pontx-hub frankfurter call 'Exchange Rates' getLatestRates");
+    })).toBe("pontx-hub frankfurter call exchangeRates getLatestRates");
   });
 
-  it("omits the synthetic default controller", () => {
+  it("omits empty and synthetic controller names", () => {
     expect(hubCliCommand("frankfurter-v2", {
       tag: "default",
       operationId: "getRates"
     }, "preview")).toBe("pontx-hub frankfurter-v2 preview getRates");
+    expect(hubCliCommand("frankfurter-v2", {
+      tag: "",
+      operationId: "getRates"
+    })).toBe("pontx-hub frankfurter-v2 call getRates");
+    expect(hubCliCommand("frankfurter-v2", {
+      tag: "common",
+      operationId: "getRates"
+    })).toBe("pontx-hub frankfurter-v2 call getRates");
+  });
+
+  it("renders explicit tags as camelCase controller names", () => {
+    expect(hubCliControllerName("Exchange Rates")).toBe("exchangeRates");
+    expect(hubCliControllerName("exchange-rates")).toBe("exchangeRates");
+    expect(hubCliControllerName("OAuth API")).toBe("oauthApi");
   });
 
   it("quotes unsafe shell arguments", () => {

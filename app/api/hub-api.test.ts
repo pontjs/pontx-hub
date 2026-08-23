@@ -363,6 +363,7 @@ describe("Hub API", () => {
     );
     expect(payload.data.code).toContain('"2024-01-15"');
     expect(payload.data.code).toContain('"base": "EUR"');
+    expect(payload.data.code).toContain("console.log(result);");
     expect(payload.data.code).not.toContain("createClient");
     expect(payload.data.code).not.toContain('"symbols"');
   });

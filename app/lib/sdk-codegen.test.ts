@@ -50,7 +50,8 @@ const result = await ratesClient.common.getRate(
   {
     "date": "2026-08-14"
   }
-);`);
+);
+console.log(result);`);
   });
 
   it("generates a root-level method when the SDK has no controller", () => {
