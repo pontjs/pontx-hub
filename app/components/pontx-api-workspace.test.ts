@@ -201,9 +201,16 @@ describe("CredentialSetupGuide", () => {
       guided: false,
       playgroundAvailable: false
     });
+    const authenticatedEndpointBeforePlayground = getStandaloneCredentialGuideSchemes({
+      auth: [scheme],
+      operationSecurity: [{ schemeId: scheme.id, scopes: [] }],
+      guided: false,
+      playgroundAvailable: true
+    });
 
     expect(publicQuickStart.map((candidate) => candidate.id)).toEqual([scheme.id]);
     expect(disabledAuthenticatedEndpoint.map((candidate) => candidate.id)).toEqual([scheme.id]);
+    expect(authenticatedEndpointBeforePlayground.map((candidate) => candidate.id)).toEqual([scheme.id]);
   });
 
   it("does not duplicate a guide already rendered in the Playground or OAuth toolbar", () => {

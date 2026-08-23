@@ -118,7 +118,8 @@ export function getStandaloneCredentialGuideSchemes({
     if (!guided && !requiredSchemeIds.has(scheme.id)) return false;
     if (scheme.id === handledOAuthSchemeId) return false;
 
-    const renderedInsidePlayground = playgroundAvailable
+    const renderedInsidePlayground = guided
+      && playgroundAvailable
       && scheme.type !== "oauth2"
       && requiredSchemeIds.has(scheme.id);
     return !renderedInsidePlayground;
@@ -814,6 +815,7 @@ export function PontxApiWorkspace({
   const [isExecuting, setIsExecuting] = useState(false);
   const oauthScheme = api.auth.find((scheme) => scheme.type === "oauth2");
   const credentialGuideSchemes = useMemo(() => {
+    if (!guided) return [];
     const requiredSchemeIds = new Set(
       activeOperation.security?.map((requirement) => requirement.schemeId) ?? []
     );
@@ -823,7 +825,7 @@ export function PontxApiWorkspace({
         hasCredentialGuide(scheme) &&
         requiredSchemeIds.has(scheme.id)
     );
-  }, [activeOperation.security, api.auth]);
+  }, [activeOperation.security, api.auth, guided]);
   const tokenStorageKey = `pontx:oauth:token:${api.slug}:${oauthScheme?.id ?? "oauth2"}`;
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
