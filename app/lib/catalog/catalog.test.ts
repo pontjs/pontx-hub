@@ -127,7 +127,7 @@ describe("curated catalog", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "ecb-data-portal");
     if (!api) return;
     expect(api?.packageName).toBe("@pontx/ecb-data-portal");
-    expect(api?.sdkVersion).toBe("0.1.1");
+    expect(api?.sdkVersion).toBe("0.1.2");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.operations).toHaveLength(8);
     expect(api?.schemas).toHaveLength(12);
@@ -141,7 +141,7 @@ describe("curated catalog", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "nager-date");
     if (!api) return;
     expect(api?.packageName).toBe("@pontx/nager-date");
-    expect(api?.sdkVersion).toBe("0.1.0");
+    expect(api?.sdkVersion).toBe("0.1.1");
     expect(api?.proxyEnabled).toBe(false);
     expect(api?.operations).toHaveLength(6);
     expect(api?.schemas).toHaveLength(8);
@@ -160,7 +160,7 @@ describe("curated catalog", () => {
   it("preserves CurrencyBeacon's full, flat SDK contract without a product-wide execution gate", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "currencybeacon-rest");
     expect(api?.packageName).toBe("@pontx/currencybeacon-rest");
-    expect(api?.sdkVersion).toBe("0.1.2");
+    expect(api?.sdkVersion).toBe("0.1.3");
     expect(api?.proxyEnabled).toBe(true);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.operations).toHaveLength(5);
@@ -189,7 +189,7 @@ describe("curated catalog", () => {
       return;
     }
     expect(api?.packageName).toBe("@pontx/amazon-sqs");
-    expect(api?.sdkVersion).toBe("0.1.4");
+    expect(api?.sdkVersion).toBe("0.1.5");
     expect(api?.proxyEnabled).toBe(false);
     expect(api?.sdkContract?.controllers).toEqual({});
     expect(api?.sdkContract?.client).toMatchObject({
@@ -216,7 +216,7 @@ describe("curated catalog", () => {
     const serviceAccount = api?.auth.find((candidate) => candidate.id === "ServiceAccounts");
     expect(api).toMatchObject({
       packageName: "@pontx/mongodb-atlas-admin",
-      sdkVersion: "0.1.0",
+      sdkVersion: "0.1.1",
       sdkStatus: "published",
       cliName: "pontx-mongodb-atlas-admin",
       proxyEnabled: false
@@ -235,7 +235,7 @@ describe("curated catalog", () => {
     const api = listCatalog().find((candidate) => candidate.slug === "open-exchange-rates");
     expect(api).toMatchObject({
       packageName: "@pontx/open-exchange-rates",
-      sdkVersion: "0.1.0",
+      sdkVersion: "0.1.1",
       sdkStatus: "published",
       cliName: "pontx-open-exchange-rates",
       proxyEnabled: false
