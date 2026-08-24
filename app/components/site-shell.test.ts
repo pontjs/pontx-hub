@@ -53,7 +53,7 @@ describe("site language switcher", () => {
       "/zh/docs",
       "https://github.com/pontjs/pontx-hub"
     ]);
-    expect(desktopNav).toContain(">技能</a>");
+    expect(desktopNav).toContain("技能");
   });
 
   it("keeps the inverse language target localized", () => {

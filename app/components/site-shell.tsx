@@ -21,6 +21,11 @@ const LazyFeedbackDialog = lazy(async () => {
   return { default: module.FeedbackDialog };
 });
 
+const LazySitePrimaryLinks = lazy(async () => {
+  const module = await import("./site-primary-links");
+  return { default: module.SitePrimaryLinks };
+});
+
 const copy = {
   zh: {
     catalog: "API 目录",
@@ -116,9 +121,22 @@ export function SiteShell({
           </span>
         </Link>
         <nav aria-label={text.primaryNavigation}>
-          <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
-          <NavLink to={`/${locale}/skills`}>{text.skill}</NavLink>
-          <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
+          <Suspense
+            fallback={(
+              <div className="site-primary-links">
+                <NavLink to={`/${locale}`} end>{text.catalog}</NavLink>
+                <NavLink to={`/${locale}/skills`}>{text.skill}</NavLink>
+                <NavLink to={`/${locale}/docs`}>{text.docs}</NavLink>
+              </div>
+            )}
+          >
+            <LazySitePrimaryLinks
+              locale={locale}
+              catalog={text.catalog}
+              skill={text.skill}
+              docs={text.docs}
+            />
+          </Suspense>
           <button
             type="button"
             className="site-control feedback-trigger"
@@ -149,7 +167,7 @@ export function SiteShell({
           >
             <LanguageIcon className="language-icon" />
           </a>
-          <AiAssistantLauncher locale={locale} />
+          <AiAssistantLauncher locale={locale} onOpen={() => setMobileNavOpen(false)} />
           <AccountNavigation locale={locale} />
         </nav>
         <div className="mobile-nav">

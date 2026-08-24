@@ -22,6 +22,7 @@ import {
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { createDebouncedTask } from "~/lib/debounce";
 import { trackCatalogSearchViewed } from "~/lib/analytics/events";
+import { Input as MotionInput } from "~/components/motion/input";
 
 const SEARCH_DEBOUNCE_MS = 350;
 const GlobalSearchResults = lazy(async () => {
@@ -204,12 +205,10 @@ function CatalogSearch({
         role="search"
         aria-busy={searchPending}
       >
-        <span aria-hidden="true">⌕</span>
-        <input
+        <MotionInput
           name="q"
           value={draftQuery}
-          onChange={(event) => {
-            const nextQuery = event.currentTarget.value;
+          onChange={(nextQuery) => {
             setDraftQuery(nextQuery);
             debouncedSearch.current.schedule(nextQuery, (latestQuery) => {
               navigateToQuery(latestQuery, true);
@@ -223,6 +222,26 @@ function CatalogSearch({
           aria-label={zh ? "全局搜索" : "Global search"}
           aria-controls="catalog-search-results"
           aria-describedby="catalog-search-status"
+          leftIcon={<span className="catalog-search-icon" aria-hidden="true">⌕</span>}
+          rightIcon={draftQuery ? (
+            <button
+              type="button"
+              className="catalog-search-clear"
+              aria-label={zh ? "清除搜索" : "Clear search"}
+              onClick={() => {
+                setDraftQuery("");
+                debouncedSearch.current.cancel();
+                navigateToQuery("", false);
+              }}
+            >
+              ×
+            </button>
+          ) : undefined}
+          className="catalog-search-control"
+          classNames={{
+            field: "catalog-search-field",
+            input: "catalog-search-input"
+          }}
         />
       </Form>
       <CatalogSearchStatus
