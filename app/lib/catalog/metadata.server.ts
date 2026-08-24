@@ -154,7 +154,32 @@ export function catalogApiContext(
     schemas,
     ...api
   } = product;
-  return { ...api, operations: endpoints, schemas };
+  return {
+    ...api,
+    operations: endpoints,
+    schemas,
+    endpointCount: product.endpointCount,
+    schemaCount: product.schemaCount,
+    executableEndpointCount: endpoints.filter((endpoint) => endpoint.proxyEnabled).length,
+    ...(product.defaultEndpointSlug
+      ? { defaultEndpointSlug: product.defaultEndpointSlug }
+      : {}),
+    ...(schemas[0]?.name ? { defaultSchemaName: schemas[0].name } : {})
+  };
+}
+
+/**
+ * Reference routes only need product facts during SSR. The full directory is
+ * fetched once after hydration so every route transition does not repeat it.
+ */
+export function catalogApiPageContext(
+  product: CatalogProductMetadata
+): CatalogApiContext {
+  return {
+    ...catalogApiContext(product),
+    operations: [],
+    schemas: []
+  };
 }
 
 function schemaNameFromRef(ref: string): string | undefined {
@@ -246,7 +271,8 @@ function detailSpec(
   locale: Locale,
   roots: unknown[],
   selectedOperationId?: string,
-  rootSchemaName?: string
+  rootSchemaName?: string,
+  includeDirectory = true
 ): PontxSpec {
   const schemas = schemaClosure(spec, [
     ...roots,
@@ -260,14 +286,23 @@ function detailSpec(
       ...(spec.components ?? {}),
       schemas
     },
-    apis: directoryApis(spec, product, locale, selectedOperationId)
+    apis: includeDirectory
+      ? directoryApis(spec, product, locale, selectedOperationId)
+      : selectedOperationId
+      ? Object.fromEntries(
+          Object.entries(spec.apis).filter(
+            ([, endpoint]) => endpoint.operationId === selectedOperationId
+          )
+        )
+      : {}
   } as PontxSpec;
 }
 
 export function getEndpointMetadata(
   apiSlug: string,
   endpointSlug: string,
-  locale: Locale
+  locale: Locale,
+  options: { includeDirectory?: boolean } = {}
 ): EndpointMetadataDetail | undefined {
   const match = getCatalogOperation(apiSlug, endpointSlug);
   if (!match) return undefined;
@@ -287,7 +322,9 @@ export function getEndpointMetadata(
       product,
       locale,
       [source],
-      match.operation.operationId
+      match.operation.operationId,
+      undefined,
+      options.includeDirectory ?? true
     )
   };
 }
@@ -295,7 +332,8 @@ export function getEndpointMetadata(
 export function getSchemaMetadata(
   apiSlug: string,
   schemaName: string,
-  locale: Locale
+  locale: Locale,
+  options: { includeDirectory?: boolean } = {}
 ): SchemaMetadataDetail | undefined {
   const match = getCatalogSchema(apiSlug, schemaName);
   if (!match) return undefined;
@@ -312,7 +350,8 @@ export function getSchemaMetadata(
       locale,
       [sourceSchema],
       undefined,
-      schemaName
+      schemaName,
+      options.includeDirectory ?? true
     )
   };
 }

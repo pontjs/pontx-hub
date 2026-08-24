@@ -30,7 +30,6 @@ export function ApiCard({
         <Link
           className="api-card-main"
           to={`/${locale}/apis/${api.slug}`}
-          reloadDocument
           onClick={() => trackCatalogResourceOpened({ locale, apiSlug: api.slug, target: "api" })}
           aria-label={`${title} — ${api.operationCount} ${
             locale === "zh" ? "个接口" : "endpoints"

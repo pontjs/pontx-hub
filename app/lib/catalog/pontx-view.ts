@@ -2,8 +2,10 @@ import type { PontxAPI, PontxJsonSchema, PontxSpec } from "@pontx/spec";
 import type {
   CatalogApiContext,
   CatalogOperation,
-  CatalogRequestExample
+  CatalogRequestExample,
+  Locale
 } from "./types";
+import { localize } from "./types";
 
 export type HubPontxApi = PontxAPI & {
   components: { schemas: Record<string, PontxJsonSchema> };
@@ -109,20 +111,33 @@ export function pontxApiView(
 
 export function pontxDirectorySpec(
   spec: PontxSpec,
-  operations: CatalogApiContext["operations"]
+  operations: CatalogApiContext["operations"],
+  locale: Locale
 ): PontxSpec {
   const operationById = new Map(operations.map((operation) => [operation.operationId, operation]));
+  const sourceByOperationId = new Map(
+    Object.entries(spec.apis).map(([apiKey, api]) => [api.operationId, { apiKey, api }])
+  );
   return {
     ...spec,
-    apis: Object.fromEntries(Object.entries(spec.apis).map(([apiKey, api]) => {
-      const operation = operationById.get(api.operationId ?? "");
+    apis: Object.fromEntries(operations.map((operation) => {
+      const source = sourceByOperationId.get(operation.operationId);
+      const apiKey = source?.apiKey ?? operation.operationId;
+      const api = source?.api ?? {
+        name: operation.operationId,
+        operationId: operation.operationId,
+        summary: localize(operation.title, locale),
+        tags: operation.tag ? [operation.tag] : [],
+        ...(operation.method ? { method: operation.method } : {}),
+        ...(operation.path ? { path: operation.path } : {})
+      };
       return [
         apiKey,
         {
           ...api,
           ext: {
             ...((api as PontxAPI & { ext?: Record<string, unknown> }).ext ?? {}),
-            ...(operation ? { operationSlug: operation.slug } : {}),
+            operationSlug: operation.slug,
             canonicalApiKey: apiKey
           }
         }

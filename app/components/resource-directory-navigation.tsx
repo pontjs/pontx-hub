@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ApiDirectory } from "@pontx/shadcn-ui/api-directory";
 import type { PontxAPI, PontxSpec } from "@pontx/spec";
@@ -28,10 +28,30 @@ export function ResourceDirectoryNavigation({
   const zh = locale === "zh";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
   const spec = useMemo(
-    () => pontxDirectorySpec(canonicalSpec, api.operations),
-    [api.operations, canonicalSpec]
+    () => pontxDirectorySpec(canonicalSpec, api.operations, locale),
+    [api.operations, canonicalSpec, locale]
   );
   const untaggedOperations = api.operations.filter((operation) => !operation.tag);
+  const endpointCount = api.endpointCount ?? api.operations.length;
+  const schemaCount = api.schemaCount ?? api.schemas.length;
+  const [schemaQuery, setSchemaQuery] = useState("");
+  const visibleSchemas = useMemo(() => {
+    const query = schemaQuery.trim().toLocaleLowerCase();
+    const matches = query
+      ? api.schemas.filter((schema) =>
+          `${schema.name} ${localize(schema.title, locale)}`
+            .toLocaleLowerCase()
+            .includes(query)
+        )
+      : api.schemas;
+    const firstPage = matches.slice(0, 100);
+    const activeSchema = activeSchemaName
+      ? matches.find((schema) => schema.name === activeSchemaName)
+      : undefined;
+    return activeSchema && !firstPage.some((schema) => schema.name === activeSchema.name)
+      ? [activeSchema, ...firstPage.slice(0, 99)]
+      : firstPage;
+  }, [activeSchemaName, api.schemas, locale, schemaQuery]);
   const activeGroup = activeSchemaName ? "schemas" : "endpoints";
   const selectedApiName = activeOperation
     ? canonicalApiKey(spec, activeOperation)
@@ -63,8 +83,8 @@ export function ResourceDirectoryNavigation({
       >
         <summary aria-current={activeGroup === "endpoints" ? "page" : undefined}>
           <span>{workspaceCopy.endpointTab}</span>
-          <strong aria-label={zh ? `${api.operations.length} 个接口` : `${api.operations.length} endpoints`}>
-            {api.operations.length}
+          <strong aria-label={zh ? `${endpointCount} 个接口` : `${endpointCount} endpoints`}>
+            {endpointCount}
           </strong>
         </summary>
         <div className="resource-directory-group-content">
@@ -96,23 +116,36 @@ export function ResourceDirectoryNavigation({
         </div>
       </details>
 
-      {api.schemas.length > 0 ? (
+      {schemaCount > 0 ? (
         <details
           className="resource-directory-group"
           open={activeGroup === "schemas"}
         >
           <summary aria-current={activeGroup === "schemas" ? "page" : undefined}>
             <span>{zh ? "数据结构" : "Schemas"}</span>
-            <strong aria-label={zh ? `${api.schemas.length} 个数据结构` : `${api.schemas.length} schemas`}>
-              {api.schemas.length}
+            <strong aria-label={zh ? `${schemaCount} 个数据结构` : `${schemaCount} schemas`}>
+              {schemaCount}
             </strong>
           </summary>
           <div className="resource-directory-group-content">
+            {api.schemas.length > 100 ? (
+              <label className="schema-directory-search">
+                <span className="sr-only">
+                  {zh ? "搜索数据结构" : "Search schemas"}
+                </span>
+                <input
+                  type="search"
+                  value={schemaQuery}
+                  onChange={(event) => setSchemaQuery(event.currentTarget.value)}
+                  placeholder={zh ? "搜索数据结构…" : "Search schemas…"}
+                />
+              </label>
+            ) : null}
             <nav
               className="schema-directory-list"
               aria-label={zh ? "数据结构目录" : "Schema directory"}
             >
-              {api.schemas.map((schema) => {
+              {visibleSchemas.map((schema) => {
                 const active = schema.name === activeSchemaName;
                 return (
                   <Link
@@ -127,6 +160,13 @@ export function ResourceDirectoryNavigation({
                 );
               })}
             </nav>
+            {visibleSchemas.length < api.schemas.length ? (
+              <p className="schema-directory-limit" role="status">
+                {zh
+                  ? `显示 ${visibleSchemas.length} 项，输入名称可查找全部 ${schemaCount} 项`
+                  : `Showing ${visibleSchemas.length}; search by name across all ${schemaCount}`}
+              </p>
+            ) : null}
           </div>
         </details>
       ) : null}

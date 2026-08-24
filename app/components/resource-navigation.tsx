@@ -16,7 +16,8 @@ export function ResourceNavigation({
 }) {
   const zh = locale === "zh";
   const workspaceCopy = apiWorkspaceNavigationCopy(locale);
-  const defaultOperation = api.operations[0]?.slug;
+  const defaultOperation = api.defaultEndpointSlug ?? api.operations[0]?.slug;
+  const defaultSchemaName = api.defaultSchemaName ?? api.schemas[0]?.name;
   const directoryLinkClass = (section: "docs" | "schemas") =>
     active === "skill"
       ? undefined
@@ -49,14 +50,14 @@ export function ResourceNavigation({
             {workspaceCopy.endpointTab}
           </Link>
         ) : null}
-        {api.schemas[0] ? (
+        {defaultSchemaName ? (
           <Link
-            to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(api.schemas[0].name)}`}
+            to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchemaName)}`}
             className={directoryLinkClass("schemas")}
             aria-current={active === "schemas" ? "page" : undefined}
           >
             {zh ? "数据结构" : "Schemas"}
-            <span>{api.schemas.length}</span>
+            <span>{api.schemaCount ?? api.schemas.length}</span>
           </Link>
         ) : null}
         <Link

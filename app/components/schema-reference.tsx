@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { SchemaProvider } from "@pontx/shadcn-ui";
-import { SchemaViewer } from "@pontx/shadcn-ui/schema-viewer";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { PontxSpec } from "@pontx/spec";
 import type { CatalogApiContext, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
+
+const DeferredSchemaViewer = lazy(() => import("~/components/deferred-schema-viewer"));
 
 export function SchemaReference({
   locale,
@@ -70,35 +70,40 @@ export function SchemaReference({
           </header>
           <div className="schema-viewer-panel">
             {isHydrated ? (
-              <SchemaProvider components={components}>
-                <SchemaViewer
+              <Suspense fallback={<SchemaFallback locale={locale} schema={schema} />}>
+                <DeferredSchemaViewer
+                  components={components}
                   name={schema.name}
                   schema={viewerSchema}
-                  hideHeader
-                  defaultExpandedDepth={2}
-                  className="hub-schema-viewer"
                 />
-              </SchemaProvider>
+              </Suspense>
             ) : (
-              <div className="schema-fallback">
-                <div className="schema-fallback-heading">
-                  <span>{schema.type}</span>
-                  <strong>{schema.properties.length}</strong>
-                  <small>{zh ? "字段" : "properties"}</small>
-                </div>
-                {schema.properties.map((property) => (
-                  <div className="schema-property-row" key={property.name}>
-                    <code>{property.name}</code>
-                    <span>{property.ref ?? property.type}</span>
-                    <b>{property.required ? (zh ? "必填" : "required") : ""}</b>
-                    <p>{property.description ? localize(property.description, locale) : ""}</p>
-                  </div>
-                ))}
-              </div>
+              <SchemaFallback locale={locale} schema={schema} />
             )}
           </div>
         </section>
       </div>
     </main>
+  );
+}
+
+function SchemaFallback({ locale, schema }: { locale: Locale; schema: CatalogSchema }) {
+  const zh = locale === "zh";
+  return (
+    <div className="schema-fallback">
+      <div className="schema-fallback-heading">
+        <span>{schema.type}</span>
+        <strong>{schema.properties.length}</strong>
+        <small>{zh ? "字段" : "properties"}</small>
+      </div>
+      {schema.properties.map((property) => (
+        <div className="schema-property-row" key={property.name}>
+          <code>{property.name}</code>
+          <span>{property.ref ?? property.type}</span>
+          <b>{property.required ? (zh ? "必填" : "required") : ""}</b>
+          <p>{property.description ? localize(property.description, locale) : ""}</p>
+        </div>
+      ))}
+    </div>
   );
 }

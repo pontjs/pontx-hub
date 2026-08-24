@@ -9,6 +9,7 @@ import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 import type { ApiLayoutContext } from "./api-layout";
+import { withCurrentOperation } from "~/lib/catalog/page-context";
 
 function quickStartScore(operation: CatalogOperation): number {
   const required = operation.parameters.filter((parameter) => parameter.required);
@@ -39,7 +40,9 @@ export async function loader({ params }: Route.LoaderArgs) {
       (left, right) => quickStartScore(right) - quickStartScore(left)
     )[0];
   if (!operation) throw new Response("Endpoint not found", { status: 404 });
-  const detail = getEndpointMetadata(api.slug, operation.slug, locale);
+  const detail = getEndpointMetadata(api.slug, operation.slug, locale, {
+    includeDirectory: false
+  });
   if (!detail) {
     throw new Response("Product metadata not found", { status: 500 });
   }
@@ -107,7 +110,7 @@ export default function ApiDetail({ loaderData }: Route.ComponentProps) {
     <SiteShell locale={locale}>
       <PontxApiWorkspace
         locale={locale}
-        api={api}
+        api={withCurrentOperation(api, operation)}
         spec={spec}
         operation={operation}
         skillName={skillName}
