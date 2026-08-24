@@ -3,10 +3,28 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
-import { OperationSeoContent } from "./operation-seo-content";
+import { DocumentationEvidence, OperationSeoContent } from "./operation-seo-content";
 import { RequestExampleNotice } from "./request-example-notice";
 
 describe("OperationSeoContent", () => {
+  it("opens every external evidence link in a new tab", () => {
+    const match = getCatalogOperation("dida365", "create-project");
+    expect(match).toBeDefined();
+    const evidenceUrls = [
+      "https://docs.example.com/reference/first",
+      "https://docs.example.com/reference/second"
+    ];
+
+    const html = renderToStaticMarkup(createElement(DocumentationEvidence, {
+      locale: "zh",
+      api: match!.api,
+      operation: { ...match!.operation, evidenceUrls }
+    }));
+
+    expect(html.match(/target="_blank"/g)).toHaveLength(evidenceUrls.length);
+    expect(html.match(/rel="noreferrer"/g)).toHaveLength(evidenceUrls.length);
+  });
+
   it.each([
     [
       "zh" as const,
