@@ -56,17 +56,7 @@ export const links: Route.LinksFunction = () => [
   { rel: "api-catalog", type: "application/linkset+json", href: "/.well-known/api-catalog" },
   { rel: "service-desc", type: "application/vnd.oai.openapi+json", href: "/openapi.json" },
   { rel: "describedby", type: "application/json", href: "/.well-known/agent-skills/index.json" },
-  { rel: "alternate", type: "text/plain", href: "/llms.txt", title: "LLM documentation index" },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous"
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500..700&family=Noto+Sans+SC:wght@400..700&family=Noto+Serif+SC:wght@500..700&display=swap"
-  }
+  { rel: "alternate", type: "text/plain", href: "/llms.txt", title: "LLM documentation index" }
 ];
 
 type RootLoaderData = Awaited<ReturnType<typeof loader>>;

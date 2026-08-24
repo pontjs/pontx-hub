@@ -7,7 +7,7 @@ import { meta as schemaMeta } from "./schema-detail";
 import { meta as sdkMeta } from "./sdk-detail";
 import { meta as savedApisMeta } from "./saved-apis";
 import { meta as catalogMeta } from "./catalog";
-import { siteVerificationMeta } from "~/root";
+import { links, siteVerificationMeta } from "~/root";
 
 type Descriptor = Record<string, unknown>;
 
@@ -35,6 +35,16 @@ describe("public route SEO metadata", () => {
   const api = getCatalogApi("dida365");
   if (!api) throw new Error("Expected synchronized Dida365 metadata");
   const plannedApi = { ...api, sdkStatus: "planned" as const };
+
+  it("keeps first paint independent from third-party font stylesheets", () => {
+    const rootLinks = descriptors(links());
+    expect(rootLinks).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        rel: "stylesheet",
+        href: expect.stringContaining("fonts.googleapis.com")
+      })
+    ]));
+  });
 
   it("publishes the Pontx brand graph and search ownership meta tags", () => {
     const catalogDescriptors = descriptors(catalogMeta({
