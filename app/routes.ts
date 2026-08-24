@@ -18,6 +18,7 @@ export default [
   route("api/v1/*", "routes/api.ts"),
   route("api/v2/*", "routes/api-v2.ts"),
   route("api/internal/*", "routes/internal-api.ts"),
+  route("api/ui/v1/products/:apiSlug/navigation", "routes/product-navigation.ts"),
   route("api/auth/*", "routes/auth-api.ts"),
   route("api/account/v1/*", "routes/account-api.ts"),
   route("api/ai/v1/*", "routes/ai-api.ts"),

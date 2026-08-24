@@ -7,13 +7,15 @@ import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 import type { ApiLayoutContext } from "./api-layout";
+import { withCurrentSchema } from "~/lib/catalog/page-context";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const detail = getSchemaMetadata(
     params.apiSlug ?? "",
     params.schemaName ?? "",
-    locale
+    locale,
+    { includeDirectory: false }
   );
   if (!detail) throw new Response("Schema not found", { status: 404 });
   return detail;
@@ -81,7 +83,7 @@ export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
     <SiteShell locale={locale}>
       <SchemaReference
         locale={locale}
-        api={api}
+        api={withCurrentSchema(api, schema)}
         spec={spec}
         schema={schema}
         skillName={skillName}

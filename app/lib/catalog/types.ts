@@ -394,7 +394,23 @@ export type CatalogProductMetadata = Omit<CatalogApi, "operations" | "schemas"> 
 export type CatalogApiContext = Omit<CatalogApi, "operations" | "schemas"> & {
   operations: Array<CatalogOperation | CatalogEndpointSummary>;
   schemas: Array<CatalogSchema | CatalogSchemaSummary>;
+  endpointCount?: number;
+  schemaCount?: number;
+  executableEndpointCount?: number;
+  defaultEndpointSlug?: string;
+  defaultSchemaName?: string;
 };
+
+export type CatalogProductNavigation = Pick<
+  CatalogApiContext,
+  | "operations"
+  | "schemas"
+  | "endpointCount"
+  | "schemaCount"
+  | "executableEndpointCount"
+  | "defaultEndpointSlug"
+  | "defaultSchemaName"
+>;
 
 export type GlobalSearchKind = "api" | "endpoint" | "schema";
 

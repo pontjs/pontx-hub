@@ -7,13 +7,15 @@ import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 import type { ApiLayoutContext } from "./api-layout";
+import { withCurrentOperation } from "~/lib/catalog/page-context";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
   const detail = getEndpointMetadata(
     params.apiSlug ?? "",
     params.operationSlug ?? "",
-    locale
+    locale,
+    { includeDirectory: false }
   );
   if (!detail) throw new Response("Operation not found", { status: 404 });
   return detail;
@@ -96,7 +98,7 @@ export default function OperationDetail({
     <SiteShell locale={locale}>
       <PontxApiWorkspace
         locale={locale}
-        api={api}
+        api={withCurrentOperation(api, operation)}
         spec={spec}
         operation={operation}
         skillName={skillName}

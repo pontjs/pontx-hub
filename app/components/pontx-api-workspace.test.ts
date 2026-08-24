@@ -57,16 +57,21 @@ describe("ApiOverviewActions", () => {
     ["zh" as const, "浏览全部接口", "立即试用"],
     ["en" as const, "Browse all endpoints", "Try it now"]
   ])("promotes the full endpoint workspace before quick call in %s", (locale, workspaceLabel, quickCallLabel) => {
-    const html = renderToStaticMarkup(createElement(ApiOverviewActions, {
-      locale,
-      apiSlug: "dida365",
-      operationSlug: "get-user-projects",
-      quickCallAction: quickCallLabel
-    }));
+    const html = renderToStaticMarkup(createElement(
+      MemoryRouter,
+      null,
+      createElement(ApiOverviewActions, {
+        locale,
+        apiSlug: "dida365",
+        operationSlug: "get-user-projects",
+        quickCallAction: quickCallLabel
+      })
+    ));
 
     expect(html).toContain(
-      `<a class="button button-dark" href="/${locale}/apis/dida365/get-user-projects">${workspaceLabel}</a>`
+      `<a class="button button-dark" href="/${locale}/apis/dida365/get-user-projects"`
     );
+    expect(html).toContain(`>${workspaceLabel}</a>`);
     expect(html).toContain(
       `<a class="button" href="#quick-call">${quickCallLabel}</a>`
     );
@@ -74,17 +79,22 @@ describe("ApiOverviewActions", () => {
   });
 
   it("links a published product Skill from the API overview", () => {
-    const html = renderToStaticMarkup(createElement(ApiOverviewActions, {
-      locale: "zh",
-      apiSlug: "dida365",
-      operationSlug: "get-user-projects",
-      quickCallAction: "立即试用",
-      skillName: "pontx-dida365"
-    }));
+    const html = renderToStaticMarkup(createElement(
+      MemoryRouter,
+      null,
+      createElement(ApiOverviewActions, {
+        locale: "zh",
+        apiSlug: "dida365",
+        operationSlug: "get-user-projects",
+        quickCallAction: "立即试用",
+        skillName: "pontx-dida365"
+      })
+    ));
 
     expect(html).toContain(
-      '<a class="button" href="/zh/skills/pontx-dida365">安装产品 Skill</a>'
+      '<a class="button" href="/zh/skills/pontx-dida365"'
     );
+    expect(html).toContain('>安装产品 Skill</a>');
   });
 });
 

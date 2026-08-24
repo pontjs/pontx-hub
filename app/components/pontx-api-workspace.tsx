@@ -1,6 +1,13 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState
+} from "react";
 import { Link, useNavigate } from "react-router";
-import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import {
   Button,
   Card,
@@ -66,6 +73,11 @@ import {
   persistBrowserCredentialGuideCollapsed
 } from "~/lib/playground/credential-guide-preference";
 import { trackPlaygroundRequest } from "~/lib/analytics/events";
+
+const LazyApiDocumentation = lazy(async () => {
+  const module = await import("@pontx/shadcn-ui/api-documentation");
+  return { default: module.ApiDocumentation };
+});
 
 const useClientLayoutEffect = typeof window === "undefined"
   ? useEffect
@@ -194,19 +206,19 @@ export function ApiOverviewActions({
 
   return (
     <div className="api-overview-actions">
-      <a
+      <Link
         className="button button-dark"
-        href={`/${locale}/apis/${apiSlug}/${operationSlug}`}
+        to={`/${locale}/apis/${apiSlug}/${operationSlug}`}
       >
         {workspaceCopy.browseAllEndpoints}
-      </a>
+      </Link>
       <a className="button" href="#quick-call">
         {quickCallAction}
       </a>
       {skillName ? (
-        <a className="button" href={`/${locale}/skills/${skillName}`}>
+        <Link className="button" to={`/${locale}/skills/${skillName}`}>
           {locale === "zh" ? "安装产品 Skill" : "Install product Skill"}
-        </a>
+        </Link>
       ) : null}
     </div>
   );
@@ -221,7 +233,9 @@ export function ApiOverviewFacts({
   api: CatalogApiContext;
   operationSlug: string;
 }) {
-  const executableOperationCount = api.operations.filter(
+  const endpointCount = api.endpointCount ?? api.operations.length;
+  const schemaCount = api.schemaCount ?? api.schemas.length;
+  const executableOperationCount = api.executableEndpointCount ?? api.operations.filter(
     (operation) => getPlaygroundAvailability(operation, locale).executionEnabled
   ).length;
   const authLabel = api.auth.length
@@ -241,7 +255,7 @@ export function ApiOverviewFacts({
     : locale === "zh"
       ? "计划中"
       : "Planned";
-  const defaultSchema = api.schemas[0];
+  const defaultSchemaName = api.defaultSchemaName ?? api.schemas[0]?.name;
   const linkedFact = ({
     label,
     value,
@@ -283,26 +297,26 @@ export function ApiOverviewFacts({
       <div><dt>{locale === "zh" ? "鉴权" : "Authentication"}</dt><dd>{authLabel}</dd></div>
       {linkedFact({
         label: locale === "zh" ? "接口" : "Endpoints",
-        value: api.operations.length,
+        value: endpointCount,
         href: `/${locale}/apis/${api.slug}/${operationSlug}`,
         ariaLabel: locale === "zh"
           ? `打开 ${apiTitle} 接口目录`
           : `Open the ${apiTitle} endpoint directory`
       })}
-      {defaultSchema ? linkedFact({
+      {defaultSchemaName ? linkedFact({
         label: locale === "zh" ? "数据结构" : "Schemas",
-        value: api.schemas.length,
-        href: `/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchema.name)}`,
+        value: schemaCount,
+        href: `/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(defaultSchemaName)}`,
         ariaLabel: locale === "zh"
           ? `打开 ${apiTitle} 数据结构目录`
           : `Open the ${apiTitle} schema directory`
       }) : (
-        <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{api.schemas.length}</dd></div>
+        <div><dt>{locale === "zh" ? "数据结构" : "Schemas"}</dt><dd>{schemaCount}</dd></div>
       )}
       {linkedFact({
         label: locale === "zh" ? "在线调用" : "Live calls",
         value: executableOperationCount
-          ? `${executableOperationCount}/${api.operations.length}`
+          ? `${executableOperationCount}/${endpointCount}`
           : locale === "zh"
             ? "暂不可调用"
             : "Unavailable",
@@ -1394,9 +1408,9 @@ export function PontxApiWorkspace({
                 }
               }}
             />
-            <a className="api-full-docs-link" href={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>
+            <Link className="api-full-docs-link" to={`/${locale}/apis/${api.slug}/${activeOperation.slug}`}>
               {workspaceCopy.openSelectedEndpoint}<span aria-hidden="true">→</span>
-            </a>
+            </Link>
           </> : <>
             <div>
               <span>{api.provider}</span>
@@ -1407,7 +1421,7 @@ export function PontxApiWorkspace({
               <p>
                 {!playgroundAvailability.executionEnabled
                   ? locale === "zh" ? "暂不支持在线调用 · 原因见下方" : "Online calls unavailable · details below"
-                  : api.sdkStatus === "published" ? <a href={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</a> : locale === "zh"
+                  : api.sdkStatus === "published" ? <Link to={`/${locale}/sdks/${api.slug}`}>SDK / CLI →</Link> : locale === "zh"
                 ? "调试经 Hub 代理 · 凭证仅保留当前会话"
                 : "Hub-proxied execution · credentials stay in this session"}
               </p>
@@ -1474,7 +1488,12 @@ export function PontxApiWorkspace({
                   onPreview={() => previewRequestExample(requestExample.id)}
                 />
               ) : null}
-              <ApiDocumentation
+              <Suspense fallback={
+                <div className="pontx-documentation-loading" role="status">
+                  {locale === "zh" ? "正在加载交互式文档…" : "Loading interactive documentation…"}
+                </div>
+              }>
+              <LazyApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={playgroundApi}
@@ -1537,6 +1556,7 @@ export function PontxApiWorkspace({
               onGenerateCode={generateCode}
               className={`pontx-documentation${guided && playgroundAvailable ? " pontx-documentation-guided" : ""}`}
               />
+              </Suspense>
             </>
           ) : (
             guided ? (

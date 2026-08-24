@@ -2831,6 +2831,35 @@ textarea {
   gap: 3px;
 }
 
+.schema-directory-search {
+  display: block;
+  padding: 0 0 8px;
+}
+
+.schema-directory-search input {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.schema-directory-search input:focus-visible {
+  border-color: var(--blue);
+  outline: 2px solid color-mix(in srgb, var(--blue) 20%, transparent);
+  outline-offset: 1px;
+}
+
+.schema-directory-limit {
+  margin: 0;
+  padding: 8px 10px;
+  color: var(--ink-soft);
+  font-size: var(--type-micro);
+}
+
 .schema-directory-list a {
   min-height: 50px;
   padding: 7px 10px;
