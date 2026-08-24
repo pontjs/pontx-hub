@@ -1,10 +1,9 @@
 import {
   Alert,
   AlertDescription,
-  Button,
+  Button as UiButton,
   Card,
   EmptyState,
-  LoadingSpinner,
   Separator,
   StatusBadge
 } from "@pontx/shadcn-ui";
@@ -22,6 +21,21 @@ import {
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router";
 import { MethodBadge } from "~/components/method-badge";
+import {
+  Message as MotionMessage,
+  MessageAvatar,
+  MessageBubble,
+  MessageBubbleContent,
+  MessageContent,
+  MessageScroller,
+  MessageTyping
+} from "~/components/agents/message";
+import { PromptInput } from "~/components/agents/prompt-input";
+import {
+  Button as MotionButton,
+  StatefulButton,
+  type ButtonState
+} from "~/components/motion/button";
 import {
   completeAgentActivity,
   describeAgentActivity,
@@ -164,14 +178,6 @@ function NewSessionIcon() {
   return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12" /></svg>;
 }
 
-function RunIcon() {
-  return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 5 7 5-7 5Z" /></svg>;
-}
-
-function StopIcon() {
-  return <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5.5" y="5.5" width="9" height="9" rx="1" /></svg>;
-}
-
 function ActivityIcon({ kind }: { kind: AgentActivity["kind"] }) {
   if (kind === "read" || kind === "inspect") {
     return <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 3.5h6l3 3v10h-9Z" /><path d="M11.5 3.5v3h3M7.5 10h5M7.5 13h4" /></svg>;
@@ -297,9 +303,8 @@ export function AiAssistantPanel({
   const [prepared, setPrepared] = useState<PreparedAgentCall[]>([]);
   const [executions, setExecutions] = useState<Record<number, AgentExecutionState>>({});
   const agentRef = useRef<HttpAgent | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const session = readAgentSession(
@@ -331,20 +336,13 @@ export function AiAssistantPanel({
   }, [executions, hydrated, messages, prepared, threadId]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth"
-    });
-  }, [activities, messages, prepared, running]);
-
-  useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
     const siteFrame = document.querySelector<HTMLElement>(".site-frame");
     const siteFrameWasInert = siteFrame?.hasAttribute("inert") ?? false;
     document.body.style.overflow = "hidden";
     if (!siteFrameWasInert) siteFrame?.setAttribute("inert", "");
-    window.requestAnimationFrame(() => textareaRef.current?.focus());
+    window.requestAnimationFrame(() => panelRef.current?.querySelector("textarea")?.focus());
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -390,9 +388,8 @@ export function AiAssistantPanel({
     void checkRuntime();
   };
 
-  const submit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const value = input.trim();
+  const submit = async (prompt: string) => {
+    const value = prompt.trim();
     const agent = agentRef.current;
     if (!value || !agent || running) return;
     setInput("");
@@ -566,7 +563,7 @@ export function AiAssistantPanel({
     setExecutions({});
     setStatus(null);
     window.sessionStorage.removeItem(SESSION_KEY);
-    window.requestAnimationFrame(() => textareaRef.current?.focus());
+    window.requestAnimationFrame(() => panelRef.current?.querySelector("textarea")?.focus());
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -620,33 +617,40 @@ export function AiAssistantPanel({
                 </div>
               </div>
               <div className="ai-assistant-header-actions">
-                <Button
+                <MotionButton
                   type="button"
                   variant="ghost"
-                  size="iconSm"
+                  size="icon"
                   aria-label={text.clear as string}
                   title={text.clear as string}
                   disabled={!hasTranscript && !prepared.length}
                   onClick={clear}
                 >
                   <NewSessionIcon />
-                </Button>
-                <Button
+                </MotionButton>
+                <MotionButton
                   type="button"
                   variant="ghost"
-                  size="iconSm"
+                  size="icon"
                   aria-label={text.close as string}
                   title={text.close as string}
                   onClick={onClose}
                 >
                   <CloseIcon />
-                </Button>
+                </MotionButton>
               </div>
             </header>
 
             <Separator />
 
-            <div className="ai-assistant-feed" ref={scrollRef} aria-live="polite">
+            <MessageScroller
+              className="ai-assistant-feed"
+              viewportClassName="ai-assistant-feed-viewport"
+              contentClassName="ai-assistant-feed-content"
+              viewportRef={scrollRef}
+              label={text.title as string}
+              busy={running}
+            >
               {!hasTranscript ? (
                 <div className="ai-assistant-empty-wrap">
                   <EmptyState
@@ -657,19 +661,19 @@ export function AiAssistantPanel({
                   />
                   <div className="ai-assistant-suggestions" aria-label={text.emptyTitle as string}>
                     {suggestions.map(([label, prompt]) => (
-                      <Button
+                      <MotionButton
                         key={label}
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           setInput(prompt);
-                          textareaRef.current?.focus();
+                          panelRef.current?.querySelector("textarea")?.focus();
                         }}
                       >
                         <span>{label}</span>
                         <span aria-hidden="true">↗</span>
-                      </Button>
+                      </MotionButton>
                     ))}
                   </div>
                 </div>
@@ -686,22 +690,31 @@ export function AiAssistantPanel({
                 }
                 return (
                   <Fragment key={message.id}>
-                    <article
+                    <MotionMessage
                       className="ai-message"
+                      from={message.role === "user" ? "user" : "assistant"}
+                      animateIn
                       data-role={message.role}
                       aria-label={message.role === "user" ? text.you as string : text.agent as string}
                     >
                       {message.role === "assistant" ? (
-                        <span className="ai-message-avatar" aria-hidden="true">
+                        <MessageAvatar className="ai-message-avatar">
                           <AgentIcon />
-                        </span>
+                        </MessageAvatar>
                       ) : null}
-                      <div className="ai-message-content">
-                        {message.role === "assistant" ? (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{messageText(message)}</ReactMarkdown>
-                        ) : <p>{messageText(message)}</p>}
-                      </div>
-                    </article>
+                      <MessageContent className="ai-message-content">
+                        <MessageBubble
+                          variant={message.role === "user" ? "soft" : "ghost"}
+                          animateIn
+                        >
+                          <MessageBubbleContent className="ai-message-bubble">
+                            {message.role === "assistant" ? (
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{messageText(message)}</ReactMarkdown>
+                            ) : <p>{messageText(message)}</p>}
+                          </MessageBubbleContent>
+                        </MessageBubble>
+                      </MessageContent>
+                    </MotionMessage>
                     {messageActivities.length ? (
                       <AgentRunTimeline activities={messageActivities} locale={locale} indented />
                     ) : null}
@@ -754,15 +767,27 @@ export function AiAssistantPanel({
                       </Alert>
                     ) : null}
                     <div className="ai-prepared-actions">
-                      <Button asChild variant="outline" size="sm">
+                      <UiButton asChild variant="outline" size="sm">
                         <Link to={call.operation.href} onClick={onClose}>
                           {text.openEndpoint as string}
                         </Link>
-                      </Button>
+                      </UiButton>
                       {call.preview.proxyEnabled ? (
-                        <Button
+                        <StatefulButton
                           type="button"
                           size="sm"
+                          state={(
+                            execution.status === "working"
+                              ? "loading"
+                              : execution.status === "done"
+                                ? "success"
+                                : execution.status === "error"
+                                  ? "error"
+                                  : "idle"
+                          ) satisfies ButtonState}
+                          loadingText={text.executing as string}
+                          successText={text.completed as string}
+                          errorText={text.previewRun as string}
                           disabled={execution.status === "working" || execution.status === "done"}
                           onClick={() => execute(call, index, execution.confirmationToken)}
                         >
@@ -773,7 +798,7 @@ export function AiAssistantPanel({
                               : execution.status === "done"
                                 ? text.completed as string
                                 : text.previewRun as string}
-                        </Button>
+                        </StatefulButton>
                       ) : null}
                     </div>
                   </Card>
@@ -781,81 +806,58 @@ export function AiAssistantPanel({
               })}
 
               {running ? (
-                <div className="ai-assistant-working" role="status">
-                  <span className="ai-message-avatar" aria-hidden="true">
+                <MotionMessage from="assistant" className="ai-assistant-working" role="status">
+                  <MessageAvatar className="ai-message-avatar">
                     <AgentIcon />
-                  </span>
-                  <LoadingSpinner
-                    className="ai-assistant-working-status"
-                    size="sm"
-                    text={text.working as string}
-                  />
-                </div>
+                  </MessageAvatar>
+                  <MessageContent className="ai-assistant-working-status">
+                    <MessageTyping label={text.working as string} />
+                    <span>{text.working as string}</span>
+                  </MessageContent>
+                </MotionMessage>
               ) : null}
               {status ? (
                 <Alert tone={status.tone} className="ai-assistant-error">
                   <AlertDescription>{status.message}</AlertDescription>
                   {status.kind === "runtime" ? (
-                    <Button
+                    <StatefulButton
                       type="button"
                       variant="outline"
                       size="sm"
+                      state={checkingRuntime ? "loading" : "idle"}
+                      loadingText={text.checkingRuntime as string}
                       onClick={() => void checkRuntime()}
                       disabled={checkingRuntime}
                     >
                       {checkingRuntime
                         ? text.checkingRuntime as string
                         : text.checkRuntime as string}
-                    </Button>
+                    </StatefulButton>
                   ) : null}
                 </Alert>
               ) : null}
-            </div>
+            </MessageScroller>
 
-            <form className="ai-assistant-composer" onSubmit={submit}>
-              <div className="ai-assistant-input-shell">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  aria-label={text.inputLabel as string}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={text.placeholder as string}
-                  rows={2}
-                  disabled={!hydrated || running}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                      event.preventDefault();
-                      event.currentTarget.form?.requestSubmit();
-                    }
-                  }}
-                />
-                {running ? (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    aria-label={text.stop as string}
-                    title={text.stop as string}
-                    onClick={() => agentRef.current?.abortRun()}
-                  >
-                    <StopIcon />
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    size="icon"
-                    aria-label={text.send as string}
-                    title={text.send as string}
-                    disabled={!hydrated || !input.trim()}
-                  >
-                    <RunIcon />
-                  </Button>
-                )}
-              </div>
+            <div className="ai-assistant-composer">
+              <PromptInput
+                value={input}
+                onValueChange={setInput}
+                onSubmit={(value) => void submit(value)}
+                loading={running}
+                onStop={() => agentRef.current?.abortRun()}
+                sendLabel={text.send as string}
+                stopLabel={text.stop as string}
+                placeholder={text.placeholder as string}
+                aria-label={text.inputLabel as string}
+                disabled={!hydrated || running}
+                minRows={2}
+                maxRows={6}
+                className="ai-assistant-input-shell"
+              />
               <span className="ai-assistant-composer-hint">
                 {text.composerHint as string}
               </span>
-            </form>
+            </div>
           </Card>
         </div>
       ), document.body) : null;

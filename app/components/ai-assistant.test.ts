@@ -39,18 +39,16 @@ describe("Pontx Agent presentation", () => {
     expect(source).toContain('tone: "warning"');
   });
 
-  it("adapts the shared loading state into one compact Agent response row", async () => {
+  it("uses beUI response and action states for compact Agent feedback", async () => {
     const source = await readFile(new URL("./ai-assistant.tsx", import.meta.url), "utf8");
     const styles = await readFile(new URL("../styles/system.css", import.meta.url), "utf8");
 
     expect(source).toContain('className="ai-assistant-working-status"');
-    expect(styles).toContain(".ai-assistant-working-status > div {");
+    expect(source).toContain("<MessageTyping");
+    expect(source).toContain("<StatefulButton");
     expect(styles).toContain("flex-direction: row;");
     expect(styles).toContain("padding-block: 0;");
-    expect(styles).toContain("flex: 0 0 14px;");
-    expect(styles).toContain(
-      ".ai-assistant-working-status > .space-y-3 > :not([hidden])"
-    );
+    expect(styles).toContain(".ai-assistant-working-status > span:last-child");
   });
 
   it("renders a transcript-style conversation instead of two labeled cards", async () => {
@@ -59,9 +57,14 @@ describe("Pontx Agent presentation", () => {
 
     expect(source).not.toContain('className="ai-message-meta"');
     expect(source).not.toContain('message.role === "user" ? "Y"');
-    expect(source).toContain('message.role === "assistant" ? (');
+    expect(source).toContain("<MotionMessage");
+    expect(source).toContain("<MessageBubble");
+    expect(source).toContain("<MessageScroller");
+    expect(source).toContain("<PromptInput");
+    expect(source).toContain("sendLabel={text.send as string}");
+    expect(source).toContain("stopLabel={text.stop as string}");
     expect(styles).toContain("grid-template-columns: 28px minmax(0, 1fr);");
-    expect(styles).toContain('border-radius: 18px;');
+    expect(styles).toContain(".ai-message-bubble {");
   });
 
   it("filters non-text protocol messages and renders assistant Markdown safely", async () => {

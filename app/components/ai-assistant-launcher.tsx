@@ -41,7 +41,13 @@ function AgentIcon() {
   );
 }
 
-export function AiAssistantLauncher({ locale }: { locale: Locale }) {
+export function AiAssistantLauncher({
+  locale,
+  onOpen
+}: {
+  locale: Locale;
+  onOpen?: () => void;
+}) {
   const text = copy[locale];
   const [activated, setActivated] = useState(false);
   const [open, setOpen] = useState(false);
@@ -71,6 +77,7 @@ export function AiAssistantLauncher({ locale }: { locale: Locale }) {
       aria-expanded={open}
       onPointerDown={() => void loadAssistant()}
       onClick={() => {
+        onOpen?.();
         setActivated(true);
         setOpen(true);
       }}
