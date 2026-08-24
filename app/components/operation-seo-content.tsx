@@ -44,7 +44,7 @@ export function DocumentationEvidence({
           {operation.evidenceUrls.map((url, index) => (
             <span key={url}>
               {index ? ", " : ""}
-              <a href={url} rel="noreferrer">{new URL(url).hostname}</a>
+              <a href={url} target="_blank" rel="noreferrer">{new URL(url).hostname}</a>
             </span>
           ))}
         </p>
