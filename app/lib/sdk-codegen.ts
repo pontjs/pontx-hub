@@ -307,37 +307,8 @@ export function generateSdkSnippet(
     );
   }
 
-  const controller = operation.tag ? contract.controllers[operation.tag] : null;
-  const sdkMethod = operation.sdkMethod ?? operation.operationId;
-  const method = `${contract.client.identifier}.${
-    controller ? `${controller}.` : ""
-  }${sdkMethod}`;
-  const lines: string[] = [];
-  if (contract.client.kind === "default") {
-    lines.push(
-      `import ${contract.client.identifier} from "${api.packageName}";`
-    );
-  } else if (contract.client.kind === "named") {
-    lines.push(
-      `import { ${contract.client.identifier} } from "${api.packageName}";`
-    );
-  } else {
-    lines.push(
-      `import { ${contract.client.factory} } from "${api.packageName}";`
-    );
-    const options = Object.entries(contract.client.options)
-      .map(([name, value]) => {
-        const expression = /^[A-Z][A-Z0-9_]*$/.test(value)
-          ? `process.env.${value}!`
-          : JSON.stringify(value);
-        return `  ${name}: ${expression}`;
-      })
-      .join(",\n");
-    lines.push(
-      "",
-      `const ${contract.client.identifier} = ${contract.client.factory}({\n${options}\n});`
-    );
-  }
+  const method = sdkMethodExpression(api, operation);
+  const lines = sdkClientSetup(api);
 
   const hasBody = hasRequestBody(operation);
   if (hasBody) {
@@ -366,6 +337,74 @@ export function generateSdkSnippet(
     "",
     `const result = await ${method}${call};`,
     "console.log(result);"
+  );
+  return lines.join("\n");
+}
+
+function sdkMethodExpression(
+  api: CatalogApi,
+  operation: CatalogOperation
+): string {
+  const contract = api.sdkContract!;
+  const controller = operation.tag ? contract.controllers[operation.tag] : null;
+  const sdkMethod = operation.sdkMethod ?? operation.operationId;
+  return `${contract.client.identifier}.${
+    controller ? `${controller}.` : ""
+  }${sdkMethod}`;
+}
+
+function sdkClientSetup(api: CatalogApi): string[] {
+  const contract = api.sdkContract!;
+  const lines: string[] = [];
+  if (contract.client.kind === "default") {
+    lines.push(
+      `import ${contract.client.identifier} from "${api.packageName}";`
+    );
+  } else if (contract.client.kind === "named") {
+    lines.push(
+      `import { ${contract.client.identifier} } from "${api.packageName}";`
+    );
+  } else {
+    lines.push(
+      `import { ${contract.client.factory} } from "${api.packageName}";`
+    );
+    const options = Object.entries(contract.client.options)
+      .map(([name, value]) => {
+        const expression = /^[A-Z][A-Z0-9_]*$/.test(value)
+          ? `process.env.${value}!`
+          : JSON.stringify(value);
+        return `  ${name}: ${expression}`;
+      })
+      .join(",\n");
+    lines.push(
+      "",
+      options
+        ? `const ${contract.client.identifier} = ${contract.client.factory}({\n${options}\n});`
+        : `const ${contract.client.identifier} = ${contract.client.factory}();`
+    );
+  }
+  return lines;
+}
+
+/**
+ * Compile-time probe for the installed SDK's public initialization and method
+ * surface. Request argument generation is verified separately because complex
+ * body examples can be incomplete even when the npm client contract is exact.
+ */
+export function generateSdkSurfaceProbe(
+  api: CatalogApi,
+  operation: CatalogOperation
+): string {
+  if (!api.sdkContract || !supportsSdkOperation(api, operation)) {
+    throw new SdkCodegenUnavailableError(
+      `${api.packageName}@${api.sdkVersion} does not include ${operation.operationId}`
+    );
+  }
+  const lines = sdkClientSetup(api);
+  lines.push(
+    "",
+    `const sdkMethod = ${sdkMethodExpression(api, operation)};`,
+    "void sdkMethod;"
   );
   return lines.join("\n");
 }

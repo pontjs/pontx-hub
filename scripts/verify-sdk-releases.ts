@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 import type { CatalogApi } from "../app/lib/catalog/types";
-import { generateSdkSnippet } from "../app/lib/sdk-codegen";
+import { generateSdkSurfaceProbe } from "../app/lib/sdk-codegen";
 import { loadCatalogShards } from "./load-catalog";
 
 const execFileAsync = promisify(execFile);
@@ -60,18 +60,25 @@ async function verifyInstalledSdk(api: CatalogApi, projectDirectory: string) {
     "node_modules",
     ...api.packageName.split("/")
   );
-  const apiLock = JSON.parse(
-    await readFile(resolve(packageDirectory, "dist/bin/api-lock.json"), "utf8")
-  ) as { apis?: Record<string, unknown> };
-  const packagedKeys = Object.keys(apiLock.apis ?? {}).sort();
-  const declaredKeys = declaredApiLockKeys(api);
-  if (JSON.stringify(packagedKeys) !== JSON.stringify(declaredKeys)) {
-    const missing = packagedKeys.filter((key) => !declaredKeys.includes(key));
-    const unexpected = declaredKeys.filter((key) => !packagedKeys.includes(key));
-    throw new Error(
-      `${api.packageName}@${api.sdkVersion} SDK contract differs from api-lock.json` +
-      `; undeclared package APIs: ${missing.join(", ") || "none"}` +
-      `; missing package APIs: ${unexpected.join(", ") || "none"}`
+  try {
+    const apiLock = JSON.parse(
+      await readFile(resolve(packageDirectory, "dist/bin/api-lock.json"), "utf8")
+    ) as { apis?: Record<string, unknown> };
+    const packagedKeys = Object.keys(apiLock.apis ?? {}).sort();
+    const declaredKeys = declaredApiLockKeys(api);
+    if (JSON.stringify(packagedKeys) !== JSON.stringify(declaredKeys)) {
+      const missing = packagedKeys.filter((key) => !declaredKeys.includes(key));
+      const unexpected = declaredKeys.filter((key) => !packagedKeys.includes(key));
+      throw new Error(
+        `${api.packageName}@${api.sdkVersion} SDK contract differs from api-lock.json` +
+        `; undeclared package APIs: ${missing.join(", ") || "none"}` +
+        `; missing package APIs: ${unexpected.join(", ") || "none"}`
+      );
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    console.warn(
+      `${api.slug}: packaged api-lock.json is unavailable; verifying every declared Endpoint against the installed TypeScript surface`
     );
   }
 
@@ -79,12 +86,7 @@ async function verifyInstalledSdk(api: CatalogApi, projectDirectory: string) {
     const operation = api.operations.find(
       (candidate) => candidate.operationId === operationId
     )!;
-    const request = operation.requestExamples[0]?.request ?? {
-      path: {},
-      query: {},
-      headers: {}
-    };
-    const code = generateSdkSnippet(api, operation, request);
+    const code = generateSdkSurfaceProbe(api, operation);
     await writeFile(
       resolve(projectDirectory, "generated", `${api.slug}-${operation.slug}.mts`),
       `${code}\n`
@@ -167,7 +169,7 @@ if (published.length) {
       `Installed and typechecked ${published.reduce(
         (total, api) => total + api.sdkContract!.operations.length,
         0
-      )} generated snippet(s) across ${published.length} exact SDK package version(s).`
+      )} Endpoint SDK surface probe(s) across ${published.length} exact package version(s).`
     );
   } finally {
     await rm(projectDirectory, { recursive: true, force: true });

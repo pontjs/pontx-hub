@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { CatalogApi, CatalogOperation } from "~/lib/catalog/types";
 import {
   generateSdkSnippet,
+  generateSdkSurfaceProbe,
   SdkCodegenUnavailableError,
   supportsSdkOperation
 } from "./sdk-codegen";
@@ -124,6 +125,20 @@ console.log(result);`);
     expect(code).toContain("client.common.getRate");
   });
 
+  it("probes the same factory and method surface without inventing request values", () => {
+    const code = generateSdkSurfaceProbe(api({
+      kind: "factory",
+      factory: "createRatesClient",
+      identifier: "client",
+      options: { apiKey: "RATES_API_KEY" }
+    }), operation);
+
+    expect(code).toContain('import { createRatesClient } from "@pontx/rates";');
+    expect(code).toContain("apiKey: process.env.RATES_API_KEY!");
+    expect(code).toContain("const sdkMethod = client.common.getRate;");
+    expect(code).not.toContain("REPLACE_WITH");
+  });
+
   it("preserves verified public factory defaults instead of treating them as credentials", () => {
     const code = generateSdkSnippet(api({
       kind: "factory",
@@ -141,6 +156,22 @@ console.log(result);`);
 
     expect(code).toContain("apiKey: process.env.RATES_API_KEY!");
     expect(code).toContain('baseUrl: "https://api.example.com"');
+  });
+
+  it("omits an empty options object for public no-auth factories", () => {
+    const code = generateSdkSnippet(api({
+      kind: "factory",
+      factory: "createRatesClient",
+      identifier: "client",
+      options: {}
+    }), operation, {
+      path: { base: "EUR", quote: "USD" },
+      query: {},
+      headers: {}
+    });
+
+    expect(code).toContain("const client = createRatesClient();");
+    expect(code).not.toContain("createRatesClient({");
   });
 
   it("places request bodies before named parameters and bearer request init", () => {

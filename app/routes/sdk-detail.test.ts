@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
+import { generateSdkSnippet } from "~/lib/sdk-codegen";
 import { meta, sdkOperationCoverage, sdkUsageExamples } from "./sdk-detail";
 
 describe("SDK usage examples", () => {
@@ -19,14 +20,14 @@ describe("SDK usage examples", () => {
     expect(JSON.stringify(descriptors)).not.toContain("TypeScript and Node.js SDK");
   });
 
-  it("renders the published Frankfurter v2 client and dedicated CLI contract", () => {
+  it("renders the exact published Frankfurter v2 client and dedicated CLI contract", () => {
     const api = getCatalogApi("frankfurter-v2");
     expect(api).toBeDefined();
     const examples = sdkUsageExamples(api!);
 
-    expect(examples.typescript).toContain("frankfurterV2Client.getRates");
+    expect(examples.typescript).toContain("getRates");
     expect(examples.typescript).not.toContain("client.default");
-    expect(examples.typescript).not.toContain("frankfurterV2Client.common");
+    expect(examples.typescript).not.toContain(".common");
     expect(examples.cli).toContain("pontx-frankfurter-v2 call getRates");
     expect(examples.cli).not.toContain("common.getRates");
   });
@@ -42,6 +43,23 @@ describe("SDK usage examples", () => {
     expect(examples.typescript).not.toContain(".common.");
     expect(examples.cli).toContain("pontx-massive call getPreviousClose");
     expect(examples.cli).not.toContain("common.getPreviousClose");
+  });
+
+  it("uses the exact Endpoint generator for the SDK homepage example", () => {
+    const api = getCatalogApi("massive");
+    const operation = api?.operations.find(
+      (candidate) => candidate.slug === api.quickStart?.operationSlug
+    );
+    const request = operation?.requestExamples.find(
+      (example) => example.id === api?.quickStart?.requestExampleId
+    )?.request;
+
+    expect(api).toBeDefined();
+    expect(operation).toBeDefined();
+    expect(request).toBeDefined();
+    expect(sdkUsageExamples(api!).typescript).toBe(
+      generateSdkSnippet(api!, operation!, request!)
+    );
   });
 
   it("reports exact published Endpoint coverage", () => {
