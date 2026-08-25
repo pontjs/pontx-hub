@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
+import { ApiMenuItem } from "@pontx/shadcn-ui/api-directory";
 import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { pontxApiView } from "~/lib/catalog/pontx-view";
 import { localize } from "~/lib/catalog/types";
@@ -51,6 +52,26 @@ function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
     ))
   };
 }
+
+describe("Endpoint directory metadata", () => {
+  it.each([
+    ["zh" as const, "获取最新汇率"],
+    ["en" as const, "Get latest exchange rates"]
+  ])("renders the localized PontxSpec summary as a readable label in %s", (locale, label) => {
+    const spec = getPontxSpec("frankfurter", locale)!;
+    const [name, endpoint] = Object.entries(spec.apis).find(
+      ([, candidate]) => candidate.operationId === "getLatestRates"
+    )!;
+    const html = renderToStaticMarkup(createElement(ApiMenuItem, {
+      api: { ...endpoint, name }
+    }));
+
+    expect(endpoint.title).toBeUndefined();
+    expect(endpoint.summary).toBe(label);
+    expect(html).toContain("getLatestRates");
+    expect(html).toContain(label);
+  });
+});
 
 describe("ApiOverviewActions", () => {
   it.each([
