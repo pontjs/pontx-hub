@@ -314,6 +314,18 @@ describe("Pontx Hub visual system", () => {
     );
   });
 
+  it("keeps catalog search text clear of its icon controls", async () => {
+    const [appCss, systemCss] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(new URL("./system.css", import.meta.url), "utf8"),
+    ]);
+
+    expect(systemCss).toMatch(
+      /\.catalog-search-input\s*\{\s*padding-inline:\s*42px 44px;/,
+    );
+    expect(appCss).not.toMatch(/\.catalog-search input\s*\{/);
+  });
+
   it("keeps keyboard focus and reduced-motion behavior explicit", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
