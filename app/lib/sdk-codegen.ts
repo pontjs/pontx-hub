@@ -63,7 +63,19 @@ function parameterValue(
   values: Record<string, unknown>
 ): unknown {
   const value = values[parameter.name];
-  if (value !== undefined && value !== "") return value;
+  if (value !== undefined && value !== "") {
+    if (typeof value === "string") {
+      if (parameter.type === "number" || parameter.type === "integer") {
+        const number = Number(value);
+        if (Number.isFinite(number)) return number;
+      }
+      if (parameter.type === "boolean") {
+        if (value === "true") return true;
+        if (value === "false") return false;
+      }
+    }
+    return value;
+  }
   return placeholder(parameter.name, parameter.type, parameter);
 }
 
@@ -240,19 +252,12 @@ function requestArguments(
     (parameter) => parameter.in === "query"
   );
   const queryArgument = queryParameters.length
-    ? typescriptValue(Object.fromEntries(
+      ? typescriptValue(Object.fromEntries(
         queryParameters.flatMap((parameter) => {
           const value = request.query[parameter.name];
           return (value === undefined || value === "") && !parameter.required
             ? []
-            : [
-                [
-                  parameter.name,
-                  value === undefined || value === ""
-                    ? placeholder(parameter.name, parameter.type, parameter)
-                    : value
-                ]
-              ];
+            : [[parameter.name, parameterValue(parameter, request.query)]];
         })
       ))
     : undefined;
