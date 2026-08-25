@@ -97,6 +97,27 @@ describe("API resource navigation", () => {
     expect(html).not.toContain('placeholder="Search endpoints…"');
   });
 
+  it("renders RPC Endpoint titles without reserving an empty method column", () => {
+    const rpcApi = getCatalogApi("amazon-sqs")!;
+    const spec = getPontxSpec("amazon-sqs", "en")!;
+    const operation = rpcApi.operations.find(
+      (candidate) => candidate.operationId === "ListQueues",
+    )!;
+    const html = render(createElement(ResourceDirectoryNavigation, {
+      locale: "en",
+      api: rpcApi,
+      spec,
+      activeOperation: operation,
+    }));
+
+    expect(html).toContain(
+      `aria-current="page" class="pontx-directory-flat-title-only" href="/en/apis/amazon-sqs/list-queues" data-discover="true"><span>ListQueues</span>`,
+    );
+    expect(html).not.toContain(
+      `href="/en/apis/amazon-sqs/list-queues"><small>`,
+    );
+  });
+
   it("renders a Schema as one documentation surface without Playground facts", () => {
     const schema = api.schemas[0];
     const html = render(createElement(SchemaReference, {

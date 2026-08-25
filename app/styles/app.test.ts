@@ -296,6 +296,17 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("keeps methodless Endpoint titles in a full-width wrapping row", async () => {
+    const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\.pontx-directory-flat a\.pontx-directory-flat-title-only\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);/,
+    );
+    expect(css).toMatch(
+      /\.pontx-directory-flat a\.pontx-directory-flat-title-only span\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?white-space:\s*normal;/,
+    );
+  });
+
   it("makes the complete SDK metadata cell a stable keyboard-accessible link", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 
