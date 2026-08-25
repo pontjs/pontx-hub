@@ -111,6 +111,7 @@ const requestExampleSchema = z.object({
 
 const operationSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  apiKey: z.string().min(1),
   sdkMethod: z.string().regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/).optional(),
   operationId: z.string().min(1),
   style: z.enum(["RESTFul", "RPC", "GraphQL", "AsyncAPI"]).default("RESTFul"),

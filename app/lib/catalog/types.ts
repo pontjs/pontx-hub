@@ -101,6 +101,8 @@ export type CatalogRequestExample = {
 
 export type CatalogOperation = {
   slug: string;
+  /** Exact PontxSpec `apis` key. This is the stable directory/group identity. */
+  apiKey: string;
   /** Generated SDK/CLI method name. This may differ from the stable operationId. */
   sdkMethod?: string;
   operationId: string;
@@ -401,7 +403,10 @@ export type CatalogApiContext = Omit<CatalogApi, "operations" | "schemas"> & {
   defaultSchemaName?: string;
 };
 
-export type CatalogProductNavigation = Pick<
+export type CatalogNavigationEndpointSummary = CatalogEndpointSummary &
+  Pick<CatalogOperation, "apiKey">;
+
+export type CatalogProductNavigation = Omit<Pick<
   CatalogApiContext,
   | "operations"
   | "schemas"
@@ -410,7 +415,9 @@ export type CatalogProductNavigation = Pick<
   | "executableEndpointCount"
   | "defaultEndpointSlug"
   | "defaultSchemaName"
->;
+>, "operations"> & {
+  operations: CatalogNavigationEndpointSummary[];
+};
 
 export type GlobalSearchKind = "api" | "endpoint" | "schema";
 

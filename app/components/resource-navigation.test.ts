@@ -126,6 +126,28 @@ describe("API resource navigation", () => {
     expect(html.indexOf(schemaDescription)).toBeGreaterThan(html.indexOf(schemaName));
   });
 
+  it.each([
+    ["zh" as const, "查询最新汇率"],
+    ["en" as const, "Get latest exchange rates"]
+  ])("keeps the CurrencyBeacon Endpoint name primary and its %s label secondary", (locale, label) => {
+    const currencyBeacon = getCatalogApi("currencybeacon-rest")!;
+    const spec = getPontxSpec("currencybeacon-rest", locale)!;
+    const operation = currencyBeacon.operations.find(
+      (candidate) => candidate.operationId === "getLatestRates"
+    )!;
+    const html = render(createElement(ResourceDirectoryNavigation, {
+      locale,
+      api: currencyBeacon,
+      spec,
+      activeOperation: operation
+    }));
+
+    expect(html).toContain(
+      `<span class="pontx-directory-flat-copy"><code class="pontx-directory-flat-name" title="getLatestRates">getLatestRates</code><span class="pontx-directory-flat-description" title="${label}">${label}</span></span>`
+    );
+    expect(html).not.toContain(`<span>${label}</span>`);
+  });
+
   it("renders RPC Endpoint titles without reserving an empty method column", () => {
     const rpcApi = getCatalogApi("amazon-sqs")!;
     const spec = getPontxSpec("amazon-sqs", "en")!;

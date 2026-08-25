@@ -261,6 +261,7 @@ function makeOperation(
 
   return {
     slug: slugify(operationId),
+    apiKey,
     sdkMethod,
     operationId,
     tag: source.tags?.[0] ?? "",

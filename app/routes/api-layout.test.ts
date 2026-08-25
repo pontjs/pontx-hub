@@ -63,6 +63,9 @@ describe("layered API route data", () => {
     expect(parent.api.operations).toEqual([]);
     expect(parent.api.schemas).toEqual([]);
     expect(navigation.operations).toHaveLength(api.operations.length);
+    expect(navigation.operations.map((operation) => operation.apiKey)).toEqual(
+      api.operations.map((operation) => operation.apiKey)
+    );
     expect(navigation.schemas).toHaveLength(api.schemas.length);
     expect(Object.keys(endpointDetail.pontxSpec.apis)).toHaveLength(1);
     expect(Object.keys(schemaDetail.pontxSpec.apis)).toHaveLength(0);

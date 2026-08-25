@@ -77,6 +77,13 @@ export function canonicalApiKey(
   return entry[0];
 }
 
+export function pontxEndpointName(
+  operation: Pick<CatalogOperation, "apiKey" | "operationId"> | { operationId: string }
+): string {
+  if (!("apiKey" in operation)) return operation.operationId;
+  return operation.apiKey.split("/").at(-1) || operation.operationId;
+}
+
 export function pontxApiView(
   spec: PontxSpec,
   operation: CatalogOperation,
@@ -122,9 +129,13 @@ export function pontxDirectorySpec(
     ...spec,
     apis: Object.fromEntries(operations.map((operation) => {
       const source = sourceByOperationId.get(operation.operationId);
-      const apiKey = source?.apiKey ?? operation.operationId;
+      const fallbackApiKey = "apiKey" in operation
+        ? operation.apiKey
+        : operation.tag
+          ? `${operation.tag}/${operation.operationId}`
+          : operation.operationId;
+      const apiKey = source?.apiKey ?? fallbackApiKey;
       const api = source?.api ?? {
-        name: operation.operationId,
         operationId: operation.operationId,
         summary: localize(operation.title, locale),
         tags: operation.tag ? [operation.tag] : [],
@@ -135,6 +146,10 @@ export function pontxDirectorySpec(
         apiKey,
         {
           ...api,
+          // Selection and grouping keep the exact PontxSpec key. ApiDirectory
+          // renders its basename as the stable Endpoint name, while title/summary
+          // remains secondary presentation metadata.
+          name: apiKey,
           ext: {
             ...((api as PontxAPI & { ext?: Record<string, unknown> }).ext ?? {}),
             operationSlug: operation.slug,
