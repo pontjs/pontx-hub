@@ -174,6 +174,33 @@ console.log(result);`);
     expect(code).not.toContain("createRatesClient({");
   });
 
+  it("restores numeric and boolean Playground strings to the SDK parameter types", () => {
+    const typedOperation = {
+      ...operation,
+      parameters: [
+        { name: "page", in: "path", type: "integer", required: true },
+        { name: "amount", in: "query", type: "number", required: true },
+        { name: "enabled", in: "query", type: "boolean", required: true }
+      ]
+    } as CatalogOperation;
+
+    const code = generateSdkSnippet(api({
+      kind: "factory",
+      factory: "createRatesClient",
+      identifier: "client",
+      options: {}
+    }), typedOperation, {
+      path: { page: "7" },
+      query: { amount: "100", enabled: "false" },
+      headers: {}
+    });
+
+    expect(code).toContain("  7,");
+    expect(code).toContain('"amount": 100');
+    expect(code).toContain('"enabled": false');
+    expect(code).not.toContain('"amount": "100"');
+  });
+
   it("places request bodies before named parameters and bearer request init", () => {
     const bodyOperation = {
       operationId: "updateTask",
