@@ -955,15 +955,6 @@ samp,
   font-family: var(--mono);
 }
 
-.catalog-search input {
-  width: 100%;
-  border: 0;
-  padding: 9px 12px 9px 8px;
-  background: transparent;
-  outline: none;
-  font-size: 14px;
-}
-
 .catalog-search:focus-within {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(49, 87, 213, 0.08);
