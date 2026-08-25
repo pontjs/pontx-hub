@@ -303,7 +303,7 @@ describe("API directory integration styles", () => {
       /\.pontx-directory-flat a\.pontx-directory-flat-title-only\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);/,
     );
     expect(css).toMatch(
-      /\.pontx-directory-flat a\.pontx-directory-flat-title-only span\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?white-space:\s*normal;/,
+      /\.pontx-directory-flat a\.pontx-directory-flat-title-only \.pontx-directory-flat-name\s*\{[\s\S]*?overflow-wrap:\s*anywhere;[\s\S]*?white-space:\s*normal;/,
     );
   });
 
