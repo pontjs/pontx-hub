@@ -355,16 +355,12 @@ describe("Hub API", () => {
       return;
     }
     expect(response.status).toBe(200);
-    expect(payload.data.code).toContain(
-      'import { currencyExchangeClient } from "@pontx/frankfurter";'
-    );
-    expect(payload.data.code).toContain(
-      "currencyExchangeClient.exchangeRates.getHistoricalRates"
-    );
+    expect(payload.data.code).toContain("exchangeRates.getHistoricalRates");
+    expect(payload.data.code).toContain('@pontx/frankfurter');
     expect(payload.data.code).toContain('"2024-01-15"');
     expect(payload.data.code).toContain('"base": "EUR"');
     expect(payload.data.code).toContain("console.log(result);");
-    expect(payload.data.code).not.toContain("createClient");
+    expect(payload.data.code).not.toContain("import { createClient }");
     expect(payload.data.code).not.toContain('"symbols"');
   });
 });

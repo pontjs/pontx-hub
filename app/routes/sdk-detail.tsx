@@ -1,25 +1,22 @@
 import type { Route } from "./+types/sdk-detail";
 import { SiteShell } from "~/components/site-shell";
-import {
-  catalogApiContext,
-  getProductMetadata
-} from "~/lib/catalog/metadata.server";
+import { getCatalogApi } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { localizedAlternates } from "~/lib/seo";
 import { ResourceNavigation } from "~/components/resource-navigation";
 import { CodeBlock } from "~/components/code-block";
 import { hubCliCommand } from "~/lib/hub-cli-command";
-import type { CatalogApiContext } from "~/lib/catalog/types";
+import type { CatalogApi } from "~/lib/catalog/types";
 import { sdkRuntime } from "~/lib/catalog/sdk-runtime";
 import { listSkillSummaries } from "~/lib/product-skills.server";
 import { trackCodeCopied, trackSdkNpmOpened } from "~/lib/analytics/events";
+import { generateSdkSnippet } from "~/lib/sdk-codegen";
 
 export function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
-  const product = getProductMetadata(params.apiSlug ?? "");
-  if (!product) throw new Response("SDK not found", { status: 404 });
-  const api = catalogApiContext(product);
+  const api = getCatalogApi(params.apiSlug ?? "");
+  if (!api) throw new Response("SDK not found", { status: 404 });
   const skillName = listSkillSummaries().find(
     (skill) => skill.apiSlug === api.slug
   )?.name;
@@ -68,25 +65,33 @@ export function meta({ data }: Route.MetaArgs) {
   ];
 }
 
-export function sdkUsageExamples(api: CatalogApiContext) {
-  if (api.sdkExamples) return api.sdkExamples;
-
+export function sdkUsageExamples(api: CatalogApi) {
   const moduleName = api.operations[0]?.tag
     .toLowerCase()
     .replace(/[^a-z0-9]+(.)/g, (_, character: string) => character.toUpperCase());
   const cliOperation = api.operations[0];
+  const quickStartOperation = api.operations.find(
+    (operation) => operation.slug === api.quickStart?.operationSlug
+  );
+  const quickStartRequest = quickStartOperation?.requestExamples.find(
+    (example) => example.id === api.quickStart?.requestExampleId
+  )?.request;
+  let typescript = api.sdkExamples?.typescript;
+  if (quickStartOperation && quickStartRequest) {
+    typescript = generateSdkSnippet(api, quickStartOperation, quickStartRequest);
+  }
   return {
-    typescript: `import client from "${api.packageName}";
+    typescript: typescript ?? `import client from "${api.packageName}";
 
 // Generated methods are typed from the pinned canonical PontxSpec.
 const result = await client.${moduleName}.${api.operations[0]?.operationId}({});`,
-    cli: cliOperation
+    cli: api.sdkExamples?.cli ?? (cliOperation
       ? `pnpm add --global @pontx/hub-cli\n\n# ${api.name} / ${cliOperation.operationId}\n${hubCliCommand(api.slug, cliOperation)}`
-      : "pnpm add --global @pontx/hub-cli"
+      : "pnpm add --global @pontx/hub-cli")
   };
 }
 
-export function sdkOperationCoverage(api: CatalogApiContext) {
+export function sdkOperationCoverage(api: Pick<CatalogApi, "sdkContract" | "operations">) {
   const supported = api.sdkContract?.operations.length;
   const total = api.operations.length;
   return {
