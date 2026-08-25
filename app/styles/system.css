@@ -2870,11 +2870,11 @@ textarea {
   gap: 2px;
 }
 
-.schema-directory-list strong {
+.schema-directory-list code {
   line-height: 16px;
 }
 
-.schema-directory-list code {
+.schema-directory-list span {
   line-height: 14px;
 }
 

@@ -90,17 +90,36 @@ export function ResourceDirectoryNavigation({
         <div className="resource-directory-group-content">
           {untaggedOperations.length ? (
             <nav className="pontx-directory-flat" aria-label={zh ? "未分组接口" : "Ungrouped endpoints"}>
-              {untaggedOperations.map((operation) => (
-                <Link
-                  key={operation.operationId}
-                  to={`/${locale}/apis/${api.slug}/${operation.slug}`}
-                  aria-current={activeOperation?.slug === operation.slug ? "page" : undefined}
-                  className={operation.method ? undefined : "pontx-directory-flat-title-only"}
-                >
-                  {operation.method ? <small>{operation.method}</small> : null}
-                  <span>{localize(operation.title, locale)}</span>
-                </Link>
-              ))}
+              {untaggedOperations.map((operation) => {
+                const operationTitle = localize(operation.title, locale).trim();
+                const showOperationTitle = operationTitle !== operation.operationId;
+                return (
+                  <Link
+                    key={operation.operationId}
+                    to={`/${locale}/apis/${api.slug}/${operation.slug}`}
+                    aria-current={activeOperation?.slug === operation.slug ? "page" : undefined}
+                    className={operation.method ? undefined : "pontx-directory-flat-title-only"}
+                  >
+                    {operation.method ? <small>{operation.method}</small> : null}
+                    <span className="pontx-directory-flat-copy">
+                      <code
+                        className="pontx-directory-flat-name"
+                        title={operation.operationId}
+                      >
+                        {operation.operationId}
+                      </code>
+                      {showOperationTitle ? (
+                        <span
+                          className="pontx-directory-flat-description"
+                          title={operationTitle}
+                        >
+                          {operationTitle}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                );
+              })}
             </nav>
           ) : null}
           {api.operations.some((operation) => operation.tag) ? (
@@ -148,6 +167,10 @@ export function ResourceDirectoryNavigation({
             >
               {visibleSchemas.map((schema) => {
                 const active = schema.name === activeSchemaName;
+                const schemaTitle = localize(schema.title, locale).trim();
+                const schemaLabel = schemaTitle && schemaTitle !== schema.name
+                  ? schemaTitle
+                  : undefined;
                 return (
                   <Link
                     className={active ? "is-active" : undefined}
@@ -155,8 +178,8 @@ export function ResourceDirectoryNavigation({
                     to={`/${locale}/apis/${api.slug}/schemas/${encodeURIComponent(schema.name)}`}
                     aria-current={active ? "page" : undefined}
                   >
-                    <strong>{localize(schema.title, locale)}</strong>
-                    <code>{schema.name}</code>
+                    <code title={schema.name}>{schema.name}</code>
+                    {schemaLabel ? <span title={schemaLabel}>{schemaLabel}</span> : null}
                   </Link>
                 );
               })}

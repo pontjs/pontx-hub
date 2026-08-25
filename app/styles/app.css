@@ -2132,7 +2132,7 @@ samp,
 .pontx-directory-flat a {
   display: grid;
   min-width: 0;
-  min-height: 44px;
+  min-height: 50px;
   grid-template-columns: 48px minmax(0, 1fr);
   align-items: center;
   border: 1px solid transparent;
@@ -2148,7 +2148,7 @@ samp,
   grid-template-columns: minmax(0, 1fr);
 }
 
-.pontx-directory-flat a.pontx-directory-flat-title-only span {
+.pontx-directory-flat a.pontx-directory-flat-title-only .pontx-directory-flat-name {
   overflow: visible;
   overflow-wrap: anywhere;
   text-overflow: clip;
@@ -2186,13 +2186,31 @@ samp,
   line-height: 1;
 }
 
-.pontx-directory-flat span {
+.pontx-directory-flat-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.pontx-directory-flat-name,
+.pontx-directory-flat-description {
   overflow: hidden;
-  font-size: var(--type-caption);
-  font-weight: 600;
-  line-height: 17px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.pontx-directory-flat-name {
+  color: inherit;
+  font-family: var(--mono);
+  font-size: var(--type-caption);
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.pontx-directory-flat-description {
+  color: var(--ink-soft);
+  font-size: var(--type-micro);
+  line-height: 14px;
 }
 
 .pontx-workspace-content {
@@ -2568,17 +2586,19 @@ samp,
   background: #eef2ff;
 }
 
-.schema-directory-list strong {
+.schema-directory-list code {
   overflow: hidden;
+  color: inherit;
+  font-family: var(--mono);
   font-size: var(--type-caption);
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.schema-directory-list code {
+.schema-directory-list span {
   overflow: hidden;
   color: var(--ink-soft);
-  font-family: var(--mono);
   font-size: var(--type-micro);
   text-overflow: ellipsis;
   white-space: nowrap;

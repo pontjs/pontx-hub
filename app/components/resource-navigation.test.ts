@@ -92,9 +92,38 @@ describe("API resource navigation", () => {
     }));
 
     expect(html).toContain('class="pontx-directory-flat" aria-label="Ungrouped endpoints"');
-    expect(html).toContain(`<small>${operation.method}</small><span>${operation.title.en}</span>`);
+    expect(html).toContain(
+      `<small>${operation.method}</small><span class="pontx-directory-flat-copy"><code class="pontx-directory-flat-name" title="${operation.operationId}">${operation.operationId}</code><span class="pontx-directory-flat-description" title="${operation.title.en}">${operation.title.en}</span></span>`
+    );
     expect(html).toContain(`aria-current="page" href="/en/apis/${ungroupedApi.slug}/${operation.slug}"`);
     expect(html).not.toContain('placeholder="Search endpoints…"');
+  });
+
+  it("renders stable names above localized descriptions for ungrouped Endpoints and Schemas", () => {
+    const currencyBeacon = getCatalogApi("currencybeacon-rest")!;
+    const spec = getPontxSpec("currencybeacon-rest", "en")!;
+    const operation = currencyBeacon.operations.find(
+      (candidate) => candidate.operationId === "getTimeseries"
+    )!;
+    const schema = currencyBeacon.schemas.find(
+      (candidate) => candidate.name === "ConversionResponse"
+    )!;
+    const html = render(createElement(ResourceDirectoryNavigation, {
+      locale: "en",
+      api: currencyBeacon,
+      spec,
+      activeOperation: operation
+    }));
+
+    const operationName = `<code class="pontx-directory-flat-name" title="${operation.operationId}">${operation.operationId}</code>`;
+    const operationDescription = `<span class="pontx-directory-flat-description" title="${operation.title.en}">${operation.title.en}</span>`;
+    const schemaName = `<code title="${schema.name}">${schema.name}</code>`;
+    const schemaDescription = `<span title="${schema.title.en}">${schema.title.en}</span>`;
+
+    expect(html.indexOf(operationName)).toBeGreaterThan(-1);
+    expect(html.indexOf(operationDescription)).toBeGreaterThan(html.indexOf(operationName));
+    expect(html.indexOf(schemaName)).toBeGreaterThan(-1);
+    expect(html.indexOf(schemaDescription)).toBeGreaterThan(html.indexOf(schemaName));
   });
 
   it("renders RPC Endpoint titles without reserving an empty method column", () => {
@@ -111,7 +140,7 @@ describe("API resource navigation", () => {
     }));
 
     expect(html).toContain(
-      `aria-current="page" class="pontx-directory-flat-title-only" href="/en/apis/amazon-sqs/list-queues" data-discover="true"><span>ListQueues</span>`,
+      `aria-current="page" class="pontx-directory-flat-title-only" href="/en/apis/amazon-sqs/list-queues" data-discover="true"><span class="pontx-directory-flat-copy"><code class="pontx-directory-flat-name" title="ListQueues">ListQueues</code></span>`,
     );
     expect(html).not.toContain(
       `href="/en/apis/amazon-sqs/list-queues"><small>`,
