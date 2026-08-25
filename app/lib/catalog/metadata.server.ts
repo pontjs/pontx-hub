@@ -12,6 +12,7 @@ import type {
   CatalogApiContext,
   CatalogEndpointSummary,
   CatalogOperation,
+  CatalogProductNavigation,
   CatalogProductListItem,
   CatalogProductMetadata,
   CatalogSchema,
@@ -140,6 +141,27 @@ export function getProductMetadata(
 ): CatalogProductMetadata | undefined {
   const api = getCatalogApi(apiSlug);
   return api ? productMetadata(api) : undefined;
+}
+
+export function getProductNavigation(
+  apiSlug: string
+): CatalogProductNavigation | undefined {
+  const api = getCatalogApi(apiSlug);
+  if (!api) return undefined;
+  const defaultEndpointSlug = api.quickStart?.operationSlug ?? api.operations[0]?.slug;
+
+  return {
+    operations: api.operations.map((endpoint) => ({
+      ...endpointSummary(api.slug, endpoint),
+      apiKey: endpoint.apiKey
+    })),
+    schemas: api.schemas.map((schema) => schemaSummary(api.slug, schema)),
+    endpointCount: api.operations.length,
+    schemaCount: api.schemas.length,
+    executableEndpointCount: api.operations.filter((endpoint) => endpoint.proxyEnabled).length,
+    ...(defaultEndpointSlug ? { defaultEndpointSlug } : {}),
+    ...(api.schemas[0]?.name ? { defaultSchemaName: api.schemas[0].name } : {})
+  };
 }
 
 export function catalogApiContext(

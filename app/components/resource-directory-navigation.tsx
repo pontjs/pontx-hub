@@ -8,7 +8,11 @@ import type {
   Locale
 } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import { canonicalApiKey, pontxDirectorySpec } from "~/lib/catalog/pontx-view";
+import {
+  canonicalApiKey,
+  pontxDirectorySpec,
+  pontxEndpointName
+} from "~/lib/catalog/pontx-view";
 import { apiWorkspaceNavigationCopy } from "~/lib/i18n";
 
 export function ResourceDirectoryNavigation({
@@ -91,8 +95,9 @@ export function ResourceDirectoryNavigation({
           {untaggedOperations.length ? (
             <nav className="pontx-directory-flat" aria-label={zh ? "未分组接口" : "Ungrouped endpoints"}>
               {untaggedOperations.map((operation) => {
-                const operationTitle = localize(operation.title, locale).trim();
-                const showOperationTitle = operationTitle !== operation.operationId;
+                const endpointName = pontxEndpointName(operation);
+                const endpointLabel = localize(operation.title, locale).trim();
+                const showEndpointLabel = endpointLabel !== endpointName;
                 return (
                   <Link
                     key={operation.operationId}
@@ -104,16 +109,16 @@ export function ResourceDirectoryNavigation({
                     <span className="pontx-directory-flat-copy">
                       <code
                         className="pontx-directory-flat-name"
-                        title={operation.operationId}
+                        title={endpointName}
                       >
-                        {operation.operationId}
+                        {endpointName}
                       </code>
-                      {showOperationTitle ? (
+                      {showEndpointLabel ? (
                         <span
                           className="pontx-directory-flat-description"
-                          title={operationTitle}
+                          title={endpointLabel}
                         >
-                          {operationTitle}
+                          {endpointLabel}
                         </span>
                       ) : null}
                     </span>
