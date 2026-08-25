@@ -2144,6 +2144,17 @@ samp,
   transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
 }
 
+.pontx-directory-flat a.pontx-directory-flat-title-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pontx-directory-flat a.pontx-directory-flat-title-only span {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
 .pontx-directory-flat a:hover {
   color: var(--ink);
   background: var(--paper-soft);

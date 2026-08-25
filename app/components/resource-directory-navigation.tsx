@@ -95,6 +95,7 @@ export function ResourceDirectoryNavigation({
                   key={operation.operationId}
                   to={`/${locale}/apis/${api.slug}/${operation.slug}`}
                   aria-current={activeOperation?.slug === operation.slug ? "page" : undefined}
+                  className={operation.method ? undefined : "pontx-directory-flat-title-only"}
                 >
                   {operation.method ? <small>{operation.method}</small> : null}
                   <span>{localize(operation.title, locale)}</span>
