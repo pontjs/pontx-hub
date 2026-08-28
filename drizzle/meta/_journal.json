@@ -36,6 +36,13 @@
       "when": 1786700700667,
       "tag": "0004_soft_stature",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787912730021,
+      "tag": "0005_whole_shard",
+      "breakpoints": true
     }
   ]
 }
