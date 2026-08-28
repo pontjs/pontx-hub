@@ -159,11 +159,17 @@ describe("Pontx Hub visual system", () => {
     expect(guideRule).not.toContain("linear-gradient");
   });
 
-  it("keeps endpoint workspace surfaces on one content edge", async () => {
+  it("separates authentication and request debugging into labeled workspace regions", async () => {
     const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
 
     expect(css).toMatch(
-      /\.resource-page-workspace \.pontx-workspace-body > \.oauth-toolbar,[\s\S]*?\.resource-page-workspace \.pontx-workspace-body > \.request-example-notice\s*{\s*margin:\s*0;/,
+      /\.workspace-task-region-authentication\s*{[\s\S]*?border-color:\s*#a8d4c8;/,
+    );
+    expect(css).toMatch(
+      /\.workspace-task-region-request\s*{[\s\S]*?border-color:\s*#b9cbed;/,
+    );
+    expect(css).toMatch(
+      /\.workspace-task-region-body > :where\([\s\S]*?\.oauth-toolbar,[\s\S]*?\.request-example-notice,[\s\S]*?\.pontx-documentation,[\s\S]*?\)\s*{\s*margin:\s*0;/,
     );
     expect(css).toMatch(
       /\.resource-page-workspace \.pontx-documentation\s*{[\s\S]*?border:\s*0;[\s\S]*?padding:\s*0;[\s\S]*?box-shadow:\s*none;/,

@@ -1,6 +1,7 @@
 import {
   lazy,
   Suspense,
+  type ReactNode,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -379,6 +380,60 @@ export function OperationTaskSelect({
         </SelectContent>
       </Select>
     </div>
+  );
+}
+
+export function WorkspaceTaskRegion({
+  locale,
+  kind,
+  requestAvailable = true,
+  children
+}: {
+  locale: Locale;
+  kind: "authentication" | "request";
+  requestAvailable?: boolean;
+  children?: ReactNode;
+}) {
+  const zh = locale === "zh";
+  const copy = kind === "authentication"
+    ? {
+        badge: "AUTH",
+        title: zh ? "鉴权设置" : "Authentication",
+        description: zh
+          ? "先完成当前浏览器会话的凭证与授权设置，再进入请求调试。"
+          : "Set up credentials and authorization for this browser session before debugging the request."
+      }
+    : requestAvailable
+      ? {
+          badge: "REQUEST",
+          title: zh ? "请求调试" : "Request debugging",
+          description: zh
+            ? "检查成功示例，在 Playground 中调整请求参数，然后执行调用。"
+            : "Review the successful example, adjust request details in the Playground, then execute the call."
+        }
+      : {
+          badge: "REQUEST",
+          title: zh ? "请求预览" : "Request preview",
+          description: zh
+            ? "检查成功示例与生成的请求；此接口当前不支持在线调用。"
+            : "Review the successful example and generated request; online execution is unavailable for this endpoint."
+        };
+  const headingId = `workspace-${kind}-heading`;
+
+  return (
+    <section
+      className={`workspace-task-region workspace-task-region-${kind}`}
+      aria-labelledby={headingId}
+    >
+      <header className="workspace-task-region-header">
+        <span className="workspace-task-region-badge" aria-hidden="true">{copy.badge}</span>
+        <div>
+          <h2 id={headingId}>{copy.title}</h2>
+          <p>{copy.description}</p>
+        </div>
+      </header>
+      <div className="workspace-task-region-body">{children}</div>
+    </section>
   );
 }
 
@@ -1301,6 +1356,10 @@ export function PontxApiWorkspace({
     playgroundAvailable,
     handledOAuthSchemeId: showOAuthConfiguration ? oauthScheme?.id : undefined
   });
+  const showAuthenticationRegion = Boolean(
+    standaloneCredentialGuideSchemes.length ||
+    (isHydrated && showOAuthConfiguration && oauthScheme?.flows)
+  );
   const category =
     locale === "zh"
       ? ({ Finance: "金融", Productivity: "效率工具" } as Record<
@@ -1440,64 +1499,73 @@ export function PontxApiWorkspace({
           className="pontx-workspace-body"
           data-oauth-execution-blocked={oauthExecutionBlocked || undefined}
         >
-          {standaloneCredentialGuideSchemes.length ? (
-            <div
-              className="playground-context-stack credential-guide-standalone"
-              data-credential-guide-placement="workspace"
-            >
-              {standaloneCredentialGuideSchemes.map((scheme) => (
-                <CredentialSetupGuide
-                  key={`${api.slug}:${scheme.id}:standalone`}
-                  apiSlug={api.slug}
-                  scheme={scheme}
-                  locale={locale}
-                />
-              ))}
-            </div>
-          ) : null}
           {isHydrated && !guided ? (
             <h1 className="pontx-hydrated-title">
               {localize(activeOperation.title, locale)} — {api.name}
             </h1>
           ) : null}
-          {isHydrated && showOAuthConfiguration ? (
-            oauthScheme?.flows ? <OAuthToolbar
-              scheme={oauthScheme}
-              locale={locale}
-              requiredScopes={activeOperation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
-              state={oauthState}
-              onAuthorize={authorizeOAuth}
-              onClear={clearOAuth}
-              executionRequired={oauthExecutionBlocked}
-            /> : null
+          {showAuthenticationRegion ? (
+            <WorkspaceTaskRegion locale={locale} kind="authentication">
+              {standaloneCredentialGuideSchemes.length ? (
+                <div
+                  className="playground-context-stack credential-guide-standalone"
+                  data-credential-guide-placement="workspace"
+                >
+                  {standaloneCredentialGuideSchemes.map((scheme) => (
+                    <CredentialSetupGuide
+                      key={`${api.slug}:${scheme.id}:standalone`}
+                      apiSlug={api.slug}
+                      scheme={scheme}
+                      locale={locale}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {isHydrated && showOAuthConfiguration && oauthScheme?.flows ? (
+                <OAuthToolbar
+                  scheme={oauthScheme}
+                  locale={locale}
+                  requiredScopes={activeOperation.security?.find((item) => item.schemeId === oauthScheme.id)?.scopes ?? []}
+                  state={oauthState}
+                  onAuthorize={authorizeOAuth}
+                  onClear={clearOAuth}
+                  executionRequired={oauthExecutionBlocked}
+                />
+              ) : null}
+            </WorkspaceTaskRegion>
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
               {!guided || !playgroundAvailability.executionEnabled ? (
                 <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
               ) : null}
-              {requestExample ? (
-                <RequestExampleNotice
-                  locale={locale}
-                  api={api}
-                  operation={activeOperation}
-                  example={requestExample}
-                  selectedId={requestExample.id}
-                  executionUnavailable={!playgroundAvailability.executionEnabled}
-                  onSelect={applyRequestExample}
-                  onPreview={
-                    playgroundAvailable
-                      ? () => previewRequestExample(requestExample.id)
-                      : undefined
-                  }
-                />
-              ) : null}
-              <Suspense fallback={
-                <div className="pontx-documentation-loading" role="status">
-                  {locale === "zh" ? "正在加载交互式文档…" : "Loading interactive documentation…"}
-                </div>
-              }>
-              <LazyApiDocumentation
+              <WorkspaceTaskRegion
+                locale={locale}
+                kind="request"
+                requestAvailable={playgroundAvailable}
+              >
+                {requestExample ? (
+                  <RequestExampleNotice
+                    locale={locale}
+                    api={api}
+                    operation={activeOperation}
+                    example={requestExample}
+                    selectedId={requestExample.id}
+                    executionUnavailable={!playgroundAvailability.executionEnabled}
+                    onSelect={applyRequestExample}
+                    onPreview={
+                      playgroundAvailable
+                        ? () => previewRequestExample(requestExample.id)
+                        : undefined
+                    }
+                  />
+                ) : null}
+                <Suspense fallback={
+                  <div className="pontx-documentation-loading" role="status">
+                    {locale === "zh" ? "正在加载交互式文档…" : "Loading interactive documentation…"}
+                  </div>
+                }>
+                <LazyApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={playgroundApi}
@@ -1559,8 +1627,9 @@ export function PontxApiWorkspace({
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
               className={`pontx-documentation${guided && playgroundAvailable ? " pontx-documentation-guided" : ""}`}
-              />
-              </Suspense>
+                />
+                </Suspense>
+              </WorkspaceTaskRegion>
             </>
           ) : (
             guided ? (

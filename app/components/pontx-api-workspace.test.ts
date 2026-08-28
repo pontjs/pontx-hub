@@ -16,7 +16,8 @@ import {
   isOAuthExecutionBlocked,
   OperationTaskSelect,
   OAuthToolbar,
-  withoutHostManagedOAuthScheme
+  withoutHostManagedOAuthScheme,
+  WorkspaceTaskRegion
 } from "./pontx-api-workspace";
 
 describe("Unified SDK code scenario naming", () => {
@@ -29,6 +30,43 @@ describe("Unified SDK code scenario naming", () => {
       label,
       language: "typescript"
     });
+  });
+});
+
+describe("WorkspaceTaskRegion", () => {
+  it.each([
+    ["zh" as const, "鉴权设置", "先完成当前浏览器会话的凭证与授权设置，再进入请求调试。"],
+    ["en" as const, "Authentication", "Set up credentials and authorization for this browser session before debugging the request."]
+  ])("labels the authorization boundary in %s", (locale, title, description) => {
+    const html = renderToStaticMarkup(createElement(
+      WorkspaceTaskRegion,
+      { locale, kind: "authentication" },
+      createElement("div", null, "Credential controls")
+    ));
+
+    expect(html).toContain('class="workspace-task-region workspace-task-region-authentication"');
+    expect(html).toContain('aria-labelledby="workspace-authentication-heading"');
+    expect(html).toContain(`<h2 id="workspace-authentication-heading">${title}</h2>`);
+    expect(html).toContain(description);
+    expect(html).toContain("Credential controls");
+  });
+
+  it.each([
+    ["zh" as const, true, "请求调试", "检查成功示例，在 Playground 中调整请求参数，然后执行调用。"],
+    ["en" as const, true, "Request debugging", "Review the successful example, adjust request details in the Playground, then execute the call."],
+    ["zh" as const, false, "请求预览", "检查成功示例与生成的请求；此接口当前不支持在线调用。"],
+    ["en" as const, false, "Request preview", "Review the successful example and generated request; online execution is unavailable for this endpoint."]
+  ])("labels the request boundary in %s when availability is %s", (locale, requestAvailable, title, description) => {
+    const html = renderToStaticMarkup(createElement(
+      WorkspaceTaskRegion,
+      { locale, kind: "request", requestAvailable },
+      createElement("div", null, "Request controls")
+    ));
+
+    expect(html).toContain('class="workspace-task-region workspace-task-region-request"');
+    expect(html).toContain('aria-labelledby="workspace-request-heading"');
+    expect(html).toContain(`<h2 id="workspace-request-heading">${title}</h2>`);
+    expect(html).toContain(description);
   });
 });
 
