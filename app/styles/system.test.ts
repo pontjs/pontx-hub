@@ -185,6 +185,17 @@ describe("Pontx Hub visual system", () => {
     expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.17"');
   });
 
+  it("keeps rendered API description links readable without relying on color", async () => {
+    const css = await readFile(new URL("./system.css", import.meta.url), "utf8");
+
+    expect(css).toMatch(
+      /\[data-testid="api-description"\] \.sl-link\s*{[\s\S]*?color:\s*hsl\(var\(--foreground\)\) !important;[\s\S]*?text-decoration:\s*underline;/,
+    );
+    expect(css).toMatch(
+      /\[data-testid="api-description"\] \.sl-link\s*{[\s\S]*?text-underline-offset:\s*3px;/,
+    );
+  });
+
   it("keeps the Endpoint Playground Try action visually primary", async () => {
     const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 

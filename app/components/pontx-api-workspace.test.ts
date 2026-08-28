@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import { ApiMenuItem } from "@pontx/shadcn-ui/api-directory";
+import { ApiDocumentation } from "@pontx/shadcn-ui/api-documentation";
 import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { pontxApiView } from "~/lib/catalog/pontx-view";
 import { localize } from "~/lib/catalog/types";
@@ -74,6 +75,35 @@ function endpointView(apiSlug: string, operationIndex = 0) {
   const api = getCatalogApi(apiSlug)!;
   return pontxApiView(getPontxSpec(apiSlug, "en")!, api.operations[operationIndex]);
 }
+
+describe("Endpoint description rendering", () => {
+  it("renders the Amazon SQS description markup through the shared Markdown viewer", () => {
+    const api = getCatalogApi("amazon-sqs")!;
+    const operationIndex = api.operations.findIndex(
+      (operation) => operation.slug === "list-queues"
+    );
+    const endpoint = endpointView(api.slug, operationIndex);
+    const descriptionOnlyEndpoint = { ...endpoint };
+    delete descriptionOnlyEndpoint.requestBody;
+    const html = renderToStaticMarkup(createElement(ApiDocumentation, {
+      api: {
+        ...descriptionOnlyEndpoint,
+        parameters: [],
+        responses: {},
+        components: { schemas: {} }
+      },
+      locale: "en"
+    }));
+
+    expect(operationIndex).toBeGreaterThanOrEqual(0);
+    expect(html).toMatch(/<code[^>]*>QueueNamePrefix<\/code>/);
+    expect(html).toContain(
+      'href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-customer-managed-policy-examples.html#grant-cross-account-permissions-to-role-and-user-name"'
+    );
+    expect(html).toContain("<blockquote");
+    expect(html).not.toContain("&lt;p&gt;Returns a list of your queues");
+  });
+});
 
 function renderOverviewFacts(apiSlug: string, locale: "zh" | "en") {
   const api = getCatalogApi(apiSlug);

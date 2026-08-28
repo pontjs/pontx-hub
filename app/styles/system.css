@@ -2370,6 +2370,15 @@ textarea {
   color: var(--ink);
 }
 
+.pontx-documentation [data-testid="api-description"] .sl-link {
+  border-radius: 2px;
+  color: hsl(var(--foreground)) !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
 .pontx-documentation[data-pontx-ui] > div {
   border-color: var(--line);
 }
