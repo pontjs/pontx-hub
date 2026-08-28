@@ -58,6 +58,7 @@ type ErrorBody = {
 };
 
 const RESPONSE_LIMIT = 5 * 1024 * 1024;
+const PLAYGROUND_USER_AGENT = "Pontx-Hub-Playground/0.1";
 const RESPONSE_HEADERS = new Set([
   "content-type",
   "content-language",
@@ -191,7 +192,10 @@ async function executeProviderRequest(input: PlaygroundExecuteInput) {
   try {
     const response = await fetch(target, {
       method: prepared.method,
-      headers: prepared.headers,
+      headers: {
+        "User-Agent": PLAYGROUND_USER_AGENT,
+        ...prepared.headers
+      },
       body: prepared.body,
       redirect: "manual",
       signal: controller.signal
