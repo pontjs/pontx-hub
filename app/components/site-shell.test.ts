@@ -68,4 +68,15 @@ describe("site language switcher", () => {
     expect(html).toContain("PontxSpec → Unified SDK / CLI → Agent");
     expect(html.match(/>Feedback<\/button>/g)).toHaveLength(2);
   });
+
+  it("keeps a project return destination in the selected language", () => {
+    const html = renderShell(
+      "zh",
+      "/zh/sign-in?returnTo=%2Fzh%2Faccount%2Fprojects%2F11111111-1111-4111-8111-111111111111%23automation"
+    );
+
+    expect(html).toContain(
+      'href="/en/sign-in?returnTo=%2Fen%2Faccount%2Fprojects%2F11111111-1111-4111-8111-111111111111%23automation"'
+    );
+  });
 });
