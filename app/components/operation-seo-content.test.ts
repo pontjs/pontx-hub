@@ -59,6 +59,32 @@ describe("OperationSeoContent", () => {
     expect(html).not.toContain(locale === "zh" ? "恢复此示例" : "Restore example");
   });
 
+  it.each([
+    ["zh" as const, "暂不可调用", "在 Playground 中预览"],
+    ["en" as const, "Unavailable", "Preview successful example"]
+  ])("does not expose an inactive preview action in %s", (locale, status, action) => {
+    const match = getCatalogOperation("openai", "list-models");
+    expect(match).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(RequestExampleNotice, {
+          locale,
+          api: match!.api,
+          operation: match!.operation,
+          example: match!.operation.requestExamples[0],
+          executionUnavailable: true
+        })
+      )
+    );
+
+    expect(html).toContain(status);
+    expect(html).not.toContain(action);
+    expect(html).not.toContain("request-example-actions");
+  });
+
   it("uses the shared Select when an Endpoint has multiple request examples", () => {
     const match = getCatalogOperation("dida365", "create-project");
     expect(match).toBeDefined();

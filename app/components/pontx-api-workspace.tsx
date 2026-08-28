@@ -1485,7 +1485,11 @@ export function PontxApiWorkspace({
                   selectedId={requestExample.id}
                   executionUnavailable={!playgroundAvailability.executionEnabled}
                   onSelect={applyRequestExample}
-                  onPreview={() => previewRequestExample(requestExample.id)}
+                  onPreview={
+                    playgroundAvailable
+                      ? () => previewRequestExample(requestExample.id)
+                      : undefined
+                  }
                 />
               ) : null}
               <Suspense fallback={
