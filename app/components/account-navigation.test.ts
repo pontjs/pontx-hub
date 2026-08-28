@@ -50,6 +50,8 @@ describe("account navigation", () => {
     expect(html).toContain("收藏的 API");
     expect(html).toContain('href="/zh/account/history"');
     expect(html).toContain("调试历史");
+    expect(html).not.toContain("Agent 接入");
+    expect(html).not.toContain("自动化设置");
     expect(html).toContain("退出");
     expect(html).not.toContain("jason@example.com");
   });

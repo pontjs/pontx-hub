@@ -3,7 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { describe, expect, it } from "vitest";
 import { getCatalogApi, listCatalogSummaries } from "~/lib/catalog/catalog.server";
-import ProjectDetail, { action as projectAction } from "./project-detail";
+import ProjectDetail, {
+  action as projectAction,
+  projectWorkspaceTab
+} from "./project-detail";
 import Projects, { action as projectsAction } from "./projects";
 
 const projectId = "11111111-1111-4111-8111-111111111111";
@@ -21,10 +24,14 @@ describe("project account workspace", () => {
       loaderData: {
         locale: "zh",
         saved: false,
+        tab: "agent",
+        viewer: { id: "viewer-1", name: "Jason", image: null },
+        projects: [{ id: projectId, name: "任务同步助手", isPersonal: false }],
         project: {
           id: projectId,
           name: "任务同步助手",
           description: "把任务同步到团队工作流。",
+          isPersonal: false,
           apiSlugs: [api.slug],
           automationEnabled: true,
           readOnlyMode: "execute_after_preview",
@@ -50,9 +57,50 @@ describe("project account workspace", () => {
     expect(html).toContain("pontx.project.json");
     expect(html).toContain("mutations");
     expect(html).toContain("confirm");
+    expect(html).toContain('aria-current="page"');
+    expect(html).not.toContain('name="automationEnabled"');
+    expect(html).not.toContain('name="readOnlyMode"');
+  });
+
+  it("opens automation as a first-class project tab instead of hiding it below overview", () => {
+    const api = getCatalogApi("dida365");
+    if (!api) throw new Error("Expected Dida365 metadata");
+    const html = renderPage(createElement(ProjectDetail, {
+      loaderData: {
+        locale: "zh",
+        saved: true,
+        tab: "automation",
+        viewer: { id: "viewer-1", name: "Jason", image: null },
+        projects: [{ id: projectId, name: "任务同步助手", isPersonal: false }],
+        project: {
+          id: projectId,
+          name: "任务同步助手",
+          description: "把任务同步到团队工作流。",
+          isPersonal: false,
+          apiSlugs: [api.slug],
+          automationEnabled: true,
+          readOnlyMode: "execute_after_preview",
+          createdAt: new Date(0).toISOString(),
+          updatedAt: new Date(0).toISOString()
+        },
+        apis: []
+      }
+    } as never), `/zh/account/projects/${projectId}?tab=automation&saved=1`);
+
+    expect(html).toMatch(new RegExp(`aria-current="page"[^>]+href="/zh/account/projects/${projectId}\\?tab=automation"`));
     expect(html).toContain('name="automationEnabled"');
     expect(html).toContain('name="readOnlyMode"');
     expect(html).toContain("写操作：始终需要确认");
+    expect(html).toContain("自动化策略已保存");
+    expect(html).not.toContain('id="overview"');
+    expect(html).not.toContain('id="agent-setup"');
+  });
+
+  it("normalizes unknown project tabs to the overview", () => {
+    expect(projectWorkspaceTab("agent")).toBe("agent");
+    expect(projectWorkspaceTab("automation")).toBe("automation");
+    expect(projectWorkspaceTab("settings")).toBe("overview");
+    expect(projectWorkspaceTab(null)).toBe("overview");
   });
 
   it("renders an English project list, creation form, and project destination", () => {
@@ -60,11 +108,13 @@ describe("project account workspace", () => {
     const html = renderPage(createElement(Projects, {
       loaderData: {
         locale: "en",
+        viewer: { id: "viewer-1", name: "Jason", image: null },
         catalog,
         projects: [{
           id: projectId,
           name: "Settlement monitor",
           description: "Monitor currency settlement inputs.",
+          isPersonal: false,
           apiSlugs: [catalog[0].slug],
           automationEnabled: false,
           readOnlyMode: "preview",
@@ -77,7 +127,9 @@ describe("project account workspace", () => {
     expect(html).toContain("My projects");
     expect(html).toContain("Agent setup");
     expect(html).toContain("Automation");
-    expect(html).toContain(`href="/en/account/projects/${projectId}"`);
+    expect(html).toContain(`href="/en/account/projects/${projectId}?tab=overview"`);
+    expect(html).toContain(`href="/en/account/projects/${projectId}?tab=agent"`);
+    expect(html).toContain(`href="/en/account/projects/${projectId}?tab=automation"`);
     expect(html).toContain('name="apiSlug"');
     expect(html).toContain("Create and open project");
   });

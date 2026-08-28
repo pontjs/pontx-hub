@@ -1,0 +1,2 @@
+ALTER TABLE "user_projects" ADD COLUMN "is_personal" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "user_projects_personal_user_unique" ON "user_projects" USING btree ("user_id") WHERE "user_projects"."is_personal" = true;
