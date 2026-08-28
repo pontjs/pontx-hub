@@ -1,7 +1,7 @@
 import { Fragment, useState, type ReactNode } from "react";
 import "./code-block-theme.css";
 
-type CodeLanguage = "shell" | "typescript";
+type CodeLanguage = "json" | "shell" | "typescript";
 type TokenKind = "plain" | "command" | "keyword" | "option" | "string" | "comment" | "literal";
 
 type CodeBlockProps = {
@@ -84,7 +84,11 @@ export function CodeBlock({
 }: CodeBlockProps) {
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const lines = code.split("\n");
-  const languageLabel = language === "shell" ? "Shell" : "TypeScript";
+  const languageLabel = language === "shell"
+    ? "Shell"
+    : language === "json"
+      ? "JSON"
+      : "TypeScript";
 
   async function copyCode() {
     try {

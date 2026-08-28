@@ -24,6 +24,8 @@ export default [
   route("api/ai/v1/*", "routes/ai-api.ts"),
   route("oauth/callback", "routes/oauth-callback.tsx"),
   route(":locale/sign-in/*", "routes/sign-in.tsx"),
+  route(":locale/account/projects", "routes/projects.tsx"),
+  route(":locale/account/projects/:projectId", "routes/project-detail.tsx"),
   route(":locale/account/saved", "routes/saved-apis.tsx"),
   route(":locale/account/history", "routes/playground-history.tsx"),
   route(":locale", "routes/catalog.tsx"),

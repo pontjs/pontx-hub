@@ -38,8 +38,8 @@ export function meta({ data }: Route.MetaArgs) {
     {
       name: "description",
       content: zh
-        ? "登录 Pontx Hub，同步收藏的接口与集合。"
-        : "Sign in to Pontx Hub to synchronize saved Endpoints and collections."
+        ? "登录 Pontx Hub，管理项目、Agent 接入与自动化策略。"
+        : "Sign in to Pontx Hub to manage projects, Agent setup, and automation policies."
     },
     { name: "robots", content: "noindex,nofollow" }
   ];
@@ -77,11 +77,11 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
       <main className="account-page">
         <section className="sign-in-panel" aria-labelledby="sign-in-heading">
           <p className="account-eyebrow">PONTX / ACCOUNT</p>
-          <h1 id="sign-in-heading">{zh ? "保存你的 API 工作台" : "Save your API workspace"}</h1>
+          <h1 id="sign-in-heading">{zh ? "带上你的 API 项目" : "Bring your API projects with you"}</h1>
           <p>
             {zh
-              ? "登录后可跨设备同步收藏的接口与集合。API 密钥和 OAuth Token 仍只保存在当前会话中。"
-              : "Sign in to sync saved Endpoints and collections across devices. API keys and OAuth tokens still stay in this browser session."}
+              ? "登录后可跨设备管理项目、Agent 接入与自动化策略。API 密钥和 OAuth Token 仍只保存在当前会话中。"
+              : "Sign in to manage projects, Agent setup, and automation policies across devices. API keys and OAuth tokens still stay in this browser session."}
           </p>
           <button
             className="github-sign-in"
@@ -97,8 +97,8 @@ export default function SignIn({ loaderData }: Route.ComponentProps) {
           {error ? <p className="account-error" role="alert">{error}</p> : null}
           <p className="account-privacy-note">
             {zh
-              ? "Pontx 仅保存账户身份和收藏数据，不保存第三方 API 凭据。"
-              : "Pontx stores account identity and favorites, never third-party API credentials."}
+              ? "Pontx 仅保存账户身份、项目设置和收藏数据，不保存第三方 API 凭据。"
+              : "Pontx stores account identity, project settings, and favorites, never third-party API credentials."}
           </p>
         </section>
       </main>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/playground-history";
 import { SiteShell } from "~/components/site-shell";
+import { AccountSectionNavigation } from "~/components/account-section-navigation";
 import { MethodBadge } from "~/components/method-badge";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import { listPlaygroundHistoryForUser } from "~/lib/accounts/playground-history.server";
@@ -284,17 +285,7 @@ export default function PlaygroundHistory({ loaderData }: Route.ComponentProps) 
             </p>
           </aside>
         </header>
-        <nav
-          className="account-section-nav"
-          aria-label={zh ? "账户内容" : "Account content"}
-        >
-          <Link to={`/${locale}/account/saved`}>
-            {zh ? "收藏的接口" : "Saved Endpoints"}
-          </Link>
-          <Link to={`/${locale}/account/history`} aria-current="page">
-            {zh ? "调试历史" : "Playground history"}
-          </Link>
-        </nav>
+        <AccountSectionNavigation locale={locale} current="history" />
         {entries.length ? (
           <section
             className="playground-history-list"
