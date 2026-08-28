@@ -2234,6 +2234,107 @@ textarea {
   background: var(--paper);
 }
 
+.workspace-task-region {
+  display: grid;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+}
+
+.workspace-task-region-header {
+  display: grid;
+  min-height: 62px;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-task-region-header > div {
+  min-width: 0;
+}
+
+.workspace-task-region-header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 720;
+  letter-spacing: -.015em;
+  line-height: 1.3;
+}
+
+.workspace-task-region-header p {
+  margin: 3px 0 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.workspace-task-region-badge {
+  display: inline-grid;
+  min-width: 58px;
+  min-height: 25px;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .07em;
+}
+
+.workspace-task-region-authentication {
+  border-color: #a8d4c8;
+}
+
+.workspace-task-region-authentication .workspace-task-region-header {
+  border-bottom-color: #cce5de;
+  background: #f1faf7;
+}
+
+.workspace-task-region-authentication .workspace-task-region-badge {
+  color: #11735d;
+  background: #e0f4ed;
+}
+
+.workspace-task-region-request {
+  border-color: #b9cbed;
+}
+
+.workspace-task-region-request .workspace-task-region-header {
+  border-bottom-color: #d6e0f3;
+  background: #f3f6fd;
+}
+
+.workspace-task-region-request .workspace-task-region-badge {
+  color: var(--blue-deep);
+  background: var(--blue-soft);
+}
+
+.workspace-task-region-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.workspace-task-region-body > :where(
+  .oauth-toolbar,
+  .oauth-execution-prerequisite,
+  .oauth-result-notice,
+  .request-example-notice,
+  .pontx-documentation,
+  .credential-guide-standalone
+) {
+  margin: 0;
+}
+
 .resource-page-workspace .pontx-workspace-body > .oauth-toolbar,
 .resource-page-workspace .pontx-workspace-body > .oauth-execution-prerequisite,
 .resource-page-workspace .pontx-workspace-body > .oauth-result-notice,
