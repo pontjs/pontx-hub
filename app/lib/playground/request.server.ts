@@ -131,7 +131,6 @@ export function prepareRequest(input: PlaygroundRequestInput): PreparedRequest {
 
   const headers: Record<string, string> = {
     Accept: "application/json",
-    "User-Agent": "Pontx-Hub-Playground/0.1",
     ...operation.proxyHeaders
   };
   for (const [name, value] of Object.entries(input.headers)) {

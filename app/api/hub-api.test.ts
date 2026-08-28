@@ -275,6 +275,7 @@ describe("Hub API", () => {
     const text = await response.text();
     expect(response.status).toBe(200);
     expect(text).not.toContain("secret-token");
+    expect(text).not.toContain("User-Agent");
     expect(text).toContain("Bearer ••••••••");
   });
 
