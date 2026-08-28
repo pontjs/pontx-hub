@@ -44,6 +44,9 @@ describe("Playground availability", () => {
     expect(workspace).toContain(
       "const playgroundAvailable = playgroundAvailability.executionEnabled;"
     );
+    expect(workspace).toMatch(
+      /onPreview=\{\s*playgroundAvailable\s*\?\s*\(\) => previewRequestExample\(requestExample\.id\)\s*:\s*undefined\s*\}/
+    );
     expect(workspace).toContain("if (!playgroundAvailability.executionEnabled)");
     expect(workspace).toContain(
       "onPlaygroundStateChange={(state) => setIsPlaygroundOpen(state.isOpen)}"
