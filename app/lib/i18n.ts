@@ -84,7 +84,14 @@ export function alternateLocaleUrl(
   nextLocale: Locale
 ): string {
   const localizedPath = pathname.replace(/^\/(?:zh|en)(?=\/|$)/, `/${nextLocale}`);
-  return `${localizedPath}${search}${hash}`;
+  const query = new URLSearchParams(search);
+  const returnTo = query.get("returnTo");
+  let localizedSearch = search;
+  if (returnTo && /^\/(?:zh|en)(?=\/|$)/.test(returnTo)) {
+    query.set("returnTo", returnTo.replace(/^\/(?:zh|en)(?=\/|$)/, `/${nextLocale}`));
+    localizedSearch = `?${query.toString()}`;
+  }
+  return `${localizedPath}${localizedSearch}${hash}`;
 }
 
 export function alternateLocaleHref(
