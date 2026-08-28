@@ -1,6 +1,14 @@
+import type { Locale } from "~/lib/catalog/types";
+
 export const PROJECT_NAME_MAX_LENGTH = 80;
 export const PROJECT_DESCRIPTION_MAX_LENGTH = 280;
 export const PROJECT_API_LIMIT = 12;
+
+export function personalWorkspaceName(displayName: string, locale: Locale): string {
+  const name = displayName.trim().slice(0, 56);
+  if (!name) return locale === "zh" ? "个人项目空间" : "Personal workspace";
+  return locale === "zh" ? `${name} 的项目空间` : `${name}'s workspace`;
+}
 
 export type ProjectReadOnlyMode = "preview" | "execute_after_preview";
 

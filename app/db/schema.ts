@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
@@ -166,6 +167,7 @@ export const userProjects = pgTable(
     userId: text("user_id").notNull(),
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
+    isPersonal: boolean("is_personal").notNull().default(false),
     automationEnabled: boolean("automation_enabled").notNull().default(false),
     readOnlyMode: text("read_only_mode")
       .$type<"preview" | "execute_after_preview">()
@@ -176,6 +178,9 @@ export const userProjects = pgTable(
   },
   (table) => [
     index("user_projects_user_updated_index").on(table.userId, table.updatedAt),
+    uniqueIndex("user_projects_personal_user_unique")
+      .on(table.userId)
+      .where(sql`${table.isPersonal} = true`),
     foreignKey({ columns: [table.userId], foreignColumns: [authUsers.id] })
       .onDelete("cascade")
   ]
