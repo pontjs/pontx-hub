@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/playground-history";
-import { AccountWorkspaceShell } from "~/components/account-workspace-shell";
+import { SiteShell } from "~/components/site-shell";
+import { AccountSectionNavigation } from "~/components/account-section-navigation";
 import { MethodBadge } from "~/components/method-badge";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
-import { ensureProjectsForUser } from "~/lib/accounts/projects.server";
 import { listPlaygroundHistoryForUser } from "~/lib/accounts/playground-history.server";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
@@ -19,7 +19,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     const path = `/${locale}/account/history`;
     throw redirect(`/${locale}/sign-in?returnTo=${encodeURIComponent(path)}`);
   }
-  const projects = await ensureProjectsForUser(accounts.viewer.id, accounts.viewer.name, locale);
   const entries = (
     await listPlaygroundHistoryForUser(accounts.viewer.id, 100)
   ).map((entry) => {
@@ -52,12 +51,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       serverUrl: server?.url
     };
   });
-  return {
-    locale,
-    viewer: accounts.viewer,
-    projects: projects.map(({ id, name, isPersonal }) => ({ id, name, isPersonal })),
-    entries
-  };
+  return { locale, entries };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -260,18 +254,12 @@ function HistoryCard({
 }
 
 export default function PlaygroundHistory({ loaderData }: Route.ComponentProps) {
-  const { locale, viewer, projects } = loaderData;
+  const { locale } = loaderData;
   const zh = locale === "zh";
   const [entries, setEntries] = useState(loaderData.entries);
   useEffect(() => setEntries(loaderData.entries), [loaderData.entries]);
   return (
-    <AccountWorkspaceShell
-      locale={locale}
-      projects={projects}
-      activeProjectId={projects[0]?.id}
-      current="history"
-      viewer={viewer}
-    >
+    <SiteShell locale={locale}>
       <main className="playground-history-page">
         <header className="playground-history-header">
           <div>
@@ -297,6 +285,7 @@ export default function PlaygroundHistory({ loaderData }: Route.ComponentProps) 
             </p>
           </aside>
         </header>
+        <AccountSectionNavigation locale={locale} current="history" />
         {entries.length ? (
           <section
             className="playground-history-list"
@@ -330,6 +319,6 @@ export default function PlaygroundHistory({ loaderData }: Route.ComponentProps) 
           </section>
         )}
       </main>
-    </AccountWorkspaceShell>
+    </SiteShell>
   );
 }

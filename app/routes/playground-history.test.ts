@@ -36,16 +36,7 @@ function render(locale: "zh" | "en", entries = [entry]) {
     MemoryRouter,
     { initialEntries: [`/${locale}/account/history`] },
     createElement(PlaygroundHistory, {
-      loaderData: {
-        locale,
-        viewer: { id: "viewer-1", name: "Jason", image: null },
-        projects: [{
-          id: "22222222-2222-4222-8222-222222222222",
-          name: "Jason's workspace",
-          isPersonal: true
-        }],
-        entries
-      }
+      loaderData: { locale, entries }
     } as never)
   ));
 }

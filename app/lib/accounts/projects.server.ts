@@ -1,12 +1,10 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { getDatabase } from "~/db/client.server";
 import { userProjectApis, userProjects } from "~/db/schema";
-import type { Locale } from "~/lib/catalog/types";
 import { readAccountsConfiguration } from "./config.server";
-import {
-  personalWorkspaceName,
-  type ProjectAutomationSettings,
-  type ProjectDraft
+import type {
+  ProjectAutomationSettings,
+  ProjectDraft
 } from "./projects";
 
 function database() {
@@ -19,7 +17,6 @@ export type UserProject = {
   id: string;
   name: string;
   description: string;
-  isPersonal: boolean;
   apiSlugs: string[];
   automationEnabled: boolean;
   readOnlyMode: "preview" | "execute_after_preview";
@@ -51,26 +48,6 @@ export async function listProjectsForUser(userId: string): Promise<UserProject[]
     ...project,
     apiSlugs: apisByProject.get(project.id) ?? []
   }));
-}
-
-export async function ensureProjectsForUser(
-  userId: string,
-  displayName: string,
-  locale: Locale
-): Promise<UserProject[]> {
-  const existing = await listProjectsForUser(userId);
-  if (existing.length) return existing;
-
-  await database()
-    .insert(userProjects)
-    .values({
-      userId,
-      name: personalWorkspaceName(displayName, locale),
-      description: "",
-      isPersonal: true
-    })
-    .onConflictDoNothing();
-  return listProjectsForUser(userId);
 }
 
 export async function getProjectForUser(

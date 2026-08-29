@@ -7,11 +7,12 @@ import {
   useNavigation
 } from "react-router";
 import type { Route } from "./+types/projects";
-import { AccountWorkspaceShell } from "~/components/account-workspace-shell";
+import { AccountSectionNavigation } from "~/components/account-section-navigation";
+import { SiteShell } from "~/components/site-shell";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import {
   createProjectForUser,
-  ensureProjectsForUser
+  listProjectsForUser
 } from "~/lib/accounts/projects.server";
 import {
   PROJECT_API_LIMIT,
@@ -38,10 +39,9 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw redirect(`/${locale}/sign-in?returnTo=${encodeURIComponent(path)}`);
   }
   const catalog = listCatalogSummaries();
-  const projects = await ensureProjectsForUser(accounts.viewer.id, accounts.viewer.name, locale);
+  const projects = await listProjectsForUser(accounts.viewer.id);
   return {
     locale,
-    viewer: accounts.viewer,
     catalog,
     projects: projects.map((project) => ({
       ...project,
@@ -94,7 +94,7 @@ const errorCopy: Record<string, readonly [string, string]> = {
 };
 
 export default function Projects({ loaderData }: Route.ComponentProps) {
-  const { locale, catalog, projects, viewer } = loaderData;
+  const { locale, catalog, projects } = loaderData;
   const zh = locale === "zh";
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -105,13 +105,7 @@ export default function Projects({ loaderData }: Route.ComponentProps) {
     : undefined;
 
   return (
-    <AccountWorkspaceShell
-      locale={locale}
-      projects={projects}
-      activeProjectId={projects[0]?.id}
-      current="projects"
-      viewer={viewer}
-    >
+    <SiteShell locale={locale}>
       <main className="projects-page">
         <header className="projects-hero">
           <div>
@@ -128,6 +122,8 @@ export default function Projects({ loaderData }: Route.ComponentProps) {
             <span>{zh ? "项目 → Agent 接入 → 自动化" : "Project → Agent setup → Automation"}</span>
           </aside>
         </header>
+        <AccountSectionNavigation locale={locale} current="projects" />
+
         <div className="projects-layout">
           <section className="project-list-section" aria-labelledby="project-list-heading">
             <header className="project-section-heading">
@@ -139,20 +135,17 @@ export default function Projects({ loaderData }: Route.ComponentProps) {
             </header>
             {projects.length ? (
               <div className="project-card-list">
-                {projects.map((project, index) => (
-                  <article
+                {projects.map((project) => (
+                  <Link
                     className="project-card"
                     key={project.id}
+                    to={`/${locale}/account/projects/${project.id}`}
                   >
                     <div className="project-card-index" aria-hidden="true">
-                      {String(index + 1).padStart(2, "0")}
+                      {String(projects.indexOf(project) + 1).padStart(2, "0")}
                     </div>
                     <div className="project-card-main">
-                      <h3>
-                        <Link to={`/${locale}/account/projects/${project.id}?tab=overview`}>
-                          {project.name}
-                        </Link>
-                      </h3>
+                      <h3>{project.name}</h3>
                       <p>{project.description || (zh ? "尚未添加项目说明。" : "No project notes yet.")}</p>
                       <div className="project-api-tags">
                         {project.apiSlugs.slice(0, 4).map((slug) => (
@@ -167,22 +160,8 @@ export default function Projects({ loaderData }: Route.ComponentProps) {
                         ? zh ? "自动化已就绪" : "Automation ready"
                         : zh ? "自动化已暂停" : "Automation paused"}
                     </div>
-                    <Link
-                      className="project-card-arrow"
-                      to={`/${locale}/account/projects/${project.id}?tab=overview`}
-                      aria-label={zh ? `打开项目：${project.name}` : `Open project: ${project.name}`}
-                    >
-                      ↗
-                    </Link>
-                    <nav className="project-card-actions" aria-label={zh ? `${project.name} 项目功能` : `${project.name} project features`}>
-                      <Link to={`/${locale}/account/projects/${project.id}?tab=agent`}>
-                        {zh ? "Agent 接入" : "Agent setup"} <span aria-hidden="true">→</span>
-                      </Link>
-                      <Link to={`/${locale}/account/projects/${project.id}?tab=automation`}>
-                        {zh ? "自动化设置" : "Automation settings"} <span aria-hidden="true">→</span>
-                      </Link>
-                    </nav>
-                  </article>
+                    <span className="project-card-arrow" aria-hidden="true">↗</span>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -241,6 +220,6 @@ export default function Projects({ loaderData }: Route.ComponentProps) {
           </section>
         </div>
       </main>
-    </AccountWorkspaceShell>
+    </SiteShell>
   );
 }
