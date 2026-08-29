@@ -30,19 +30,13 @@ Search ownership meta tags can be supplied with `GOOGLE_SITE_VERIFICATION`,
 
 The account foundation is disabled by default. Public catalog, documentation,
 search, SDK, and Playground routes do not require an account or database.
-When enabled, signed-in users can manage private API projects, keep each
-project's Agent setup and automation policy together, synchronize Endpoint
-favorites, and retain their latest 100 Playground executions for parameter replay. Projects
-store API scope and safety policy only. History excludes auth
+When enabled, signed-in users can synchronize Endpoint favorites and retain their
+latest 100 Playground executions for parameter replay. History excludes auth
 objects, provider responses, and detected credential fields; API keys, OAuth
 tokens, and passwords remain browser-session-only. An Endpoint page shows its
 three most recent runs; retrying restores the sanitized inputs into Playground
 and synchronizes the generated SDK/CLI examples without automatically sending
 another provider request.
-
-Automation policy is consumed by the user's local Agent configuration. The Hub
-does not run unattended jobs for the user, and project settings cannot disable
-the required confirmation boundary for mutations.
 
 To enable GitHub sign-in in a configured environment, set:
 

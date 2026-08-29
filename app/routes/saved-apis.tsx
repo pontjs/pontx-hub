@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/saved-apis";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
-import { AccountSectionNavigation } from "~/components/account-section-navigation";
 import { MethodBadge } from "~/components/method-badge";
 import { SiteShell } from "~/components/site-shell";
 import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
@@ -65,7 +64,17 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
               : "Keep useful Endpoints in sync across devices. API keys and OAuth tokens always stay in this browser session."}
           </p>
         </header>
-        <AccountSectionNavigation locale={locale} current="saved" />
+        <nav
+          className="account-section-nav"
+          aria-label={locale === "zh" ? "账户内容" : "Account content"}
+        >
+          <Link to={`/${locale}/account/saved`} aria-current="page">
+            {locale === "zh" ? "收藏的接口" : "Saved Endpoints"}
+          </Link>
+          <Link to={`/${locale}/account/history`}>
+            {locale === "zh" ? "调试历史" : "Playground history"}
+          </Link>
+        </nav>
         {savedEndpoints.length ? (
           <section className="search-result-group" aria-labelledby="saved-endpoints-heading">
             <header>

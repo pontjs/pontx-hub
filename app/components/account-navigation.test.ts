@@ -44,8 +44,6 @@ describe("account navigation", () => {
     expect(html).toContain('aria-label="打开账户菜单: Jason Huang"');
     expect(html).toContain('class="account-avatar-image"');
     expect(html).toContain('referrerPolicy="no-referrer"');
-    expect(html).toContain('href="/zh/account/projects"');
-    expect(html).toContain("我的项目");
     expect(html).toContain('href="/zh/account/saved"');
     expect(html).toContain("收藏的 API");
     expect(html).toContain('href="/zh/account/history"');
@@ -60,7 +58,6 @@ describe("account navigation", () => {
     expect(html).toContain('aria-label="Open account menu: Jason Huang"');
     expect(html).toContain('class="account-avatar-fallback">J</span>');
     expect(html).toContain("Saved APIs");
-    expect(html).toContain("My projects");
     expect(html).toContain("Playground history");
     expect(html).toContain("Sign out");
     expect(html).not.toContain("account-saved-link");

@@ -36,17 +36,6 @@ describe("internationalized routing", () => {
     ).toBe("/en/apis/dida365/get-project?q=projectId#response");
   });
 
-  it("localizes the safe account return path on the sign-in page", () => {
-    expect(
-      alternateLocaleUrl(
-        "/zh/sign-in",
-        "?returnTo=%2Fzh%2Faccount%2Fprojects%2F11111111-1111-4111-8111-111111111111%3Ftab%3Dagent%23automation",
-        "",
-        "en"
-      )
-    ).toBe("/en/sign-in?returnTo=%2Fen%2Faccount%2Fprojects%2F11111111-1111-4111-8111-111111111111%3Ftab%3Dagent%23automation");
-  });
-
   it("keeps the first language-link render hydration-safe, then restores the fragment", () => {
     expect(
       alternateLocaleHref(

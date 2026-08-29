@@ -1,6 +1,6 @@
 # Accounts and Favorites Design
 
-Status: milestones 1–4 implemented behind a disabled-by-default feature flag
+Status: milestones 1–3 implemented behind a disabled-by-default feature flag
 
 Date: 2026-08-11
 
@@ -14,9 +14,9 @@ The first release will support:
 
 - signing in and signing out;
 - saving an individual Endpoint;
-- creating private projects with an ordered API scope;
-- keeping each project's Agent setup and automation safety policy together;
-- viewing and managing project and saved content across devices; and
+- saving a platform-curated API collection;
+- creating private personal collections of APIs;
+- viewing and managing saved content across devices; and
 - keeping a sanitized history of recent Playground executions for one-click
   parameter replay.
 
@@ -39,11 +39,11 @@ budget are removed before insertion.
    documentation or execution rights.
 3. Minimal identity: collect only the provider identity, verified email,
    display name, avatar, and session data required for account operation.
-4. Private by default: projects are private in the first release.
+4. Private by default: personal collections are private in the first release.
 5. Stable resource identity: saved Endpoints use the catalog pair
-   `(api.slug, operation.slug)`; projects use an owner-scoped UUID and retain
-   catalog API slugs as their ordered scope. Locale-specific titles and routes
-   are not resource identities.
+   `(api.slug, operation.slug)`; saved curated collections use a stable
+   `collection_key`. Locale-specific titles, routes, and database UUIDs are not
+   resource identities.
 6. No credential persistence: account sessions and provider API credentials
    are separate security domains.
 
@@ -119,7 +119,7 @@ source of truth.
 
 Primary key: `(user_id, collection_key)`.
 
-### `user_projects`
+### `user_collections`
 
 | Field | Notes |
 | --- | --- |
@@ -127,27 +127,23 @@ Primary key: `(user_id, collection_key)`.
 | `user_id` | Owner; always required |
 | `name` | User-provided, length-limited plain text |
 | `description` | Optional length-limited plain text |
-| `automation_enabled` | Whether a local Agent may apply the stored automation policy |
-| `read_only_mode` | Stop after preview, or execute catalog-approved read-only calls after preview |
 | `created_at` / `updated_at` | Timestamps |
 
-Projects are private in the MVP. Their automation policy is configuration for a
-user-operated Agent, not a hosted scheduler. Mutations always retain explicit
-confirmation, and no credential is stored with a project. Public sharing,
-collaboration, forking, and arbitrary external URLs are separate future
-capabilities.
+Personal collections are private in the MVP. Public sharing, collaboration,
+forking, and arbitrary external URLs are separate future capabilities.
 
-### `user_project_apis`
+### `user_collection_items`
 
 | Field | Notes |
 | --- | --- |
-| `project_id` | Owning private project |
+| `collection_id` | Owning personal collection |
 | `api_slug` | Stable catalog API slug |
 | `position` | Deterministic user-controlled order |
+| `note` | Optional length-limited plain text |
 | `created_at` | Timestamp |
 
-Unique key: `(project_id, api_slug)`. All queries scope project access through
-the authenticated owner, not merely by project UUID.
+Unique key: `(collection_id, api_slug)`. All queries must scope collection
+access through the authenticated owner, not merely by collection UUID.
 
 ### `user_playground_history`
 
@@ -180,14 +176,21 @@ GET    /api/account/v1/favorites/endpoints
 PUT    /api/account/v1/favorites/endpoints/:apiSlug/:operationSlug
 DELETE /api/account/v1/favorites/endpoints/:apiSlug/:operationSlug
 
+GET    /api/account/v1/favorites/collections
+PUT    /api/account/v1/favorites/collections/:collectionKey
+DELETE /api/account/v1/favorites/collections/:collectionKey
+
+GET    /api/account/v1/collections
+POST   /api/account/v1/collections
+PATCH  /api/account/v1/collections/:collectionId
+DELETE /api/account/v1/collections/:collectionId
+POST   /api/account/v1/collections/:collectionId/items
+PATCH  /api/account/v1/collections/:collectionId/items/:apiSlug
+DELETE /api/account/v1/collections/:collectionId/items/:apiSlug
+
 GET    /api/account/v1/playground/history
 DELETE /api/account/v1/playground/history/:historyId
 ```
-
-Project creation and automation policy updates are owner-scoped React Router
-form actions under `/:locale/account/projects`; they are not part of the public
-Hub API or CLI contract. A future non-browser project API would require its own
-versioned private contract and CSRF/rate-limit review.
 
 History creation is server-owned by a successful
 `POST /api/v1/playground/execute` path. Browsers cannot post arbitrary history
@@ -202,10 +205,8 @@ session and CSRF protection; CORS is not enabled for this surface.
 ### Navigation and account pages
 
 - Add a localized sign-in entry to desktop and mobile navigation.
-- After sign-in, replace it with an account menu whose first destination is My
-  projects, followed by saved Endpoints and Playground history.
-- Add `/:locale/sign-in/*`, `/:locale/account/projects`,
-  `/:locale/account/projects/:projectId`, `/:locale/account/saved`, and
+- After sign-in, replace it with an account menu and saved-content entry.
+- Add `/:locale/sign-in/*`, `/:locale/account/saved`, and
   `/:locale/account/history` routes.
 - Preserve the full safe return path, locale, query, and fragment through
   sign-in. Reject off-origin return URLs.
@@ -248,9 +249,9 @@ session and CSRF protection; CORS is not enabled for this surface.
 
 ## Security and privacy boundary
 
-Account data may contain identity, favorites, private projects, and
+Account data may contain identity, favorites, private collections, and
 sanitized Playground history only. The following values are
-forbidden from all account tables, project notes, logs, analytics, error
+forbidden from all account tables, collection notes, logs, analytics, error
 tracking, and generated examples:
 
 - API keys and bearer tokens;
@@ -266,9 +267,9 @@ and the total 64 KiB snapshot; and never copies the Playground `auth` object or
 provider response. Recording is best-effort and must never change the public
 execution response.
 
-Project names and descriptions are rendered as text, never as HTML.
+Collection names, descriptions, and notes are rendered as text, never as HTML.
 Apply conservative length limits and mutation rate limits. Account deletion
-must cascade through all favorites and private projects and revoke active
+must cascade through all favorites and personal collections and revoke active
 sessions. Publish a concise privacy notice before production rollout.
 
 ## Delivery sequence
@@ -304,13 +305,12 @@ sessions. Publish a concise privacy notice before production rollout.
 - [ ] verify authenticated persistence, replay, deletion, and cross-device behavior
   against the configured production database and GitHub OAuth application.
 
-### Milestone 4: project workspaces
+### Milestone 4: collections
 
-- [x] add private projects with an ordered API scope;
-- [x] put Agent setup and product Skill installation inside each project;
-- [x] add persisted read-only automation policy while locking mutation confirmation;
-- [x] add bilingual project list/detail, creation, empty, error, and mobile states; and
-- [ ] add project rename, API-scope editing, deletion, and authenticated cross-device verification.
+- add curated collection metadata contract producer-first compatibility;
+- add curated collection favorites;
+- add private personal collections, ordering, notes, and deletion; and
+- verify ownership isolation and concurrent updates.
 
 ### Milestone 5: production hardening
 
@@ -329,7 +329,7 @@ sessions. Publish a concise privacy notice before production rollout.
   later visit, and restore its non-sensitive inputs without re-entering them.
 - Stored history and its rendered/JSON representations contain no provider
   credential, response body, or response header.
-- One user cannot read or mutate another user's favorites or projects by
+- One user cannot read or mutate another user's favorites or collections by
   changing an identifier.
 - Locale switching retains the current account or saved-content resource.
 - Deep-link sign-in returns only to a validated same-origin path.
@@ -342,7 +342,7 @@ sessions. Publish a concise privacy notice before production rollout.
 ## Deferred decisions
 
 - Encrypted cloud credential storage and credential sharing.
-- Public or collaborative projects and curated collection favorites.
+- Public or collaborative personal collections.
 - CLI account login and synchronized favorites.
 - Teams, roles, billing, and organization accounts.
 - Passkeys, until the primary OAuth/email recovery path is operational.
