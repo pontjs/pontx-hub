@@ -75,7 +75,6 @@ export function SiteShell({
   const nextLocale = locale === "zh" ? "en" : "zh";
   const text = copy[locale];
   const location = useLocation();
-  const accountWorkspace = /^\/(?:zh|en)\/account(?:\/|$)/.test(location.pathname);
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
   const languageTarget = alternateLocaleHref(
@@ -158,7 +157,7 @@ export function SiteShell({
             <GitHubIcon className="github-icon" />
             <span>{text.github}</span>
           </a>
-          {!accountWorkspace ? <a
+          <a
             href={languageTarget}
             className="language-link"
             hrefLang={nextLocale === "zh" ? "zh-CN" : "en"}
@@ -167,9 +166,9 @@ export function SiteShell({
             onClick={handleLanguageChange}
           >
             <LanguageIcon className="language-icon" />
-          </a> : null}
+          </a>
           <AiAssistantLauncher locale={locale} onOpen={() => setMobileNavOpen(false)} />
-          {!accountWorkspace ? <AccountNavigation locale={locale} /> : null}
+          <AccountNavigation locale={locale} />
         </nav>
         <div className="mobile-nav">
           <button
@@ -214,7 +213,7 @@ export function SiteShell({
             >
               {text.github}
             </a>
-            {!accountWorkspace ? <a
+            <a
               className="mobile-language-link"
               href={languageTarget}
               hrefLang={nextLocale === "zh" ? "zh-CN" : "en"}
@@ -226,8 +225,8 @@ export function SiteShell({
             >
               <LanguageIcon className="language-icon" />
               <span>{text.language}</span>
-            </a> : null}
-            {!accountWorkspace ? <AccountNavigation locale={locale} onNavigate={() => setMobileNavOpen(false)} /> : null}
+            </a>
+            <AccountNavigation locale={locale} onNavigate={() => setMobileNavOpen(false)} />
           </nav>
         </div>
       </header>

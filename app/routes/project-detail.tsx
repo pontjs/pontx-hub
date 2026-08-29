@@ -7,15 +7,14 @@ import {
   useNavigation
 } from "react-router";
 import type { Route } from "./+types/project-detail";
-import { AccountWorkspaceShell } from "~/components/account-workspace-shell";
 import { CodeBlock } from "~/components/code-block";
+import { SiteShell } from "~/components/site-shell";
 import {
   projectAgentConfiguration,
   validateProjectAutomationSettings
 } from "~/lib/accounts/projects";
 import {
   getProjectForUser,
-  listProjectsForUser,
   updateProjectAutomationForUser
 } from "~/lib/accounts/projects.server";
 import { requireAccountUserId } from "~/lib/accounts/session.server";
@@ -26,11 +25,6 @@ import { requireLocale } from "~/lib/http";
 import { listSkillSummaries } from "~/lib/product-skills.server";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-export type ProjectWorkspaceTab = "overview" | "agent" | "automation";
-
-export function projectWorkspaceTab(value: string | null): ProjectWorkspaceTab {
-  return value === "agent" || value === "automation" ? value : "overview";
-}
 
 function sameOrigin(request: Request) {
   const origin = request.headers.get("Origin");
@@ -49,8 +43,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
   const project = await getProjectForUser(accounts.viewer.id, projectId);
   if (!project) throw new Response("Not found", { status: 404 });
-  const projects = await listProjectsForUser(accounts.viewer.id);
-  const url = new URL(request.url);
   const skillNames = new Map(
     listSkillSummaries().flatMap((skill) => skill.apiSlug ? [[skill.apiSlug, skill.name]] : [])
   );
@@ -66,10 +58,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   });
   return {
     locale,
-    viewer: accounts.viewer,
-    projects: projects.map(({ id, name, isPersonal }) => ({ id, name, isPersonal })),
-    tab: projectWorkspaceTab(url.searchParams.get("tab")),
-    saved: url.searchParams.get("saved") === "1",
+    saved: new URL(request.url).searchParams.get("saved") === "1",
     project: {
       ...project,
       createdAt: project.createdAt.toISOString(),
@@ -93,7 +82,7 @@ export async function action({ params, request }: Route.ActionArgs) {
   if (!result.success) return data({ error: result.code }, { status: 422 });
   const updated = await updateProjectAutomationForUser(userId, projectId, result.data);
   if (!updated) return data({ error: "not_found" }, { status: 404 });
-  throw redirect(`/${locale}/account/projects/${projectId}?tab=automation&saved=1`);
+  throw redirect(`/${locale}/account/projects/${projectId}?saved=1#automation`);
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -116,7 +105,7 @@ export function headers() {
 }
 
 export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, project, projects, viewer, apis, saved, tab } = loaderData;
+  const { locale, project, apis, saved } = loaderData;
   const zh = locale === "zh";
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
@@ -134,13 +123,7 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
   }), null, 2);
 
   return (
-    <AccountWorkspaceShell
-      locale={locale}
-      projects={projects}
-      activeProjectId={project.id}
-      current={tab}
-      viewer={viewer}
-    >
+    <SiteShell locale={locale}>
       <main className="project-workspace">
         <header className="project-workspace-hero">
           <Link to={`/${locale}/account/projects`}>← {zh ? "返回我的项目" : "Back to my projects"}</Link>
@@ -156,7 +139,13 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
           </dl>
         </header>
 
-        {tab === "overview" ? <section className="project-workspace-section" id="overview" aria-labelledby="overview-heading">
+        <nav className="project-workspace-nav" aria-label={zh ? "项目工作区" : "Project workspace"}>
+          <a href="#overview"><span>01</span>{zh ? "项目概览" : "Overview"}</a>
+          <a href="#agent-setup"><span>02</span>{zh ? "Agent 接入" : "Agent setup"}</a>
+          <a href="#automation"><span>03</span>{zh ? "自动化设置" : "Automation settings"}</a>
+        </nav>
+
+        <section className="project-workspace-section" id="overview" aria-labelledby="overview-heading">
           <header>
             <p>01 / SCOPE</p>
             <h2 id="overview-heading">{zh ? "项目里的 API" : "APIs in this project"}</h2>
@@ -175,9 +164,9 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
               </article>
             ))}
           </div>
-        </section> : null}
+        </section>
 
-        {tab === "agent" ? <section className="project-workspace-section project-agent-section" id="agent-setup" aria-labelledby="agent-heading">
+        <section className="project-workspace-section project-agent-section" id="agent-setup" aria-labelledby="agent-heading">
           <header>
             <p>02 / AGENT SETUP</p>
             <h2 id="agent-heading">{zh ? "把 Agent 接到这个项目" : "Connect an Agent to this project"}</h2>
@@ -194,9 +183,9 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
               <CodeBlock className="code-frame-spaced" code={config} language="json" label="pontx.project.json" copyLabel={zh ? "复制" : "Copy"} copiedLabel={zh ? "已复制" : "Copied"} copyFailedLabel={zh ? "复制失败" : "Copy failed"} />
             </div>
           </div>
-        </section> : null}
+        </section>
 
-        {tab === "automation" ? <section className="project-workspace-section project-automation-section" id="automation" aria-labelledby="automation-heading">
+        <section className="project-workspace-section project-automation-section" id="automation" aria-labelledby="automation-heading">
           <header>
             <p>03 / AUTOMATION</p>
             <h2 id="automation-heading">{zh ? "自动化设置" : "Automation settings"}</h2>
@@ -236,8 +225,8 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
               {saving ? (zh ? "正在保存…" : "Saving…") : (zh ? "保存自动化设置" : "Save automation settings")}
             </button>
           </Form>
-        </section> : null}
+        </section>
       </main>
-    </AccountWorkspaceShell>
+    </SiteShell>
   );
 }

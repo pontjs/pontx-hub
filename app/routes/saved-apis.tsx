@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link, redirect } from "react-router";
 import type { Route } from "./+types/saved-apis";
-import { AccountWorkspaceShell } from "~/components/account-workspace-shell";
 import { FavoriteEndpointButton } from "~/components/favorite-endpoint-button";
+import { AccountSectionNavigation } from "~/components/account-section-navigation";
 import { MethodBadge } from "~/components/method-badge";
+import { SiteShell } from "~/components/site-shell";
 import { listFavoriteEndpoints } from "~/lib/accounts/favorites.server";
-import { ensureProjectsForUser } from "~/lib/accounts/projects.server";
 import { loadAccountsViewer } from "~/lib/accounts/viewer.server";
 import { getCatalogOperation } from "~/lib/catalog/catalog.server";
 import { localize } from "~/lib/catalog/types";
@@ -19,7 +19,6 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     const path = `/${locale}/account/saved`;
     throw redirect(`/${locale}/sign-in?returnTo=${encodeURIComponent(path)}`);
   }
-  const projects = await ensureProjectsForUser(accounts.viewer.id, accounts.viewer.name, locale);
   const favorites = await listFavoriteEndpoints(request);
   const available = favorites.flatMap((favorite) => {
     const match = getCatalogOperation(favorite.apiSlug, favorite.operationSlug);
@@ -28,13 +27,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   const unavailable = favorites.filter(
     (favorite) => !getCatalogOperation(favorite.apiSlug, favorite.operationSlug)
   );
-  return {
-    locale,
-    viewer: accounts.viewer,
-    projects: projects.map(({ id, name, isPersonal }) => ({ id, name, isPersonal })),
-    available,
-    unavailable
-  };
+  return { locale, available, unavailable };
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -56,18 +49,12 @@ export function headers() {
 }
 
 export default function SavedApis({ loaderData }: Route.ComponentProps) {
-  const { locale, viewer, projects, available, unavailable } = loaderData;
+  const { locale, available, unavailable } = loaderData;
   const zh = locale === "zh";
   const [savedEndpoints, setSavedEndpoints] = useState(available);
   const [unavailableEndpoints, setUnavailableEndpoints] = useState(unavailable);
   return (
-    <AccountWorkspaceShell
-      locale={locale}
-      projects={projects}
-      activeProjectId={projects[0]?.id}
-      current="saved"
-      viewer={viewer}
-    >
+    <SiteShell locale={locale}>
       <main className="saved-apis-page">
         <header className="saved-apis-header">
           <p className="account-eyebrow">PONTX / SAVED</p>
@@ -78,6 +65,7 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
               : "Keep useful Endpoints in sync across devices. API keys and OAuth tokens always stay in this browser session."}
           </p>
         </header>
+        <AccountSectionNavigation locale={locale} current="saved" />
         {savedEndpoints.length ? (
           <section className="search-result-group" aria-labelledby="saved-endpoints-heading">
             <header>
@@ -160,6 +148,6 @@ export default function SavedApis({ loaderData }: Route.ComponentProps) {
           </section>
         ) : null}
       </main>
-    </AccountWorkspaceShell>
+    </SiteShell>
   );
 }

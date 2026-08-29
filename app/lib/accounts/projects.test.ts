@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  personalWorkspaceName,
   projectAgentConfiguration,
   validateProjectAutomationSettings,
   validateProjectDraft
@@ -9,12 +8,6 @@ import {
 const catalog = new Set(["frankfurter", "dida365"]);
 
 describe("account projects", () => {
-  it("creates a localized personal workspace name for a first-time account", () => {
-    expect(personalWorkspaceName(" Jason ", "en")).toBe("Jason's workspace");
-    expect(personalWorkspaceName("小明", "zh")).toBe("小明 的项目空间");
-    expect(personalWorkspaceName("", "zh")).toBe("个人项目空间");
-  });
-
   it("normalizes a project and keeps API order without duplicates", () => {
     expect(validateProjectDraft({
       name: "  FX monitor  ",
