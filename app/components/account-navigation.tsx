@@ -10,7 +10,6 @@ const copy = {
     signingOut: "退出中…",
     account: "账户",
     menu: "打开账户菜单",
-    projects: "我的项目",
     saved: "收藏的 API",
     history: "调试历史"
   },
@@ -20,7 +19,6 @@ const copy = {
     signingOut: "Signing out…",
     account: "Account",
     menu: "Open account menu",
-    projects: "My projects",
     saved: "Saved APIs",
     history: "Playground history"
   }
@@ -164,13 +162,6 @@ export function AccountNavigation({
           <strong>{displayName}</strong>
         </div>
         <div className="account-menu-links">
-          <Link
-            className="account-menu-link"
-            to={`/${locale}/account/projects`}
-            onClick={handleNavigate}
-          >
-            {text.projects}
-          </Link>
           <Link
             className="account-menu-link"
             to={`/${locale}/account/saved`}

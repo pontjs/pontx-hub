@@ -159,44 +159,6 @@ export const userPlaygroundHistory = pgTable(
   ]
 );
 
-export const userProjects = pgTable(
-  "user_projects",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: text("user_id").notNull(),
-    name: text("name").notNull(),
-    description: text("description").notNull().default(""),
-    automationEnabled: boolean("automation_enabled").notNull().default(false),
-    readOnlyMode: text("read_only_mode")
-      .$type<"preview" | "execute_after_preview">()
-      .notNull()
-      .default("preview"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table) => [
-    index("user_projects_user_updated_index").on(table.userId, table.updatedAt),
-    foreignKey({ columns: [table.userId], foreignColumns: [authUsers.id] })
-      .onDelete("cascade")
-  ]
-);
-
-export const userProjectApis = pgTable(
-  "user_project_apis",
-  {
-    projectId: uuid("project_id").notNull(),
-    apiSlug: text("api_slug").notNull(),
-    position: integer("position").notNull().default(0),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
-  },
-  (table) => [
-    primaryKey({ columns: [table.projectId, table.apiSlug] }),
-    index("user_project_apis_project_position_index").on(table.projectId, table.position),
-    foreignKey({ columns: [table.projectId], foreignColumns: [userProjects.id] })
-      .onDelete("cascade")
-  ]
-);
-
 export const aiDailyUsage = pgTable(
   "ai_daily_usage",
   {
