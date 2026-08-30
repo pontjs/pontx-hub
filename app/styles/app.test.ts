@@ -301,13 +301,13 @@ describe("API directory integration styles", () => {
       /\.pontx-directory-flat\s*{[\s\S]*?display:\s*grid;[\s\S]*?overflow:\s*visible;/,
     );
     expect(css).toMatch(
-      /\.pontx-directory-flat a\s*{[\s\S]*?grid-template-columns:\s*48px minmax\(0, 1fr\);[\s\S]*?border-radius:\s*8px;/,
+      /\.pontx-directory-flat a\s*{[\s\S]*?grid-template-columns:\s*48px minmax\(0, 1fr\);[\s\S]*?border-radius:\s*var\(--radius-md\);/,
     );
     expect(css).toMatch(
       /\.pontx-directory-flat a\[aria-current="page"\]\s*{[\s\S]*?background:\s*var\(--blue-soft\);/,
     );
     expect(css).toMatch(
-      /\.pontx-directory-flat small\s*{[\s\S]*?border-radius:\s*999px;[\s\S]*?font-family:\s*var\(--mono\);/,
+      /\.pontx-directory-flat small\s*{[\s\S]*?border-radius:\s*var\(--radius-full\);[\s\S]*?font-family:\s*var\(--mono\);/,
     );
   });
 
