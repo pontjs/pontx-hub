@@ -7,6 +7,7 @@ import {
   type FormEvent
 } from "react";
 import { data, Form, Link, useNavigate } from "react-router";
+import { Search } from "lucide-react";
 import type { Route } from "./+types/catalog";
 import { ApiCard } from "~/components/api-card";
 import {
@@ -222,7 +223,7 @@ function CatalogSearch({
           aria-label={zh ? "全局搜索" : "Global search"}
           aria-controls="catalog-search-results"
           aria-describedby="catalog-search-status"
-          leftIcon={<span className="catalog-search-icon" aria-hidden="true">⌕</span>}
+          leftIcon={<Search className="catalog-search-icon" aria-hidden="true" />}
           rightIcon={draftQuery ? (
             <button
               type="button"
@@ -240,7 +241,8 @@ function CatalogSearch({
           className="catalog-search-control"
           classNames={{
             field: "catalog-search-field",
-            input: "catalog-search-input"
+            input: "catalog-search-input",
+            leftIcon: "catalog-search-left-icon"
           }}
         />
       </Form>

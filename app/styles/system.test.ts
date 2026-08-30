@@ -357,14 +357,26 @@ describe("Pontx Hub visual system", () => {
   });
 
   it("keeps catalog search text clear of its icon controls", async () => {
-    const [appCss, systemCss] = await Promise.all([
+    const [appCss, systemCss, catalogRoute] = await Promise.all([
       readFile(new URL("./app.css", import.meta.url), "utf8"),
       readFile(new URL("./system.css", import.meta.url), "utf8"),
+      readFile(new URL("../routes/catalog.tsx", import.meta.url), "utf8"),
     ]);
 
     expect(systemCss).toMatch(
       /\.catalog-search-input\s*\{\s*padding-inline:\s*42px 44px;/,
     );
+    expect(systemCss).toMatch(
+      /\.catalog-search-left-icon\s*\{[\s\S]*?top:\s*50%;[\s\S]*?width:\s*18px;[\s\S]*?height:\s*18px;[\s\S]*?transform:\s*translateY\(-50%\);/,
+    );
+    expect(systemCss).toMatch(
+      /\.catalog-search-left-icon \.catalog-search-icon\s*\{[\s\S]*?width:\s*18px;[\s\S]*?height:\s*18px;/,
+    );
+    expect(catalogRoute).toContain(
+      'leftIcon={<Search className="catalog-search-icon" aria-hidden="true" />}',
+    );
+    expect(catalogRoute).toContain('leftIcon: "catalog-search-left-icon"');
+    expect(catalogRoute).not.toContain(">⌕</span>");
     expect(appCss).not.toMatch(/\.catalog-search input\s*\{/);
   });
 

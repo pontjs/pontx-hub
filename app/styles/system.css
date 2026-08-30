@@ -1888,11 +1888,21 @@ textarea {
   font-size: 14px;
 }
 
-.catalog-search-icon {
+.catalog-search-left-icon {
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
   color: var(--blue-deep);
-  font-family: var(--mono);
-  font-size: 18px;
-  line-height: 1;
+  line-height: 0;
+}
+
+.catalog-search-left-icon .catalog-search-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  stroke-width: 2;
 }
 
 .catalog-search-clear {
