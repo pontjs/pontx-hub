@@ -1,8 +1,12 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createMemoryRouter, RouterProvider } from "react-router";
+import {
+  createMemoryRouter,
+  RouterProvider,
+  type ShouldRevalidateFunctionArgs,
+} from "react-router";
 import { describe, expect, it } from "vitest";
-import { CatalogAccessSummary } from "./catalog";
+import { CatalogAccessSummary, shouldRevalidate } from "./catalog";
 
 function renderSummary(locale: "zh" | "en") {
   const router = createMemoryRouter([{
@@ -37,5 +41,33 @@ describe("catalog SDK and CLI summary", () => {
     expect(html).not.toContain("approved calls");
     expect(html).toContain('href="/en/docs"');
     expect(html.match(/<a /g)).toHaveLength(1);
+  });
+});
+
+describe("catalog search navigation", () => {
+  function revalidationArgs(current: string, next: string) {
+    return {
+      currentUrl: new URL(current),
+      nextUrl: new URL(next),
+      defaultShouldRevalidate: true,
+    } as ShouldRevalidateFunctionArgs;
+  }
+
+  it("keeps query-only searches off the prerendered route-data file", () => {
+    expect(shouldRevalidate(revalidationArgs(
+      "https://pontx.dev/zh",
+      "https://pontx.dev/zh?q=WPS",
+    ))).toBe(false);
+  });
+
+  it("still revalidates when locale or non-search state changes", () => {
+    expect(shouldRevalidate(revalidationArgs(
+      "https://pontx.dev/zh?q=WPS",
+      "https://pontx.dev/en?q=WPS",
+    ))).toBe(true);
+    expect(shouldRevalidate(revalidationArgs(
+      "https://pontx.dev/zh?q=WPS&view=cards",
+      "https://pontx.dev/zh?q=WPS&view=list",
+    ))).toBe(true);
   });
 });
