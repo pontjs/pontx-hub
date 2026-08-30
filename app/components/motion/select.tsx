@@ -205,7 +205,7 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
   const isTop = ctx.placement === "top";
   // edge facing the panel flattens then rounds; the far edge stays rounded.
   // All four corners are specified so none gets stranded when placement flips.
-  const kf = ctx.open ? [0, 0, 12] : [12, 0, 12];
+  const kf = ctx.open ? [0, 0, 6] : [6, 0, 6];
   const kfT: Transition = ctx.reduce
     ? { duration: 0 }
     : ctx.open
@@ -224,10 +224,10 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
       // back once the panel pulls away — the two pinch apart.
       initial={false}
       animate={{
-        borderTopLeftRadius: isTop ? kf : 12,
-        borderTopRightRadius: isTop ? kf : 12,
-        borderBottomLeftRadius: isTop ? 12 : kf,
-        borderBottomRightRadius: isTop ? 12 : kf,
+        borderTopLeftRadius: isTop ? kf : 6,
+        borderTopRightRadius: isTop ? kf : 6,
+        borderBottomLeftRadius: isTop ? 6 : kf,
+        borderBottomRightRadius: isTop ? 6 : kf,
       }}
       transition={{
         borderTopLeftRadius: isTop ? kfT : INSTANT_TRANSITION,
@@ -236,7 +236,7 @@ export function SelectTrigger({ className, children }: SelectTriggerProps) {
         borderBottomRightRadius: isTop ? INSTANT_TRANSITION : kfT,
       }}
       className={cn(
-        "relative z-10 flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors",
+        "relative z-10 flex w-full items-center justify-between gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors",
         "hover:border-(--color-border-strong) focus-visible:ring-2 focus-visible:ring-foreground/20",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
@@ -372,7 +372,7 @@ export function SelectContent({ className, children }: SelectContentProps) {
         overflow: "hidden",
         pointerEvents: open ? "auto" : "none",
       }}
-      // flush against the trigger, then separates into its own rounded pill;
+      // flush against the trigger, then separates into its own floating surface;
       // sits above or below depending on available space
       className={cn(
         "absolute left-0 right-0 z-20 rounded-xl border border-border bg-background shadow-lg",
@@ -424,7 +424,7 @@ export function SelectItem({
         disabled={disabled}
         onClick={() => ctx.select(value)}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm outline-none transition-colors",
+          "flex w-full items-center justify-between gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm outline-none transition-colors",
           selected
             ? "bg-muted text-foreground"
             : "text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:bg-muted",

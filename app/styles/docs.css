@@ -42,7 +42,7 @@
 
 .docs-product-bar code {
   border: 1px solid #cfd6df;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 2px 7px;
   background: #fff;
   color: #4c5b6d;
@@ -54,7 +54,7 @@
 .docs-version-dot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: #24a866;
   box-shadow: 0 0 0 3px rgba(36, 168, 102, 0.12);
 }
@@ -91,7 +91,7 @@
   grid-template-columns: 22px minmax(0, 1fr) auto;
   align-items: center;
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   padding: 0 8px;
   background: var(--paper);
   color: var(--ink-soft);
@@ -130,7 +130,7 @@
   place-items: center;
   border: 1px solid #cdd4dd;
   border-bottom-color: #b3bcc7;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: #fff;
   color: #6f7a88;
   font-size: 9px;
@@ -165,7 +165,7 @@
   min-height: 34px;
   align-items: center;
   justify-content: space-between;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 7px 9px;
   color: #536171;
   font-size: 12px;
@@ -402,7 +402,7 @@
   min-height: 210px;
   flex-direction: column;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-lg);
   padding: 20px;
   background: #fff;
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -428,7 +428,7 @@
 
 .docs-interface-card > div code {
   border: 1px solid #d8dee7;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 3px 7px;
   background: var(--paper);
   color: #667384;
@@ -480,7 +480,7 @@
   min-height: 130px;
   align-content: center;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 16px;
   background: var(--paper);
   gap: 7px;
@@ -519,7 +519,7 @@
   grid-template-columns: 28px minmax(0, 1fr);
   border: 1px solid #cfd8e6;
   border-left: 3px solid var(--blue);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 15px 17px 15px 14px;
   background: #f4f7ff;
   gap: 12px;
@@ -530,7 +530,7 @@
   width: 25px;
   height: 25px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--blue);
   color: #fff;
   font-family: var(--mono);
@@ -573,7 +573,7 @@
 .docs-code-tabs {
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   background: var(--paper-deep);
   box-shadow: 0 10px 28px rgba(24, 32, 42, 0.07);
 }
@@ -682,7 +682,7 @@
   height: 33px;
   place-items: center;
   border: 1px solid #c9d2df;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: #fff;
   color: var(--blue);
   font-family: var(--mono);
@@ -708,7 +708,7 @@
   grid-template-columns: 34px minmax(0, 1fr) auto;
   align-items: center;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   background: var(--paper);
   gap: 12px;
@@ -752,7 +752,7 @@
 .docs-query-list code,
 .docs-preview-list span {
   border: 1px solid #d5dce5;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 6px 10px;
   background: var(--paper);
   color: #4c5b6c;
@@ -798,7 +798,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-content: center;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 18px;
   background: var(--paper);
   gap: 4px 12px;
@@ -829,7 +829,7 @@
 .docs-command-map {
   display: grid;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -883,7 +883,7 @@
 
 .docs-inline-code {
   border: 1px solid #d7dee7;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 2px 5px;
   background: var(--paper);
   color: #2d4db6;
@@ -894,7 +894,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -939,7 +939,7 @@
 .docs-comparison > div,
 .docs-safety-matrix > div {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 17px;
   background: var(--paper);
 }
@@ -996,7 +996,7 @@
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -1059,7 +1059,7 @@
 .docs-context-meter i {
   grid-column: 2;
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: #dfe5ec;
   overflow: hidden;
 }
@@ -1104,7 +1104,7 @@
   width: 22px;
   height: 22px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: #e6f6ed;
   color: #177747;
   font-family: var(--mono);
@@ -1127,7 +1127,7 @@
   min-height: 120px;
   align-content: center;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 14px;
   background: var(--paper);
   text-align: center;
@@ -1170,7 +1170,7 @@
   min-height: 88px;
   align-content: center;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   background: #fff;
   gap: 5px;

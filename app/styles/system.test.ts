@@ -22,13 +22,38 @@ describe("Pontx Hub visual system", () => {
       "--muted:",
       "--border:",
       "--ring:",
-      "--radius:",
+      "--radius-xs: 2px;",
+      "--radius-sm: 4px;",
+      "--radius-md: 6px;",
+      "--radius-lg: 8px;",
+      "--radius-xl: 12px;",
+      "--radius-full: 9999px;",
+      "--radius: var(--radius-md);",
     ]) {
       expect(css).toContain(token);
     }
     expect(css).toContain("--paper: #f4f7fb;");
     expect(css).toContain("--blue: #2563eb;");
     expect(css).toMatch(/\.api-card\s*{[\s\S]*?--api-accent:\s*var\(--blue\) !important;/);
+  });
+
+  it("uses only semantic radius tokens in stylesheet declarations", async () => {
+    const styles = await Promise.all(
+      ["system.css", "app.css", "account.css", "docs.css"].map((file) =>
+        readFile(new URL(`./${file}`, import.meta.url), "utf8"),
+      ),
+    );
+
+    for (const css of styles) {
+      const declarations = [...css.matchAll(/border-radius:\s*([^;]+);/g)].map(
+        (match) => match[1].trim(),
+      );
+      expect(declarations.length).toBeGreaterThan(0);
+      for (const value of declarations) {
+        expect(value).not.toMatch(/\b\d+(?:\.\d+)?(?:px|rem|%)\b/);
+        expect(value).toMatch(/^(?:0|inherit|var\(--radius-(?:xs|sm|md|lg|xl|full)\))(?:\s+(?:0|var\(--radius-(?:xs|sm|md|lg|xl|full)\))){0,3}$/);
+      }
+    }
   });
 
   it("keeps catalog cards free of decorative accent stripes", async () => {
@@ -182,7 +207,7 @@ describe("Pontx Hub visual system", () => {
   it("keeps the shared Playground divider inside the documentation bounds", async () => {
     const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.17"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.18"');
   });
 
   it("keeps rendered API description links readable without relying on color", async () => {
@@ -199,7 +224,7 @@ describe("Pontx Hub visual system", () => {
   it("keeps the Endpoint Playground Try action visually primary", async () => {
     const manifest = await readFile(new URL("../../package.json", import.meta.url), "utf8");
 
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.17"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.18"');
   });
 
   it("lets the workspace toolbar define its grid track height", async () => {
@@ -267,7 +292,7 @@ describe("Pontx Hub visual system", () => {
     expect(history).toContain("Playground, Unified SDK, and CLI code are in sync");
     expect(history).toContain("aria-expanded={expanded}");
     expect(history).toContain("hidden={Boolean(entries.length) && !expanded}");
-    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.17"');
+    expect(manifest).toContain('"@pontx/shadcn-ui": "^1.2.18"');
     expect(css).toMatch(
       /\.endpoint-playground-history-details\s*\{[\s\S]*?max-height:\s*214px;[\s\S]*?overscroll-behavior:\s*contain;/,
     );
