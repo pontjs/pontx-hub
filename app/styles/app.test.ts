@@ -220,6 +220,21 @@ describe("API directory integration styles", () => {
     );
   });
 
+  it("gives the headerless Schema Viewer balanced content padding", async () => {
+    const [css, component] = await Promise.all([
+      readFile(new URL("./app.css", import.meta.url), "utf8"),
+      readFile(
+        new URL("../components/deferred-schema-viewer.tsx", import.meta.url),
+        "utf8",
+      ),
+    ]);
+
+    expect(component).toContain('contentClassName="hub-schema-viewer-content"');
+    expect(css).toMatch(
+      /\.hub-schema-viewer-content\s*{\s*padding:\s*20px 32px;/,
+    );
+  });
+
   it("scrolls the whole endpoint workspace and keeps the request example compact", async () => {
     const css = await readFile(new URL("./app.css", import.meta.url), "utf8");
 

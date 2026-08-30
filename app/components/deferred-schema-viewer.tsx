@@ -19,6 +19,7 @@ export default function DeferredSchemaViewer({
         hideHeader
         defaultExpandedDepth={2}
         className="hub-schema-viewer"
+        contentClassName="hub-schema-viewer-content"
       />
     </SchemaProvider>
   );
