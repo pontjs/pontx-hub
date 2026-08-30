@@ -3,7 +3,7 @@ import type { CatalogApiContext, CatalogOperation, Locale } from "~/lib/catalog/
 import { localize } from "~/lib/catalog/types";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { defaultRequestExample } from "~/lib/playground/request-examples";
-import { RequestExampleNotice } from "~/components/request-example-notice";
+import { RequestExampleSummary } from "~/components/request-example-summary";
 
 export function DocumentationEvidence({
   locale,
@@ -110,7 +110,7 @@ export function OperationSeoContent({
       </section>
 
       {requestExample ? (
-        <RequestExampleNotice
+        <RequestExampleSummary
           locale={locale}
           api={api}
           operation={operation}

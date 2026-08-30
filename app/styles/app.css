@@ -2306,6 +2306,61 @@ samp,
   background: #f8fafc;
 }
 
+.pontx-interactive-docs-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  padding: 16px 20px;
+  background: #fff;
+}
+
+.pontx-interactive-docs-action p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--type-small);
+}
+
+.interactive-docs-button {
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--type-small);
+  font-weight: 700;
+}
+
+.interactive-docs-button:hover,
+.interactive-docs-button:focus-visible {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+.static-resource-directory-load {
+  width: calc(100% - 20px);
+  margin: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.static-resource-directory-load:hover,
+.static-resource-directory-load:focus-visible {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
 .operation-seo-header,
 .pontx-documentation-fallback > section {
   border: 1px solid var(--line);

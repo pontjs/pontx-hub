@@ -8,8 +8,9 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "build": "pnpm radius:verify && pnpm metadata:sync && react-router build && pnpm bundle:verify",
+    "build": "pnpm radius:verify && pnpm metadata:sync && react-router build && pnpm prerender:verify && pnpm bundle:verify",
     "bundle:verify": "tsx scripts/verify-browser-bundle.ts",
+    "prerender:verify": "tsx scripts/verify-prerender-output.ts",
     "dev": "pnpm metadata:sync && react-router dev",
     "start": "react-router-serve ./build/server/nodejs_*/index.js",
     "typecheck": "pnpm metadata:sync && react-router typegen && tsc",

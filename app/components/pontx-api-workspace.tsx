@@ -818,6 +818,7 @@ export function PontxApiWorkspace({
   playgroundHistoryEnabled = false,
   initialPlaygroundHistory = [],
   skillName,
+  initialPlaygroundOpen = false,
   variant = "reference"
 }: {
   locale: Locale;
@@ -828,6 +829,7 @@ export function PontxApiWorkspace({
   playgroundHistoryEnabled?: boolean;
   initialPlaygroundHistory?: EndpointPlaygroundHistoryEntry[];
   skillName?: string;
+  initialPlaygroundOpen?: boolean;
   variant?: "guided" | "reference";
 }) {
   installPlaygroundSessionStorageBridge();
@@ -899,7 +901,9 @@ export function PontxApiWorkspace({
   const [oauthToken, setOAuthToken] = useState<OAuthTokenSet>();
   const [oauthCredentials, setOAuthCredentials] = useState<OAuthClientCredentials>();
   const [oauthState, setOAuthState] = useState<OAuthUiState>({ status: "idle" });
-  const [isPlaygroundOpen, setIsPlaygroundOpen] = useState(guided);
+  const [isPlaygroundOpen, setIsPlaygroundOpen] = useState(
+    guided || initialPlaygroundOpen
+  );
   const playgroundApi = useMemo(
     () => withoutHostManagedOAuthScheme(
       pontxApi,
@@ -1536,36 +1540,38 @@ export function PontxApiWorkspace({
           ) : null}
           {isHydrated && preparedRequestExampleKey === requestExamplePreparationKey ? (
             <>
-              {!guided || !playgroundAvailability.executionEnabled ? (
-                <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
-              ) : null}
               <WorkspaceTaskRegion
                 locale={locale}
                 kind="request"
                 requestAvailable={playgroundAvailable}
               >
-                {requestExample ? (
-                  <RequestExampleNotice
-                    locale={locale}
-                    api={api}
-                    operation={activeOperation}
-                    example={requestExample}
-                    selectedId={requestExample.id}
-                    executionUnavailable={!playgroundAvailability.executionEnabled}
-                    onSelect={applyRequestExample}
-                    onPreview={
-                      playgroundAvailable
-                        ? () => previewRequestExample(requestExample.id)
-                        : undefined
-                    }
-                  />
-                ) : null}
-                <Suspense fallback={
-                  <div className="pontx-documentation-loading" role="status">
-                    {locale === "zh" ? "正在加载交互式文档…" : "Loading interactive documentation…"}
-                  </div>
-                }>
-                <LazyApiDocumentation
+                {guided || isPlaygroundOpen ? (
+                  <>
+                    {!guided || !playgroundAvailability.executionEnabled ? (
+                      <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
+                    ) : null}
+                    {requestExample ? (
+                      <RequestExampleNotice
+                        locale={locale}
+                        api={api}
+                        operation={activeOperation}
+                        example={requestExample}
+                        selectedId={requestExample.id}
+                        executionUnavailable={!playgroundAvailability.executionEnabled}
+                        onSelect={applyRequestExample}
+                        onPreview={
+                          playgroundAvailable
+                            ? () => previewRequestExample(requestExample.id)
+                            : undefined
+                        }
+                      />
+                    ) : null}
+                    <Suspense fallback={
+                      <div className="pontx-documentation-loading" role="status">
+                        {locale === "zh" ? "正在加载交互式文档…" : "Loading interactive documentation…"}
+                      </div>
+                    }>
+                    <LazyApiDocumentation
               key={`${locale}:${api.slug}:${activeOperation.slug}:${requestExample?.id ?? "inferred"}:${playgroundRevision}:${oauthToken?.accessToken ?? "anonymous"}`}
               locale={locale === "zh" ? "zh-CN" : "en"}
               api={playgroundApi}
@@ -1627,8 +1633,26 @@ export function PontxApiWorkspace({
               getCodeGenScenarios={getCodeGenScenarios}
               onGenerateCode={generateCode}
               className={`pontx-documentation${guided && playgroundAvailable ? " pontx-documentation-guided" : ""}`}
-                />
-                </Suspense>
+                    />
+                    </Suspense>
+                  </>
+                ) : (
+                  <>
+                    <OperationSeoContent locale={locale} api={api} operation={activeOperation} />
+                    <div className="pontx-interactive-docs-action">
+                      <Button type="button" onClick={() => setIsPlaygroundOpen(true)}>
+                        {locale === "zh"
+                          ? "加载交互式文档与 Playground"
+                          : "Load interactive docs & Playground"}
+                      </Button>
+                      <p>
+                        {locale === "zh"
+                          ? "仅在需要调试或生成代码时下载编辑器资源。"
+                          : "Editor resources download only when you need debugging or code generation."}
+                      </p>
+                    </div>
+                  </>
+                )}
               </WorkspaceTaskRegion>
             </>
           ) : (

@@ -9,6 +9,7 @@ import type {
   CatalogSchema,
   LocalizedText
 } from "./types";
+import { operationSlug } from "./operation-slug";
 
 type JsonRecord = Record<string, any>;
 
@@ -34,14 +35,6 @@ function localized(zh: unknown, en: unknown, fallback = ""): LocalizedText {
     zh: typeof zh === "string" && zh ? zh : fallback,
     en: typeof en === "string" && en ? en : fallback
   };
-}
-
-function slugify(value: string): string {
-  return value
-    .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
 }
 
 function refName(schema: JsonRecord | undefined): string | undefined {
@@ -260,7 +253,7 @@ function makeOperation(
   const style = String(spec.style ?? "RESTFul") as CatalogOperation["style"];
 
   return {
-    slug: slugify(operationId),
+    slug: operationSlug(operationId),
     apiKey,
     sdkMethod,
     operationId,

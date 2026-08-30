@@ -1,8 +1,8 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import type { PontxSpec } from "@pontx/spec";
 import type { CatalogApiContext, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
-import { ResourceDirectoryNavigation } from "~/components/resource-directory-navigation";
+import { StaticResourceDirectoryNavigation } from "~/components/static-resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
 
 const DeferredSchemaViewer = lazy(() => import("~/components/deferred-schema-viewer"));
@@ -12,16 +12,18 @@ export function SchemaReference({
   api,
   spec,
   schema,
-  skillName
+  skillName,
+  onLoadDirectory
 }: {
   locale: Locale;
   api: CatalogApiContext;
   spec: PontxSpec;
   schema: CatalogSchema;
   skillName?: string;
+  onLoadDirectory?: () => void;
 }) {
   const zh = locale === "zh";
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const components = useMemo(
     () => ({ schemas: spec.components?.schemas ?? {} }),
     [spec.components?.schemas]
@@ -36,10 +38,6 @@ export function SchemaReference({
     [components, locale, schema.localizedSchema, schema.name, schema.schema]
   );
 
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
   return (
     <main className="schema-reference">
       <ResourceNavigation
@@ -53,11 +51,11 @@ export function SchemaReference({
           className="schema-directory"
           aria-label={zh ? "API 参考目录" : "API reference directory"}
         >
-          <ResourceDirectoryNavigation
+          <StaticResourceDirectoryNavigation
             locale={locale}
             api={api}
-            spec={spec}
             activeSchemaName={schema.name}
+            onLoadDirectory={onLoadDirectory}
           />
         </aside>
 
@@ -69,7 +67,7 @@ export function SchemaReference({
             <p>{localize(schema.description, locale)}</p>
           </header>
           <div className="schema-viewer-panel">
-            {isHydrated ? (
+            {viewerOpen ? (
               <Suspense fallback={<SchemaFallback locale={locale} schema={schema} />}>
                 <DeferredSchemaViewer
                   components={components}
@@ -78,7 +76,23 @@ export function SchemaReference({
                 />
               </Suspense>
             ) : (
-              <SchemaFallback locale={locale} schema={schema} />
+              <>
+                <SchemaFallback locale={locale} schema={schema} />
+                <div className="pontx-interactive-docs-action">
+                  <button
+                    className="interactive-docs-button"
+                    type="button"
+                    onClick={() => setViewerOpen(true)}
+                  >
+                    {zh ? "加载交互式 Schema Viewer" : "Load interactive Schema Viewer"}
+                  </button>
+                  <p>
+                    {zh
+                      ? "展开和搜索能力仅在需要时下载。"
+                      : "Expansion and search code downloads only when requested."}
+                  </p>
+                </div>
+              </>
             )}
           </div>
         </section>
