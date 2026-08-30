@@ -6,9 +6,17 @@ import {
   useState,
   type FormEvent
 } from "react";
-import { data, Form, Link, useNavigate } from "react-router";
+import {
+  data,
+  Form,
+  Link,
+  useLocation,
+  useNavigate,
+  type ShouldRevalidateFunctionArgs,
+} from "react-router";
 import { Search } from "lucide-react";
 import type { Route } from "./+types/catalog";
+import type { GlobalSearchResponse } from "~/lib/catalog/types";
 import { ApiCard } from "~/components/api-card";
 import {
   CatalogSearchStatus,
@@ -23,6 +31,7 @@ import {
 import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { createDebouncedTask } from "~/lib/debounce";
 import { trackCatalogSearchViewed } from "~/lib/analytics/events";
+import { fetchCatalogSearch } from "~/lib/catalog/search-client";
 import { Input as MotionInput } from "~/components/motion/input";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -50,6 +59,28 @@ export async function loader({ params, request }: Route.LoaderArgs) {
       ? { "Cache-Control": "private, no-store" }
       : cacheHeaders()
   });
+}
+
+export function shouldRevalidate({
+  currentUrl,
+  nextUrl,
+  defaultShouldRevalidate,
+}: ShouldRevalidateFunctionArgs) {
+  if (currentUrl.pathname === nextUrl.pathname) {
+    const currentSearch = new URLSearchParams(currentUrl.search);
+    const nextSearch = new URLSearchParams(nextUrl.search);
+    const queryChanged = currentSearch.get("q") !== nextSearch.get("q");
+    currentSearch.delete("q");
+    nextSearch.delete("q");
+    currentSearch.sort();
+    nextSearch.sort();
+
+    if (queryChanged && currentSearch.toString() === nextSearch.toString()) {
+      return false;
+    }
+  }
+
+  return defaultShouldRevalidate;
 }
 
 export function meta({ data }: Route.MetaArgs) {
@@ -144,11 +175,13 @@ export function CatalogAccessSummary({ locale }: { locale: "zh" | "en" }) {
 function CatalogSearch({
   locale,
   query,
+  requestPending,
   summary,
   onPendingChange,
 }: {
   locale: "zh" | "en";
   query: string;
+  requestPending: boolean;
   summary: string;
   onPendingChange: (pending: boolean) => void;
 }) {
@@ -160,7 +193,8 @@ function CatalogSearch({
   const debouncedSearch = useRef(
     createDebouncedTask<string>(SEARCH_DEBOUNCE_MS)
   );
-  const searchPending = isCatalogSearchPending(draftQuery, query);
+  const searchPending =
+    isCatalogSearchPending(draftQuery, query) || requestPending;
 
   useEffect(() => () => debouncedSearch.current.cancel(), []);
 
@@ -257,23 +291,112 @@ function CatalogSearch({
 
 export default function Catalog({ loaderData }: Route.ComponentProps) {
   const { locale, query, apis, search, totals } = loaderData;
+  const location = useLocation();
   const zh = locale === "zh";
   const terminology = publicResourceTerminologyCopy(locale);
+  const [locationReady, setLocationReady] = useState(false);
   const [searchPending, setSearchPending] = useState(false);
+  const [searchAttempt, setSearchAttempt] = useState(0);
+  const [clientSearch, setClientSearch] = useState<{
+    locale: "zh" | "en";
+    query: string;
+    search: GlobalSearchResponse | null;
+    error: boolean;
+    pending: boolean;
+  } | null>(null);
   const lastTrackedSearch = useRef<string | undefined>(undefined);
-  const searchSummary = search
+  const locationQuery = new URLSearchParams(location.search).get("q")?.trim() ?? "";
+  const currentQuery = locationReady ? locationQuery : query;
+  const loaderMatchesCurrentQuery = query === currentQuery;
+  const clientSearchMatches =
+    clientSearch?.locale === locale && clientSearch.query === currentQuery;
+  const resolvedSearch = loaderMatchesCurrentQuery
+    ? search
+    : clientSearchMatches
+      ? clientSearch.search
+      : null;
+  const requestPending = Boolean(
+    currentQuery &&
+      !loaderMatchesCurrentQuery &&
+      (!clientSearchMatches || clientSearch?.pending),
+  );
+  const searchFailed = Boolean(
+    currentQuery && clientSearchMatches && clientSearch?.error,
+  );
+  const searchSummary = resolvedSearch
     ? zh
-      ? `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints} · ${search.counts.schema} ${terminology.schemas}`
-      : `${search.counts.api} ${terminology.apiProducts} · ${search.counts.endpoint} ${terminology.endpoints.toLowerCase()} · ${search.counts.schema} ${terminology.schemas.toLowerCase()}`
+      ? `${resolvedSearch.counts.api} ${terminology.apiProducts} · ${resolvedSearch.counts.endpoint} ${terminology.endpoints} · ${resolvedSearch.counts.schema} ${terminology.schemas}`
+      : `${resolvedSearch.counts.api} ${terminology.apiProducts} · ${resolvedSearch.counts.endpoint} ${terminology.endpoints.toLowerCase()} · ${resolvedSearch.counts.schema} ${terminology.schemas.toLowerCase()}`
     : `${String(apis.length).padStart(2, "0")} ${terminology.apiProducts}`;
 
   useEffect(() => {
-    if (!query || !search) return;
-    const key = `${locale}:${query}:${search.total}`;
+    setLocationReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!currentQuery || !resolvedSearch) return;
+    const key = `${locale}:${currentQuery}:${resolvedSearch.total}`;
     if (lastTrackedSearch.current === key) return;
     lastTrackedSearch.current = key;
-    trackCatalogSearchViewed({ locale, query, resultCount: search.total });
-  }, [locale, query, search]);
+    trackCatalogSearchViewed({
+      locale,
+      query: currentQuery,
+      resultCount: resolvedSearch.total,
+    });
+  }, [currentQuery, locale, resolvedSearch]);
+
+  useEffect(() => {
+    if (!currentQuery || loaderMatchesCurrentQuery) return;
+
+    const controller = new AbortController();
+    setClientSearch({
+      locale,
+      query: currentQuery,
+      search: null,
+      error: false,
+      pending: true,
+    });
+
+    void fetchCatalogSearch(currentQuery, locale, controller.signal)
+      .then((nextSearch) => {
+        setClientSearch({
+          locale,
+          query: currentQuery,
+          search: nextSearch,
+          error: false,
+          pending: false,
+        });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setClientSearch({
+          locale,
+          query: currentQuery,
+          search: null,
+          error: true,
+          pending: false,
+        });
+      });
+
+    return () => controller.abort();
+  }, [currentQuery, loaderMatchesCurrentQuery, locale, searchAttempt]);
+
+  useEffect(() => {
+    const existing = document.head.querySelector<HTMLMetaElement>(
+      'meta[name="robots"]',
+    );
+
+    if (currentQuery) {
+      const robots = existing ?? document.createElement("meta");
+      robots.name = "robots";
+      robots.content = "noindex,follow";
+      robots.dataset.catalogSearch = "true";
+      if (!existing) document.head.append(robots);
+      return;
+    }
+
+    if (existing?.dataset.catalogSearch === "true") existing.remove();
+  }, [currentQuery]);
 
   return (
     <SiteShell locale={locale}>
@@ -308,7 +431,8 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
           <div className="registry-toolbar">
             <CatalogSearch
               locale={locale}
-              query={query}
+              query={currentQuery}
+              requestPending={requestPending}
               summary={searchSummary}
               onPendingChange={setSearchPending}
             />
@@ -319,7 +443,19 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
             className="catalog-results-frame"
             aria-busy={searchPending}
           >
-            {search ? (
+            {searchFailed ? (
+              <div className="catalog-empty" role="status">
+                <strong>{zh ? "搜索暂时不可用" : "Search is temporarily unavailable"}</strong>
+                <p>{zh ? "请稍后重试。" : "Please try again in a moment."}</p>
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() => setSearchAttempt((attempt) => attempt + 1)}
+                >
+                  {zh ? "重新搜索" : "Retry search"}
+                </button>
+              </div>
+            ) : resolvedSearch ? (
               <Suspense
                 fallback={(
                   <div className="catalog-empty" role="status">
@@ -328,7 +464,7 @@ export default function Catalog({ loaderData }: Route.ComponentProps) {
                 )}
               >
                 <GlobalSearchResults
-                  search={search}
+                  search={resolvedSearch}
                   locale={locale}
                 />
               </Suspense>
