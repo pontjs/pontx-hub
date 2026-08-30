@@ -136,7 +136,7 @@ for (const prefix of referenceRoutePrefixes) {
   );
   if (staticImport.test(source)) {
     throw new Error(
-      `${path.basename(routeFiles[0])} eagerly imports ${interactiveBundleName}; Monaco must remain interaction-only`
+      `${path.basename(routeFiles[0])} statically imports ${interactiveBundleName}; the prerendered reference must remain isolated from the client-only interactive bundle`
     );
   }
 }
@@ -145,6 +145,6 @@ console.log(
   `Verified ${files.length} browser chunks: no bare CommonJS require() calls; ` +
   `site shell ${siteShell.byteLength} raw/${siteShellGzipSize} gzip bytes; ` +
   `API workspace ${apiWorkspace.byteLength} raw/${apiWorkspaceGzipSize} gzip bytes; ` +
-  "interactive docs and Monaco are interaction-only on Endpoint/Schema routes; " +
+  "interactive docs remain client-only on prerendered Endpoint/Schema routes; " +
   "Agent, auth, feedback, and search remain deferred."
 );

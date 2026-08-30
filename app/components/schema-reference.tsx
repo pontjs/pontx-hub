@@ -1,11 +1,20 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { PontxSpec } from "@pontx/spec";
 import type { CatalogApiContext, CatalogSchema, Locale } from "~/lib/catalog/types";
 import { localize } from "~/lib/catalog/types";
 import { StaticResourceDirectoryNavigation } from "~/components/static-resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
 
-const DeferredSchemaViewer = lazy(() => import("~/components/deferred-schema-viewer"));
+let deferredSchemaViewerPromise:
+  | Promise<typeof import("~/components/deferred-schema-viewer")>
+  | undefined;
+
+function loadDeferredSchemaViewer() {
+  deferredSchemaViewerPromise ??= import("~/components/deferred-schema-viewer");
+  return deferredSchemaViewerPromise;
+}
+
+const DeferredSchemaViewer = lazy(loadDeferredSchemaViewer);
 
 export function SchemaReference({
   locale,
@@ -38,6 +47,23 @@ export function SchemaReference({
     [components, locale, schema.localizedSchema, schema.name, schema.schema]
   );
 
+  useEffect(() => {
+    let cancelled = false;
+    onLoadDirectory?.();
+    void loadDeferredSchemaViewer().then(
+      () => {
+        if (!cancelled) setViewerOpen(true);
+      },
+      () => {
+        // The complete static Schema remains available when the optional
+        // interactive viewer cannot be loaded.
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [onLoadDirectory]);
+
   return (
     <main className="schema-reference">
       <ResourceNavigation
@@ -55,7 +81,6 @@ export function SchemaReference({
             locale={locale}
             api={api}
             activeSchemaName={schema.name}
-            onLoadDirectory={onLoadDirectory}
           />
         </aside>
 
@@ -76,23 +101,7 @@ export function SchemaReference({
                 />
               </Suspense>
             ) : (
-              <>
-                <SchemaFallback locale={locale} schema={schema} />
-                <div className="pontx-interactive-docs-action">
-                  <button
-                    className="interactive-docs-button"
-                    type="button"
-                    onClick={() => setViewerOpen(true)}
-                  >
-                    {zh ? "加载交互式 Schema Viewer" : "Load interactive Schema Viewer"}
-                  </button>
-                  <p>
-                    {zh
-                      ? "展开和搜索能力仅在需要时下载。"
-                      : "Expansion and search code downloads only when requested."}
-                  </p>
-                </div>
-              </>
+              <SchemaFallback locale={locale} schema={schema} />
             )}
           </div>
         </section>
