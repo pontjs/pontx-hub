@@ -1,0 +1,11 @@
+# Vercel must build these artifacts from the exact committed source.
+build
+.catalog-cache
+node_modules
+coverage
+
+# Local repository and deployment state are never runtime inputs.
+.git
+.worktrees
+.vercel
+*.log
