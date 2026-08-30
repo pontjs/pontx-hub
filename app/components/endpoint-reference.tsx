@@ -18,6 +18,13 @@ function loadInteractiveEndpointWorkspace() {
   return interactiveEndpointWorkspacePromise;
 }
 
+// Start the optional reference download as soon as the browser evaluates this
+// route chunk. It remains a separate dynamic bundle (and is not modulepreloaded
+// by the static HTML), but no longer waits for a post-paint effect to begin.
+if (typeof document !== "undefined") {
+  void loadInteractiveEndpointWorkspace();
+}
+
 const InteractiveEndpointWorkspace = lazy(async () => {
   const module = await loadInteractiveEndpointWorkspace();
   return { default: module.PontxApiWorkspace };
@@ -39,6 +46,7 @@ export function EndpointReference({
   onLoadDirectory?: () => void;
 }) {
   const [interactive, setInteractive] = useState(false);
+  const [interactiveLoadFailed, setInteractiveLoadFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,8 +56,7 @@ export function EndpointReference({
         if (!cancelled) setInteractive(true);
       },
       () => {
-        // Keep the complete static reference visible if the optional client
-        // bundle cannot be loaded.
+        if (!cancelled) setInteractiveLoadFailed(true);
       }
     );
     return () => {
@@ -84,10 +91,14 @@ export function EndpointReference({
               <b>/</b>
               <code>{operation.operationId}</code>
             </div>
-            <p>
-              {locale === "zh"
-                ? "静态 API 参考 · 交互资源按需加载"
-                : "Static API reference · interactive resources load on demand"}
+            <p role="status" aria-live="polite">
+              {interactiveLoadFailed
+                ? locale === "zh"
+                  ? "交互文档暂未加载 · 已保留完整静态参考"
+                  : "Interactive reference unavailable · complete static reference retained"
+                : locale === "zh"
+                  ? "正在自动加载完整文档…"
+                  : "Loading the complete reference automatically…"}
             </p>
           </div>
           <div className="pontx-workspace-body">

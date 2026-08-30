@@ -4,6 +4,7 @@ import { localize } from "~/lib/catalog/types";
 import { getPlaygroundAvailability } from "~/lib/playground/availability";
 import { defaultRequestExample } from "~/lib/playground/request-examples";
 import { RequestExampleSummary } from "~/components/request-example-summary";
+import { apiDescriptionParagraphs } from "~/lib/catalog/plain-text";
 
 export function DocumentationEvidence({
   locale,
@@ -82,6 +83,9 @@ export function OperationSeoContent({
   const requestSchemaName = operation.requestBody?.schemaName ?? body?.schemaName;
   const requestProperties = operation.requestBody?.properties ?? [];
   const requestExample = defaultRequestExample(api, operation);
+  const descriptionParagraphs = apiDescriptionParagraphs(
+    localize(operation.description, locale)
+  );
 
   return (
     <article className="pontx-documentation-fallback" aria-labelledby="endpoint-title">
@@ -90,12 +94,18 @@ export function OperationSeoContent({
           <span>{api.provider}</span>
           <strong>{localize(api.title, locale)}</strong>
         </p>
-        <p className="operation-seo-method">
-          <strong>{operation.method}</strong>
-          <code>{operation.path}</code>
-        </p>
+        {operation.method || operation.path ? (
+          <p className="operation-seo-method">
+            {operation.method ? <strong>{operation.method}</strong> : null}
+            {operation.path ? <code>{operation.path}</code> : null}
+          </p>
+        ) : null}
         <h1 id="endpoint-title">{localize(operation.title, locale)}</h1>
-        <p>{localize(operation.description, locale)}</p>
+        <div className="operation-seo-description">
+          {descriptionParagraphs.map((paragraph, index) => (
+            <p key={`${operation.slug}:description:${index}`}>{paragraph}</p>
+          ))}
+        </div>
         <p className="operation-seo-summary">{localize(api.summary, locale)}</p>
         <DocumentationEvidence locale={locale} api={api} operation={operation} />
       </header>

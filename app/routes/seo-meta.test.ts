@@ -92,6 +92,25 @@ describe("public route SEO metadata", () => {
     expect(JSON.stringify(schemaDescriptors)).toContain("TechArticle");
   });
 
+  it("publishes readable Amazon SQS metadata without source markup", () => {
+    const sqs = getCatalogApi("amazon-sqs");
+    if (!sqs) throw new Error("Expected synchronized Amazon SQS metadata");
+    const operation = sqs.operations.find(
+      (candidate) => candidate.operationId === "ListQueues"
+    );
+    if (!operation) throw new Error("Expected ListQueues metadata");
+
+    const operationDescriptors = descriptors(operationMeta({
+      data: { locale: "zh", product: sqs, endpoint: operation }
+    } as never));
+    const description = operationDescriptors.find(
+      (item) => item.name === "description"
+    )?.content;
+
+    expect(description).toContain("QueueNamePrefix");
+    expect(description).not.toMatch(/<\/?(?:p|code|note)>/);
+  });
+
   it("describes the Agent Skill as software and keeps planned SDKs out of rich results", () => {
     const skillDescriptors = descriptors(agentSkillMeta({ data: { locale: "en" } } as never));
     expectLocalizedPublicMeta(

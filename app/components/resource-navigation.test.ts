@@ -6,6 +6,7 @@ import { getCatalogApi, getPontxSpec } from "~/lib/catalog/catalog.server";
 import { ResourceDirectoryNavigation } from "./resource-directory-navigation";
 import { ResourceNavigation } from "./resource-navigation";
 import { SchemaReference } from "./schema-reference";
+import { StaticResourceDirectoryNavigation } from "./static-resource-directory-navigation";
 
 function render(component: ReturnType<typeof createElement>) {
   return renderToStaticMarkup(
@@ -167,6 +168,24 @@ describe("API resource navigation", () => {
     expect(html).not.toContain(
       `href="/en/apis/amazon-sqs/list-queues"><small>`,
     );
+  });
+
+  it("keeps the lightweight RPC directory full-width before hydration", () => {
+    const rpcApi = getCatalogApi("amazon-sqs")!;
+    const operation = rpcApi.operations.find(
+      (candidate) => candidate.operationId === "ListQueues"
+    )!;
+    const html = render(createElement(StaticResourceDirectoryNavigation, {
+      locale: "zh",
+      api: rpcApi,
+      activeOperation: operation
+    }));
+
+    expect(html).toContain(
+      'class="pontx-directory-flat-title-only" aria-current="page" href="/zh/apis/amazon-sqs/list-queues"'
+    );
+    expect(html).toContain("ListQueues");
+    expect(html).not.toContain("/zh/apis/amazon-sqs/list-queues\"><small>");
   });
 
   it("renders a Schema as one documentation surface without Playground facts", () => {

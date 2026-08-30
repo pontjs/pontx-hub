@@ -64,6 +64,7 @@ export function StaticResourceDirectoryNavigation({
           <nav className="pontx-directory-flat" aria-label={zh ? "接口目录" : "Endpoint directory"}>
             {operations.map((operation) => (
               <Link
+                className={!operation.method ? "pontx-directory-flat-title-only" : undefined}
                 key={operation.slug}
                 to={`/${locale}/apis/${api.slug}/${operation.slug}`}
                 aria-current={activeOperation?.slug === operation.slug ? "page" : undefined}
