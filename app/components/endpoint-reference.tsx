@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import type { PontxSpec } from "@pontx/spec";
 import { StaticResourceDirectoryNavigation } from "~/components/static-resource-directory-navigation";
 import { ResourceNavigation } from "~/components/resource-navigation";
@@ -9,8 +9,17 @@ import type {
   Locale
 } from "~/lib/catalog/types";
 
+let interactiveEndpointWorkspacePromise:
+  | Promise<typeof import("~/components/pontx-api-workspace")>
+  | undefined;
+
+function loadInteractiveEndpointWorkspace() {
+  interactiveEndpointWorkspacePromise ??= import("~/components/pontx-api-workspace");
+  return interactiveEndpointWorkspacePromise;
+}
+
 const InteractiveEndpointWorkspace = lazy(async () => {
-  const module = await import("~/components/pontx-api-workspace");
+  const module = await loadInteractiveEndpointWorkspace();
   return { default: module.PontxApiWorkspace };
 });
 
@@ -31,22 +40,24 @@ export function EndpointReference({
 }) {
   const [interactive, setInteractive] = useState(false);
 
-  if (interactive) {
-    return (
-      <Suspense fallback={<EndpointReferenceLoading locale={locale} />}>
-        <InteractiveEndpointWorkspace
-          locale={locale}
-          api={api}
-          spec={spec}
-          operation={operation}
-          skillName={skillName}
-          initialPlaygroundOpen
-        />
-      </Suspense>
+  useEffect(() => {
+    let cancelled = false;
+    onLoadDirectory?.();
+    void loadInteractiveEndpointWorkspace().then(
+      () => {
+        if (!cancelled) setInteractive(true);
+      },
+      () => {
+        // Keep the complete static reference visible if the optional client
+        // bundle cannot be loaded.
+      }
     );
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, [onLoadDirectory]);
 
-  return (
+  const staticReference = (
     <main className="resource-page resource-page-workspace">
       <ResourceNavigation
         locale={locale}
@@ -63,7 +74,6 @@ export function EndpointReference({
             locale={locale}
             api={api}
             activeOperation={operation}
-            onLoadDirectory={onLoadDirectory}
           />
         </aside>
 
@@ -82,40 +92,24 @@ export function EndpointReference({
           </div>
           <div className="pontx-workspace-body">
             <OperationSeoContent locale={locale} api={api} operation={operation} />
-            <div className="pontx-interactive-docs-action">
-              <button
-                className="interactive-docs-button"
-                type="button"
-                onClick={() => {
-                  onLoadDirectory?.();
-                  setInteractive(true);
-                }}
-              >
-                {locale === "zh"
-                  ? "加载交互式文档与 Playground"
-                  : "Load interactive docs & Playground"}
-              </button>
-              <p>
-                {locale === "zh"
-                  ? "仅在需要调试或生成代码时下载 Monaco 编辑器资源。"
-                  : "Monaco editor resources download only for debugging or code generation."}
-              </p>
-            </div>
           </div>
         </section>
       </div>
     </main>
   );
-}
 
-function EndpointReferenceLoading({ locale }: { locale: Locale }) {
+  if (!interactive) return staticReference;
+
   return (
-    <main className="resource-page">
-      <div className="pontx-documentation-loading" role="status">
-        {locale === "zh"
-          ? "正在加载交互式文档…"
-          : "Loading interactive documentation…"}
-      </div>
-    </main>
+    <Suspense fallback={staticReference}>
+      <InteractiveEndpointWorkspace
+        locale={locale}
+        api={api}
+        spec={spec}
+        operation={operation}
+        skillName={skillName}
+        initialPlaygroundOpen
+      />
+    </Suspense>
   );
 }

@@ -904,6 +904,8 @@ export function PontxApiWorkspace({
   const [isPlaygroundOpen, setIsPlaygroundOpen] = useState(
     guided || initialPlaygroundOpen
   );
+  const interactiveDocumentationLoaded =
+    guided || initialPlaygroundOpen || isPlaygroundOpen;
   const playgroundApi = useMemo(
     () => withoutHostManagedOAuthScheme(
       pontxApi,
@@ -1545,7 +1547,7 @@ export function PontxApiWorkspace({
                 kind="request"
                 requestAvailable={playgroundAvailable}
               >
-                {guided || isPlaygroundOpen ? (
+                {interactiveDocumentationLoaded ? (
                   <>
                     {!guided || !playgroundAvailability.executionEnabled ? (
                       <DocumentationEvidence locale={locale} api={api} operation={activeOperation} />
