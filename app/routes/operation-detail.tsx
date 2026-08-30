@@ -1,6 +1,6 @@
 import type { Route } from "./+types/operation-detail";
 import { useOutletContext } from "react-router";
-import { PontxApiWorkspace } from "~/components/pontx-api-workspace";
+import { EndpointReference } from "~/components/endpoint-reference";
 import { SiteShell } from "~/components/site-shell";
 import { getEndpointMetadata } from "~/lib/catalog/metadata.server";
 import { localize } from "~/lib/catalog/types";
@@ -91,17 +91,18 @@ export function headers() {
 export default function OperationDetail({
   loaderData
 }: Route.ComponentProps) {
-  const { locale, api, skillName } = useOutletContext<ApiLayoutContext>();
+  const { locale, api, skillName, requestNavigation } = useOutletContext<ApiLayoutContext>();
   const { pontxSpec: spec, endpoint: operation } = loaderData;
 
   return (
     <SiteShell locale={locale}>
-      <PontxApiWorkspace
+      <EndpointReference
         locale={locale}
         api={withCurrentOperation(api, operation)}
         spec={spec}
         operation={operation}
         skillName={skillName}
+        onLoadDirectory={requestNavigation}
       />
     </SiteShell>
   );

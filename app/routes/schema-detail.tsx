@@ -77,7 +77,7 @@ export function headers() {
 }
 
 export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
-  const { locale, api, skillName } = useOutletContext<ApiLayoutContext>();
+  const { locale, api, skillName, requestNavigation } = useOutletContext<ApiLayoutContext>();
   const { pontxSpec: spec, schema } = loaderData;
   return (
     <SiteShell locale={locale}>
@@ -87,6 +87,7 @@ export default function SchemaDetail({ loaderData }: Route.ComponentProps) {
         spec={spec}
         schema={schema}
         skillName={skillName}
+        onLoadDirectory={requestNavigation}
       />
     </SiteShell>
   );

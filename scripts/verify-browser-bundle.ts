@@ -111,9 +111,40 @@ if (missingDeferredChunks.length > 0) {
   );
 }
 
+const interactiveBundleFiles = files.filter((file) =>
+  path.basename(file).startsWith("App-")
+);
+
+if (interactiveBundleFiles.length !== 1) {
+  throw new Error(
+    `Expected exactly one interactive documentation bundle, found ${interactiveBundleFiles.length}`
+  );
+}
+
+const interactiveBundleName = path.basename(interactiveBundleFiles[0]);
+const referenceRoutePrefixes = ["operation-detail-", "schema-detail-"];
+
+for (const prefix of referenceRoutePrefixes) {
+  const routeFiles = files.filter((file) => path.basename(file).startsWith(prefix));
+  if (routeFiles.length !== 1) {
+    throw new Error(`Expected exactly one ${prefix} browser chunk, found ${routeFiles.length}`);
+  }
+  const source = await readFile(routeFiles[0], "utf8");
+  const escapedBundleName = interactiveBundleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const staticImport = new RegExp(
+    `(?:import\\s*["']\\./${escapedBundleName}["']|from\\s*["']\\./${escapedBundleName}["'])`
+  );
+  if (staticImport.test(source)) {
+    throw new Error(
+      `${path.basename(routeFiles[0])} eagerly imports ${interactiveBundleName}; Monaco must remain interaction-only`
+    );
+  }
+}
+
 console.log(
   `Verified ${files.length} browser chunks: no bare CommonJS require() calls; ` +
   `site shell ${siteShell.byteLength} raw/${siteShellGzipSize} gzip bytes; ` +
   `API workspace ${apiWorkspace.byteLength} raw/${apiWorkspaceGzipSize} gzip bytes; ` +
-  "interactive docs, Schema viewer, Agent, auth, feedback, and search remain deferred."
+  "interactive docs and Monaco are interaction-only on Endpoint/Schema routes; " +
+  "Agent, auth, feedback, and search remain deferred."
 );
