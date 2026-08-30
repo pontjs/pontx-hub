@@ -8,6 +8,7 @@ import { cacheHeaders, requireLocale, siteUrl } from "~/lib/http";
 import { breadcrumbList, localizedAlternates } from "~/lib/seo";
 import type { ApiLayoutContext } from "./api-layout";
 import { withCurrentOperation } from "~/lib/catalog/page-context";
+import { apiDescriptionPlainText } from "~/lib/catalog/plain-text";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const locale = requireLocale(params.locale);
@@ -25,7 +26,9 @@ export function meta({ data }: Route.MetaArgs) {
   if (!data) return [{ title: "Operation not found — Pontx Hub" }];
   const { locale, product: api, endpoint: operation } = data;
   const title = `${localize(operation.title, locale)} — ${api.name}`;
-  const description = localize(operation.description, locale);
+  const description = apiDescriptionPlainText(
+    localize(operation.description, locale)
+  ).replace(/\s+/g, " ");
   const path = `/${locale}/apis/${api.slug}/${operation.slug}`;
   const schemaNames = [
     operation.requestBody?.schemaName,

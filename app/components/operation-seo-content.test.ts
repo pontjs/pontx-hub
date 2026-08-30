@@ -149,6 +149,31 @@ describe("OperationSeoContent", () => {
     expect(html).toContain("成功请求示例");
   });
 
+  it("keeps the Amazon SQS static reference readable before interactive hydration", () => {
+    const match = getCatalogOperation("amazon-sqs", "list-queues");
+    expect(match).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(OperationSeoContent, {
+          locale: "zh",
+          api: match!.api,
+          operation: match!.operation
+        })
+      )
+    );
+
+    expect(html).toContain('class="operation-seo-description"');
+    expect(html).toContain("QueueNamePrefix");
+    expect(html).toContain("Cross-account permissions don&#x27;t apply");
+    expect(html).not.toContain("&lt;p&gt;");
+    expect(html).not.toContain("&lt;code&gt;");
+    expect(html).not.toContain("&lt;note&gt;");
+    expect(html).not.toContain('class="operation-seo-method"');
+  });
+
   it("renders typed SSE events as semantic server HTML", () => {
     const match = getCatalogOperation("dida365", "create-project");
     expect(match).toBeDefined();
